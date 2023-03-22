@@ -1,2 +1,3 @@
+## Currently in development
 # DunnoRPG
-Project of Web Application to help managing sessions of RPG games.
+My first Django project which target is to help Game Master to manage player's characters in RPG game.
