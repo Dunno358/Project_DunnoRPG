@@ -1,0 +1,8 @@
+.vscode/
+venv.bat
+db.sqlite3
+Lib/
+pyvenv.cfg
+__pycache__/
+migrations/
+Scripts/
