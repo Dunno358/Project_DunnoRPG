@@ -1,0 +1,26 @@
+{% load static %}
+{% load bootstrap5 %}
+<!DOCTYPE html>
+<html lang="pl">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <link rel="stylesheet" href="{% static 'DunnoRPG/style.css' %}">
+
+        <title> {% block title %} DunnoRPG {% endblock %} </title>
+    </head>
+    <body>
+        
+        {% block content %} 
+        
+        <div class="container-fluid">
+            <div class="row bg-warning">
+                <div class="p-3 mb-2 text-primary">.bg-warning</div>
+            </div>
+        </div>
+        
+        {% endblock  %}
+
+    </body>
+</html>
