@@ -1,0 +1,11 @@
+body {
+    background-color: lightblue;
+}
+
+.center{
+    text-align: center;
+}
+
+.reg-padding{
+    padding: 50%;
+}
