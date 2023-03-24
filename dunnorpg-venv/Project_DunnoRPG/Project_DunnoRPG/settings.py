@@ -41,7 +41,12 @@ INSTALLED_APPS = [
     'compressor',
     'bootstrap5',
     'DunnoRPG'
+    "crispy_forms",
+    'main.apps.MainConfig',
+    'dunnorpg.apps.RegisterConfig',
 ]
+
+CRISPY_TEMPLATE_PACK = 'bootstrap4'
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
