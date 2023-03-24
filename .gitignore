@@ -6,3 +6,5 @@ pyvenv.cfg
 __pycache__/
 migrations/
 Scripts/
+admin/
+cache/

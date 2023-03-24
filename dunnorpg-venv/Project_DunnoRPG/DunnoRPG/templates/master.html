@@ -1,7 +1,12 @@
 {% load static %}
+{% load compress %}
 <!DOCTYPE html>
 <html lang="pl">
     <head>
+        {% compress css %}
+        <link type="text/x-scss" href="{% static 'DunnoRPG/style.scss' %}"     rel="stylesheet" media="screen">
+        {% endcompress %}
+
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
@@ -17,7 +22,7 @@
 
         <div class="container-fluid">
             <div class="row header-bg">
-            <h1 class="header-context">DunnoRPG</h1>
+            <h1 class="header-context center">DunnoRPG</h1>
             </div>
         </div>
         

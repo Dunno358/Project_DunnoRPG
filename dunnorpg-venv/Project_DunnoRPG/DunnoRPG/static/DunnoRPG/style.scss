@@ -1,0 +1,25 @@
+$special_font: 'Kalam';
+
+body{
+    background: url('https://media.istockphoto.com/id/1308121289/photo/scary-endless-medieval-catacombs-with-torches-mystical-nightmare-concept-3d-rendering.jpg?b=1&s=170667a&w=0&k=20&c=QTa-mYEWyLVC69MZshXLOZa2Y5p6Tu0yDF7VH5KzC78=');
+    background-size: cover;
+}
+
+.center{
+    text-align: center;
+}
+
+.reg-padding{
+    padding: 50%;
+}
+
+.header-context{
+    font-family: $special_font;
+    color: goldenrod;
+    padding: 1%;
+    font-size: 300%;
+}
+
+.header-bg{
+    background-color: #2a2a2a;
+}
