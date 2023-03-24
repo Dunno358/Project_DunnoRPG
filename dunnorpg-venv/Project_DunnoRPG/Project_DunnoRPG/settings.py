@@ -40,10 +40,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'compressor',
     'bootstrap5',
-    'DunnoRPG'
-    "crispy_forms",
-    'main.apps.MainConfig',
-    'dunnorpg.apps.RegisterConfig',
+    'DunnoRPG',
 ]
 
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
