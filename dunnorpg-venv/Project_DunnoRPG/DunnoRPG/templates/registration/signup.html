@@ -6,7 +6,7 @@
 <div class="container rows-lg-12">
 
 <div class="c-gold">
-<h1 class="center">Register</h1>
+<h1 class="text-center">Register</h1>
 <form method="post" class="card-body bg-gray row-10">
     {% csrf_token %}
     {{form.as_p}}
@@ -15,7 +15,7 @@
 
 </form>
 
-<div class="center mg-top-5">
+<div class="text-center mg-top-5">
 <a class="btn btn-primary" href="{% url 'login' %}">Back to login</a>
 <a class="btn btn-primary" href="{% url 'home' %}">Back to Home</a>
 </div>

@@ -3,13 +3,16 @@
 {% block title %}DunnoRPG - Login{% endblock %}
 
 {% block content %}
-<div class="center mg-top-10">
-  <h2 class="">Login</h2>
+<div class="text-center mt-5">
+  <h1 class="c-gold">Login</h1>
   
-    <form class="" method="post">
+    <form class="f-size-150" method="post">
       {% csrf_token %}
         {{ form.as_p }}
-          <input class="btn btn-success" type="submit" value="Submit">
+          <input class="btn btn-success btn-lg" type="submit" value="Submit">
     </form>
+
+    <a href="{% url 'signup' %}" class="btn btn-primary btn-lg home-btn mg-top-5">Sign Up</a>
+
 </div>
 {% endblock %}

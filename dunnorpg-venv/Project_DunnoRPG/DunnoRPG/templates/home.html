@@ -1,12 +1,19 @@
 {% extends 'master.html' %}
 
 {% block content %}
-<div class="home-test">
+{% if user.is_authenticated %}
+  <div class="container-fluid bg-gray border-top border-warning">
+      <h1 class="text-center c-gold fst-italic mt-1">{{ user.username|default:'Guest' }}</h1>
+      <a href="{% url 'logout' %}">Logout</a>
+  </div>
 
-<div class="d-grid gap-2 col-6 mx-auto mg-top-10">
-  <a href="/accounts/login/" class="btn btn-dark btn-outline-warning btn-lg home-btn">Log In</a>
+  {% else %}
+    <div class="home-test">
+    <div class="d-grid gap-2 col-6 mx-auto mg-top-10">
+      <a href="/accounts/login/" class="btn btn-dark btn-outline-warning btn-lg home-btn">Log In</a>
 
-  <a href="signup/" class="btn btn-dark btn-outline-warning btn-lg home-btn">Sign Up</a>
-</div>
-</div>
+      <a href="signup/" class="btn btn-dark btn-outline-warning btn-lg home-btn">Sign Up</a>
+    </div>
+    </div>
+{% endif %}
 {% endblock  %}

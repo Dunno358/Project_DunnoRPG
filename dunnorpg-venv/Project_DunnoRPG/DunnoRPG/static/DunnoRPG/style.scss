@@ -14,6 +14,11 @@ $gold: goldenrod;
     margin-top: $value;
 }
 
+@mixin f-size($value: 100%)
+{
+    font-size: $value;
+}
+
 body{
     background: $background_img;
     background-size: cover;
@@ -30,6 +35,13 @@ body{
     @include mg-t($value: 10%)
 }
 
+.f-size-100{
+    @include f-size;
+}
+
+.f-size-150{
+    @include f-size($value: 150%);
+}
 
 .center{
     text-align: center;
