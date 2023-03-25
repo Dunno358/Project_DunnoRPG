@@ -1,0 +1,15 @@
+{% extends 'master.html' %}
+
+{% block title %}DunnoRPG - Login{% endblock %}
+
+{% block content %}
+<div class="center mg-top-10">
+  <h2 class="">Login</h2>
+  
+    <form class="" method="post">
+      {% csrf_token %}
+        {{ form.as_p }}
+          <input class="btn btn-success" type="submit" value="Submit">
+    </form>
+</div>
+{% endblock %}

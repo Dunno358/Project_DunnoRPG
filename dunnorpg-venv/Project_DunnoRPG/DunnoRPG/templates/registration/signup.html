@@ -1,0 +1,24 @@
+{% extends 'master.html' %}
+
+{% block title %}DunnoRPG - Register{% endblock title %}
+
+{% block content %}
+<div class="container rows-lg-12">
+
+<div class="c-gold">
+<h1 class="center">Register</h1>
+<form method="post" class="card-body bg-gray row-10">
+    {% csrf_token %}
+    {{form.as_p}}
+
+    <br><input class="btn btn-success row-cols-12 col-12" type="submit" value="Sign Up"/>
+
+</form>
+
+<div class="center mg-top-5">
+<a class="btn btn-primary" href="{% url 'login' %}">Back to login</a>
+<a class="btn btn-primary" href="{% url 'home' %}">Back to Home</a>
+</div>
+</div>
+</div>
+{% endblock content %}

@@ -1,15 +1,35 @@
+@use "sass:math";
+
 $special_font: 'Kalam';
 $background_img: url('https://media.istockphoto.com/id/1308121289/photo/scary-endless-medieval-catacombs-with-torches-mystical-nightmare-concept-3d-rendering.jpg?b=1&s=170667a&w=0&k=20&c=QTa-mYEWyLVC69MZshXLOZa2Y5p6Tu0yDF7VH5KzC78=');
 $gray: #2a2a2a;
+$gold: goldenrod;
+
+@mixin bg($color: $gray) {
+    background-color: $color;
+}
+
+@mixin mg-t($value: 5%)
+{
+    margin-top: $value;
+}
 
 body{
     background: $background_img;
     background-size: cover;
 }
 
-.mg-top-10{
-    margin-top: 10%;
+.home-btn:hover{
+    font-size: 130%;
 }
+
+.mg-top-5{
+    @include mg-t($value: 5%);
+}
+.mg-top-10{
+    @include mg-t($value: 10%)
+}
+
 
 .center{
     text-align: center;
@@ -21,7 +41,7 @@ body{
 
 .header-context{
     font-family: $special_font;
-    color: goldenrod;
+    color: $gold;
     padding: 1%;
     font-size: 300%;
 }
@@ -30,7 +50,11 @@ body{
     background-color: $gray;
 }
 
-.home-test{
-    color: pink;
-    text-align: center;
+.c-gold{
+    color: $gold;
 }
+
+.bg-gray{
+    @include bg;
+}
+
