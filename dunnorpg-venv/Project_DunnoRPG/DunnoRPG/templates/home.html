@@ -2,9 +2,14 @@
 
 {% block content %}
 {% if user.is_authenticated %}
-  <div class="container-fluid bg-gray border-top border-warning">
-      <h1 class="text-center c-gold fst-italic mt-1">{{ user.username|default:'Guest' }}</h1>
-      <a href="{% url 'logout' %}">Logout</a>
+  <div class="container-fluid bg-gray border-top border-warning row">
+      <a class="col-1 m-2 btn btn-dark btn-outline-warning" href="{% url 'logout' %}">Logout</a>
+      <a class="col-1 m-2 btn btn-dark btn-outline-warning" href="">Characters</a>
+
+      <h1 class="col-7 text-center c-gold fst-italic mt-1">User: {{ user.username|default:'Guest' }}</h1>
+
+      <a class="col-1 m-2 btn btn-dark btn-outline-warning" href="">Items</a>
+      <a class="col-1 m-2 btn btn-dark btn-outline-warning" href="">Skills</a>
   </div>
 
   {% else %}
