@@ -43,6 +43,10 @@ body{
     @include f-size($value: 150%);
 }
 
+.f-size-300{
+    @include f-size($value: 300%)
+}
+
 .center{
     text-align: center;
 }

@@ -1,6 +1,7 @@
 {% extends 'master.html' %}
 
 {% block content %}
+
 {% if user.is_authenticated %}
   <div class="container-fluid bg-gray border-top border-warning row">
       <a class="col-1 m-2 btn btn-dark btn-outline-warning" href="{% url 'logout' %}">Logout</a>
@@ -12,6 +13,27 @@
       <a class="col-1 m-2 btn btn-dark btn-outline-warning" href="">Skills</a>
   </div>
 
+  <div class="container card-body">
+    <div class="row">
+      <div class="col-3 border border-warning bg-gray c-gold rounded text-center">
+        {% for character in characters %}
+        <dl>
+          <dt>Character:</dt>
+            <dd>{{ character.name }}</dd>
+          <dt>Race:</dt>
+          <dd>{{ character.race }}</dd>
+        </dl>
+        <a class="btn btn-dark btn-outline-warning m-1" href="">Choose</a>
+        {% endfor %}
+      </div>
+
+      <div class="col-2">
+        <a class="btn btn-dark p-1 btn-outline-warning w-50 h-100 fs-2 d-flex align-items-center" href="">+New</a>
+      </div>
+      <div class="col-4"></div>
+    </div>
+  </div>
+
   {% else %}
     <div class="home-test">
     <div class="d-grid gap-2 col-6 mx-auto mg-top-10">
@@ -21,4 +43,5 @@
     </div>
     </div>
 {% endif %}
+
 {% endblock  %}
