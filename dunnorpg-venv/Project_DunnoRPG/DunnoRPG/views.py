@@ -24,7 +24,7 @@ def character_detail(request, id):
 
 def character_add(request):
     current_user = request.user
-    form = CharacterForm()
+    form = CharacterForm(request.POST, user=current_user)
     context = {
         'form': form,
         'user': current_user
