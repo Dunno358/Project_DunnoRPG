@@ -28,6 +28,10 @@ body{
     font-size: 130%;
 }
 
+.txt-shadow{
+    text-shadow: 4px 3px 2px black;
+}
+
 .mg-top-5{
     @include mg-t($value: 5%);
 }
@@ -58,7 +62,6 @@ body{
 .header-context{
     font-family: $special_font;
     color: $gold;
-    padding: 1%;
     font-size: 300%;
 }
 
