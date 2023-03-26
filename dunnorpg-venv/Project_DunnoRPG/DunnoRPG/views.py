@@ -5,10 +5,19 @@ from django.views.generic.edit import CreateView
 from . import models
 
 def home(request):
+    current_user = request.user
     context = {
-        'characters': models.Character.objects.all().values()
+        'characters': models.Character.objects.all().filter(owner=current_user)
     }
     return render(request, "home.html", context)
+
+def character_detail(request, id):
+    current_user = request.user
+    chosen = models.Character.objects.all().filter(owner=current_user, id=id)
+    context = {
+        'chosen_character': chosen
+    }
+    return render(request, "character_detail.html", context)
 
 class SignUp(CreateView):
     form_class = UserCreationForm

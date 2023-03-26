@@ -3,32 +3,24 @@
 {% block content %}
 
 {% if user.is_authenticated %}
-  <div class="container-fluid bg-gray border-top border-warning row">
-      <a class="col-1 m-2 btn btn-dark btn-outline-warning" href="{% url 'logout' %}">Logout</a>
-      <a class="col-1 m-2 btn btn-dark btn-outline-warning" href="">Characters</a>
-
-      <h1 class="col-7 text-center c-gold fst-italic mt-1">User: {{ user.username|default:'Guest' }}</h1>
-
-      <a class="col-1 m-2 btn btn-dark btn-outline-warning" href="">Items</a>
-      <a class="col-1 m-2 btn btn-dark btn-outline-warning" href="">Skills</a>
-  </div>
+  {% include 'top_bar.html' %}
 
   <div class="container card-body">
     <div class="row">
-      <div class="col-3 border border-warning bg-gray c-gold rounded text-center">
         {% for character in characters %}
-        <dl>
-          <dt>Character:</dt>
-            <dd>{{ character.name }}</dd>
-          <dt>Race:</dt>
-          <dd>{{ character.race }}</dd>
-        </dl>
-        <a class="btn btn-dark btn-outline-warning m-1" href="">Choose</a>
-        {% endfor %}
+        <div class="col-3 m-1 p-1 border border-warning bg-gray c-gold rounded text-center">
+          <dl>
+            <dt>Character:</dt>
+              <dd>{{ character.name }}</dd>
+            <dt>Race:</dt>
+            <dd>{{ character.race }}</dd>
+          </dl>
+          <a class="btn btn-dark btn-outline-warning m-1" href="{% url 'character_detail' character.id %}">Choose</a>
       </div>
+        {% endfor %}
 
-      <div class="col-2">
-        <a class="btn btn-dark p-1 btn-outline-warning w-50 h-100 fs-2 d-flex align-items-center" href="">+New</a>
+      <div class="col-2 d-flex align-items-center m-3">
+        <a class="btn btn-dark btn-outline-warning w-50 h-50 fs-2" href="">+</a>
       </div>
       <div class="col-4"></div>
     </div>
