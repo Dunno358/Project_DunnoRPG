@@ -1,5 +1,6 @@
 from django.shortcuts import render
 from django.urls import reverse_lazy
+from django.http import HttpResponseRedirect
 from django.contrib.auth.forms import UserCreationForm
 from django.views.generic.edit import CreateView
 from . import models
@@ -24,7 +25,14 @@ def character_detail(request, id):
 
 def character_add(request):
     current_user = request.user
-    form = CharacterForm(request.POST, user=current_user)
+
+    if request.method == 'POST':
+        form = CharacterForm(request.POST, user=current_user)
+        if form.is_valid():
+            return HttpResponseRedirect('dunnorpg/')
+    else:
+        form  = CharacterForm()
+
     context = {
         'form': form,
         'user': current_user

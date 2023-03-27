@@ -6,6 +6,17 @@
 
 {% include 'top_bar.html' %}
 
-{{ form.as_p }}
+<div class="container row mt-2">
+    <div class="col-5"></div>
+        <div class="ms-1 ps-5 pt-3 col-4 bg-gray c-gold rounded text-center">
+            {{ form.as_p }}
+        </div>
+</div>
+<div class="container row mt-1">
+    <div class="col-6"></div>
+    <div class="col-2">
+        <input class="btn btn-dark border border-warning btn-lg w-100" type="submit" value="Add character"></input>
+    </div>
+</div>
 
 {% endblock content %}
