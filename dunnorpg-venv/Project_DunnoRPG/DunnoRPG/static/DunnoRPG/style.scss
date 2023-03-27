@@ -39,6 +39,11 @@ body{
     @include mg-t($value: 10%)
 }
 
+.ms-6
+{
+    margin-left: 50%;
+}
+
 .f-size-100{
     @include f-size;
 }
