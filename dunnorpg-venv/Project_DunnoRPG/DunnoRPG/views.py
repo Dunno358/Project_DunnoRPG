@@ -29,8 +29,19 @@ def character_add(request):
     if request.method == 'POST':
         form = CharacterForm(request.POST, user=current_user)
         if form.is_valid():
+
+            size_s = ['Dwarf','Goblin','Halfling','Gnome']
+            size_m = ['Human(Empire)','Vampire','Elf','Human(Bretonnia)','Human(Kislev)','High Elven (Asurii)','Athel Loren Elven','Half-orc','Half-elf','Satyr']
+            size_l = ['Orc','Ogre']
+
             character = form.save(commit=False)
             character.owner = current_user
+            if character.race in size_s:
+                character.size = 'S'
+            elif character.race in size_m:
+                character.size = 'M'
+            else:
+                character.size = 'L'
             character.save()
             return HttpResponseRedirect('/dunnorpg/')
     else:

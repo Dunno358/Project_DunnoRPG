@@ -20,7 +20,7 @@ class CharacterForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
 
     owner = forms.CharField(max_length=100,label='' ,widget=forms.TextInput(attrs={
-        'value': 'test_value',
+        'value': 'owner will be added automatically',
         'class': 'text-center ms-1 invisible'
     }))
 
@@ -34,16 +34,29 @@ class CharacterForm(forms.ModelForm):
                 ('Dwarf', 'Dwarf'),
                   ('Vampire','Vampire'),
                     ('Elf','Elf'),
-                    ('Human(Bretonnia)', 'Human(Bretonnia)')
+                    ('Human(Bretonnia)', 'Human(Bretonnia)'),
+                    ('Human(Kislev)', 'Human(Kislev)'),
+                    ('Goblin', 'Goblin'),
+                    ('High Elven (Asurii)', 'High Elven (Asurii)'),
+                    ('Athel Loren Elven', 'Athel Loren Elven'),
+                    ('Halfling', 'Halfling'),
+                    ('Gnome', 'Gnome'),
+                    ('Half-orc', 'Half-orc'),
+                    ('Half-elf', 'Half-elf'),
+                    ('Ogre', 'Ogre'),
+                    ('Satyr', 'Satyr')
                     ]
+    races.sort()
     race = forms.ChoiceField(choices=races)
 
-    sizes = [('S', 'S'), ('M','M'), ('L','L')]
-    size = forms.ChoiceField(choices=sizes)
+    size = forms.CharField(max_length=1,label='' ,widget=forms.TextInput(attrs={
+        'value': 'M',
+        'class': 'text-center ms-1 invisible'
+    }))
 
-    HP = forms.CharField(max_length=100, widget=forms.TextInput(attrs={
+    HP = forms.CharField(max_length=5,label='', widget=forms.TextInput(attrs={
         'value': 25,
-        'class': 'w-25 ms-3'
+        'class': 'w-25 ms-3 invisible'
     }))
 
     INT = forms.CharField(max_length=100, widget=forms.TextInput(attrs={
