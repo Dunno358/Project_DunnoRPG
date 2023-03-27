@@ -19,9 +19,9 @@ class CharacterForm(forms.ModelForm):
         self._user = kwargs.pop('user', None)
         super().__init__(*args, **kwargs)
 
-    owner = forms.CharField(max_length=100, widget=forms.TextInput(attrs={
+    owner = forms.CharField(max_length=100,label='' ,widget=forms.TextInput(attrs={
         'value': 'test_value',
-        'class': 'text-center ms-1'
+        'class': 'text-center ms-1 invisible'
     }))
 
     name = forms.CharField(max_length=100, widget=forms.TextInput(attrs={
@@ -29,69 +29,41 @@ class CharacterForm(forms.ModelForm):
         'class': 'ms-2'
     }))
 
-    races = [('1', 'Human(Empire)'),
-              ('2','Orc'),
-                ('3', 'Dwarf'),
-                  ('4','Vampire'),
-                    ('5','Elf'),
-                    ('6', 'Human(Bretonnia)')
+    races = [('Human(Empire)', 'Human(Empire)'),
+              ('Orc','Orc'),
+                ('Dwarf', 'Dwarf'),
+                  ('Vampire','Vampire'),
+                    ('Elf','Elf'),
+                    ('Human(Bretonnia)', 'Human(Bretonnia)')
                     ]
     race = forms.ChoiceField(choices=races)
 
-    sizes = [('1', 'S'), ('2','M'), ('3','L')]
+    sizes = [('S', 'S'), ('M','M'), ('L','L')]
     size = forms.ChoiceField(choices=sizes)
 
     HP = forms.CharField(max_length=100, widget=forms.TextInput(attrs={
         'value': 25,
-        'class': ''
-    }))
-
-    Helmet = forms.CharField(max_length=100, widget=forms.TextInput(attrs={
-        'class': ''
-    }))
-
-    Torso = forms.CharField(max_length=100, widget=forms.TextInput(attrs={
-        'class': ''
-    }))
-
-    Gloves = forms.CharField(max_length=100, widget=forms.TextInput(attrs={
-        'class': ''
-    }))
-
-    Boots = forms.CharField(max_length=100, widget=forms.TextInput(attrs={
-        'class': ''
-    }))
-
-    LeftHand = forms.CharField(max_length=100, widget=forms.TextInput(attrs={
-        'class': ''
-    }))
-
-    RightHand = forms.CharField(max_length=100, widget=forms.TextInput(attrs={
-        'class': ''
-    }))
-
-    Side = forms.CharField(max_length=100, widget=forms.TextInput(attrs={
-        'class': ''
+        'class': 'w-25 ms-3'
     }))
 
     INT = forms.CharField(max_length=100, widget=forms.TextInput(attrs={
-        'class': ''
+        'class': 'w-25 ms-3'
     }))
 
     SIŁ = forms.CharField(max_length=100, widget=forms.TextInput(attrs={
-        'class': ''
+        'class': 'w-25 ms-3'
     }))
 
     ZRE = forms.CharField(max_length=100, widget=forms.TextInput(attrs={
-        'class': ''
+        'class': 'w-25 ms-2'
     }))
 
     CHAR = forms.CharField(max_length=100, widget=forms.TextInput(attrs={
-        'class': ''
+        'class': 'w-25'
     }))
 
     CEL = forms.CharField(max_length=100, widget=forms.TextInput(attrs={
-        'class': ''
+        'class': 'w-25 ms-2'
     }))
 
 
@@ -104,13 +76,6 @@ class CharacterForm(forms.ModelForm):
             'race',
             'size',
             'HP', 
-            'Helmet', 
-            'Torso', 
-            'Gloves', 
-            'Boots',
-            'LeftHand',
-            'RightHand',
-            'Side',
             'INT',
             'SIŁ',
             'ZRE',

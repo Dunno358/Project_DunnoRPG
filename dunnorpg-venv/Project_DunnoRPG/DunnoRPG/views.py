@@ -29,7 +29,10 @@ def character_add(request):
     if request.method == 'POST':
         form = CharacterForm(request.POST, user=current_user)
         if form.is_valid():
-            return HttpResponseRedirect('dunnorpg/')
+            character = form.save(commit=False)
+            character.owner = current_user
+            character.save()
+            return HttpResponseRedirect('/dunnorpg/')
     else:
         form  = CharacterForm()
 
