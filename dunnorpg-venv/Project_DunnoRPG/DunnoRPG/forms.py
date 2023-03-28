@@ -104,8 +104,13 @@ class CharacterSkillsForm(forms.ModelForm):
     for x in range(len(skills_choices)):
         skills_choices[x] = (skills_choices[x]['name'], skills_choices[x]['name'])
 
-    skill = forms.ChoiceField(choices=skills_choices)
-    level = forms.CharField(max_length=100)
+    skill = forms.ChoiceField(choices=skills_choices, widget=forms.Select(attrs={
+        'class': 'me-4 border border-warning bg-dark text-white-50 rounded'
+    }))
+
+    level = forms.IntegerField(widget=forms.NumberInput(attrs={
+        'class': 'w-10 ps-3 border border-warning bg-dark text-white-50 rounded'
+    }))
 
     class Meta:
         model = Skills
