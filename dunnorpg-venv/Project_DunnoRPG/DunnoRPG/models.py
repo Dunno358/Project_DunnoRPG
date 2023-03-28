@@ -50,6 +50,12 @@ class Skills(models.Model):
     level = models.IntegerField(null=True)
     desc = models.TextField()
 
+class Skills_Decs(models.Model):
+    name = models.CharField(max_length=100)
+    category = models.CharField(max_length = 50, null = True)
+    desc = models.TextField()
+    cost = models.IntegerField(null=True)
+
 class Items(models.Model):
     name = models.CharField(max_length=50)
     desc = models.TextField()

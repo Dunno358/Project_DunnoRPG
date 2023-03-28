@@ -3,6 +3,7 @@ from django.forms import ModelForm
 from DunnoRPG.models import Users
 from DunnoRPG.models import Character
 from DunnoRPG.models import Skills
+from DunnoRPG.models import Skills_Decs
 from django.contrib.auth.forms import UserCreationForm
 
 
@@ -99,7 +100,11 @@ class CharacterForm(forms.ModelForm):
         
 class CharacterSkillsForm(forms.ModelForm):
 
-    skill = forms.ModelMultipleChoiceField(queryset=Character.objects.all().values('name'))
+    skills_choices = list(Skills_Decs.objects.all().values('name'))
+    for x in range(len(skills_choices)):
+        skills_choices[x] = (skills_choices[x]['name'], skills_choices[x]['name'])
+
+    skill = forms.ChoiceField(choices=skills_choices)
     level = forms.CharField(max_length=100)
 
     class Meta:
