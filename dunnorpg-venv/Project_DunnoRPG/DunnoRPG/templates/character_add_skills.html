@@ -1,0 +1,16 @@
+{% extends 'master.html' %}
+ {% block content %}
+ {% include 'top_bar.html' %}
+ 
+ <div class="container row mt-2">
+    <div class="col-5"></div>
+        <div class="ms-1 ps-5 pb-2 col-4 bg-gray border border-warning c-gold rounded text-center">
+            <form method='POST'>
+            {% csrf_token %}
+            {{ form.as_p }}
+            <input class="btn btn-dark border border-warning btn-lg w-75 me-4 m-1" type="submit" value="Submit"></input>
+            </form>
+        </div>
+ </div>
+ 
+ {% endblock content %}

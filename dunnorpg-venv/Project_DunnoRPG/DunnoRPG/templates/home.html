@@ -21,7 +21,11 @@
 
         {% if characters_count > 0 %}
         <div class="col-2 d-flex align-items-center m-3 ms-5">
-          <a class="ms-6 btn btn-dark btn-outline-warning w-50 h-50 fs-2" href="{% url 'character_add' %}">+</a>
+          {% if characters_count == 3 or characters_count == 6 %}
+            <a class="ms-6 mt-2 btn btn-dark btn-outline-warning w-100 h-100 fs-2" href="{% url 'character_add' %}">+</a>
+          {% else %}
+            <a class="ms-6 btn btn-dark btn-outline-warning w-50 h-50 fs-2" href="{% url 'character_add' %}">+</a>
+          {% endif %}
         </div>
         {% else %}
         <div class="row">

@@ -47,6 +47,7 @@ class Skills(models.Model):
     owner = models.CharField(max_length=50)
     character = models.CharField(max_length=50)
     skill = models.CharField(max_length=50)
+    level = models.IntegerField(null=True)
     desc = models.TextField()
 
 class Items(models.Model):

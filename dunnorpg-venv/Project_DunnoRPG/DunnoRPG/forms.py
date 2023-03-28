@@ -2,6 +2,7 @@ from django import forms
 from django.forms import ModelForm
 from DunnoRPG.models import Users
 from DunnoRPG.models import Character
+from DunnoRPG.models import Skills
 from django.contrib.auth.forms import UserCreationForm
 
 
@@ -95,3 +96,15 @@ class CharacterForm(forms.ModelForm):
             'CHAR',
             'CEL'
             ]
+        
+class CharacterSkillsForm(forms.ModelForm):
+
+    skill = forms.ModelMultipleChoiceField(queryset=Character.objects.all().values('name'))
+    level = forms.CharField(max_length=100)
+
+    class Meta:
+        model = Skills
+        fields = [
+            'skill',
+            'level'
+        ]
