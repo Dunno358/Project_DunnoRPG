@@ -108,13 +108,20 @@ class CharacterSkillsForm(forms.ModelForm):
         'class': 'me-4 border border-warning bg-dark text-white-50 rounded'
     }))
 
-    level = forms.IntegerField(widget=forms.NumberInput(attrs={
+    lvls = [('1','1'),('2','2'),('3','3'),('4','4')]
+    level = forms.ChoiceField(choices=lvls,widget=forms.Select(attrs={
         'class': 'w-10 ps-3 border border-warning bg-dark text-white-50 rounded'
+    }))
+
+    owner = forms.CharField(max_length=50,label='',widget=forms.TextInput(attrs={
+        'value': 'owner will be added automatically',
+        'class': 'invisible'
     }))
 
     class Meta:
         model = Skills
         fields = [
             'skill',
-            'level'
+            'level',
+            'owner'
         ]

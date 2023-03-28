@@ -56,23 +56,37 @@ def character_add(request):
 
 def character_add_skills(request, id):
     current_user = request.user
-    chosen_character = models.Character.objects.all().filter(owner=current_user, id=id)
+    chosen_character = list(models.Character.objects.all().filter(owner=current_user, id=id).values())[0]['name']
+    character_skills_queryset = list(models.Skills.objects.filter(owner=current_user,character=chosen_character).values())
+    character_skills = []
+
+    for data in character_skills_queryset:
+        character_skills.append({'skill': data['skill'], 'level': data['level']})
+    
+    print(character_skills)
 
     if request.method == 'POST':
         form = CharacterSkillsForm(request.POST)
         if form.is_valid():
-
             character_skills = form.save(commit=False)
-
+            character_skills.owner = current_user
             character_skills.save()
-            return HttpResponseRedirect('/dunnorpg/')
+
+            skill = models.Skills.objects.last()
+            skill_desc = models.Skills_Decs.objects.filter(name=skill.skill).values()[0]['desc']
+
+            skill.character = chosen_character
+            skill.desc = skill_desc
+            skill.save()
+            return HttpResponseRedirect(f'/dunnorpg/character_add_skills/{id}')
     else:
         form = CharacterSkillsForm()
 
     context = {
         'user': current_user,
         'character': chosen_character,
-        'form': form
+        'form': form,
+        'skills': character_skills
     }
     return render(request, "character_add_skills.html", context)
 

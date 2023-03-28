@@ -4,13 +4,34 @@
  
  <div class="container row mt-2">
     <div class="col-4"></div>
-        <div class="ms-1 mt-4 ps-5 p-3 col-6 bg-gray border border-warning c-gold rounded text-center">
+        <div class=" fs-5 ms-1 mt-4 ps-5 p-3 col-6 bg-gray border border-warning c-gold rounded text-center">
             <form method='POST'>
             {% csrf_token %}
             {{ form.as_table }}
-            <input class="btn btn-dark border border-warning btn-lg w-75 me-4 mt-5 m-1" type="submit" value="Add and continue"></input>
+            <input class="btn btn-dark border border-warning btn-lg w-75 me-4 m-1" type="submit" value="Add and continue"></input>
             </form>
         </div>
+ </div>
+
+ <div class='container row mt-2'>
+    <div class='col-6'></div>
+    <a href="" class='col-1 btn btn-lg btn-dark border btn-outline-warning border border-warning'>Skills</a>
+    <a href="{% url 'home' %}" class='ms-2 col-1 btn btn-lg btn-dark border btn-outline-warning border border-warning'>Finish</a>
+ </div>
+
+ <div class='container row mt-2'>
+    <div class='col-5'></div>
+    <div class='col-3 c-gold fw-bolder fst-italic fs-4 ms-5 bg-gray text-center rounded border border-warning'>
+        <p>{{ character }} skills:</p>
+    </div>
+<div class='row container'>
+    <div class='col-4'></div>
+        <div class='col-2 rounded ms-3 mt-1 fs-5 w-50 c-gold bg-gray text-center border border-warning'>
+        {% for skill in skills %}
+            <p>{{ skill.skill }} | lvl. {{ skill.level }}</p>
+        {% endfor %}
+        </div>
+    </div>
  </div>
  
  {% endblock content %}
