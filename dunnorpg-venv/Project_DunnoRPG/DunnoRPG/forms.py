@@ -28,7 +28,7 @@ class CharacterForm(forms.ModelForm):
 
     name = forms.CharField(max_length=100, widget=forms.TextInput(attrs={
         'placeholder': "Character's name",
-        'class': 'ms-2'
+        'class': 'ms-2 text-center'
     }))
 
     races = [('Human(Empire)', 'Human(Empire)'),
@@ -49,7 +49,9 @@ class CharacterForm(forms.ModelForm):
                     ('Satyr', 'Satyr')
                     ]
     races.sort()
-    race = forms.ChoiceField(choices=races)
+    race = forms.ChoiceField(choices=races,widget=forms.Select(attrs={
+        'class': 'text-center'
+    }))
 
     size = forms.CharField(max_length=1,label='' ,widget=forms.TextInput(attrs={
         'value': 'M',
@@ -61,24 +63,29 @@ class CharacterForm(forms.ModelForm):
         'class': 'w-25 ms-3 invisible'
     }))
 
-    INT = forms.CharField(max_length=100, widget=forms.TextInput(attrs={
-        'class': 'w-25 ms-3'
+    INT = forms.IntegerField(widget=forms.NumberInput(attrs={
+        'class': 'w-25 ms-3 text-center',
+        'value': 0
     }))
 
-    SIŁ = forms.CharField(max_length=100, widget=forms.TextInput(attrs={
-        'class': 'w-25 ms-3'
+    SIŁ = forms.IntegerField(widget=forms.NumberInput(attrs={
+        'class': 'w-25 ms-3 text-center',
+        'value': 0
     }))
 
-    ZRE = forms.CharField(max_length=100, widget=forms.TextInput(attrs={
-        'class': 'w-25 ms-2'
+    ZRE = forms.IntegerField(widget=forms.NumberInput(attrs={
+        'class': 'w-25 ms-2 text-center',
+        'value': 0
     }))
 
-    CHAR = forms.CharField(max_length=100, widget=forms.TextInput(attrs={
-        'class': 'w-25'
+    CHAR = forms.IntegerField(widget=forms.NumberInput(attrs={
+        'class': 'w-25 text-center',
+        'value': 0
     }))
 
-    CEL = forms.CharField(max_length=100, widget=forms.TextInput(attrs={
-        'class': 'w-25 ms-2'
+    CEL = forms.IntegerField(widget=forms.NumberInput(attrs={
+        'class': 'w-25 ms-2 text-center',
+        'value': 0
     }))
 
 
