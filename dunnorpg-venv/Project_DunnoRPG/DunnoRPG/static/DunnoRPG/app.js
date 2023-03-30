@@ -52,6 +52,7 @@ class CharacterCreation{
         const cel = parseInt(document.getElementById('id_CEL').value)
         let pointsLeft = document.getElementById('points_left')
         let pointsArray = [0,0,0,0,0]
+        console.log(document.getElementsByTagName('label'))
     
         for (let i = 0; i < fields.length; i++) {
             fields[i].addEventListener("input", () => {
@@ -60,7 +61,6 @@ class CharacterCreation{
                     let pointsUsed = pointsArray.reduce((a, b) => {
                             return a + b;
                           })
-                    console.log(pointsArray, pointsUsed)
                     pointsLeft.innerHTML = this.pointsToUse - pointsUsed
                 }
             });
