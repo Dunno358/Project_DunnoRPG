@@ -10,9 +10,13 @@ Web application made with Django which target is to help Game Master to manage R
 &emsp; ![Home page](https://github.com/Dunno358/Pictures/blob/main/dunno_login_signin.png?raw=true)
 
 ## In progress
-- Character management(adding, detailed view)
+- Adding new characters
 
 &emsp; ![Home page](https://github.com/Dunno358/Pictures/blob/main/dunnorpg_characted_add.png?raw=true)
+&emsp; ![Home page](https://github.com/Dunno358/Pictures/blob/main/dunnorpg_skills_adding_1.png?raw=true)
+
+- Detailed view of current character
+
 &emsp; ![Home page](https://github.com/Dunno358/Pictures/blob/main/dunnorpg_detailed_in_dev.png?raw=true)
 
 ## Will appear in future
