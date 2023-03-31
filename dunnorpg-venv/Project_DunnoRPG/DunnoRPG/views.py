@@ -105,6 +105,19 @@ def character_add_skills(request, id):
 
     for data in character_skills_queryset:
         character_skills.append({'skill': data['skill'], 'level': data['level']})
+
+    skills_count = 0
+    skills_count_magical = 0
+    for skill in character_skills:
+        category = models.Skills_Decs.objects.filter(name=skill['skill']).values()[0]['category'].lower()
+        if category == 'magical':
+            skills_count_magical += 1
+        else:
+            if category != 'free':
+                skills_count += 1
+
+    skills_points = character_stats['points_left']-skills_count
+    magical_skills_points = character_stats['INT']-skills_count_magical
     
     if request.method == 'POST':
         form = CharacterSkillsForm(request.POST)
@@ -113,31 +126,33 @@ def character_add_skills(request, id):
             character_skills.owner = current_user
             character_skills.save()
 
-            skill = models.Skills.objects.last()
-            skill_desc = models.Skills_Decs.objects.filter(name=skill.skill).values()[0]['desc']
+            print(f"\n{character_skills}\n")
+            if models.Skills_Decs.objects.filter(name=character_skills.skill).values()[0]['category'].lower() == 'magical':
+                correct = magical_skills_points>0
+            else:
+                correct = skills_points>0
 
-            skill.character = chosen_character
-            skill.desc = skill_desc
-            skill.save()
-            return HttpResponseRedirect(f'/dunnorpg/character_add_skills/{id}')
+            if correct:
+
+                skill = models.Skills.objects.last()
+                skill_desc = models.Skills_Decs.objects.filter(name=skill.skill).values()[0]['desc']
+
+                skill.character = chosen_character
+                skill.desc = skill_desc
+                skill.save()
+                return HttpResponseRedirect(f'/dunnorpg/character_add_skills/{id}')
+            else:
+                return HttpResponseRedirect(f'/dunnorpg/character_add_skills/{id}')
     else:
         form = CharacterSkillsForm()
-
-    skills_count = 0
-    skills_count_magical = 0
-    for skill in character_skills:
-        if models.Skills_Decs.objects.filter(name=skill['skill']).values()[0]['category'].lower() == 'magical':
-            skills_count_magical += 1
-        else:
-            skills_count += 1
 
     context = {
         'user': current_user,
         'character': chosen_character,
         'form': form,
         'skills': character_skills,
-        'skills_count': character_stats['points_left']-skills_count,
-        'skills_count_magical': character_stats['INT']-skills_count_magical
+        'skills_count': skills_points,
+        'skills_count_magical': magical_skills_points
     }
     return render(request, "character_add_skills.html", context)
 

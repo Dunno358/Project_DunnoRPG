@@ -4,7 +4,11 @@
  
  <div class="container row mt-4">
     <div class="col-4 c-gold fst-italic txt-shadow">
-        <h2>Magical points: {{ skills_count_magical }}</h2>
+        {% if skills_count_magical >= 0 %}
+            <h2>Magical points: {{ skills_count_magical }}</h2> 
+        {% else %}
+            <h2>Magical points: 0</h2> 
+        {% endif %}
         <h2>Skill points: {{ skills_count }}</h2>
     </div>
         <div class=" fs-5 ms-1 ps-5 p-3 col-6 bg-gray border border-warning c-gold rounded text-center">

@@ -3,10 +3,10 @@
 {% block title %}DunnoRPG - Login{% endblock %}
 
 {% block content %}
-<div class="text-center mt-5">
-  <h1 class="c-gold">Login</h1>
+<div class="text-center mt-3">
+  <h1 class="c-gold txt-shadow">Login</h1>
   
-    <form class="f-size-150" method="post">
+    <form class="f-size-150 mt-5" method="post">
       {% csrf_token %}
         {{ form.as_p }}
           <input class="btn btn-success btn-lg" type="submit" value="Submit">
