@@ -26,31 +26,70 @@ def character_detail(request, id):
 
 def character_add(request):
     current_user = request.user
+    alert = 0
 
     if request.method == 'POST':
         form = CharacterForm(request.POST, user=current_user)
         if form.is_valid():
 
             size_s = ['Dwarf','Goblin','Halfling','Gnome']
-            size_m = ['Human(Empire)','Vampire','Elf','Human(Bretonnia)','Human(Kislev)','High Elven (Asurii)','Athel Loren Elven','Half-orc','Half-elf','Satyr']
+            size_m = ['Human(Empire)','Vampire','Human(Bretonnia)','Human(Kislev)','High Elven (Asurii)','Athel Loren Elven','Half-orc','Half-elf','Satyr']
             size_l = ['Orc','Ogre']
 
             character = form.save(commit=False)
             character.owner = current_user
-            if character.race in size_s:
-                character.size = 'S'
-            elif character.race in size_m:
-                character.size = 'M'
+
+            if character.race == 'Human(Empire)':
+                limit = 11
             else:
-                character.size = 'L'
-            character.save()
-            return HttpResponseRedirect(f'/dunnorpg/character_add_skills/{character.id}')
+                limit = 10
+
+            if character.INT+character.SIŁ+character.ZRE+character.CHAR+character.CEL <= limit:
+                if character.race in size_s:
+                    character.size = 'S'
+                elif character.race in size_m:
+                    character.size = 'M'
+                else:
+                    character.size = 'L'
+
+                races_mods = {
+                    'Athel Loren Elven': {'int': -1, 'sil': 0, 'zre': 0, 'char': 0, 'cel': 0},
+                    'Halfling': {'int': 0, 'sil': -2, 'zre': 0, 'char': 0, 'cel': 0},
+                    'Gnome': {'int': 0, 'sil': -2, 'zre': 0, 'char': 0, 'cel': 0},
+                    'Half-orc': {'int': -2, 'sil': 1, 'zre': -1, 'char': 0, 'cel': 0},
+                    'Half-elf': {'int': 0, 'sil': -1, 'zre': 0, 'char': 0, 'cel': 0},
+                    'Ogre': {'int': -1, 'sil': 3, 'zre': -3, 'char': 0, 'cel': 0},
+                    'Satyr': {'int': -1, 'sil': 0, 'zre': 1, 'char': -1, 'cel': 0},
+                    'High Elven (Asurii)': {'int': 0, 'sil': -1, 'zre': 0, 'char': -2, 'cel': 0},
+                    'Orc': {'int': -3, 'sil': 2, 'zre': -2, 'char': 0, 'cel': 0},
+                    'Goblin': {'int': 0, 'sil': -1, 'zre': 1, 'char': 0, 'cel': 0},
+                    'Dwarf': {'int': 0, 'sil': -1, 'zre': 0, 'char': -2, 'cel': 0},
+                    'Human(Kislev)': {'int': 0, 'sil': 0, 'zre': 0, 'char': 1, 'cel': 0},
+                    'Human(Empire)': {'int': 0, 'sil': 0, 'zre': 0, 'char': 0, 'cel': 0},
+                    'Human(Bretonnia)': {'int': 0, 'sil': 0, 'zre': 0, 'char': 0, 'cel': 0},
+                    'Vampire': {'int': 0, 'sil': 0, 'zre': 0, 'char': 0, 'cel': 0},
+                }
+
+                for race in races_mods:
+                    if character.race == race: 
+                        character.INT += races_mods[race]['int']
+                        character.SIŁ += races_mods[race]['sil']
+                        character.ZRE += races_mods[race]['zre']
+                        character.CHAR += races_mods[race]['char']
+                        character.CEL += races_mods[race]['cel']
+                
+                character.save()
+                return HttpResponseRedirect(f'/dunnorpg/character_add_skills/{character.id}')
+            else:
+                alert = 1
+                form = CharacterForm()
     else:
         form  = CharacterForm()
 
     context = {
         'form': form,
-        'user': current_user
+        'user': current_user,
+        'alert': alert
     }
     return render(request, "character_add.html", context)
 

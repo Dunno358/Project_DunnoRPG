@@ -35,7 +35,6 @@ class CharacterForm(forms.ModelForm):
               ('Orc','Orc'),
                 ('Dwarf', 'Dwarf'),
                   ('Vampire','Vampire'),
-                    ('Elf','Elf'),
                     ('Human(Bretonnia)', 'Human(Bretonnia)'),
                     ('Human(Kislev)', 'Human(Kislev)'),
                     ('Goblin', 'Goblin'),
@@ -53,9 +52,9 @@ class CharacterForm(forms.ModelForm):
         'class': 'text-center border border-warning bg-dark text-white-50 rounded'
     }))
 
-    size = forms.CharField(max_length=1,label='' ,widget=forms.TextInput(attrs={
+    size = forms.CharField(max_length=50,label='' ,widget=forms.TextInput(attrs={
         'value': 'M',
-        'class': 'text-center ms-1 invisible'
+        'class': 'text-center ms-5 invisible bg-transparent w-25'
     }))
 
     HP = forms.CharField(max_length=5,label='', widget=forms.TextInput(attrs={
@@ -63,29 +62,34 @@ class CharacterForm(forms.ModelForm):
         'class': 'w-25 ms-3 invisible'
     }))
 
-    INT = forms.IntegerField(widget=forms.NumberInput(attrs={
+    INT = forms.IntegerField(label='(+0) INT:',widget=forms.NumberInput(attrs={
         'class': 'w-25 ms-3 text-center rounded',
-        'value': 0
+        'value': 0,
+        'min': 0
     }))
 
-    SIŁ = forms.IntegerField(widget=forms.NumberInput(attrs={
+    SIŁ = forms.IntegerField(label='(+0) SIŁ:',widget=forms.NumberInput(attrs={
         'class': 'w-25 ms-3 text-center rounded',
-        'value': 0
+        'value': 0,
+        'min': 0
     }))
 
-    ZRE = forms.IntegerField(widget=forms.NumberInput(attrs={
+    ZRE = forms.IntegerField(label='(+0) ZRE:',widget=forms.NumberInput(attrs={
         'class': 'w-25 ms-2 text-center rounded',
-        'value': 0
+        'value': 0,
+        'min': 0
     }))
 
-    CHAR = forms.IntegerField(widget=forms.NumberInput(attrs={
+    CHAR = forms.IntegerField(label='(+0) CHAR:',widget=forms.NumberInput(attrs={
         'class': 'w-25 text-center rounded',
-        'value': 0
+        'value': 0,
+        'min': 0
     }))
 
-    CEL = forms.IntegerField(widget=forms.NumberInput(attrs={
+    CEL = forms.IntegerField(label='(+0) CEL:',widget=forms.NumberInput(attrs={
         'class': 'w-25 ms-2 text-center rounded',
-        'value': 0
+        'value': 0,
+        'min': 0
     }))
 
 

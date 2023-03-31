@@ -27,6 +27,7 @@ class Character(models.Model):
     ZRE = models.IntegerField()
     CHAR = models.IntegerField()
     CEL = models.IntegerField()
+    points_left = models.IntegerField(null=True)
 
 class Mods(models.Model):
     owner = models.CharField(max_length=50)

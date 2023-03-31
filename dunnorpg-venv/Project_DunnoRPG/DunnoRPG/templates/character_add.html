@@ -23,6 +23,9 @@
     let operations = new CharacterCreation();
     operations.races()
     operations.count_points()
+    if ({{ alert }}) {
+        alert('Przekroczono dozwoloną ilość punktów! Spróbuj ponownie.')
+    }
 </script>
 
 {% endblock content %}

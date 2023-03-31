@@ -32,6 +32,10 @@ body{
     text-shadow: 4px 3px 2px black;
 }
 
+.txt-justify{
+    text-align: justify;
+}
+
 .mg-top-5{
     @include mg-t($value: 5%);
 }
