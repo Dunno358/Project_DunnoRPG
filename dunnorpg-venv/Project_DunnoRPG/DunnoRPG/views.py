@@ -43,8 +43,9 @@ def character_add(request):
                 limit = 11
             else:
                 limit = 10
+            usedPoints = character.INT+character.SIŁ+character.ZRE+character.CHAR+character.CEL
 
-            if character.INT+character.SIŁ+character.ZRE+character.CHAR+character.CEL <= limit:
+            if usedPoints <= limit:
                 if character.race in size_s:
                     character.size = 'S'
                 elif character.race in size_m:
@@ -78,6 +79,8 @@ def character_add(request):
                         character.CHAR += races_mods[race]['char']
                         character.CEL += races_mods[race]['cel']
                 
+                character.points_left = limit-usedPoints
+                character.fullHP = character.HP
                 character.save()
                 return HttpResponseRedirect(f'/dunnorpg/character_add_skills/{character.id}')
             else:
@@ -96,14 +99,13 @@ def character_add(request):
 def character_add_skills(request, id):
     current_user = request.user
     chosen_character = list(models.Character.objects.all().filter(owner=current_user, id=id).values())[0]['name']
+    character_stats = list(models.Character.objects.all().filter(owner=current_user, id=id).values())[0]
     character_skills_queryset = list(models.Skills.objects.filter(owner=current_user,character=chosen_character).values())
     character_skills = []
 
     for data in character_skills_queryset:
         character_skills.append({'skill': data['skill'], 'level': data['level']})
     
-    print(character_skills)
-
     if request.method == 'POST':
         form = CharacterSkillsForm(request.POST)
         if form.is_valid():
@@ -121,11 +123,21 @@ def character_add_skills(request, id):
     else:
         form = CharacterSkillsForm()
 
+    skills_count = 0
+    skills_count_magical = 0
+    for skill in character_skills:
+        if models.Skills_Decs.objects.filter(name=skill['skill']).values()[0]['category'].lower() == 'magical':
+            skills_count_magical += 1
+        else:
+            skills_count += 1
+
     context = {
         'user': current_user,
         'character': chosen_character,
         'form': form,
-        'skills': character_skills
+        'skills': character_skills,
+        'skills_count': character_stats['points_left']-skills_count,
+        'skills_count_magical': character_stats['INT']-skills_count_magical
     }
     return render(request, "character_add_skills.html", context)
 
