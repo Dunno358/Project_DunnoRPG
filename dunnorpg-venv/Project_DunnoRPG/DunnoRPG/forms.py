@@ -119,7 +119,7 @@ class CharacterSkillsForm(forms.ModelForm):
         'class': 'me-4 border border-warning bg-dark text-white-50 rounded'
     }))
 
-    lvls = [('1','1'),('2','2'),('3','3'),('4','4')]
+    lvls = [('1','1'),('2','2'),('3','3')]
     level = forms.ChoiceField(choices=lvls,widget=forms.Select(attrs={
         'class': 'w-10 ps-3 border border-warning bg-dark text-white-50 rounded'
     }))

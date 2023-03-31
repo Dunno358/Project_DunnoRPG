@@ -3,6 +3,7 @@ from django.urls import reverse_lazy
 from django.http import HttpResponseRedirect
 from django.contrib.auth.forms import UserCreationForm
 from django.views.generic.edit import CreateView
+from django.contrib import messages
 from . import models
 from .forms import CharacterForm
 from .forms import CharacterSkillsForm
@@ -111,10 +112,10 @@ def character_add_skills(request, id):
     for skill in character_skills:
         category = models.Skills_Decs.objects.filter(name=skill['skill']).values()[0]['category'].lower()
         if category == 'magical':
-            skills_count_magical += 1
+            skills_count_magical += skill['level']
         else:
             if category != 'free':
-                skills_count += 1
+                skills_count += skill['level']
 
     skills_points = character_stats['points_left']-skills_count
     magical_skills_points = character_stats['INT']-skills_count_magical
@@ -123,16 +124,19 @@ def character_add_skills(request, id):
         form = CharacterSkillsForm(request.POST)
         if form.is_valid():
             character_skills = form.save(commit=False)
-            character_skills.owner = current_user
-            character_skills.save()
 
-            print(f"\n{character_skills}\n")
+
+
             if models.Skills_Decs.objects.filter(name=character_skills.skill).values()[0]['category'].lower() == 'magical':
-                correct = magical_skills_points>0
+                correct = magical_skills_points>0 and character_skills.level <= magical_skills_points
             else:
-                correct = skills_points>0
+                correct = skills_points>0 and character_skills.level <= skills_points
+
+
 
             if correct:
+                character_skills.owner = current_user
+                character_skills.save()
 
                 skill = models.Skills.objects.last()
                 skill_desc = models.Skills_Decs.objects.filter(name=skill.skill).values()[0]['desc']
