@@ -116,7 +116,7 @@ class CharacterSkillsForm(forms.ModelForm):
         skills_choices[x] = (skills_choices[x]['name'], skills_choices[x]['name'])
 
     skill = forms.ChoiceField(choices=skills_choices, widget=forms.Select(attrs={
-        'class': 'me-4 border border-warning bg-dark text-white-50 rounded'
+        'class': 'me-4 border border-warning w-50 bg-dark text-white-50 rounded'
     }))
 
     lvls = [('1','1'),('2','2'),('3','3')]
