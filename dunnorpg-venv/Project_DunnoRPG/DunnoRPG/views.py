@@ -163,10 +163,31 @@ def character_add_skills(request, id):
     return render(request, "character_add_skills.html", context)
 
 def skills(request):
-    all_skills = list(models.Skills_Decs.objects.all().order_by('name').values())
+    magical_skills = list(models.Skills_Decs.objects.all().filter(category='Magical').values())
+    melee_skills = list(models.Skills_Decs.objects.all().filter(category='Melee').values())
+    range_skills = list(models.Skills_Decs.objects.all().filter(category='Range').values())
+    agility_skills = list(models.Skills_Decs.objects.all().filter(category='Agility').values())
+    education_skills = list(models.Skills_Decs.objects.all().filter(category='Education').values())
+    animals_skills = list(models.Skills_Decs.objects.all().filter(category='Animals').values())
+    eq_skills = list(models.Skills_Decs.objects.all().filter(category='Equipment').values())
+    crafting_skills = list(models.Skills_Decs.objects.all().filter(category='Crafting').values())
+    drinking_skills = list(models.Skills_Decs.objects.all().filter(category='Drinking').values())
+    charisma_skills = list(models.Skills_Decs.objects.all().filter(category='Charisma').values())
+    command_skills = list(models.Skills_Decs.objects.all().filter(category='Command').values())
+    horsemanship_skills = list(models.Skills_Decs.objects.all().filter(category='Horsemanship').values())
+    aliigment_skills = list(models.Skills_Decs.objects.all().filter(category='Alligment').values())
+    other_skills = drinking_skills+charisma_skills+command_skills+horsemanship_skills+aliigment_skills
     current_user = request.user
     context = {
-        'all_skills': all_skills,
+        'magical_skills': magical_skills,
+        'melee_skills': melee_skills,
+        'range_skills': range_skills,
+        'agility_skills': agility_skills,
+        'education_skills': education_skills,
+        'animals_skills': animals_skills,
+        'eq_skills': eq_skills,
+        'other_skills': other_skills,
+        'skills': ['Magical','Melee','Range','Agility','Education','Animals','Equipment','Other'],
         'user': current_user
     }
     return render(request, "skills.html", context)
