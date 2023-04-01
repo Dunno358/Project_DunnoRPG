@@ -1,0 +1,16 @@
+{% extends 'master.html' %}
+
+{% block content %}
+{% include 'top_bar.html' %}
+
+<div class='container row c-gold fw-bold fst-italic txt-shadow text-center ms-5 mt-2'>
+{% for skill in all_skills %}
+    <div class='col-11 border border-warning rounded m-1 bg-gray ms-5 mb-2'>
+        <a title='{{ skill.desc }}' href='{{ skill.id }}/' class='h3 c-gold'>{{ skill.name }}</a>
+    </div>
+{% endfor %}
+</div>
+
+{% endblock content %}
+
+

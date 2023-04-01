@@ -24,6 +24,14 @@ body{
     background-size: cover;
 }
 
+a{
+    text-decoration: none;
+}
+
+a:link, a:visited, a:hover, a:active{
+    text-decoration: none;
+}
+
 .home-btn:hover{
     font-size: 130%;
 }
@@ -46,6 +54,10 @@ body{
 .ms-6
 {
     margin-left: 50%;
+}
+
+.ms7{
+    margin-left: 100%;
 }
 
 .w-10{

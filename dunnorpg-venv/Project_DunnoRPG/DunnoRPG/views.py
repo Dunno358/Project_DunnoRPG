@@ -140,9 +140,11 @@ def character_add_skills(request, id):
 
                 skill = models.Skills.objects.last()
                 skill_desc = models.Skills_Decs.objects.filter(name=skill.skill).values()[0]['desc']
+                skill_category = models.Skills_Decs.objects.filter(name=skill.skill).values()[0]['category']
 
                 skill.character = chosen_character
                 skill.desc = skill_desc
+                skill.category = skill_category
                 skill.save()
                 return HttpResponseRedirect(f'/dunnorpg/character_add_skills/{id}')
             else:
@@ -159,6 +161,26 @@ def character_add_skills(request, id):
         'skills_count_magical': magical_skills_points
     }
     return render(request, "character_add_skills.html", context)
+
+def skills(request):
+    all_skills = list(models.Skills_Decs.objects.all().order_by('name').values())
+    current_user = request.user
+    context = {
+        'all_skills': all_skills,
+        'user': current_user
+    }
+    return render(request, "skills.html", context)
+
+def skill_detail(request, id):
+    current_user = request.user
+    chosen = models.Skills_Decs.objects.all().filter(id=id).values()[0]
+    
+    context = {
+        'skill': chosen,
+        'user': current_user
+    }
+
+    return render(request, 'skill_detail.html', context)
 
 class SignUp(CreateView):
     form_class = UserCreationForm
