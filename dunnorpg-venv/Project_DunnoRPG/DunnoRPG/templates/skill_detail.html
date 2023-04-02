@@ -16,10 +16,17 @@
 </div>
 
 <div class='container-fluid row'>
-    <div class='m-5 txt-shadow col c-gold fst-italic fw-bolder rounded text-center' style='font-size: 215%;'>
+    <div class='m-5 me-1 txt-shadow col c-gold fst-italic fw-bolder rounded text-center' style='font-size: 215%;'>
         <p>Cost(per level): {{ skill.cost }}</p>
     </div>
-    <div class='m-5 txt-shadow col c-gold fst-italic fw-bolder rounded text-center' style='font-size: 215%;'>
+    
+    {% for level in levels %}
+        <div class='mt-5 col c-gold rounded text-center'>
+            <button id='{{ level.level }}_btn' onclick='show(this)' type='button' class='fw-bold btn btn-dark btn-lg btn-outline-warning'>{{ level.level }}</button>
+        </div>        
+    {% endfor %}
+
+    <div class='m-5 ms-1 txt-shadow col c-gold fst-italic fw-bolder rounded text-center' style='font-size: 215%;'>
         {% if skill.useAmount < 6 %}
             <p>Uses(max): {{ skill.useAmount }}</p> 
         {% else %}
@@ -27,5 +34,44 @@
         {% endif %}
     </div>
 </div>
+
+<div class='container-fluid row'>
+    <div class='col-2'></div>
+    {% for level in levels %}
+        <div class='col text-center c-gold txt-shadow fst-italic d-none' style='font-size: 150%;' id='{{ level.level }}'>
+            <p style="--bs-bg-opacity: .7;" class='m-5 mt-0 bg-dark rounded border border-warning'><span class='opacity-100'>{{ level.desc }}</span></p>
+        </div>
+    {% endfor %}
+    <div class='col-2'></div>
+</div>
+
+<script>
+    function show(btn) {
+            var lvls = ['level1','level2','level3','level4']
+            element = document.getElementById(btn.innerHTML)
+            for (let i = 0; i < lvls.length; i++){
+                if(btn.innerHTML==lvls[i]){
+                    element.classList.remove("d-none");
+                    btn.classList.remove('btn-outline-warning')
+                    btn.classList.add('btn-outline-primary')                      
+                }
+                else{
+                    document.getElementById(lvls[i]).classList.add('d-none')
+                    document.getElementById(`${lvls[i]}_btn`).classList.remove('btn-outline-primary')
+                    document.getElementById(`${lvls[i]}_btn`).classList.add('btn-outline-warning')
+                }
+            }
+            console.log(lvls)
+            element = document.getElementById(btn.innerHTML)
+            if (element.classList.contains('d-none')){
+                element.classList.remove("d-none");
+                btn.classList.remove('btn-outline-warning')
+                btn.classList.add('btn-outline-primary')         
+            }
+            else{
+                element.classList.add("d-none");
+            }
+          }
+</script>
 
 {% endblock content %}

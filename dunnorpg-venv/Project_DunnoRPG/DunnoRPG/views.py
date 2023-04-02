@@ -109,13 +109,16 @@ def character_add_skills(request, id):
 
     skills_count = 0
     skills_count_magical = 0
+    current_skills = []
     for skill in character_skills:
         category = models.Skills_Decs.objects.filter(name=skill['skill']).values()[0]['category'].lower()
+        cost = int(models.Skills_Decs.objects.filter(name=skill['skill']).values()[0]['cost'])
+        current_skills.append(skill['skill'])
         if category == 'magical':
-            skills_count_magical += skill['level']
+            skills_count_magical += skill['level']*cost
         else:
             if category != 'free':
-                skills_count += skill['level']
+                skills_count += skill['level']*cost
 
     skills_points = character_stats['points_left']-skills_count
     magical_skills_points = character_stats['INT']-skills_count_magical
@@ -124,15 +127,21 @@ def character_add_skills(request, id):
         form = CharacterSkillsForm(request.POST)
         if form.is_valid():
             character_skills = form.save(commit=False)
+            validated_skill = models.Skills_Decs.objects.filter(name=character_skills.skill).values()[0]
 
+            free_points = 0
+            if validated_skill['name'] in current_skills: #if exists than delete existing one
+                skill_level = int(models.Skills.objects.filter(skill=validated_skill['name']).values()[0]['level'])
+                skill_cost = int(models.Skills_Decs.objects.filter(name=validated_skill['name']).values()[0]['cost'])
+                free_points = skill_level*skill_cost
+                models.Skills.objects.filter(skill=validated_skill['name']).delete()
 
-
-            if models.Skills_Decs.objects.filter(name=character_skills.skill).values()[0]['category'].lower() == 'magical':
-                correct = magical_skills_points>0 and character_skills.level <= magical_skills_points
+            if validated_skill['category'].lower() == 'magical':
+                correct = magical_skills_points>0 and character_skills.level <= magical_skills_points+free_points
             else:
-                correct = skills_points>0 and character_skills.level <= skills_points
+                correct = skills_points>0 and character_skills.level <= skills_points+free_points
 
-
+            print(character_skills.level)
 
             if correct:
                 character_skills.owner = current_user
@@ -176,8 +185,10 @@ def skills(request):
     command_skills = list(models.Skills_Decs.objects.all().filter(category='Command').values())
     horsemanship_skills = list(models.Skills_Decs.objects.all().filter(category='Horsemanship').values())
     aliigment_skills = list(models.Skills_Decs.objects.all().filter(category='Alligment').values())
+
     other_skills = drinking_skills+charisma_skills+command_skills+horsemanship_skills+aliigment_skills
     current_user = request.user
+    
     context = {
         'magical_skills': magical_skills,
         'melee_skills': melee_skills,
@@ -195,9 +206,14 @@ def skills(request):
 def skill_detail(request, id):
     current_user = request.user
     chosen = models.Skills_Decs.objects.all().filter(id=id).values()[0]
-    
+    levels = []
+    for info in chosen:
+        if info.startswith('level') and len(chosen[info])>0:
+            levels.append({'level': info, 'desc': chosen[info]})
+
     context = {
         'skill': chosen,
+        'levels': levels,
         'user': current_user
     }
 
