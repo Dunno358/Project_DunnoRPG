@@ -3,15 +3,15 @@
 {% block content %}
 {% include 'top_bar.html' %}
 
-<div class='container row mt-2 ms-5 bg-gray p-2 rounded border border-warning'>
+<div id='top' class='container row mt-2 bg-gray p-2 rounded border border-warning' style='margin-left: 6%;'>
         {% for skill in skills %}
-            <div class='col'>
+            <div class='col ms-4'>
                 <button type='button' onclick="show(this)" class='btn btn-dark btn-outline-warning btn-block'>{{ skill }}</button>
             </div>
         {% endfor %}
 </div>
 
-<div id='Magical' class='container row ms-5 bg-dark d-none'>
+<div id='Magical' class='container row bg-dark d-none' style='margin-left: 6%;'>
 {% for skill in magical_skills %}
     <div class='col m-1 border border-warning rounded bg-gray text-center p-2'>
         <a title='{{ skill.desc }}' href='{{ skill.id }}/' class='h3 c-gold'>{{ skill.name }}</a>
@@ -19,7 +19,7 @@
 {% endfor %}
 </div>
 
-<div id='Melee' class='container row ms-5 bg-dark d-none'>
+<div id='Melee' class='container row bg-dark d-none' style='margin-left: 6%;'>
     {% for skill in melee_skills %}
         <div class='col m-1 border border-warning rounded bg-gray text-center p-2'>
             <a title='{{ skill.desc }}' href='{{ skill.id }}/' class='h3 c-gold'>{{ skill.name }}</a>
@@ -27,7 +27,7 @@
     {% endfor %}
 </div>
 
-<div id='Range' class='container row ms-5 bg-dark d-none'>
+<div id='Range' class='container row bg-dark d-none' style='margin-left: 6%;'>
     {% for skill in range_skills %}
         <div class='col m-1 border border-warning rounded bg-gray text-center p-2'>
             <a title='{{ skill.desc }}' href='{{ skill.id }}/' class='h3 c-gold'>{{ skill.name }}</a>
@@ -35,7 +35,7 @@
     {% endfor %}
 </div>
 
-<div id='Agility' class='container row ms-5 bg-dark d-none'>
+<div id='Agility' class='container row bg-dark d-none' style='margin-left: 6%;'>
     {% for skill in agility_skills %}
         <div class='col m-1 border border-warning rounded bg-gray text-center p-2'>
             <a title='{{ skill.desc }}' href='{{ skill.id }}/' class='h3 c-gold'>{{ skill.name }}</a>
@@ -43,7 +43,7 @@
     {% endfor %}
 </div>
 
-<div id='Education' class='container row ms-5 bg-dark d-none'>
+<div id='Education' class='container row bg-dark d-none' style='margin-left: 6%;'>
     {% for skill in education_skills %}
         <div class='col m-1 border border-warning rounded bg-gray text-center p-2'>
             <a title='{{ skill.desc }}' href='{{ skill.id }}/' class='h3 c-gold'>{{ skill.name }}</a>
@@ -51,7 +51,7 @@
     {% endfor %}
 </div>
 
-<div id='Animals' class='container row ms-5 bg-dark d-none'>
+<div id='Animals' class='container row bg-dark d-none' style='margin-left: 6%;'>
     {% for skill in animals_skills %}
         <div class='col m-1 border border-warning rounded bg-gray text-center p-2'>
             <a title='{{ skill.desc }}' href='{{ skill.id }}/' class='h3 c-gold'>{{ skill.name }}</a>
@@ -59,7 +59,7 @@
     {% endfor %}
 </div>
 
-<div id='Equipment' class='container row ms-5 bg-dark d-none'>
+<div id='Equipment' class='container row bg-dark d-none' style='margin-left: 6%;'>
     {% for skill in eq_skills %}
         <div class='col m-1 border border-warning rounded bg-gray text-center p-2'>
             <a title='{{ skill.desc }}' href='{{ skill.id }}/' class='h3 c-gold'>{{ skill.name }}</a>
@@ -67,7 +67,7 @@
     {% endfor %}
 </div>
 
-<div id='Other' class='container row ms-5 bg-dark d-none'>
+<div id='Other' class='container row bg-dark d-none' style='margin-left: 6%;'>
     {% for skill in other_skills %}
         <div class='col m-1 border border-warning rounded bg-gray text-center p-2'>
             <a title='{{ skill.desc }}' href='{{ skill.id }}/' class='h3 c-gold'>{{ skill.name }}</a>
@@ -83,12 +83,12 @@
             if (btn.innerHTML==ids[i]){
                 element.classList.remove("d-none");
                 btn.classList.remove('btn-outline-warning')
-                btn.classList.add('btn-outline-primary')                
+                btn.classList.add('btn-outline-primary')         
             }
             else{
                 element.classList.add("d-none");
-                btn.classList.remove('btn-outline-primary')
-                btn.classList.add('btn-outline-warning')                
+                document.getElementById('top').children[i].children[0].classList.remove('btn-outline-primary')
+                document.getElementById('top').children[i].children[0].classList.add('btn-outline-warning')                
             }
           }
         }

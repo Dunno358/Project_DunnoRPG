@@ -3,9 +3,28 @@
 {% block content %}
 {% include 'top_bar.html' %}
 
-<div class='container row'>
-    <div class='col-12 text-center c-gold txt-shadow fst-italic'>
+<div class='container-fluid row'>
+    <div class='col text-center c-gold txt-shadow fst-italic'>
         <h1>{{ skill.name }}</h1>
+    </div>
+</div>
+
+<div class='container-fluid row'>
+    <div class='col c-gold fst-italic bg-gray opacity-75 border border-warning rounded text-center' style='font-size: 115%;'>
+        <p>{{ skill.desc }}</p>
+    </div>
+</div>
+
+<div class='container-fluid row'>
+    <div class='m-5 txt-shadow col c-gold fst-italic fw-bolder rounded text-center' style='font-size: 215%;'>
+        <p>Cost(per level): {{ skill.cost }}</p>
+    </div>
+    <div class='m-5 txt-shadow col c-gold fst-italic fw-bolder rounded text-center' style='font-size: 215%;'>
+        {% if skill.useAmount < 6 %}
+            <p>Uses(max): {{ skill.useAmount }}</p> 
+        {% else %}
+            <p>Uses: Infinite</p>
+        {% endif %}
     </div>
 </div>
 
