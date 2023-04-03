@@ -9,6 +9,11 @@ Web application made with Django which target is to help Game Master to manage R
 
 &emsp; ![Home page](https://github.com/Dunno358/Pictures/blob/main/dunno_login_signin.png?raw=true)
 
+- Skills layout
+
+&emsp; ![Home page](https://github.com/Dunno358/Pictures/blob/main/dunnorpg_skills_layout.png?raw=true)
+&emsp; ![Home page](https://github.com/Dunno358/Pictures/blob/main/dunnorpg_skills_detailed.png?raw=true)
+
 ## In progress
 - Adding new characters
 
@@ -21,6 +26,6 @@ Web application made with Django which target is to help Game Master to manage R
 
 ## Will appear in future
 - Manage character equipment and skills
-- View items and skills
+- View items
 - Manage actions and effects based on turns
 - Roll dice
