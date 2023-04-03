@@ -16,13 +16,13 @@
             <p class="text-center fw-bold">{{ value.name }}</p>
             <p><span class="text-white-50 ps-4">Race:</span> {{ value.race }} ({{ value.size }})</p>
             <p><span class="text-white-50 ps-4">Health:</span> {{ value.HP }}/{{ value.fullHP }}</p>
-            <p><span class="text-white-50 ps-4">Helmet:</span> {{ value.Helmet }} <a class="btn btn-sm btn-dark btn-outline-warning" href="">Check</a></p>
-            <p><span class="text-white-50 ps-4">Torso:</span> {{ value.Torso }} <a class="btn btn-sm btn-dark btn-outline-warning" href="">Check</a></p>
-            <p><span class="text-white-50 ps-4">Gloves:</span> {{ value.Gloves }} <a class="btn btn-sm btn-dark btn-outline-warning" href="">Check</a></p>
-            <p><span class="text-white-50 ps-4">Boots:</span> {{ value.Boots }} <a class="btn btn-sm btn-dark btn-outline-warning" href="">Check</a></p>
-            <p><span class="text-white-50 ps-4">LeftHand:</span> {{ value.LeftHand }}</p>
-            <p><span class="text-white-50 ps-4">RightHand:</span> {{ value.RightHand }}</p>
-            <p><span class="text-white-50 ps-4">Side:</span> {{ value.Side }}</p>
+            <p><span class="text-white-50 ps-4">Helmet:</span> {{ value.Helmet }} {% if value.Helmet|length %}<a class="btn btn-sm btn-dark btn-outline-warning" href="">Check</a>{% endif %}</p>
+            <p><span class="text-white-50 ps-4">Torso:</span> {{ value.Torso }} {% if value.Torso|length %}<a class="btn btn-sm btn-dark btn-outline-warning" href="">Check</a>{% endif %}</p>
+            <p><span class="text-white-50 ps-4">Gloves:</span> {{ value.Gloves }} {% if value.Gloves|length %}<a class="btn btn-sm btn-dark btn-outline-warning" href="">Check</a>{% endif %}</p>
+            <p><span class="text-white-50 ps-4">Boots:</span> {{ value.Boots }} {% if value.Boots|length %}<a class="btn btn-sm btn-dark btn-outline-warning" href="">Check</a>{% endif %}</p>
+            <p><span class="text-white-50 ps-4">LeftHand:</span> {{ value.LeftHand }} {% if value.LeftHand|length %}<a class="btn btn-sm btn-dark btn-outline-warning" href="">Check</a>{% endif %}</p>
+            <p><span class="text-white-50 ps-4">RightHand:</span> {{ value.RightHand }} {% if value.RightHandt|length %}<a class="btn btn-sm btn-dark btn-outline-warning" href="">Check</a>{% endif %}</p>
+            <p><span class="text-white-50 ps-4">Side:</span> {{ value.Side }} {% if value.Side|length %}<a class="btn btn-sm btn-dark btn-outline-warning" href="">Check</a>{% endif %}</p>
         </div>
     <div class="col-4"></div>
     {% endfor %}

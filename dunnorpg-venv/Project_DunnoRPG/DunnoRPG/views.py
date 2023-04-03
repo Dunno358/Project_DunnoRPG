@@ -195,6 +195,7 @@ def character_add_skills(request, id):
         'user': current_user,
         'character': chosen_character,
         'character_id': character_stats['id'],
+        'character_stats': character_stats,
         'form': form,
         'skills': character_skills,
         'skills_count': skills_points,
@@ -204,9 +205,10 @@ def character_add_skills(request, id):
 
 def character_edit(request,id):
     chosen_character = list(models.Character.objects.all().filter(id=id).values())[0]
+    print(chosen_character)
 
     context = {
-
+        'character': chosen_character
     }
     return render(request, "character_edit.html", context)    
 
@@ -248,7 +250,18 @@ def skill_detail(request, id):
     levels = []
     for info in chosen:
         if info.startswith('level') and len(chosen[info])>0:
-            levels.append({'level': info, 'desc': chosen[info]})
+            try:
+                need_info1 = chosen[f"need{info[5]}_1"]
+                need1 = f"{need_info1[:3]}: {need_info1[3]}"
+            except:
+                need1  =''
+            try:
+                need_info2 = chosen[f"need{info[5]}_2"]
+                need2 = f"{need_info2[:3]}: {need_info2[3]}"
+            except:
+                need2=''
+            levels.append({'level': info, 'desc': chosen[info], 'need1': need1, 'need2': need2})
+    print(levels)
 
     context = {
         'skill': chosen,

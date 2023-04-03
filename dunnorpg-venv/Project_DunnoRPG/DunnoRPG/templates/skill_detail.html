@@ -38,8 +38,31 @@
 <div class='container-fluid row'>
     <div class='col-2'></div>
     {% for level in levels %}
-        <div class='col text-center c-gold txt-shadow fst-italic d-none' style='font-size: 150%;' id='{{ level.level }}'>
-            <p style="--bs-bg-opacity: .7;" class='m-5 mt-0 bg-dark rounded border border-warning'><span class='opacity-100'>{{ level.desc }}</span></p>
+        <div class='d-none' id='{{ level.level }}'>
+            <div class='row'>
+                <div class='col text-center c-gold txt-shadow fst-italic' style='font-size: 150%;'>
+                    <p style="--bs-bg-opacity: .7;" class='m-5 mt-0 bg-dark rounded border border-warning'><span class='opacity-100'>{{ level.desc }}</span></p>
+                </div>
+            </div>
+            <div class='row c-gold text-center txt-shadow'>
+                {% if  level.need1|length > 0 %}
+                <h2>Requirements:</h2>
+                {% else %}
+                <h2>Requirements: None</h2>
+                {% endif %}
+            </div>
+            <div class='row'>
+                {% if  level.need1|length > 0 %}
+                <div class='col text-center c-gold txt-shadow fst-italic' style='font-size: 150%;'>
+                    <p style="--bs-bg-opacity: .7;" class='m-5 mt-0 bg-dark rounded border border-warning'><span class='opacity-100'>{{ level.need1 }}</span></p>
+                </div> 
+                {% endif %}   
+                {% if level.need2|length > 0 %}
+                <div class='col text-center c-gold txt-shadow fst-italic' style='font-size: 150%;'>
+                    <p style="--bs-bg-opacity: .7;" class='m-5 mt-0 bg-dark rounded border border-warning'><span class='opacity-100'>{{ level.need2 }}</span></p>
+                </div> 
+                {% endif %}         
+            </div>
         </div>
     {% endfor %}
     <div class='col-2'></div>
@@ -60,16 +83,6 @@
                     document.getElementById(`${lvls[i]}_btn`).classList.remove('btn-outline-primary')
                     document.getElementById(`${lvls[i]}_btn`).classList.add('btn-outline-warning')
                 }
-            }
-            console.log(lvls)
-            element = document.getElementById(btn.innerHTML)
-            if (element.classList.contains('d-none')){
-                element.classList.remove("d-none");
-                btn.classList.remove('btn-outline-warning')
-                btn.classList.add('btn-outline-primary')         
-            }
-            else{
-                element.classList.add("d-none");
             }
           }
 </script>
