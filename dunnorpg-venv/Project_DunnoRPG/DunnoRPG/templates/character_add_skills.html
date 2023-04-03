@@ -1,6 +1,7 @@
 {% extends 'master.html' %}
  {% block content %}
  {% include 'top_bar.html' %}
+ {% include 'dunnorpg/messages.html' %}
  
  <div class="container row mt-4">
     <div class="col-4 c-gold fst-italic txt-shadow">
@@ -21,8 +22,9 @@
  </div>
 
  <div class='container row mt-2'>
-    <div class='col-6'></div>
-    <a href="" class='col-1 btn btn-lg btn-dark border btn-outline-warning border border-warning'>Skills</a>
+    <div class='col-5 ms-4'></div>
+    <a target='_blank' href="{% url 'skills' %}" class='ms-3 col-1 btn btn-lg btn-dark border btn-outline-warning border border-warning'>Skills</a>
+    <a href="/dunnorpg/character_edit/{{ character_id }}" class='ms-2 col-1 btn btn-lg btn-dark border btn-outline-danger border border-danger'>Back</a>
     <a href="{% url 'home' %}" class='ms-2 col-1 btn btn-lg btn-dark border btn-outline-warning border border-warning'>Finish</a>
  </div>
 
@@ -34,9 +36,9 @@
 <div class='row container'>
     <div class='col-4'></div>
         <div class='col-2 rounded ms-3 mt-1 fs-5 w-50 c-gold bg-gray text-center border border-warning'>
-        {% for skill in skills %}
-            <p>{{ skill.skill }} | lvl. {{ skill.level }}</p>
-        {% endfor %}
+                {% for skill in skills %}
+                    <p class='mt-1'>{{ skill.skill }} | lvl. {{ skill.level }} <a href='delete/{{ skill.id }}' class='ms-2 btn btn-dark btn-outline-danger'>Delete</a></p>
+                {% endfor %}
         </div>
     </div>
  </div>

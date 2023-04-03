@@ -1,0 +1,10 @@
+{% if messages %}
+    <div class='container-fluid row'>
+    {% for msg in messages %}
+        <div id='msg' class="{{ msg.tags }} text-center rounded">
+            {{msg.message}}
+        <button onclick="document.getElementById('msg').classList.add('d-none')" type="button" class="ps-5 close bg-transparent border-0" data-dismiss="alert" aria-hidden="true">&times;</button>
+        </div>
+    {% endfor %}
+    </div>
+{% endif %}
