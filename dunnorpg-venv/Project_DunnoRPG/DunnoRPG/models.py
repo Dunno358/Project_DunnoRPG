@@ -74,10 +74,9 @@ class Skills_Decs(models.Model):
 
 class Items(models.Model):
     name = models.CharField(max_length=50)
+    type = models.CharField(max_length=50, null=True)
     desc = models.TextField()
     found = models.BooleanField()
     stats = models.CharField(max_length=50)
-    skill = models.TextField()
+    skill = models.TextField(blank=True)
     weight = models.DecimalField(decimal_places=1, max_digits=50)
-
-# Create your models here.

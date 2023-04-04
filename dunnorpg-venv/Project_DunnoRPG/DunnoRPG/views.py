@@ -1,10 +1,16 @@
 from django.shortcuts import render
 from django.urls import reverse_lazy
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, HttpResponse, JsonResponse
 from django.contrib.auth.forms import UserCreationForm
 from django.views.generic.edit import CreateView
 from django.contrib import messages
 from django.shortcuts import redirect
+from django.views.decorators.csrf import csrf_exempt
+from rest_framework import status
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+from rest_framework.parsers import JSONParser
+from DunnoRPG.serializers import ItemSerializer
 from . import models
 from .forms import CharacterForm
 from .forms import CharacterSkillsForm
@@ -182,15 +188,11 @@ def character_add_skills(request, id):
                 skill.save()
                 return HttpResponseRedirect(f'/dunnorpg/character_add_skills/{id}')
             else:
-                #character_skills = []
-                #for data in character_skills_queryset:
-                #    character_skills.append({'id': data['id'], 'skill': data['skill'], 'level': data['level']})
                 messages.error(request, msg)
                 return HttpResponseRedirect(f'/dunnorpg/character_add_skills/{id}')
     else:
         form = CharacterSkillsForm()
 
-    print(f"character skills: {character_skills}")
     context = {
         'user': current_user,
         'character': chosen_character,
@@ -274,6 +276,22 @@ def skill_detail(request, id):
 def skill_delete(request,char_id,skill_id):
     skill = models.Skills.objects.filter(id=skill_id).delete()
     return redirect(f'/dunnorpg/character_add_skills/{char_id}/')
+
+@api_view(['GET','POST'])
+def rest_test(request, format=None):
+    if request.method == 'GET':
+        items = models.Items.objects.all()
+        serializer = ItemSerializer(items, many=True)
+        return Response(serializer.data)
+
+    elif request.method == 'POST':
+        data = JSONParser().parse(request)
+        serializer = ItemSerializer(data=data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=201)
+        Response(serializer.errors, status=400)
+
 class SignUp(CreateView):
     form_class = UserCreationForm
     success_url = reverse_lazy("login")

@@ -1,4 +1,5 @@
 from django.urls import path
+from rest_framework.urlpatterns import format_suffix_patterns
 from . import views
 #from .views import home,SignUp
 
@@ -11,5 +12,8 @@ urlpatterns = [
     path('character_add_skills/<id>/', views.character_add_skills, name="character_add_skills"),
     path('skills/', views.skills, name='skills'),
     path('skills/<id>/', views.skill_detail, name='skill_detail'),
-    path('character_add_skills/<char_id>/delete/<skill_id>', views.skill_delete, name='skill_delete')
+    path('character_add_skills/<char_id>/delete/<skill_id>', views.skill_delete, name='skill_delete'),
+    path('rest_test',views.rest_test,name='rest_test')
 ]
+
+urlpatterns = format_suffix_patterns(urlpatterns)

@@ -50,6 +50,7 @@ INSTALLED_APPS = [
     'compressor',
     'bootstrap5',
     'DunnoRPG',
+    'rest_framework'
 ]
 
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
