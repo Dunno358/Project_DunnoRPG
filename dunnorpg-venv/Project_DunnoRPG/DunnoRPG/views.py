@@ -1,11 +1,13 @@
 from django.shortcuts import render
 from django.urls import reverse_lazy
-from django.http import HttpResponseRedirect, HttpResponse, JsonResponse
+from django.http import HttpResponseRedirect
 from django.contrib.auth.forms import UserCreationForm
 from django.views.generic.edit import CreateView
 from django.contrib import messages
 from django.shortcuts import redirect
 from django.views.decorators.csrf import csrf_exempt
+from django.http import Http404
+from rest_framework.views import APIView
 from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
@@ -277,20 +279,19 @@ def skill_delete(request,char_id,skill_id):
     skill = models.Skills.objects.filter(id=skill_id).delete()
     return redirect(f'/dunnorpg/character_add_skills/{char_id}/')
 
-@api_view(['GET','POST'])
-def rest_test(request, format=None):
-    if request.method == 'GET':
+class rest_test(APIView):
+    def get(self, request, format=None):
         items = models.Items.objects.all()
         serializer = ItemSerializer(items, many=True)
         return Response(serializer.data)
 
-    elif request.method == 'POST':
+    def post(self, request, format=None):
         data = JSONParser().parse(request)
         serializer = ItemSerializer(data=data)
         if serializer.is_valid():
             serializer.save()
-            return Response(serializer.data, status=201)
-        Response(serializer.errors, status=400)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class SignUp(CreateView):
     form_class = UserCreationForm
