@@ -7,24 +7,46 @@ from django.contrib import messages
 from django.shortcuts import redirect
 from django.views.decorators.csrf import csrf_exempt
 from django.http import Http404
+from django.http import HttpResponse
 from rest_framework.views import APIView
 from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework.parsers import JSONParser
+from rest_framework.renderers import JSONRenderer
+from rest_framework.renderers import TemplateHTMLRenderer
+from rest_framework import generics
+from rest_framework.reverse import reverse
 from DunnoRPG.serializers import ItemSerializer
+from DunnoRPG.serializers import CharacterSerializer
 from . import models
 from .forms import CharacterForm
 from .forms import CharacterSkillsForm
+import requests
 
-def home(request):
+"""def home(request):
     current_user = request.user
     avaible_characters = models.Character.objects.all().filter(owner=current_user)
     context = {
         'characters': avaible_characters,
         'characters_count': len(avaible_characters)
     }
-    return render(request, "home.html", context)
+    return render(request, 'home.html', context)"""
+
+class home(APIView):
+    serializer_class = CharacterSerializer
+    template_name = 'home.html'
+    renderer_classes = [TemplateHTMLRenderer]
+
+    def get(self, request):
+        avaible_characters = models.Character.objects.all().filter(owner=self.request.user)
+        serializer = self.serializer_class(avaible_characters, many=True)
+        serialized_data = serializer.data
+        context = {
+            'characters': serialized_data,
+            'characters_count': len(serialized_data)            
+        }
+        return Response(context, template_name=self.template_name)
 
 def character_detail(request, id):
     current_user = request.user
@@ -279,19 +301,9 @@ def skill_delete(request,char_id,skill_id):
     skill = models.Skills.objects.filter(id=skill_id).delete()
     return redirect(f'/dunnorpg/character_add_skills/{char_id}/')
 
-class rest_test(APIView):
-    def get(self, request, format=None):
-        items = models.Items.objects.all()
-        serializer = ItemSerializer(items, many=True)
-        return Response(serializer.data)
-
-    def post(self, request, format=None):
-        data = JSONParser().parse(request)
-        serializer = ItemSerializer(data=data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+class rest_test(generics.ListCreateAPIView):
+    queryset = models.Items.objects.all()
+    serializer_class = ItemSerializer
 
 class SignUp(CreateView):
     form_class = UserCreationForm

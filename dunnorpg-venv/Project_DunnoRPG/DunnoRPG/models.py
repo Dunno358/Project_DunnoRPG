@@ -1,4 +1,7 @@
 from django.db import models
+from pygments.lexers import get_lexer_by_name
+from pygments.formatters.html import HtmlFormatter
+from pygments import highlight
 
 class NPC(models.Model):
     Health_Points = models.CharField(max_length=255)
@@ -80,3 +83,4 @@ class Items(models.Model):
     stats = models.CharField(max_length=50)
     skill = models.TextField(blank=True)
     weight = models.DecimalField(decimal_places=1, max_digits=50)
+    highlighted = models.TextField(null=True)

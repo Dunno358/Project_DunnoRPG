@@ -1,0 +1,31 @@
+{% extends 'master.html' %}
+
+{% block title %}Add Character{% endblock title %}
+
+{% block content %}
+
+{% include 'top_bar.html' %}
+<div class="container row mt-2">
+    <div class="col-5 c-gold">
+        <h1 class='ms-5 mt-5 txt-shadow fst-italic'><span id='points_left'>10</span> points left</h1>
+    </div>
+        <div class="ms-1 ps-5 pb-2 col-4 bg-gray border border-warning c-gold rounded text-center">
+            <form method='POST'>
+            {% csrf_token %}
+            {{ form.as_p }}
+            <input class="btn btn-dark border border-warning btn-lg w-75 me-4 m-1" type="submit" value="Go to skills"></input>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    let operations = new CharacterCreation();
+    operations.races()
+    operations.count_points()
+    if ({{ alert }}) {
+        alert('Przekroczono dozwoloną ilość punktów! Spróbuj ponownie.')
+    }
+</script>
+
+{% endblock content %}
