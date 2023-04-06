@@ -15,7 +15,7 @@ class Users(models.Model):
 class Character(models.Model):
     owner = models.CharField(max_length=100)
     name = models.CharField(max_length=50)
-    race = models.CharField(max_length=20)
+    race = models.CharField(max_length=30)
     size = models.CharField(max_length=2)
     HP = models.IntegerField()
     fullHP = models.IntegerField(null=True)
@@ -33,6 +33,9 @@ class Character(models.Model):
     CEL = models.IntegerField()
     points_left = models.IntegerField(null=True)
 
+    def __str__(self):
+        return self.name
+
 class Mods(models.Model):
     owner = models.CharField(max_length=50)
     character = models.CharField(max_length=50)
@@ -41,6 +44,17 @@ class Mods(models.Model):
     ZRE = models.IntegerField()
     CHAR = models.IntegerField()
     CEL = models.IntegerField()
+
+class Races(models.Model):
+    name = models.CharField(max_length=100)
+    size = models.CharField(max_length=5)
+    statPlus = models.CharField(max_length=255,blank=True)
+    statMinus = models.CharField(max_length=255,blank=True)
+    Skills = models.CharField(max_length=255,blank=True)
+    points_limit = models.IntegerField()
+    desc = models.TextField(blank=True)
+    def __str__(self):
+        return self.name
 
 class Eq(models.Model):
     owner = models.CharField(max_length=50)
@@ -54,7 +68,10 @@ class Skills(models.Model):
     skill = models.CharField(max_length=50)
     category = models.CharField(max_length=50, null=True)
     level = models.IntegerField(null=True)
-    desc = models.TextField()
+    desc = models.TextField(blank=True)
+
+    def __str__(self):
+        return f"{self.character}: {self.skill} lvl.{self.level}"
 
 class Skills_Decs(models.Model):
     name = models.CharField(max_length=100)
@@ -75,6 +92,9 @@ class Skills_Decs(models.Model):
     cost = models.CharField(max_length=20, null=True, blank=True)
     useAmount = models.IntegerField(null=True, blank=True)
 
+    def __str__(self):
+        return self.name
+
 class Items(models.Model):
     name = models.CharField(max_length=50)
     type = models.CharField(max_length=50, null=True)
@@ -84,3 +104,6 @@ class Items(models.Model):
     skill = models.TextField(blank=True)
     weight = models.DecimalField(decimal_places=1, max_digits=50)
     highlighted = models.TextField(null=True)
+
+    def __str__(self):
+        return self.name
