@@ -4,6 +4,7 @@ from DunnoRPG.models import Users
 from DunnoRPG.models import Character
 from DunnoRPG.models import Skills
 from DunnoRPG.models import Skills_Decs
+from DunnoRPG.models import Races
 from django.contrib.auth.forms import UserCreationForm
 
 
@@ -31,23 +32,11 @@ class CharacterForm(forms.ModelForm):
         'class': 'ms-2 text-center rounded'
     }))
 
-    races = [('Human(Empire)', 'Human(Empire)'),
-              ('Orc','Orc'),
-                ('Dwarf', 'Dwarf'),
-                  ('Vampire','Vampire'),
-                    ('Human(Bretonnia)', 'Human(Bretonnia)'),
-                    ('Human(Kislev)', 'Human(Kislev)'),
-                    ('Goblin', 'Goblin'),
-                    ('High Elven (Asurii)', 'High Elven (Asurii)'),
-                    ('Athel Loren Elven', 'Athel Loren Elven'),
-                    ('Halfling', 'Halfling'),
-                    ('Gnome', 'Gnome'),
-                    ('Half-orc', 'Half-orc'),
-                    ('Half-elf', 'Half-elf'),
-                    ('Ogre', 'Ogre'),
-                    ('Satyr', 'Satyr')
-                    ]
-    races.sort(reverse=True)
+    query_races = Races.objects.all().values()
+    races = []
+    for race in query_races:
+        races.append((race['name'], race['name']))
+    races.sort()
     race = forms.ChoiceField(choices=races,widget=forms.Select(attrs={
         'class': 'text-center border border-warning bg-dark text-white-50 rounded'
     }))

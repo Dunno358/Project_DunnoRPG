@@ -4,13 +4,14 @@ from . import views
 #from .views import home,SignUp
 
 urlpatterns = [
-    path('', views.home.as_view(), name = "home"),
+    path('', views.charGET.as_view(), name = "home"),
     #path('', views.home, name = "home"),
 
     path("signup/", views.SignUp.as_view(), name="signup"),
     path('character_detail/<id>/', views.character_detail, name='character_detail'),
 
-    path('character_add', views.character_add, name="character_add"),
+    path('character_add', views.charPOST.as_view(), name="character_add"),
+    #path('character_add', views.character_add, name="character_add"),
 
     path('character_edit/<id>', views.character_edit, name="character_edit"),
     path('character_add_skills/<id>/', views.character_add_skills, name="character_add_skills"),

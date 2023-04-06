@@ -10,6 +10,8 @@ class CharacterSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Character
         fields = '__all__'
+    def create(self,validated_data):
+        return models.Character.objects.create(**validated_data)
         
 class SkillsDecsSerializer(serializers.ModelSerializer):
     class Meta:
@@ -27,6 +29,8 @@ class SkillsSerializer(serializers.ModelSerializer):
     fields = [
         'id', 'owner', 'character', 'skill', 'category', 'level', 'desc'
     ]
+    def create(self,validated_data):
+        return models.Skills.objects.create(**validated_data)
 
 class EqSerializer(serializers.ModelSerializer):
     model = models.Eq

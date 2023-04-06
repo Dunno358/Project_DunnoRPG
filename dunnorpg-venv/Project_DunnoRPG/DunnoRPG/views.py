@@ -3,6 +3,7 @@ from django.urls import reverse_lazy
 from django.http import HttpResponseRedirect
 from django.contrib.auth.forms import UserCreationForm
 from django.views.generic.edit import CreateView
+from django.views.generic import FormView
 from django.contrib import messages
 from django.shortcuts import redirect
 from django.views.decorators.csrf import csrf_exempt
@@ -17,26 +18,20 @@ from rest_framework.renderers import JSONRenderer
 from rest_framework.renderers import TemplateHTMLRenderer
 from rest_framework import generics
 from rest_framework.reverse import reverse
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from DunnoRPG.serializers import ItemSerializer
 from DunnoRPG.serializers import CharacterSerializer
 from . import models
 from .forms import CharacterForm
 from .forms import CharacterSkillsForm
+
 import requests
 
-"""def home(request):
-    current_user = request.user
-    avaible_characters = models.Character.objects.all().filter(owner=current_user)
-    context = {
-        'characters': avaible_characters,
-        'characters_count': len(avaible_characters)
-    }
-    return render(request, 'home.html', context)"""
-
-class home(APIView):
+class charGET(APIView):
     serializer_class = CharacterSerializer
     template_name = 'home.html'
     renderer_classes = [TemplateHTMLRenderer]
+    permission_classes = [AllowAny]
 
     def get(self, request):
         avaible_characters = models.Character.objects.all().filter(owner=self.request.user)
@@ -47,6 +42,52 @@ class home(APIView):
             'characters_count': len(serialized_data)            
         }
         return Response(context, template_name=self.template_name)
+    
+class charPOST(FormView):
+    template_name = 'character_add.html'
+    form_class = CharacterForm
+    success_url = reverse_lazy('home')
+
+    def form_valid(self, form):
+        character = form.save(commit=False)
+        current_user = self.request.user
+
+        character.owner = current_user
+        chosen_race = models.Races.objects.all().filter(name=character.race).values()[0]
+        usedPoints = character.INT+character.SIŁ+character.ZRE+character.CHAR+character.CEL
+        
+        valid = False
+        if usedPoints <= chosen_race['points_limit']:
+            valid = True
+
+        if valid:
+            character.size = chosen_race['size']
+
+            character.points_left = chosen_race['points_limit'] - (character.INT+character.SIŁ+character.ZRE+character.CHAR+character.CEL)
+
+            pluses = chosen_race['statPlus'].split(';')
+            minuses = chosen_race['statMinus'].split(';')
+            character.INT += int(pluses[0])-int(minuses[0])
+            character.SIŁ += int(pluses[1])-int(minuses[1])
+            character.ZRE += int(pluses[2])-int(minuses[2])
+            character.CHAR += int(pluses[3])-int(minuses[3])
+            character.CEL += int(pluses[4])-int(minuses[4])
+
+            character.fullHP = character.HP
+
+            for skill in chosen_race['Skills'].split(';'):
+                models.Skills.objects.create(owner=current_user,character=character.name,skill=skill[1:],category='free',level=skill[0])
+
+            character.save()
+
+            return redirect(f'character_add_skills/{character.id}')
+        else:
+            messages.warning(self.request,'Not enought points.')
+            return redirect(f'character_add')
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        return context
 
 def character_detail(request, id):
     current_user = request.user
@@ -133,11 +174,12 @@ def character_add_skills(request, id):
     chosen_character = list(models.Character.objects.all().filter(owner=current_user, id=id).values())[0]['name']
     character_stats = list(models.Character.objects.all().filter(owner=current_user, id=id).values())[0]
     character_skills_queryset = list(models.Skills.objects.filter(owner=current_user,character=chosen_character).values())
+    print(character_skills_queryset)
     character_skills = []
     msg = ''
 
     for data in character_skills_queryset:
-        character_skills.append({'id': data['id'], 'skill': data['skill'], 'level': data['level']})
+        character_skills.append({'id': data['id'], 'skill': data['skill'], 'level': data['level'], 'category': data['category']})
 
     skills_count = 0
     skills_count_magical = 0
@@ -146,10 +188,10 @@ def character_add_skills(request, id):
         category = models.Skills_Decs.objects.filter(name=skill['skill']).values()[0]['category'].lower()
         cost = int(models.Skills_Decs.objects.filter(name=skill['skill']).values()[0]['cost'])
         current_skills.append(skill['skill'])
-        if category == 'magical':
+        if skill['category'] == 'magical':
             skills_count_magical += skill['level']*cost
         else:
-            if category != 'free':
+            if skill['category'] != 'free':
                 skills_count += skill['level']*cost
 
     skills_points = character_stats['points_left']-skills_count

@@ -5,6 +5,7 @@
 {% block content %}
 
 {% include 'top_bar.html' %}
+{% include 'dunnorpg/messages.html' %}
 <div class="container row mt-2">
     <div class="col-5 c-gold">
         <h1 class='ms-5 mt-5 txt-shadow fst-italic'><span id='points_left'>10</span> points left</h1>
@@ -23,9 +24,6 @@
     let operations = new CharacterCreation();
     operations.races()
     operations.count_points()
-    if ({{ alert }}) {
-        alert('Przekroczono dozwoloną ilość punktów! Spróbuj ponownie.')
-    }
 </script>
 
 {% endblock content %}
