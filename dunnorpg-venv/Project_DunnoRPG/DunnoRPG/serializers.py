@@ -16,19 +16,11 @@ class CharacterSerializer(serializers.ModelSerializer):
 class SkillsDecsSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Skills_Decs
-        fields = ['id','name','category','desc',
-                  'level1','need1_1','need1_2',
-                  'level2','need2_1','need2_2',
-                  'level3','need3_1','need3_2',
-                  'level4','need4_1','need4_2',
-                  'cost','useAmount'
-                  ]
+        fields = '__all__'
         
 class SkillsSerializer(serializers.ModelSerializer):
     model = models.Skills
-    fields = [
-        'id', 'owner', 'character', 'skill', 'category', 'level', 'desc'
-    ]
+    fields = '__all__'
     def create(self,validated_data):
         return models.Skills.objects.create(**validated_data)
 

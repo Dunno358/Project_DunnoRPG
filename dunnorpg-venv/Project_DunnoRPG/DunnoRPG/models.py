@@ -34,7 +34,7 @@ class Character(models.Model):
     points_left = models.IntegerField(null=True)
 
     def __str__(self):
-        return self.name
+        return f"{self.name} ({self.id})"
 
 class Mods(models.Model):
     owner = models.CharField(max_length=50)

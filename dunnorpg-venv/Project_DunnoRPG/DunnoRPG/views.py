@@ -6,7 +6,6 @@ from django.views.generic.edit import CreateView
 from django.views.generic import FormView
 from django.contrib import messages
 from django.shortcuts import redirect
-from django.views.decorators.csrf import csrf_exempt
 from django.http import Http404
 from django.http import HttpResponse
 from rest_framework.views import APIView
@@ -17,21 +16,17 @@ from rest_framework.parsers import JSONParser
 from rest_framework.renderers import JSONRenderer
 from rest_framework.renderers import TemplateHTMLRenderer
 from rest_framework import generics
-from rest_framework.reverse import reverse
-from rest_framework.permissions import AllowAny, IsAuthenticated
 from DunnoRPG.serializers import ItemSerializer
 from DunnoRPG.serializers import CharacterSerializer
+from DunnoRPG.serializers import SkillsSerializer
 from . import models
 from .forms import CharacterForm
 from .forms import CharacterSkillsForm
-
-import requests
 
 class charGET(APIView):
     serializer_class = CharacterSerializer
     template_name = 'home.html'
     renderer_classes = [TemplateHTMLRenderer]
-    permission_classes = [AllowAny]
 
     def get(self, request):
         avaible_characters = models.Character.objects.all().filter(owner=self.request.user)
@@ -76,7 +71,7 @@ class charPOST(FormView):
             character.fullHP = character.HP
 
             for skill in chosen_race['Skills'].split(';'):
-                models.Skills.objects.create(owner=current_user,character=character.name,skill=skill[1:],category='free',level=skill[0])
+                models.Skills.objects.create(owner=current_user,character=character.name,skill=skill[1:],category=f'{skill[0]}free',level=skill[0])
 
             character.save()
 
@@ -97,78 +92,50 @@ def character_detail(request, id):
     }
     return render(request, "character_detail.html", context)
 
-def character_add(request):
-    current_user = request.user
-    alert = 0
+class Skills(APIView):
+    serializer_class = SkillsSerializer
+    template_name = 'character_add_skills.html'
+    renderer_classes = [TemplateHTMLRenderer]
 
-    if request.method == 'POST':
-        form = CharacterForm(request.POST, user=current_user)
-        if form.is_valid():
+    def get(self,request,id):
+        current_user = request.user
+        chosen_character = models.Character.objects.filter(owner=current_user, id=id).values()[0]['name']
+        character_skills_queryset = models.Skills.objects.all().filter(owner=current_user,character=chosen_character).values()
+        serializer = SkillsSerializer(character_skills_queryset,many=True)        
+        skills_count = 0
+        skills_count_magical = 0
+        current_skills = []
+        character_skills = []
 
-            size_s = ['Dwarf','Goblin','Halfling','Gnome']
-            size_m = ['Human(Empire)','Vampire','Human(Bretonnia)','Human(Kislev)','High Elven (Asurii)','Athel Loren Elven','Half-orc','Half-elf','Satyr']
-            size_l = ['Orc','Ogre']
+        for data in character_skills_queryset:
+            character_skills.append({'id': data['id'], 'skill': data['skill'], 'level': data['level'], 'category': data['category']})
 
-            character = form.save(commit=False)
-            character.owner = current_user
-
-            if character.race == 'Human(Empire)':
-                limit = 11
+        for skill in character_skills:
+            category = models.Skills_Decs.objects.filter(name=skill['skill']).values()[0]['category'].lower()
+            cost = int(models.Skills_Decs.objects.filter(name=skill['skill']).values()[0]['cost'])       
+            current_skills.append(skill['skill'])    
+            if skill['category'] == 'magical':
+                skills_count_magical += skill['level']*cost
             else:
-                limit = 10
-            usedPoints = character.INT+character.SIŁ+character.ZRE+character.CHAR+character.CEL
+                if skill['category'][1:] != 'free':
+                    skills_count += skill['level']*cost
 
-            if usedPoints <= limit:
-                if character.race in size_s:
-                    character.size = 'S'
-                elif character.race in size_m:
-                    character.size = 'M'
-                else:
-                    character.size = 'L'
-
-                races_mods = {
-                    'Athel Loren Elven': {'int': -1, 'sil': 0, 'zre': 0, 'char': 0, 'cel': 0},
-                    'Halfling': {'int': 0, 'sil': -2, 'zre': 0, 'char': 0, 'cel': 0},
-                    'Gnome': {'int': 0, 'sil': -2, 'zre': 0, 'char': 0, 'cel': 0},
-                    'Half-orc': {'int': -2, 'sil': 1, 'zre': -1, 'char': 0, 'cel': 0},
-                    'Half-elf': {'int': 0, 'sil': -1, 'zre': 0, 'char': 0, 'cel': 0},
-                    'Ogre': {'int': -1, 'sil': 3, 'zre': -3, 'char': 0, 'cel': 0},
-                    'Satyr': {'int': -1, 'sil': 0, 'zre': 1, 'char': -1, 'cel': 0},
-                    'High Elven (Asurii)': {'int': 0, 'sil': -1, 'zre': 0, 'char': -2, 'cel': 0},
-                    'Orc': {'int': -3, 'sil': 2, 'zre': -2, 'char': 0, 'cel': 0},
-                    'Goblin': {'int': 0, 'sil': -1, 'zre': 1, 'char': 0, 'cel': 0},
-                    'Dwarf': {'int': 0, 'sil': -1, 'zre': 0, 'char': -2, 'cel': 0},
-                    'Human(Kislev)': {'int': 0, 'sil': 0, 'zre': 0, 'char': 1, 'cel': 0},
-                    'Human(Empire)': {'int': 0, 'sil': 0, 'zre': 0, 'char': 0, 'cel': 0},
-                    'Human(Bretonnia)': {'int': 0, 'sil': 0, 'zre': 0, 'char': 0, 'cel': 0},
-                    'Vampire': {'int': 0, 'sil': 0, 'zre': 0, 'char': 0, 'cel': 0},
-                }
-
-                for race in races_mods:
-                    if character.race == race: 
-                        character.INT += races_mods[race]['int']
-                        character.SIŁ += races_mods[race]['sil']
-                        character.ZRE += races_mods[race]['zre']
-                        character.CHAR += races_mods[race]['char']
-                        character.CEL += races_mods[race]['cel']
-                
-                character.points_left = limit-usedPoints
-                character.fullHP = character.HP
-                character.save()
-                return HttpResponseRedirect(f'/dunnorpg/character_add_skills/{character.id}')
-            else:
-                alert = 1
-                form = CharacterForm()
-    else:
-        form  = CharacterForm()
-
-    context = {
-        'form': form,
-        'user': current_user,
-        'alert': alert
-    }
-    return render(request, "character_add.html", context)
-
+        character_stats = models.Character.objects.filter(owner=current_user, id=id).values()[0]
+        skills_points = character_stats['points_left'] - skills_count
+        magical_skills_points = character_stats['INT'] - skills_count_magical
+        context = {
+            'user': current_user,
+            'character': chosen_character,
+            'character_id': id,
+            'character_stats': character_stats,
+            'skills': character_skills,
+            'skills_count': skills_points,
+            'skills_count_magical': magical_skills_points,
+            'form': CharacterSkillsForm()
+        }
+        return Response(context) 
+    def post(self,request,id):
+        pass
 def character_add_skills(request, id):
     current_user = request.user
     chosen_character = list(models.Character.objects.all().filter(owner=current_user, id=id).values())[0]['name']
@@ -191,7 +158,8 @@ def character_add_skills(request, id):
         if skill['category'] == 'magical':
             skills_count_magical += skill['level']*cost
         else:
-            if skill['category'] != 'free':
+            print(skill['category'][1:])
+            if skill['category'][1:] != 'free':
                 skills_count += skill['level']*cost
 
     skills_points = character_stats['points_left']-skills_count
@@ -342,10 +310,6 @@ def skill_detail(request, id):
 def skill_delete(request,char_id,skill_id):
     skill = models.Skills.objects.filter(id=skill_id).delete()
     return redirect(f'/dunnorpg/character_add_skills/{char_id}/')
-
-class rest_test(generics.ListCreateAPIView):
-    queryset = models.Items.objects.all()
-    serializer_class = ItemSerializer
 
 class SignUp(CreateView):
     form_class = UserCreationForm
