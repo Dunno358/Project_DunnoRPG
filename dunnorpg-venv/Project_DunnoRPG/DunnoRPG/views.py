@@ -227,19 +227,20 @@ def character_edit(request,id):
     return render(request, "character_edit.html", context)    
 
 def skills(request):
-    magical_skills = list(models.Skills_Decs.objects.all().filter(category='Magical').values())
-    melee_skills = list(models.Skills_Decs.objects.all().filter(category='Melee').values())
-    range_skills = list(models.Skills_Decs.objects.all().filter(category='Range').values())
-    agility_skills = list(models.Skills_Decs.objects.all().filter(category='Agility').values())
-    education_skills = list(models.Skills_Decs.objects.all().filter(category='Education').values())
-    animals_skills = list(models.Skills_Decs.objects.all().filter(category='Animals').values())
-    eq_skills = list(models.Skills_Decs.objects.all().filter(category='Equipment').values())
-    crafting_skills = list(models.Skills_Decs.objects.all().filter(category='Crafting').values())
-    drinking_skills = list(models.Skills_Decs.objects.all().filter(category='Drinking').values())
-    charisma_skills = list(models.Skills_Decs.objects.all().filter(category='Charisma').values())
-    command_skills = list(models.Skills_Decs.objects.all().filter(category='Command').values())
-    horsemanship_skills = list(models.Skills_Decs.objects.all().filter(category='Horsemanship').values())
-    aliigment_skills = list(models.Skills_Decs.objects.all().filter(category='Alligment').values())
+    skills = models.Skills_Decs.objects.all()
+    magical_skills = list(skills.filter(category='Magical').values())
+    melee_skills = list(skills.filter(category='Melee').values())
+    range_skills = list(skills.filter(category='Range').values())
+    agility_skills = list(skills.filter(category='Agility').values())
+    education_skills = list(skills.filter(category='Education').values())
+    animals_skills = list(skills.filter(category='Animals').values())
+    eq_skills = list(skills.filter(category='Equipment').values())
+    crafting_skills = list(skills.filter(category='Crafting').values())
+    drinking_skills = list(skills.filter(category='Drinking').values())
+    charisma_skills = list(skills.filter(category='Charisma').values())
+    command_skills = list(skills.filter(category='Command').values())
+    horsemanship_skills = list(skills.filter(category='Horsemanship').values())
+    aliigment_skills = list(skills.filter(category='Alligment').values())
 
     other_skills = drinking_skills+charisma_skills+command_skills+horsemanship_skills+aliigment_skills
     current_user = request.user
