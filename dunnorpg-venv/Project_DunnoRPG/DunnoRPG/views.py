@@ -271,40 +271,6 @@ class Skills(APIView):
         }
         return render(request, "skills.html", context)
 
-
-def skills(request):
-    skills = models.Skills_Decs.objects.all()
-    magical_skills = list(skills.filter(category='Magical').values())
-    melee_skills = list(skills.filter(category='Melee').values())
-    range_skills = list(skills.filter(category='Range').values())
-    agility_skills = list(skills.filter(category='Agility').values())
-    education_skills = list(skills.filter(category='Education').values())
-    animals_skills = list(skills.filter(category='Animals').values())
-    eq_skills = list(skills.filter(category='Equipment').values())
-    crafting_skills = list(skills.filter(category='Crafting').values())
-    drinking_skills = list(skills.filter(category='Drinking').values())
-    charisma_skills = list(skills.filter(category='Charisma').values())
-    command_skills = list(skills.filter(category='Command').values())
-    horsemanship_skills = list(skills.filter(category='Horsemanship').values())
-    aliigment_skills = list(skills.filter(category='Alligment').values())
-
-    other_skills = drinking_skills+charisma_skills+command_skills+horsemanship_skills+aliigment_skills
-    current_user = request.user
-    
-    context = {
-        'magical_skills': magical_skills,
-        'melee_skills': melee_skills,
-        'range_skills': range_skills,
-        'agility_skills': agility_skills,
-        'education_skills': education_skills,
-        'animals_skills': animals_skills,
-        'eq_skills': eq_skills,
-        'other_skills': other_skills,
-        'skills': ['Magical','Melee','Range','Agility','Education','Animals','Equipment','Other'],
-        'user': current_user
-    }
-    return render(request, "skills.html", context)
-
 def skill_detail(request, id):
     current_user = request.user
     chosen = models.Skills_Decs.objects.all().filter(id=id).values()[0]
