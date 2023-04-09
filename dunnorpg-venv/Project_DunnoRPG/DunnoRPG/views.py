@@ -86,14 +86,6 @@ class charPOST(FormView):
         context = super().get_context_data(**kwargs)
         return context
 
-def character_detail(request, id):
-    current_user = request.user
-    chosen = models.Character.objects.all().filter(owner=current_user, id=id)
-    context = {
-        'chosen_character': chosen
-    }
-    return render(request, "character_detail.html", context)
-
 class CharacterSkills(APIView):
     serializer_class = SkillsSerializer
     template_name = 'character_add_skills.html'
@@ -218,9 +210,21 @@ class CharacterSkills(APIView):
                 messages.error(request,msg)
         return HttpResponseRedirect(f'/dunnorpg/character_add_skills/{id}') 
 
+class CharacterDetails(APIView):
+    serializer_class = CharacterSerializer
+    template_name = 'character_detail.html'
+    renderer_classes = [TemplateHTMLRenderer]
+
+    def get(self,request,id):
+        chosen = models.Character.objects.all().filter(id=id).values()
+        serializer = CharacterSerializer(chosen, many=True)
+        context = {
+            'chosen_character': serializer.data
+        }
+        return Response(context) 
+
 def character_edit(request,id):
     chosen_character = list(models.Character.objects.all().filter(id=id).values())[0]
-    print(chosen_character)
 
     context = {
         'character': chosen_character
@@ -271,32 +275,37 @@ class Skills(APIView):
         }
         return render(request, "skills.html", context)
 
-def skill_detail(request, id):
-    current_user = request.user
-    chosen = models.Skills_Decs.objects.all().filter(id=id).values()[0]
-    levels = []
-    for info in chosen:
-        if info.startswith('level') and len(chosen[info])>0:
-            try:
-                need_info1 = chosen[f"need{info[5]}_1"]
-                need1 = f"{need_info1[:3]}: {need_info1[3]}"
-            except:
-                need1  =''
-            try:
-                need_info2 = chosen[f"need{info[5]}_2"]
-                need2 = f"{need_info2[:3]}: {need_info2[3]}"
-            except:
-                need2=''
-            levels.append({'level': info, 'desc': chosen[info], 'need1': need1, 'need2': need2})
-    print(levels)
+class SkillDetail(APIView):
+    serializer_class = SkillsDecsSerializer
+    template_name = 'skills_detail.html'
+    rendered_classes = [TemplateHTMLRenderer]
 
-    context = {
-        'skill': chosen,
-        'levels': levels,
-        'user': current_user
-    }
+    def get(self,request,id):
+        current_user = request.user
+        serializer = SkillsDecsSerializer(models.Skills_Decs.objects.all().filter(id=id).values()[0])
+        levels = []
 
-    return render(request, 'skill_detail.html', context)
+        for data in serializer.data:
+            if data.startswith('level') and len(serializer.data[data])>0:
+                try:
+                    need1_label = serializer.data[f"need{data[5]}_1"]
+                    need1 = f"{need1_label[:3]}: {need1_label[3]}"
+                except:
+                    need1 = ''
+                try:
+                    need2_label = serializer.data[f"need{data[5]}_2"]
+                    need2 = f"{need2_label[:3]}: {need2_label[3]}"
+                except:
+                    need2 = ''
+                levels.append({'level': data, 'desc': serializer.data[data], 'need1': need1, 'need2': need2})
+
+        context = {
+            'skill': serializer.data,
+            'levels': levels,
+            'user': current_user
+        }
+
+        return render(request, 'skill_detail.html', context)        
 
 def skill_delete(request,char_id,skill_id):
     skill = models.Skills.objects.filter(id=skill_id)

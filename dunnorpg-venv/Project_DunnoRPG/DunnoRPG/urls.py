@@ -7,7 +7,7 @@ urlpatterns = [
     path('', views.charGET.as_view(), name = "home"),
 
     path("signup/", views.SignUp.as_view(), name="signup"),
-    path('character_detail/<id>/', views.character_detail, name='character_detail'),
+    path('character_detail/<id>/', views.CharacterDetails.as_view(), name='character_detail'),
 
     path('character_add', views.charPOST.as_view(), name="character_add"),
 
@@ -16,7 +16,7 @@ urlpatterns = [
     path('character_add_skills/<id>/', views.CharacterSkills.as_view(), name="character_add_skills"),
 
     path('skills/', views.Skills.as_view(), name='skills'),
-    path('skills/<id>/', views.skill_detail, name='skill_detail'),
+    path('skills/<id>/', views.SkillDetail.as_view(), name='skill_detail'),
     path('character_add_skills/<char_id>/delete/<skill_id>', views.skill_delete, name='skill_delete'),
 ]
 
