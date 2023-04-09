@@ -13,10 +13,9 @@ urlpatterns = [
 
     path('character_edit/<id>', views.character_edit, name="character_edit"),
 
-    #path('character_add_skills/<id>/', views.character_add_skills, name="character_add_skills"),
-    path('character_add_skills/<id>/', views.Skills.as_view(), name="character_add_skills"),
+    path('character_add_skills/<id>/', views.CharacterSkills.as_view(), name="character_add_skills"),
 
-    path('skills/', views.skills, name='skills'),
+    path('skills/', views.Skills.as_view(), name='skills'),
     path('skills/<id>/', views.skill_detail, name='skill_detail'),
     path('character_add_skills/<char_id>/delete/<skill_id>', views.skill_delete, name='skill_delete'),
 ]

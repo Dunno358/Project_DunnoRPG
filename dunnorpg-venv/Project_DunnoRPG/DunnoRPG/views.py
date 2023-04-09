@@ -20,6 +20,7 @@ from rest_framework import generics
 from DunnoRPG.serializers import ItemSerializer
 from DunnoRPG.serializers import CharacterSerializer
 from DunnoRPG.serializers import SkillsSerializer
+from DunnoRPG.serializers import SkillsDecsSerializer
 from . import models
 from .forms import CharacterForm
 from .forms import CharacterSkillsForm
@@ -93,7 +94,7 @@ def character_detail(request, id):
     }
     return render(request, "character_detail.html", context)
 
-class Skills(APIView):
+class CharacterSkills(APIView):
     serializer_class = SkillsSerializer
     template_name = 'character_add_skills.html'
     form_class = CharacterSkillsForm
@@ -225,6 +226,51 @@ def character_edit(request,id):
         'character': chosen_character
     }
     return render(request, "character_edit.html", context)    
+
+class Skills(APIView):
+    serializer_class = SkillsDecsSerializer
+    template_name = 'skills.html'
+    rendered_classes = [TemplateHTMLRenderer]
+
+    def get(self,request):
+        skills = models.Skills_Decs.objects.all()
+        serializer = SkillsDecsSerializer(skills,many=True)
+
+        lists = []
+        categories = ['Magical', 'Melee', 'Range', 'Agility', 'Education', 'Animals', 'Equipment', 'Crafting', 
+                'Drinking', 'Drinking','Charisma', 'Command', 'Horsemanship', 'Alligment']
+        #14
+
+        magical_skills = list(skills.filter(category='Magical').values())
+        melee_skills = list(skills.filter(category='Melee').values())
+        range_skills = list(skills.filter(category='Range').values())
+        agility_skills = list(skills.filter(category='Agility').values())
+        education_skills = list(skills.filter(category='Education').values())
+        animals_skills = list(skills.filter(category='Animals').values())
+        eq_skills = list(skills.filter(category='Equipment').values())
+        crafting_skills = list(skills.filter(category='Crafting').values())
+        drinking_skills = list(skills.filter(category='Drinking').values())
+        charisma_skills = list(skills.filter(category='Charisma').values())
+        command_skills = list(skills.filter(category='Command').values())
+        horsemanship_skills = list(skills.filter(category='Horsemanship').values())
+        aliigment_skills = list(skills.filter(category='Alligment').values())
+        current_user = request.user
+
+        other_skills = drinking_skills+charisma_skills+command_skills+horsemanship_skills+aliigment_skills
+        context = {
+            'magical_skills': magical_skills,
+            'melee_skills': melee_skills,
+            'range_skills': range_skills,
+            'agility_skills': agility_skills,
+            'education_skills': education_skills,
+            'animals_skills': animals_skills,
+            'eq_skills': eq_skills,
+            'other_skills': other_skills,
+            'skills': ['Magical','Melee','Range','Agility','Education','Animals','Equipment','Other'],
+            'user': current_user
+        }
+        return render(request, "skills.html", context)
+
 
 def skills(request):
     skills = models.Skills_Decs.objects.all()
