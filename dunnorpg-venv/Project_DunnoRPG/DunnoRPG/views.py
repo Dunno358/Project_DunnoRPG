@@ -171,7 +171,7 @@ class CharacterSkills(APIView):
                     req_satisfied = chosen_character[req_stat] >= req_value
                     requirements_satisfied[x] = req_satisfied
                 except:
-                    pass
+                    req_satisfied = True
             
             requirements_satisfied = requirements_satisfied[0] and requirements_satisfied[1]
             if validated_skill['category'].lower()=='magical':
@@ -215,11 +215,20 @@ class CharacterDetails(APIView):
 
     def get(self,request,id):
         chosen = models.Character.objects.all().filter(id=id).values()
-        skills = models.Skills.objects.all().filter(owner=request.user).values()
         serializer = CharacterSerializer(chosen, many=True)
+
+        skills = models.Skills.objects.all().filter(owner=request.user,character=chosen[0]['name']).values()
+        race = models.Races.objects.all().filter(name=serializer.data[0]['race']).values()[0]
+
+        for index in range(len(skills)):
+            skill_description = models.Skills_Decs.objects.all().filter(name=skills[index]['skill']).values()[0]
+            skills[index]['original_id'] = skill_description['id']
+            skills[index]['original_desc'] = skill_description['desc']
+
         context = {
             'chosen_character': serializer.data,
-            'skills': skills
+            'skills': skills,
+            'race_desc': race['desc']
         }
         return Response(context) 
 
