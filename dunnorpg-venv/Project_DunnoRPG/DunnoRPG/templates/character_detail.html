@@ -24,7 +24,7 @@
             <p><span class="text-white-50 ps-4">RightHand:</span> {{ value.RightHand }} {% if value.RightHandt|length %}<a class="btn btn-sm btn-dark btn-outline-warning" href="">Check</a>{% endif %}</p>
             <p><span class="text-white-50 ps-4">Side:</span> {{ value.Side }} {% if value.Side|length %}<a class="btn btn-sm btn-dark btn-outline-warning" href="">Check</a>{% endif %}</p>
         </div>
-    <div class="col-4"></div>
+    <div class="container col-4"><!-- for loop for skills in same card body as above --></div>
     {% endfor %}
 </div>
 

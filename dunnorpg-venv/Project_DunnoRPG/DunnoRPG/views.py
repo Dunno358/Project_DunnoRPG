@@ -38,7 +38,7 @@ class charGET(APIView):
             'characters': serialized_data,
             'characters_count': len(serialized_data)            
         }
-        return Response(context, template_name=self.template_name)
+        return Response(context)
     
 class charPOST(FormView):
     template_name = 'character_add.html'
@@ -96,7 +96,6 @@ class CharacterSkills(APIView):
         current_user = request.user
         chosen_character = models.Character.objects.filter(owner=current_user, id=id).values()[0]['name']
         character_skills_queryset = models.Skills.objects.all().filter(owner=current_user,character=chosen_character).values()
-        serializer = SkillsSerializer(character_skills_queryset,many=True)        
         skills_count = 0
         skills_count_magical = 0
         current_skills = []
@@ -106,7 +105,6 @@ class CharacterSkills(APIView):
             character_skills.append({'id': data['id'], 'skill': data['skill'], 'level': data['level'], 'category': data['category']})
 
         for skill in character_skills:
-            category = models.Skills_Decs.objects.filter(name=skill['skill']).values()[0]['category'].lower()
             cost = int(models.Skills_Decs.objects.filter(name=skill['skill']).values()[0]['cost'])       
             current_skills.append(skill['skill'])    
             if skill['category'] == 'magical':
@@ -217,9 +215,11 @@ class CharacterDetails(APIView):
 
     def get(self,request,id):
         chosen = models.Character.objects.all().filter(id=id).values()
+        skills = models.Skills.objects.all().filter(owner=request.user).values()
         serializer = CharacterSerializer(chosen, many=True)
         context = {
-            'chosen_character': serializer.data
+            'chosen_character': serializer.data,
+            'skills': skills
         }
         return Response(context) 
 
@@ -238,12 +238,6 @@ class Skills(APIView):
 
     def get(self,request):
         skills = models.Skills_Decs.objects.all()
-        serializer = SkillsDecsSerializer(skills,many=True)
-
-        lists = []
-        categories = ['Magical', 'Melee', 'Range', 'Agility', 'Education', 'Animals', 'Equipment', 'Crafting', 
-                'Drinking', 'Drinking','Charisma', 'Command', 'Horsemanship', 'Alligment']
-        #14
 
         magical_skills = list(skills.filter(category='Magical').values())
         melee_skills = list(skills.filter(category='Melee').values())
@@ -260,7 +254,7 @@ class Skills(APIView):
         aliigment_skills = list(skills.filter(category='Alligment').values())
         current_user = request.user
 
-        other_skills = drinking_skills+charisma_skills+command_skills+horsemanship_skills+aliigment_skills
+        other_skills = drinking_skills+charisma_skills+command_skills+horsemanship_skills+aliigment_skills+crafting_skills
         context = {
             'magical_skills': magical_skills,
             'melee_skills': melee_skills,
@@ -273,11 +267,11 @@ class Skills(APIView):
             'skills': ['Magical','Melee','Range','Agility','Education','Animals','Equipment','Other'],
             'user': current_user
         }
-        return render(request, "skills.html", context)
+        return Response(context)
 
 class SkillDetail(APIView):
     serializer_class = SkillsDecsSerializer
-    template_name = 'skills_detail.html'
+    template_name = 'skill_detail.html'
     rendered_classes = [TemplateHTMLRenderer]
 
     def get(self,request,id):
@@ -305,7 +299,7 @@ class SkillDetail(APIView):
             'user': current_user
         }
 
-        return render(request, 'skill_detail.html', context)        
+        return Response(context)
 
 def skill_delete(request,char_id,skill_id):
     skill = models.Skills.objects.filter(id=skill_id)
