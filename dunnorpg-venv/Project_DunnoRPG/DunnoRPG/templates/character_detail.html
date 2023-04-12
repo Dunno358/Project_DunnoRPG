@@ -3,7 +3,7 @@
 {% block content %}
 {% include 'top_bar.html' %}
 
-<div class="container row">
+<div class="ms-5 container row">
     {% for value in chosen_character %}
     <div class="container mt-5 col-1 h-25 card-body c-gold border border-warning bg-dark rounded">
         <p><span class="text-white-50 ps-4">INT:</span> {{ value.INT }}</p>
@@ -24,18 +24,46 @@
             <p><span class="text-white-50 ps-4">RightHand:</span> {{ value.RightHand }} {% if value.RightHandt|length %}<a class="btn btn-sm btn-dark btn-outline-warning" href="">Check</a>{% endif %}</p>
             <p><span class="text-white-50 ps-4">Side:</span> {{ value.Side }} {% if value.Side|length %}<a class="btn btn-sm btn-dark btn-outline-warning" href="">Check</a>{% endif %}</p>
         </div>
-    <div style='width: 10%; height:5%;' class="rounded container col-4 card-body c-gold border border-warning bg-dark roundedms-1 m-2">
+    {% endfor %}
+    <div style='width: auto; height:5%;' class="rounded container col card-body c-gold border border-warning bg-dark m-2">
         <p class="text-center fw-bold">Skills: </p>
         <ul class='ms-4'>
         {% for skill in skills %}
             <li>
                 <a class='c-gold fst-italic' href='/dunnorpg/skills/{{ skill.original_id }}'>{{ skill.skill }} [{{ skill.level }}]</a>
-                <button type='button' class='fst-italic ms-2 rounded-circle btn btn-sm btn-dark border border-warning btn-outline-warning c-gold'>i</button>
+                <button onclick="show_block(this.name)" name="{{ skill.id }}" type='button' class='fst-italic ms-2 rounded-circle border border-warning btn btn-sm btn-warning btn-outline-dark c-gold'>i</button>
             </li><br>
         {% endfor %}
         <ul>
     </div>
+    {% for skill in skills %}
+        <div id='{{ skill.id }}' name="desc_block" style='width: 22%; height:5%;' class="d-none rounded container col-3 card-body c-gold border border-warning bg-dark m-2">
+            <p class='fw-bold text-center'>{{ skill.skill }} lvl.{{ skill.level }}</p>
+            {{ skill.desc }}
+            <br>
+            [<span class='fst-italic'>{{ skill.level_desc }}</span>]
+        </div>
     {% endfor %}
 </div>
+
+<script>
+function show_block(id){
+    blocks = document.getElementsByName('desc_block')
+    for (let i = 0; i < blocks.length; i++){
+            if(blocks[i].id==id){
+                if(blocks[i].classList.contains('d-none')){
+                    blocks[i].classList.remove('d-none')
+                }
+                else{
+                    blocks[i].classList.add('d-none')
+                }
+            }
+            else{
+                blocks[i].classList.add('d-none')
+            }
+        }
+    }
+
+</script>
 
 {% endblock content %}

@@ -72,8 +72,18 @@ class charPOST(FormView):
 
             character.fullHP = character.HP
 
+            skills = models.Skills.objects
             for skill in chosen_race['Skills'].split(';'):
-                models.Skills.objects.create(owner=current_user,character=character.name,skill=skill[1:],category=f'{skill[0]}free',level=skill[0])
+                skill_name = skill[1:]
+                skill_level = skill[0]
+                skills.create(
+                    owner=current_user,
+                    character=character.name,
+                    skill=skill_name,
+                    category=f'{skill_level}free',
+                    level=skill_level,
+                    desc = models.Skills_Decs.objects.all().filter(name=skill_name).values()[0]['desc']
+                    )
 
             character.save()
 
@@ -221,9 +231,11 @@ class CharacterDetails(APIView):
         race = models.Races.objects.all().filter(name=serializer.data[0]['race']).values()[0]
 
         for index in range(len(skills)):
+            skill = skills[index]
             skill_description = models.Skills_Decs.objects.all().filter(name=skills[index]['skill']).values()[0]
-            skills[index]['original_id'] = skill_description['id']
-            skills[index]['original_desc'] = skill_description['desc']
+            skill['original_id'] = skill_description['id']
+            skill['original_desc'] = skill_description['desc']
+            skill['level_desc'] = skill_description[f"level{skill['level']}"]
 
         context = {
             'chosen_character': serializer.data,
