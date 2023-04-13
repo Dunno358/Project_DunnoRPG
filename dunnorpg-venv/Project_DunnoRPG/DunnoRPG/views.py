@@ -163,14 +163,27 @@ class CharacterSkills(APIView):
             elif skill['category'][1:] != 'free':
                 skills_count += skill['level']*cost
 
-        skills_points = chosen_character['points_left']-skills_count
+        skills_points = chosen_character['points_left']
         magical_skills_points = chosen_character['INT'] - skills_count_magical
+        if magical_skills_points<0:
+            magical_skills_points = 0
 
         form = CharacterSkillsForm(request.POST)
         if form.is_valid():
             skill_to_add = form.save(commit=False)
             validated_skill = models.Skills_Decs.objects.filter(name=skill_to_add.skill).values()[0]
 
+            level = skill_to_add.level
+            while True:
+                print(level)
+                level_desc = validated_skill[f"level{level}"]
+                if len(level_desc)>0:
+                    skill_to_add.level = level
+                    break
+                else:
+                    level -= 1
+                    continue
+                    
             requirements_satisfied = [True,True]
             req_stats = []
             for x in range(2):
@@ -233,10 +246,6 @@ class CharacterDetails(APIView):
         race = models.Races.objects.all().filter(name=serializer.data[0]['race']).values()[0]
         mods = models.Mods.objects.all().filter(owner=request.user,character=serializer.data[0]['name']).values()
 
-        test = zip(serializer.data,mods)
-        for item1,item2 in test:
-            print('\n',item1,'\n',item2)
-
         for index in range(len(skills)):
             skill = skills[index]
             skill_description = models.Skills_Decs.objects.all().filter(name=skills[index]['skill']).values()[0]
@@ -246,6 +255,7 @@ class CharacterDetails(APIView):
 
         context = {
             'chosen_character': serializer.data,
+            'mods': mods,
             'skills': skills,
             'race_desc': race['desc'],
             'mods': mods

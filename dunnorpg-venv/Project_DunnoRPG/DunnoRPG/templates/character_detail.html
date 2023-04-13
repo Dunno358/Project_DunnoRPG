@@ -6,11 +6,11 @@
 <div class="ms-5 container row">
     {% for value in chosen_character %}
     <div class="container mt-5 col-1 h-25 card-body c-gold border border-warning bg-dark rounded">
-        <p><span class="text-white-50 ps-4">INT:</span> {{ value.INT }}</p>
-        <p><span class="text-white-50 ps-4">SIŁ:</span> {{ value.SIŁ }}</p>
-        <p><span class="text-white-50 ps-4">ZRE:</span> {{ value.ZRE }}</p>
-        <p><span class="text-white-50 ps-4">CHAR:</span> {{ value.CHAR }}</p>
-        <p><span class="text-white-50 ps-4">CEL:</span> {{ value.CEL }}</p>
+        <p name='stat'><span class="text-white-50 ps-4">INT:</span> {{ value.INT }}</p>
+        <p name='stat'><span class="text-white-50 ps-4">SIŁ:</span> {{ value.SIŁ }}</p>
+        <p name='stat'><span class="text-white-50 ps-4">ZRE:</span> {{ value.ZRE }}</p>
+        <p name='stat'><span class="text-white-50 ps-4">CHAR:</span> {{ value.CHAR }}</p>
+        <p name='stat'><span class="text-white-50 ps-4">CEL:</span> {{ value.CEL }}</p>
     </div>
         <div class="container col-3 mt-1 ms-2 card-body c-gold border border-warning bg-dark rounded">
             <p class="text-center fw-bold">{{ value.name }}</p>
