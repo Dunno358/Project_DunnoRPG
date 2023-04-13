@@ -177,6 +177,8 @@ class CharacterSkills(APIView):
                 try:
                     req_stat = validated_skill[f"need{skill_to_add.level}_{x+1}"][:3]
                     req_value = int(validated_skill[f"need{skill_to_add.level}_{x+1}"][3])
+                    if req_stat == 'CHA':
+                        req_stat = 'CHAR'
                     req_stats.append(f"{req_stat}: {req_value}")
                     req_satisfied = chosen_character[req_stat] >= req_value
                     requirements_satisfied[x] = req_satisfied
@@ -191,7 +193,7 @@ class CharacterSkills(APIView):
 
             correct = False
             if avaible_points > 0 and skill_to_add.level <= avaible_points:
-                if req_satisfied:
+                if requirements_satisfied:
                     if validated_skill['name'] not in current_skills:
                         correct = True
                     else:
