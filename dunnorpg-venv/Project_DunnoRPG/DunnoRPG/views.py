@@ -231,6 +231,11 @@ class CharacterDetails(APIView):
 
         skills = models.Skills.objects.all().filter(owner=request.user,character=chosen[0]['name']).values()
         race = models.Races.objects.all().filter(name=serializer.data[0]['race']).values()[0]
+        mods = models.Mods.objects.all().filter(owner=request.user,character=serializer.data[0]['name']).values()
+
+        test = zip(serializer.data,mods)
+        for item1,item2 in test:
+            print('\n',item1,'\n',item2)
 
         for index in range(len(skills)):
             skill = skills[index]
@@ -242,7 +247,8 @@ class CharacterDetails(APIView):
         context = {
             'chosen_character': serializer.data,
             'skills': skills,
-            'race_desc': race['desc']
+            'race_desc': race['desc'],
+            'mods': mods
         }
         return Response(context) 
 

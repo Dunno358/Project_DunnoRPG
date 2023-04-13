@@ -37,13 +37,16 @@ class Character(models.Model):
         return f"{self.name} ({self.id})"
 
 class Mods(models.Model):
-    owner = models.CharField(max_length=50)
-    character = models.CharField(max_length=50)
+    owner = models.CharField(max_length=50, null=True)
+    character = models.CharField(max_length=50, null=True)
     INT = models.IntegerField(default=0)
     SIŁ = models.IntegerField(default=0)
     ZRE = models.IntegerField(default=0)
     CHAR = models.IntegerField(default=0)
     CEL = models.IntegerField(default=0)
+
+    def __str__(self):
+        return f"{self.character} | INT: {self.INT} | SIŁ: {self.SIŁ} | ZRE: {self.ZRE} | CHAR: {self.CHAR} | CEL: {self.CEL}"
 
 class Races(models.Model):
     name = models.CharField(max_length=100)
