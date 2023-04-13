@@ -39,11 +39,11 @@ class Character(models.Model):
 class Mods(models.Model):
     owner = models.CharField(max_length=50)
     character = models.CharField(max_length=50)
-    INT = models.IntegerField()
-    SIŁ = models.IntegerField()
-    ZRE = models.IntegerField()
-    CHAR = models.IntegerField()
-    CEL = models.IntegerField()
+    INT = models.IntegerField(default=0)
+    SIŁ = models.IntegerField(default=0)
+    ZRE = models.IntegerField(default=0)
+    CHAR = models.IntegerField(default=0)
+    CEL = models.IntegerField(default=0)
 
 class Races(models.Model):
     name = models.CharField(max_length=100)
