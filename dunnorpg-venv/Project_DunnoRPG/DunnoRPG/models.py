@@ -39,14 +39,11 @@ class Character(models.Model):
 class Mods(models.Model):
     owner = models.CharField(max_length=50, null=True)
     character = models.CharField(max_length=50, null=True)
-    INT = models.IntegerField(default=0)
-    SIŁ = models.IntegerField(default=0)
-    ZRE = models.IntegerField(default=0)
-    CHAR = models.IntegerField(default=0)
-    CEL = models.IntegerField(default=0)
+    field = models.CharField(max_length=10, default='INT')
+    value = models.IntegerField(default=0)
 
     def __str__(self):
-        return f"{self.character} | INT: {self.INT} | SIŁ: {self.SIŁ} | ZRE: {self.ZRE} | CHAR: {self.CHAR} | CEL: {self.CEL}"
+        return f"{self.character} | {self.field}: {self.value}"
 
 class Races(models.Model):
     name = models.CharField(max_length=100)
@@ -99,14 +96,13 @@ class Skills_Decs(models.Model):
         return self.name
 
 class Items(models.Model):
-    name = models.CharField(max_length=50)
+    name = models.CharField(max_length=50, null=True)
     type = models.CharField(max_length=50, null=True)
-    desc = models.TextField()
-    found = models.BooleanField()
-    stats = models.CharField(max_length=50)
+    desc = models.TextField(null=True)
+    found = models.BooleanField(default=False)
+    stats = models.CharField(max_length=50, default='1K+0, 0AP')
     skill = models.TextField(blank=True)
-    weight = models.DecimalField(decimal_places=1, max_digits=50)
-    highlighted = models.TextField(null=True)
+    weight = models.DecimalField(decimal_places=1, max_digits=50, default=1)
 
     def __str__(self):
         return self.name
