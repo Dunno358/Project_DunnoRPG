@@ -51,7 +51,7 @@ INSTALLED_APPS = [
     'bootstrap5',
     'DunnoRPG',
     'rest_framework'
-]
+    ]
 
 REST_FRAMEWORK = {
     'DEFAULT_RENDERER_CLASSES': [
