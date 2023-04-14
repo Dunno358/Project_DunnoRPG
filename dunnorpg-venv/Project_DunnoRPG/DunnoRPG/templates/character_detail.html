@@ -1,28 +1,29 @@
 {% extends 'master.html' %}
+{% load filters %}
 
 {% block content %}
 {% include 'top_bar.html' %}
 
 <div class="ms-5 container row">
     {% for value in chosen_character %}
-    <div class="container mt-5 col-1 h-25 card-body c-gold border border-warning bg-dark rounded">
-        <p name='stat'><span class="text-white-50 ps-4">INT:</span> {{ value.INT }}</p>
-        <p name='stat'><span class="text-white-50 ps-4">SIŁ:</span> {{ value.SIŁ }}</p>
-        <p name='stat'><span class="text-white-50 ps-4">ZRE:</span> {{ value.ZRE }}</p>
-        <p name='stat'><span class="text-white-50 ps-4">CHAR:</span> {{ value.CHAR }}</p>
-        <p name='stat'><span class="text-white-50 ps-4">CEL:</span> {{ value.CEL }}</p>
+    <div class="container mt-5 ms-5 col-1 h-25 card-body c-gold border border-warning bg-dark rounded">
+        <p name='stat'><span class="text-white-50 ps-4">INT:</span> {{ value.INT }} ({{ value|getMod:"INT" }})</p>
+        <p name='stat'><span class="text-white-50 ps-4">SIŁ:</span> {{ value.SIŁ }} ({{ value|getMod:"SIŁ" }})</p>
+        <p name='stat'><span class="text-white-50 ps-4">ZRE:</span> {{ value.ZRE }} ({{ value|getMod:"ZRE" }})</p>
+        <p name='stat'><span class="text-white-50 ps-4">CHAR:</span> {{ value.CHAR }} ({{ value|getMod:"CHAR" }})</p>
+        <p name='stat'><span class="text-white-50 ps-4">CEL:</span> {{ value.CEL }} ({{ value|getMod:"CEL" }})</p>
     </div>
         <div class="container col-3 mt-1 ms-2 card-body c-gold border border-warning bg-dark rounded">
             <p class="text-center fw-bold">{{ value.name }}</p>
             <p title='{{ race_desc }}'><span class="text-white-50 ps-4">Race:</span> {{ value.race }} ({{ value.size }})</p>
             <p><span class="text-white-50 ps-4">Health:</span> {{ value.HP }}/{{ value.fullHP }}</p>
-            <p><span class="text-white-50 ps-4">Helmet:</span> {{ value.Helmet }} {% if value.Helmet|length %}<a class="btn btn-sm btn-dark btn-outline-warning" href="">Check</a>{% endif %}</p>
-            <p><span class="text-white-50 ps-4">Torso:</span> {{ value.Torso }} {% if value.Torso|length %}<a class="btn btn-sm btn-dark btn-outline-warning" href="">Check</a>{% endif %}</p>
-            <p><span class="text-white-50 ps-4">Gloves:</span> {{ value.Gloves }} {% if value.Gloves|length %}<a class="btn btn-sm btn-dark btn-outline-warning" href="">Check</a>{% endif %}</p>
-            <p><span class="text-white-50 ps-4">Boots:</span> {{ value.Boots }} {% if value.Boots|length %}<a class="btn btn-sm btn-dark btn-outline-warning" href="">Check</a>{% endif %}</p>
-            <p><span class="text-white-50 ps-4">LeftHand:</span> {{ value.LeftHand }} {% if value.LeftHand|length %}<a class="btn btn-sm btn-dark btn-outline-warning" href="">Check</a>{% endif %}</p>
-            <p><span class="text-white-50 ps-4">RightHand:</span> {{ value.RightHand }} {% if value.RightHandt|length %}<a class="btn btn-sm btn-dark btn-outline-warning" href="">Check</a>{% endif %}</p>
-            <p><span class="text-white-50 ps-4">Side:</span> {{ value.Side }} {% if value.Side|length %}<a class="btn btn-sm btn-dark btn-outline-warning" href="">Check</a>{% endif %}</p>
+            <p><span class="text-white-50 ps-4">Helmet:</span> <a class='c-gold' href=''>{{ value.Helmet }}</a></p>
+            <p><span class="text-white-50 ps-4">Torso:</span> <a class='c-gold'  href=''>{{ value.Torso }}</a></p>
+            <p><span class="text-white-50 ps-4">Gloves:</span> <a class='c-gold'  href=''>{{ value.Gloves }}</a></p>
+            <p><span class="text-white-50 ps-4">Boots:</span> <a class='c-gold'  href=''>{{ value.Boots }}</a></p>
+            <p><span class="text-white-50 ps-4">LeftHand:</span> <a class='c-gold'  href=''>{{ value.LeftHand }} [{{ value.LeftHand|getItemStatByName }}]</a></p>
+            <p><span class="text-white-50 ps-4">RightHand:</span> <a class='c-gold'  href=''>{{ value.RightHand }} [{{ value.RightHand|getItemStatByName }}]</a></p>
+            <p><span class="text-white-50 ps-4">Side:</span> <a class='c-gold'  href=''>{{ value.Side }} [{{ value.Side|getItemStatByName }}]</a></p>
         </div>
     {% endfor %}
     <div style='width: auto; height:5%;' class="rounded container col card-body c-gold border border-warning bg-dark m-2">
@@ -44,6 +45,18 @@
             [<span class='fst-italic'>{{ skill.level_desc }}</span>]
         </div>
     {% endfor %}
+</div>
+
+<div class='container ms-5 row mt-2'>
+    <div class='col btn btn-dark btn-outline-warning border border-warning rounded ms-5 me-5'>
+        <span class=''>Parry</span>
+    </div>
+    <div class='col btn btn-dark btn-outline-warning border border-warning rounded ms-5 me-5'>
+        <span class=''>Basic Attack</span>
+    </div>
+    <div class='col btn btn-dark btn-outline-warning border border-warning rounded  ms-5 me-5'>
+        <span class=''>Dodge</span>
+    </div>
 </div>
 
 <script>

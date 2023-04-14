@@ -175,7 +175,6 @@ class CharacterSkills(APIView):
 
             level = skill_to_add.level
             while True:
-                print(level)
                 level_desc = validated_skill[f"level{level}"]
                 if len(level_desc)>0:
                     skill_to_add.level = level
