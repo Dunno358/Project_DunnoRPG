@@ -18,3 +18,7 @@ def getMod(character,stat_for_mod):
     if value>=0:
         value = f"+{value}"
     return value
+
+@register.filter
+def getCharacterEffects(character):
+    return models.Effects.objects.all().filter(character=character['name']).values()
