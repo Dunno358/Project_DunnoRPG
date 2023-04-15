@@ -1,29 +1,21 @@
-from django.shortcuts import render
-from django.shortcuts import get_object_or_404
-from django.urls import reverse_lazy
-from django.http import HttpResponseRedirect
-from django.contrib.auth.forms import UserCreationForm
-from django.views.generic.edit import CreateView
-from django.views.generic import FormView
 from django.contrib import messages
-from django.shortcuts import redirect
-from django.http import Http404
-from django.http import HttpResponse
-from rest_framework.views import APIView
-from rest_framework import status
+from django.contrib.auth.forms import UserCreationForm
+from django.http import Http404, HttpResponse, HttpResponseRedirect
+from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse_lazy
+from django.views.generic import FormView
+from django.views.generic.edit import CreateView
+from DunnoRPG.serializers import (CharacterSerializer, ItemSerializer, SkillsDecsSerializer, SkillsSerializer)
+from rest_framework import generics, status
 from rest_framework.decorators import api_view
-from rest_framework.response import Response
 from rest_framework.parsers import JSONParser
-from rest_framework.renderers import JSONRenderer
-from rest_framework.renderers import TemplateHTMLRenderer
-from rest_framework import generics
-from DunnoRPG.serializers import ItemSerializer
-from DunnoRPG.serializers import CharacterSerializer
-from DunnoRPG.serializers import SkillsSerializer
-from DunnoRPG.serializers import SkillsDecsSerializer
+from rest_framework.renderers import JSONRenderer, TemplateHTMLRenderer
+from rest_framework.response import Response
+from rest_framework.views import APIView
+
 from . import models
-from .forms import CharacterForm
-from .forms import CharacterSkillsForm
+from .forms import CharacterForm, CharacterSkillsForm
+
 
 class charGET(APIView):
     serializer_class = CharacterSerializer

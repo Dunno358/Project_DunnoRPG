@@ -4,16 +4,34 @@
 {% block content %}
 {% include 'top_bar.html' %}
 
+<!--<div class="container-fluid">        
+    <div class="header-bg bg-dark border-top border-bottom border-warning row p-2">
+        <div class='col-1 btn btn-dark btn-outline-primary border border-primary rounded ms-5 me-5'>
+            <span class='h5'><</span>
+        </div>
+
+        <button id='1b' onclick="show_or_hide(this.innerHTML)" class='col btn btn-dark btn-outline-warning border border-warning rounded ms-5 me-5'>Stats</button>
+
+        <button id='2b' onclick="show_or_hide(this.innerHTML)" class='col btn btn-dark btn-outline-warning border border-warning rounded ms-5 me-5'>Equipment</button>
+
+        <button id='3b' onclick="show_or_hide(this.innerHTML)" class='col btn btn-dark btn-outline-warning border border-warning rounded ms-5 me-5'>Skills</button>
+
+        <div class='col-1 btn btn-dark btn-outline-primary border border-primary rounded ms-5 me-5'>
+            <span class='h5'>></span>
+        </div>
+    </div>
+</div>-->
+
 <div class="ms-5 container row">
     {% for value in chosen_character %}
-    <div class="container mt-5 ms-5 col-1 h-25 card-body c-gold border border-warning bg-dark rounded">
+    <div name='Stats' class="container mt-5 ms-5 col-1 h-25 card-body c-gold border border-warning bg-dark rounded">
         <p name='stat'><span class="text-white-50 ps-4">INT:</span> {{ value.INT }} ({{ value|getMod:"INT" }})</p>
         <p name='stat'><span class="text-white-50 ps-4">SIŁ:</span> {{ value.SIŁ }} ({{ value|getMod:"SIŁ" }})</p>
         <p name='stat'><span class="text-white-50 ps-4">ZRE:</span> {{ value.ZRE }} ({{ value|getMod:"ZRE" }})</p>
         <p name='stat'><span class="text-white-50 ps-4">CHAR:</span> {{ value.CHAR }} ({{ value|getMod:"CHAR" }})</p>
         <p name='stat'><span class="text-white-50 ps-4">CEL:</span> {{ value.CEL }} ({{ value|getMod:"CEL" }})</p>
     </div>
-        <div class="container col-3 mt-1 ms-2 card-body c-gold border border-warning bg-dark rounded">
+        <div name='Equipment' class="container col-3 mt-1 ms-2 card-body c-gold border border-warning bg-dark rounded">
             <p class="text-center fw-bold">{{ value.name }}</p>
             <p title='{{ race_desc }}'><span class="text-white-50 ps-4">Race:</span> {{ value.race }} ({{ value.size }})</p>
             <p><span class="text-white-50 ps-4">Health:</span> {{ value.HP }}/{{ value.fullHP }}</p>
@@ -26,7 +44,7 @@
             <p><span class="text-white-50 ps-4">Side:</span> <a class='c-gold'  href=''>{{ value.Side }} [{{ value.Side|getItemStatByName }}]</a></p>
         </div>
     {% endfor %}
-    <div style='width: auto; height:5%;' class="rounded container col card-body c-gold border border-warning bg-dark m-2">
+    <div name='Skills' style='width: auto; height:5%;' class="rounded container col card-body c-gold border border-warning bg-dark m-2">
         <p class="text-center fw-bold">Skills: </p>
         <ul class='ms-4'>
         {% for skill in skills %}
@@ -60,8 +78,9 @@
 </div>
 
 <script>
+<!-- zrobic wyswietlanie naraz dwoch przyciskow i zmiane wyswietlonych za pomoca strzałek -->
 function show_block(id){
-    blocks = document.getElementsByName('desc_block')
+    let blocks = document.getElementsByName('desc_block')
     for (let i = 0; i < blocks.length; i++){
             if(blocks[i].id==id){
                 if(blocks[i].classList.contains('d-none')){
@@ -75,8 +94,17 @@ function show_block(id){
                 blocks[i].classList.add('d-none')
             }
         }
-    }
+    };
 
+function show_or_hide(name){
+    let element = document.getElementsByName(name)[0]
+    if (element.classList.contains('d-none')){
+        element.classList.remove('d-none')
+    }
+    else{
+        element.classList.add('d-none')
+    }
+};
 </script>
 
 {% endblock content %}
