@@ -32,6 +32,10 @@ class Character(models.Model):
     CHAR = models.IntegerField()
     CEL = models.IntegerField()
     points_left = models.IntegerField(null=True)
+    weaponBonus = models.IntegerField(null=True)
+    preferencedWeapons = models.TextField(blank=True)
+    unlikedWeapons = models.TextField(blank=True)
+    
 
     def __str__(self):
         return f"{self.name} ({self.id})"
@@ -51,7 +55,7 @@ class Races(models.Model):
     statPlus = models.CharField(max_length=255,blank=True)
     statMinus = models.CharField(max_length=255,blank=True)
     Skills = models.CharField(max_length=255,blank=True)
-    points_limit = models.IntegerField()
+    points_limit = models.IntegerField(null=True)
     desc = models.TextField(blank=True)
     def __str__(self):
         return self.name

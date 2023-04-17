@@ -34,6 +34,7 @@ class CharacterForm(forms.ModelForm):
 
     query_races = Races.objects.all().values()
     races = []
+    races.append(('Choose a race','Choose a race'))
     for race in query_races:
         races.append((race['name'], race['name']))
     races.sort()

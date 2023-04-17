@@ -18,21 +18,21 @@ class CharacterCreation{
         console.log(document.getElementsByTagName('label'))
     
         const raceAttributes = {
-            'Leśne Elfy (Athel Loren)': { int: '-1', sil: '+0', zre: '+0', char: '+0', cel: '+0', p: 10 },
-            'Niziołek': { int: '+0', sil: '-2', zre: '+0', char: '+0', cel: '+0', p: 10 },
-            'Gnom': { int: '+0', sil: '-2', zre: '+0', char: '+0', cel: '+0', p: 10 },
-            'Półork': { int: '-2', sil: '+1', zre: '-1', char: '+0', cel: '+0', p: 10 },
-            'Półelf': { int: '+0', sil: '-1', zre: '+0', char: '+0', cel: '+0', p: 10 },
-            'Ogr': { int: '-1', sil: '+3', zre: '-3', char: '+0', cel: '+0', p: 10 },
-            'Satyr': { int: '-1', sil: '+0', zre: '+1', char: '-1', cel: '+0', p: 10 },
-            'Wysokie Elfy (Asurii)': { int: '+0', sil: '-1', zre: '+0', char: '-2', cel: '+0', p: 10 },
-            'Ork': { int: '-3', sil: '+2', zre: '-2', char: '+0', cel: '+0', p: 10 },
-            'Goblin': { int: '+0', sil: '-1', zre: '+1', char: '+0', cel: '+0', p: 10 },
-            'Krasnolud': { int: '+0', sil: '-1', zre: '+0', char: '-2', cel: '+0', p: 10 },
-            'Człowiek(Kislev)': { int: '+0', sil: '+0', zre: '+0', char: '+1', cel: '+0', p: 10 },
-            'Człowiek(Imperium)': { int: '+0', sil: '+0', zre: '+0', char: '+0', cel: '+0', p: 11 },
-            'Człowiek(Bretonnia)': { int: '+0', sil: '+0', zre: '+0', char: '+0', cel: '+0', p: 10 },
-            'Wampir': { int: '+0', sil: '+0', zre: '+0', char: '+0', cel: '+0', p: 10 },
+            'Leśne Elfy (Athel Loren)': { int: '-1', sil: '+0', zre: '+2', char: '-2', cel: '+1', p: 10 },
+            'Niziołek': { int: '+0', sil: '-2', zre: '+3', char: '-1', cel: '+0', p: 10 },
+            'Gnom': { int: '+0', sil: '-2', zre: '+2', char: '+0', cel: '+0', p: 10 },
+            'Półork': { int: '-2', sil: '+2', zre: '+2', char: '-2', cel: '+0', p: 10 },
+            'Półelf': { int: '+0', sil: '-1', zre: '+1', char: '-1', cel: '+1', p: 10 },
+            'Ogr': { int: '-2', sil: '+4', zre: '-2', char: '+0', cel: '+0', p: 10 },
+            'Satyr': { int: '0', sil: '+1', zre: '+1', char: '-2', cel: '+1', p: 10 },
+            'Wysokie Elfy (Asurii)': { int: '+0', sil: '-1', zre: '+1', char: '-3', cel: '+2', p: 10 },
+            'Ork': { int: '-3', sil: '+3', zre: '-1', char: '+0', cel: '+0', p: 10 },
+            'Goblin': { int: '+1', sil: '-2', zre: '+1', char: '+0', cel: '+0', p: 10 },
+            'Krasnolud': { int: '+1', sil: '-0', zre: '-2', char: '+0', cel: '+1', p: 10 },
+            'Człowiek(Kislev)': { int: '-2', sil: '+1', zre: '+0', char: '+1', cel: '+0', p: 10 },
+            'Człowiek(Imperium)': { int: '+1', sil: '+0', zre: '+0', char: '+0', cel: '+0', p: 11 },
+            'Człowiek(Bretonnia)': { int: '-2', sil: '+1', zre: '+1', char: '+0', cel: '+0', p: 10 },
+            'Wampir': { int: '+1', sil: '-1', zre: '+0', char: '+0', cel: '+0', p: 10 },
           }
     
         race.addEventListener("change", function() {
