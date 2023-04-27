@@ -9,6 +9,13 @@ def getItemStatByName(itemName):
         return models.Items.objects.all().filter(name=itemName).values()[0]['stats']
     except:
         pass
+    
+@register.filter
+def isDualHanded(itemName):
+    try:
+        return models.Items.objects.all().filter(name=itemName).values()[0]['dualHanded']
+    except:
+        pass    
 
 @register.filter
 def getMod(character,stat_for_mod):
