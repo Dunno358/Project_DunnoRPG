@@ -101,8 +101,8 @@
 
 <div class='container ms-5 row mt-2'>
     <div class='col card-body c-gold border border-warning bg-dark rounded'>
-        <p id='calc_left'>Left hand: </p>
-        <p id='calc_right'>Right hand: </p>
+        <p id='calc_left'></p>
+        <p id='calc_right'></p>
     </div>
 </div>
 
@@ -162,22 +162,27 @@ function calculate(action){
         rightOperative = false
         if(document.getElementById('rightWeapon').innerHTML!='Above weapon is two-handed')
         {
-            console.log(document.getElementById('rightWeapon').innerHTML,'Above weapon is two-handed')
             rightWeaponDmg = parseInt(document.getElementById('rightWeaponStat').innerHTML.slice(2,4))
             rightWeaponAp = parseInt(document.getElementById('rightWeaponStat').innerHTML[6])
             rightOperative=true
         }
 
         dice = getRandomInt(20)
-        left.innerHTML = 'Left hand: '+'(Dice)'+dice + ' + ' +  '(sil)'+sil + ' + ' + '(sil_mod)'+sil_mod + ' + ' + '(Weapon)'+leftWeaponDmg + ' = ' + (dice+sil+sil_mod+leftWeaponDmg) + ', ' + leftWeaponAp + 'AP'
+        left.innerHTML = 'Left hand: '+'(Dice)'+dice + ' + ' +  '(SIŁ)'+sil + ' + ' + '(Mods)'+sil_mod + ' + ' + '(Weapon)'+leftWeaponDmg + ' = ' + (dice+sil+sil_mod+leftWeaponDmg) + ', ' + leftWeaponAp + 'AP'
 
         if(rightOperative){
             dice = getRandomInt(20)
-            right.innerHTML = 'Right hand: '+'(Dice)'+dice + ' + ' +  '(sil)'+sil + ' + ' + '(sil_mod)'+sil_mod + ' + ' + '(Weapon)'+rightWeaponDmg + ' = ' + (dice+sil+sil_mod+rightWeaponDmg) + ', ' + rightWeaponAp + 'AP'
+            right.innerHTML = 'Right hand: '+'(Dice)'+dice + ' + ' +  '(SIŁ)'+sil + ' + ' + '(Mods)'+sil_mod + ' + ' + '(Weapon)'+rightWeaponDmg + ' = ' + (dice+sil+sil_mod+rightWeaponDmg) + ', ' + rightWeaponAp + 'AP'
         }
     }
     else if(action=='dodge'){
-        console.log('dodge') // to be done the same way as above but with agility(ZRE)
+        right.innerHTML = ""
+
+        zre = parseInt(document.getElementById('stat-ZRE').innerHTML)
+        zre_mod = parseInt(document.getElementById('stat-ZRE-mod').innerHTML) 
+        dice = getRandomInt(20)     
+
+        left.innerHTML="Dodge: "+"(dice)"+dice+" + (ZRE)"+zre+" + (Mod)"+zre_mod+" = "+(zre+zre_mod+dice)
     }
 }
 </script>
