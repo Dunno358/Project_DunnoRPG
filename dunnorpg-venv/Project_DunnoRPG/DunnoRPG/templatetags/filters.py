@@ -16,6 +16,23 @@ def isDualHanded(itemName):
         return models.Items.objects.all().filter(name=itemName).values()[0]['dualHanded']
     except:
         pass    
+    
+@register.filter
+def isPreffereOrUnliked(character, itemName):
+    try:
+        weapon_type = models.Items.objects.all().filter(name=itemName).values()[0]['type'].lower()
+        character_bonus = models.Character.objects.all().filter(name=character).values()[0]['weaponBonus']
+        charater_preffered = models.Character.objects.all().filter(name=character).values()[0]['preferredWeapons'].split(';')
+        character_unliked = models.Character.objects.all().filter(name=character).values()[0]['unlikedWeapons'].split(';')
+        
+        if weapon_type in charater_preffered:
+            return f"+{character_bonus}"
+        elif weapon_type in character_unliked:
+            return -int(character_bonus)
+        else:
+            return "+0"
+    except:
+        return "+0"
 
 @register.filter
 def getMod(character,stat_for_mod):

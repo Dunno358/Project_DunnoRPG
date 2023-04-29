@@ -48,12 +48,18 @@
             <p><span class="text-white-50 ps-4">Gloves:</span> <a class='c-gold'  href=''>{{ value.Gloves }}</a></p>
             <p><span class="text-white-50 ps-4">Boots:</span> <a class='c-gold'  href=''>{{ value.Boots }}</a></p>
 
-            <p><span class="text-white-50 ps-4">LeftHand:</span> <a class='c-gold'  href=''>{{ value.LeftHand }} [<span id='leftWeaponStat'>{{ value.LeftHand|getItemStatByName }}</span>]</a></p>
+            <p>
+                <span class="text-white-50 ps-4">LeftHand:</span> (<span id='l_weapon_bonus'>{{ value.name|isPreffereOrUnliked:value.LeftHand }}</span>) 
+                <a class='c-gold'  href=''>{{ value.LeftHand }} [<span id='leftWeaponStat'>{{ value.LeftHand|getItemStatByName }}</span>]</a>
+            </p>
             
             {% if value.LeftHand|isDualHanded %}
                 <p><span class="text-white-50 ps-4">RightHand:</span> <span id='rightWeapon' class='c-gold'>Above weapon is two-handed</span></p>
             {% else %}
-                <p><span class="text-white-50 ps-4">RightHand:</span> <a id='rightWeapon' class='c-gold'  href=''>{{ value.RightHand }} [<span id='rightWeaponStat'>{{ value.RightHand|getItemStatByName }}</span>]</a></p>
+                <p>
+                    <span class="text-white-50 ps-4">RightHand:</span> (<span id='r_weapon_bonus'>{{ value.name|isPreffereOrUnliked:value.RightHand }}</span>)
+                    <a id='rightWeapon' class='c-gold'  href=''>{{ value.RightHand }} [<span id='rightWeaponStat'>{{ value.RightHand|getItemStatByName }}</span>]</a>
+                </p>
             
                 {% endif %}
             <p><span class="text-white-50 ps-4">Side:</span> <a class='c-gold'  href=''>{{ value.Side }} [{{ value.Side|getItemStatByName }}]</a></p>
@@ -76,7 +82,7 @@
         {% for skill in skills %}
             <li>
                 <a class='c-gold fst-italic' href='/dunnorpg/skills/{{ skill.original_id }}'>{{ skill.skill }} [{{ skill.level }}]</a>
-                <button onclick="show_block(this.name)" name="{{ skill.id }}" type='button' class='fst-italic ms-2 rounded-circle border border-warning btn btn-sm btn-warning btn-outline-dark c-gold'>i</button>
+                <button onclick="show_block(this)" name="{{ skill.id }}" type='button' class='fst-italic ms-2 rounded-circle border border-warning btn btn-sm btn-warning btn-outline-dark c-gold'>i</button>
             </li><br>
         {% endfor %}
         <ul>
@@ -121,10 +127,10 @@ function getRandomInt(min=1,max) {
     return Math.floor(Math.random() * (max - min) + min);
     }
 
-function show_block(id){
+function show_block(instance){
     let blocks = document.getElementsByName('desc_block')
     for (let i = 0; i < blocks.length; i++){
-            if(blocks[i].id==id){
+            if(blocks[i].id==instance.name){
                 if(blocks[i].classList.contains('d-none')){
                     blocks[i].classList.remove('d-none')
                 }
@@ -174,7 +180,6 @@ function calculate(action){
     left = document.getElementById('calc_left')
     right = document.getElementById('calc_right')
     dice = document.getElementById('calc_dice')
-    console.log(left,right,dice)
     if(action=='attack' || action=='parry')
     {
         sil = parseInt(document.getElementById('stat-SIŁ').innerHTML)
@@ -191,17 +196,20 @@ function calculate(action){
             rightOperative=true
         }
 
-        left.innerHTML = 'Left hand | '+action+': '+
+        l_weapon_bonus = parseInt(document.getElementById('l_weapon_bonus').innerHTML)
+        left.innerHTML = '<b>Left hand | '+action+': </b>'+
         'SIŁ'+'('+sil+')'+ ' + '+
         'MODS'+'('+sil_mod+')'+' + '+
         'WEAPON'+'('+leftWeaponDmg+')'+' + '+
+        'BONUS'+'('+l_weapon_bonus+')'+' & '+
         'AP'+'('+leftWeaponAp+')'
+        //add clickable element with label Result(or similar) that onclick gives dice+all mods(above) as an integer, same to right hand if operative
 
         if(rightOperative){
-            right.innerHTML = 'Right hand | '+action+': '+
+            right.innerHTML = '<b>Right hand | '+action+': </b>'+
             'SIŁ'+'('+sil+')'+ ' + '+
             'MODS'+'('+sil_mod+')'+' + '+
-            'WEAPON'+'('+rightWeaponDmg+')'+' + '+
+            'WEAPON'+'('+rightWeaponDmg+')'+' & '+
             'AP'+'('+rightWeaponAp+')'
         }
     }
@@ -217,7 +225,7 @@ function calculate(action){
     }
     else if(action=='dice'){
         diceRoll = getRandomInt(1,21)
-        dice.innerHTML = "<span onclick="+"this.innerHTML=''"+"><b>Dice:</b> " + diceRoll+"</span>"
+        dice.innerHTML = "<span onclick="+"this.innerHTML=''"+"><b>Dice:</b> " + diceRoll+" (Click to hide)"+"</span>"
     }
 }
 </script>
