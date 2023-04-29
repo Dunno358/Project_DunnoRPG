@@ -10,13 +10,17 @@
             <span class='h5'><</span>
         </div>
 
-        <button id='1b' onclick="show_or_hideByName(this.innerHTML)" class='col btn btn-dark btn-outline-warning border border-warning rounded ms-5 me-5'>Stats</button>
+        <button id='Stats'  onclick="show_or_hideByName(this)" class='col btn btn-dark btn-outline-warning border border-warning rounded ms-5 me-5'>
+            Stats</button>
 
-        <button id='2b' onclick="show_or_hideByName(this.innerHTML)" class='col btn btn-dark btn-outline-warning border border-warning rounded ms-5 me-5'>Equipment</button>
+        <button id='Equipment' onclick="show_or_hideByName(this)" class='col btn btn-dark btn-outline-primary border border-primary rounded ms-5 me-5'>
+            Equipment</button>
 
-        <button id='3b' onclick="show_or_hideByName(this.innerHTML)" class='col btn btn-dark btn-outline-warning border border-warning rounded ms-5 me-5'>Skills</button>
+        <button id='Skills' onclick="show_or_hideByName(this)" class='col btn btn-dark btn-outline-warning border border-warning rounded ms-5 me-5'>
+            Skills</button>
         
-        <button id='4b' onclick="show_or_hideByName(this.innerHTML)" class='col btn btn-dark btn-outline-warning border border-warning rounded ms-5 me-5'>Effects</button>
+        <button id='Effects' onclick="show_or_hideByName(this)" class='col btn btn-dark btn-outline-warning border border-warning rounded ms-5 me-5'>
+            Effects</button>
 
         <div class='col-1 btn btn-dark btn-outline-primary border border-primary rounded ms-5 me-5'>
             <span class='h5'>></span>
@@ -97,18 +101,24 @@
     <div onclick="calculate('dodge')" class='col btn btn-dark btn-outline-warning border border-warning rounded  ms-5 me-5'>
         <span class=''>Dodge</span>
     </div>
+    <div onclick="calculate('dice')" class='col btn btn-dark btn-outline-warning border border-warning rounded  ms-5 me-5'>
+        <span class=''>Roll dice</span>
+    </div>
 </div>
 
 <div class='container ms-5 row mt-2'>
     <div class='col card-body c-gold border border-warning bg-dark rounded'>
+        <p id='calc_dice'></p>
         <p id='calc_left'></p>
         <p id='calc_right'></p>
     </div>
 </div>
 
 <script>
-function getRandomInt(max) {
-    return Math.floor(Math.random() * max);
+function getRandomInt(min=1,max) {
+    min = Math.ceil(min);
+    max = Math.floor(max);
+    return Math.floor(Math.random() * (max - min) + min);
     }
 
 function show_block(id){
@@ -128,13 +138,25 @@ function show_block(id){
         }
     };
 
-function show_or_hideByName(name){
-    let element = document.getElementsByName(name)[0]
+function show_or_hideByName(instance, changeColor=false){
+    let element = document.getElementsByName(instance.id)[0]
     if (element.classList.contains('d-none')){
         element.classList.remove('d-none')
+
+        instance.classList.remove('btn-outline-warning')
+        instance.classList.remove('border-warning')
+
+        instance.classList.add('btn-outline-primary')
+        instance.classList.add('border-primary')
     }
     else{
         element.classList.add('d-none')
+
+        instance.classList.remove('btn-outline-primary')
+        instance.classList.remove('border-primary')
+
+        instance.classList.add('btn-outline-warning')
+        instance.classList.add('border-warning')
     }
 };
 
@@ -151,6 +173,8 @@ function show_or_hideById(id){
 function calculate(action){
     left = document.getElementById('calc_left')
     right = document.getElementById('calc_right')
+    dice = document.getElementById('calc_dice')
+    console.log(left,right,dice)
     if(action=='attack' || action=='parry')
     {
         sil = parseInt(document.getElementById('stat-SIŁ').innerHTML)
@@ -167,12 +191,18 @@ function calculate(action){
             rightOperative=true
         }
 
-        dice = getRandomInt(20)
-        left.innerHTML = 'Left hand: '+'(Dice)'+dice + ' + ' +  '(SIŁ)'+sil + ' + ' + '(Mods)'+sil_mod + ' + ' + '(Weapon)'+leftWeaponDmg + ' = ' + (dice+sil+sil_mod+leftWeaponDmg) + ', ' + leftWeaponAp + 'AP'
+        left.innerHTML = 'Left hand | '+action+': '+
+        'SIŁ'+'('+sil+')'+ ' + '+
+        'MODS'+'('+sil_mod+')'+' + '+
+        'WEAPON'+'('+leftWeaponDmg+')'+' + '+
+        'AP'+'('+leftWeaponAp+')'
 
         if(rightOperative){
-            dice = getRandomInt(20)
-            right.innerHTML = 'Right hand: '+'(Dice)'+dice + ' + ' +  '(SIŁ)'+sil + ' + ' + '(Mods)'+sil_mod + ' + ' + '(Weapon)'+rightWeaponDmg + ' = ' + (dice+sil+sil_mod+rightWeaponDmg) + ', ' + rightWeaponAp + 'AP'
+            right.innerHTML = 'Right hand | '+action+': '+
+            'SIŁ'+'('+sil+')'+ ' + '+
+            'MODS'+'('+sil_mod+')'+' + '+
+            'WEAPON'+'('+rightWeaponDmg+')'+' + '+
+            'AP'+'('+rightWeaponAp+')'
         }
     }
     else if(action=='dodge'){
@@ -180,9 +210,14 @@ function calculate(action){
 
         zre = parseInt(document.getElementById('stat-ZRE').innerHTML)
         zre_mod = parseInt(document.getElementById('stat-ZRE-mod').innerHTML) 
-        dice = getRandomInt(20)     
 
-        left.innerHTML="Dodge: "+"(dice)"+dice+" + (ZRE)"+zre+" + (Mod)"+zre_mod+" = "+(zre+zre_mod+dice)
+        left.innerHTML="Dodge: "+
+        "ZRE"+'('+zre+')'+' + '+
+        "MODS"+'('+zre_mod+')'
+    }
+    else if(action=='dice'){
+        diceRoll = getRandomInt(1,21)
+        dice.innerHTML = "<span onclick="+"this.innerHTML=''"+"><b>Dice:</b> " + diceRoll+"</span>"
     }
 }
 </script>
