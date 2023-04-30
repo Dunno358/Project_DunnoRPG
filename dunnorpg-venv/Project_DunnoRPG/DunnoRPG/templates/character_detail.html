@@ -197,20 +197,26 @@ function calculate(action){
         }
 
         l_weapon_bonus = parseInt(document.getElementById('l_weapon_bonus').innerHTML)
+        l_mods = sil+sil_mod+leftWeaponDmg+l_weapon_bonus
         left.innerHTML = '<b>Left hand | '+action+': </b>'+
         'SIŁ'+'('+sil+')'+ ' + '+
         'MODS'+'('+sil_mod+')'+' + '+
         'WEAPON'+'('+leftWeaponDmg+')'+' + '+
         'BONUS'+'('+l_weapon_bonus+')'+' & '+
-        'AP'+'('+leftWeaponAp+')'
+        'AP'+'('+leftWeaponAp+') = '+
+        "<span onclick='getDiceWMods(this,l_mods)'><u>Check</u></span>"
         //add clickable element with label Result(or similar) that onclick gives dice+all mods(above) as an integer, same to right hand if operative
 
         if(rightOperative){
+            r_weapon_bonus = parseInt(document.getElementById('r_weapon_bonus').innerHTML)
+            r_mods = sil+sil_mod+rightWeaponDmg+r_weapon_bonus
             right.innerHTML = '<b>Right hand | '+action+': </b>'+
             'SIŁ'+'('+sil+')'+ ' + '+
             'MODS'+'('+sil_mod+')'+' + '+
-            'WEAPON'+'('+rightWeaponDmg+')'+' & '+
-            'AP'+'('+rightWeaponAp+')'
+            'WEAPON'+'('+rightWeaponDmg+')'+' + '+
+            'BONUS'+'('+r_weapon_bonus+')'+' & '+
+            'AP'+'('+rightWeaponAp+') = '+
+            "<span onclick='getDiceWMods(this,r_mods)'><u>Check</u></span>"
         }
     }
     else if(action=='dodge'){
@@ -218,15 +224,22 @@ function calculate(action){
 
         zre = parseInt(document.getElementById('stat-ZRE').innerHTML)
         zre_mod = parseInt(document.getElementById('stat-ZRE-mod').innerHTML) 
+        dodge_mods = zre+zre_mod
 
         left.innerHTML="Dodge: "+
         "ZRE"+'('+zre+')'+' + '+
-        "MODS"+'('+zre_mod+')'
+        "MODS"+'('+zre_mod+') = '+
+        "<span onclick='getDiceWMods(this,dodge_mods)'><u>Check</u></span>"
     }
     else if(action=='dice'){
         diceRoll = getRandomInt(1,21)
         dice.innerHTML = "<span onclick="+"this.innerHTML=''"+"><b>Dice:</b> " + diceRoll+" (Click to hide)"+"</span>"
     }
+}
+function getDiceWMods(instance,modsPoints){
+    dice = getRandomInt(1,21)
+    result = dice+modsPoints
+    instance.innerHTML = 'Result: ' + result + ' (Dice ' + dice + ')'
 }
 </script>
 
