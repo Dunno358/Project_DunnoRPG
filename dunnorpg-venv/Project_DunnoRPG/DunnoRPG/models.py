@@ -122,6 +122,30 @@ class Effects(models.Model):
     def __str__(self):
         return f"{self.character}: {self.name} ({self.time})"
     
+class Effects_Decs(models.Model):
+    types = (
+        ('attack', 'attack'),
+        ('parry', 'parry'),
+        ('attack&parry', 'attack&parry'),
+        ('all','all'),
+        ('other','other'),
+        ('dodge','dodge'),
+        ('agility','agility'),
+        ('sneaking','sneaking'),
+        ('resistance', 'resistance'),
+        ('regeneration', 'regeneration'),
+        ('armor', 'armor'),
+        ('resting', 'resting'),
+        ('poison','poison'),
+        ('cel','cel')
+    )
+    
+    name = models.CharField(max_length = 150)
+    category = models.CharField(max_length = 150, choices=types)
+    desc = models.TextField()
+    bonus = models.IntegerField(blank=True, null=True)
+    def ___str__(self):
+        return self.name
     
 
     
