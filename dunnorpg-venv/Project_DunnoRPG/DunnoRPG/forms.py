@@ -33,6 +33,7 @@ class CharacterForm(forms.ModelForm):
     }))
 
     query_races = Races.objects.all().values()
+    #query_races = []
     races = []
     races.append(('Choose a race','Choose a race'))
     for race in query_races:

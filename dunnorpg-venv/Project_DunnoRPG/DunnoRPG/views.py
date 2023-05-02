@@ -76,6 +76,10 @@ class charPOST(FormView):
                     level=skill_level,
                     desc = models.Skills_Decs.objects.all().filter(name=skill_name).values()[0]['desc']
                     )
+                
+            character.weaponBonus = chosen_race['weaponsBonus']
+            character.preferredWeapons = chosen_race['weaponsPreffered']
+            character.unlikedWeapons = chosen_race['weaponsUnliked']
 
             character.save()
 
@@ -109,7 +113,7 @@ class CharacterSkills(APIView):
         for skill in character_skills:
             cost = int(models.Skills_Decs.objects.filter(name=skill['skill']).values()[0]['cost'])       
             current_skills.append(skill['skill'])    
-            if skill['category'] == 'magical':
+            if skill['category'].lower() == 'magical':
                 skills_count_magical += skill['level']*cost
             else:
                 if skill['category'][1:] != 'free':
@@ -213,7 +217,8 @@ class CharacterSkills(APIView):
             if correct:
                 skill_details = models.Skills_Decs.objects.filter(name=skill_to_add.skill).values()[0]
                 character = models.Character.objects.get(id=id)
-                character.points_left -= skill_to_add.level*int(skill_details['cost'])
+                if validated_skill['category'].lower() != 'magical':
+                    character.points_left -= skill_to_add.level*int(skill_details['cost'])
                 character.save()
                 skill_to_add.owner = current_user
                 skill_to_add.character = chosen_character['name']
