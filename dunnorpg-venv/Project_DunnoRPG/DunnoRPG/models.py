@@ -57,6 +57,9 @@ class Races(models.Model):
     Skills = models.CharField(max_length=255,blank=True)
     points_limit = models.IntegerField(null=True)
     desc = models.TextField(blank=True)
+    weaponsBonus = models.IntegerField(null=True)
+    weaponsPreffered = models.CharField(max_length=255,blank=True,null=True)
+    weaponsUnliked = models.CharField(max_length=255,blank=True,null=True)
     def __str__(self):
         return self.name
 
@@ -144,7 +147,7 @@ class Effects_Decs(models.Model):
     category = models.CharField(max_length = 150, choices=types)
     desc = models.TextField()
     bonus = models.IntegerField(blank=True, null=True)
-    def ___str__(self):
+    def __str__(self):
         return self.name
     
 
