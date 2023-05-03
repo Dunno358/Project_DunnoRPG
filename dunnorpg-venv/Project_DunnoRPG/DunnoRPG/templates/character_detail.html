@@ -198,6 +198,8 @@ function calculate(action){
             rightOperative=true
         }
 
+        //if action is attack then calculate accuraccy as well
+
         l_weapon_bonus = parseInt(document.getElementById('l_weapon_bonus').innerHTML)
         l_mods = sil+sil_mod+leftWeaponDmg+l_weapon_bonus
         left.innerHTML = '<b>Left hand | '+action+': </b>'+
@@ -227,7 +229,7 @@ function calculate(action){
         zre_mod = parseInt(document.getElementById('stat-ZRE-mod').innerHTML) 
         dodge_mods = zre+zre_mod
 
-        left.innerHTML="Dodge: "+
+        left.innerHTML="<b>Dodge:</b> "+
         "ZRE"+'('+zre+')'+' + '+
         "MODS"+'('+zre_mod+') = '+
         "<span onclick='getDiceWMods(this,dodge_mods)'><u>Check</u></span>"
