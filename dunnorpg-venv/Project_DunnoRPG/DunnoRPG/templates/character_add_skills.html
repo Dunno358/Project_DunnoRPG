@@ -44,7 +44,11 @@
     <div class='col-4'></div>
         <div class='col-2 rounded ms-3 mt-1 fs-5 w-50 c-gold bg-gray text-center border border-warning'>
                 {% for skill in skills %}
-                    <p class='mt-1'>{{ skill.skill }} | lvl. {{ skill.level }} <a href='delete/{{ skill.id }}' class='ms-2 btn btn-dark btn-outline-danger'>Delete</a></p>
+                <p class='mt-1'>{{ skill.skill }} | lvl. {{ skill.level }} 
+                {% if skill.category != '1free' %}
+                <a href='delete/{{ skill.id }}' class='ms-2 btn btn-dark btn-outline-danger'>Delete</a>               
+                {% endif %}
+                </p>
                 {% endfor %}
         </div>
     </div>

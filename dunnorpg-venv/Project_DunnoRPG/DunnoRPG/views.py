@@ -66,7 +66,7 @@ class charPOST(FormView):
 
             skills = models.Skills.objects
             for skill in chosen_race['Skills'].split(';'):
-                skill_name = skill[1:]
+                skill_name = skill[1:].strip()
                 skill_level = skill[0]
                 skills.create(
                     owner=current_user,

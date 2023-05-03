@@ -198,7 +198,16 @@ function calculate(action){
             rightOperative=true
         }
 
-        //if action is attack then calculate accuraccy as well
+        if(action=='attack'){
+            cel = parseInt(document.getElementById('stat-CEL').innerHTML)
+            cel_mod = parseInt(document.getElementById('stat-CEL-mod').innerHTML)
+            cel_mods = cel+cel_mod
+
+            dice.innerHTML = '<b>Accuracy: </b>'+
+            'CEL'+'('+cel+')'+ ' + '+
+            'MODS'+'('+cel_mod+') = '+
+            "<span onclick='getDiceWMods(this,cel_mods)'><u>Check</u></span>"
+        }
 
         l_weapon_bonus = parseInt(document.getElementById('l_weapon_bonus').innerHTML)
         l_mods = sil+sil_mod+leftWeaponDmg+l_weapon_bonus
