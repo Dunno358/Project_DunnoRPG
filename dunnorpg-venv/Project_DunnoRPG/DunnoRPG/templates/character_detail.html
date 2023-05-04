@@ -184,6 +184,7 @@ function calculate(action){
     dice = document.getElementById('calc_dice')
     if(action=='attack' || action=='parry')
     {
+        //handling 1K-x when x>9(10 and higher) to be added
         sil = parseInt(document.getElementById('stat-SIŁ').innerHTML)
         sil_mod = parseInt(document.getElementById('stat-SIŁ-mod').innerHTML)
 
