@@ -184,7 +184,7 @@ function calculate(action){
     dice = document.getElementById('calc_dice')
     if(action=='attack' || action=='parry')
     {
-        //handling 1K-x when x>9(10 and higher) to be added
+        //indexing and slicing of DMG and AP to be fixed
         sil = parseInt(document.getElementById('stat-SIŁ').innerHTML)
         sil_mod = parseInt(document.getElementById('stat-SIŁ-mod').innerHTML)
 
@@ -192,7 +192,8 @@ function calculate(action){
         leftWeaponAp = parseInt(document.getElementById('leftWeaponStat').innerHTML[6])
 
         rightOperative = false
-        if(document.getElementById('rightWeapon').innerHTML!='Above weapon is two-handed')
+        rightWeapon = document.getElementById('rightWeapon')
+        if(rightWeapon.innerHTML!='Above weapon is two-handed')
         {
             rightWeaponDmg = parseInt(document.getElementById('rightWeaponStat').innerHTML.slice(2,4))
             rightWeaponAp = parseInt(document.getElementById('rightWeaponStat').innerHTML[6])

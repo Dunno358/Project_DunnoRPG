@@ -6,9 +6,25 @@ register = template.Library()
 @register.filter
 def getItemStatByName(itemName):
     try:
-        return models.Items.objects.all().filter(name=itemName).values()[0]['stats']
+        item = models.Items.objects.all().filter(name=itemName).values()[0]
+        if item['type'].lower() != 'shield':
+            bonus = item['diceBonus']
+            if bonus >= 0:
+                return f"1K+{item['diceBonus']}, {item['AP']}AP"
+            else:
+                return f"1K{item['diceBonus']}, {item['AP']}AP"
+        else:
+            return f"Block {item['block']}"
     except:
         pass
+    
+@register.filter
+def getItemAP(itemName):
+    return models.Items.objects.all().filter(name=itemName).values()[0]['AP']
+
+@register.filter
+def getItemBonus(itemName):
+    return models.Items.objects.all().filter(name=itemName).values()[0]['diceBonus']
     
 @register.filter
 def isDualHanded(itemName):
