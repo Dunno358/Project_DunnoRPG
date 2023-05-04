@@ -109,12 +109,22 @@ class Items(models.Model):
     dualHanded = models.BooleanField(default=False)
     desc = models.TextField(null=True)
     found = models.BooleanField(default=False)
-    stats = models.CharField(max_length=50, default='1K+0, 0AP')
+    diceBonus = models.IntegerField(default=0)
+    AP = models.IntegerField(default=0)
+    armor = models.IntegerField(default=0)
+    block = models.IntegerField(default=0)
     skill = models.TextField(blank=True)
     weight = models.DecimalField(decimal_places=1, max_digits=50, default=1)
+    altAttack = models.CharField(max_length=250, default='None')
+    maxDurability = models.IntegerField(default=50)
+    neededAccuraccy = models.IntegerField(default=5)
+    additionalInfo = models.TextField(blank=True,null=True)
 
     def __str__(self):
-        return self.name
+        dh=''
+        if self.dualHanded == True:
+            dh='[Dual handed]'
+        return f"{self.name} {dh}"
     
 class Effects(models.Model):
     owner = models.CharField(max_length = 150)
