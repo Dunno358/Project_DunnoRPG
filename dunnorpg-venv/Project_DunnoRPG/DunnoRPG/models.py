@@ -105,6 +105,7 @@ class Skills_Decs(models.Model):
 class Items(models.Model):
     name = models.CharField(max_length=50, null=True)
     type = models.CharField(max_length=50, null=True)
+    rarity = models.CharField(max_length=50, null=True)
     dualHanded = models.BooleanField(default=False)
     desc = models.TextField(null=True)
     found = models.BooleanField(default=False)
