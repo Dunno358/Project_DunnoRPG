@@ -48,17 +48,27 @@
             <p><span class="text-white-50 ps-4">Gloves:</span> <a class='c-gold'  href=''>{{ value.Gloves }}</a></p>
             <p><span class="text-white-50 ps-4">Boots:</span> <a class='c-gold'  href=''>{{ value.Boots }}</a></p>
 
-            <p>
-                <span class="text-white-50 ps-4">LeftHand:</span> (<span id='l_weapon_bonus'>{{ value.name|isPreffereOrUnliked:value.LeftHand }}</span>) 
-                <a class='c-gold'  href=''>{{ value.LeftHand }} [<span id='leftWeaponStat'>{{ value.LeftHand|getItemStatByName }}</span>]</a>
+            <p name="LeftHand">
+            <span class="text-white-50 ps-4">LeftHand:</span> (<span id='l_bonus'>{{ value.name|isPreffereOrUnliked:value.LeftHand }}</span>)
+            {% if value.LeftHand|isNotEmpty %} 
+            <a class='c-gold'  href=''>{{ value.LeftHand }}
+                {% if value.LeftHand|isShield %}
+                [{{ value.LeftHand|getItemBlock }}]
+                {% else %}
+                [1K<span id='l_dmg'>{{ value.LeftHand|getItemBonus }}</span>, <span id='l_ap'>{{ value.LeftHand|getItemAP }}</span>AP]
+                {% endif %}
+            {% endif %}
+            </a>
             </p>
-            
+
             {% if value.LeftHand|isDualHanded %}
                 <p><span class="text-white-50 ps-4">RightHand:</span> <span id='rightWeapon' class='c-gold'>Above weapon is two-handed</span></p>
             {% else %}
                 <p>
-                    <span class="text-white-50 ps-4">RightHand:</span> (<span id='r_weapon_bonus'>{{ value.name|isPreffereOrUnliked:value.RightHand }}</span>)
-                    <a id='rightWeapon' class='c-gold'  href=''>{{ value.RightHand }} [<span id='rightWeaponStat'>{{ value.RightHand|getItemStatByName }}</span>]</a>
+                    <span class="text-white-50 ps-4">RightHand:</span> (<span id='r_bonus'>{{ value.name|isPreffereOrUnliked:value.RightHand }}</span>)
+                    {% if value.RightHand|isNotEmpty %} 
+                    <a id='rightWeapon' class='c-gold'  href=''>{{ value.RightHand }} [1K<span id='r_dmg'>{{ value.RightHand|getItemBonus }}</span>, <span id='r_ap'>{{ value.RightHand|getItemAP }}</span>AP]</a>
+                    {% endif %}
                 </p>
             
                 {% endif %}
@@ -184,19 +194,30 @@ function calculate(action){
     dice = document.getElementById('calc_dice')
     if(action=='attack' || action=='parry')
     {
-        //indexing and slicing of DMG and AP to be fixed
         sil = parseInt(document.getElementById('stat-SIŁ').innerHTML)
         sil_mod = parseInt(document.getElementById('stat-SIŁ-mod').innerHTML)
 
-        leftWeaponDmg = parseInt(document.getElementById('leftWeaponStat').innerHTML.slice(2,4))
-        leftWeaponAp = parseInt(document.getElementById('leftWeaponStat').innerHTML[6])
+        if(document.getElementById('l_bonus').innerHTML != 'Empty') //check if item is shield and change way of calculating if it is
+        {
+        leftWeaponDmg = parseInt(document.getElementById('l_dmg').innerHTML)
+        leftWeaponAp = parseInt(document.getElementById('l_ap').innerHTML)
+        l_bonus = parseInt(document.getElementById('l_bonus').innerHTML)
+        l_mods = sil+sil_mod+leftWeaponDmg+l_bonus
+        left.innerHTML = '<b>Left hand | '+action+': </b>'+
+        'SIŁ'+'('+sil+')'+ ' + '+
+        'MODS'+'('+sil_mod+')'+' + '+
+        'WEAPON'+'('+leftWeaponDmg+')'+' + '+
+        'BONUS'+'('+l_bonus+')'+' & '+
+        'AP'+'('+leftWeaponAp+') = '+
+        "<span onclick='getDiceWMods(this,l_mods)'><u>Check</u></span>"
+        }
 
         rightOperative = false
         rightWeapon = document.getElementById('rightWeapon')
         if(rightWeapon.innerHTML!='Above weapon is two-handed')
         {
-            rightWeaponDmg = parseInt(document.getElementById('rightWeaponStat').innerHTML.slice(2,4))
-            rightWeaponAp = parseInt(document.getElementById('rightWeaponStat').innerHTML[6])
+            rightWeaponDmg = parseInt(document.getElementById('r_dmg').innerHTML)
+            rightWeaponAp = parseInt(document.getElementById('r_ap').innerHTML)
             rightOperative=true
         }
 
@@ -211,24 +232,14 @@ function calculate(action){
             "<span onclick='getDiceWMods(this,cel_mods)'><u>Check</u></span>"
         }
 
-        l_weapon_bonus = parseInt(document.getElementById('l_weapon_bonus').innerHTML)
-        l_mods = sil+sil_mod+leftWeaponDmg+l_weapon_bonus
-        left.innerHTML = '<b>Left hand | '+action+': </b>'+
-        'SIŁ'+'('+sil+')'+ ' + '+
-        'MODS'+'('+sil_mod+')'+' + '+
-        'WEAPON'+'('+leftWeaponDmg+')'+' + '+
-        'BONUS'+'('+l_weapon_bonus+')'+' & '+
-        'AP'+'('+leftWeaponAp+') = '+
-        "<span onclick='getDiceWMods(this,l_mods)'><u>Check</u></span>"
-
         if(rightOperative){
-            r_weapon_bonus = parseInt(document.getElementById('r_weapon_bonus').innerHTML)
-            r_mods = sil+sil_mod+rightWeaponDmg+r_weapon_bonus
+            r_bonus = parseInt(document.getElementById('r_bonus').innerHTML)
+            r_mods = sil+sil_mod+rightWeaponDmg+r_bonus
             right.innerHTML = '<b>Right hand | '+action+': </b>'+
             'SIŁ'+'('+sil+')'+ ' + '+
             'MODS'+'('+sil_mod+')'+' + '+
             'WEAPON'+'('+rightWeaponDmg+')'+' + '+
-            'BONUS'+'('+r_weapon_bonus+')'+' & '+
+            'BONUS'+'('+r_bonus+')'+' & '+
             'AP'+'('+rightWeaponAp+') = '+
             "<span onclick='getDiceWMods(this,r_mods)'><u>Check</u></span>"
         }
@@ -253,6 +264,9 @@ function calculate(action){
 function getDiceWMods(instance,modsPoints){
     dice = getRandomInt(1,21)
     result = dice+modsPoints
+    if(result < 1){
+        result = 1
+    }
     instance.innerHTML = 'Result: ' + result + ' (Dice ' + dice + ')'
 }
 </script>
