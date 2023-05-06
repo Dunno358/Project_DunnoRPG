@@ -24,11 +24,19 @@ def getItemAP(itemName):
 
 @register.filter
 def getItemBonus(itemName):
-    return models.Items.objects.all().filter(name=itemName).values()[0]['diceBonus']
+    bonus = models.Items.objects.all().filter(name=itemName).values()[0]['diceBonus']
+    if bonus>=0:
+        return f"+{bonus}"
+    else:
+        return bonus
 
 @register.filter
 def getItemBlock(itemName):
     return models.Items.objects.all().filter(name=itemName).values()[0]['block']
+
+@register.filter
+def getItemType(itemName):
+    return models.Items.objects.all().filter(name=itemName).values()[0]['type']
     
 @register.filter
 def isDualHanded(itemName):
@@ -39,9 +47,12 @@ def isDualHanded(itemName):
 
 @register.filter
 def isShield(itemName):
-    if models.Items.objects.all().filter(name=itemName).values()[0]['type'] == 'shield':
-        return True
-    else:
+    try:
+        if models.Items.objects.all().filter(name=itemName).values()[0]['type'] == 'shield':
+            return True
+        else:
+            return False
+    except:
         return False
 
 @register.filter
