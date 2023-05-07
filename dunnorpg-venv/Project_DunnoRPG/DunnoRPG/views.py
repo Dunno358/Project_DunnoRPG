@@ -12,7 +12,8 @@ from rest_framework.parsers import JSONParser
 from rest_framework.renderers import JSONRenderer, TemplateHTMLRenderer
 from rest_framework.response import Response
 from rest_framework.views import APIView
-
+from django.contrib.auth import authenticate, login
+from django.contrib.auth.models import User
 from . import models
 from .forms import CharacterForm, CharacterSkillsForm
 
@@ -344,6 +345,15 @@ def skill_delete(request,char_id,skill_id):
     character.save()
     skill.delete()
     return redirect(f'/dunnorpg/character_add_skills/{char_id}/')
+
+def log_as_guest(request):
+    guest_user = User.objects.get(username='Guest')
+    user = authenticate(request, username='Guest', password='GuestPassword')
+    if user is not None:
+        login(request, user)
+        return redirect('home')
+    else:
+        return HttpResponse('Invalid login')
 
 class SignUp(CreateView):
     form_class = UserCreationForm

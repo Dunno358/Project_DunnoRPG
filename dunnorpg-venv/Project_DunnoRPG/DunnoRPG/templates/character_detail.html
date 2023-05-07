@@ -200,7 +200,7 @@ function calculate(action){
     dice = document.getElementById('calc_dice')
     if(action=='attack' || action=='parry')
     {
-        if(action=='attack'){
+        if(action=='attack'){ //accuraccy
             cel = parseInt(document.getElementById('stat-CEL').innerHTML)
             cel_mod = parseInt(document.getElementById('stat-CEL-mod').innerHTML)
             cel_mods = cel+cel_mod
@@ -217,10 +217,10 @@ function calculate(action){
         if(document.getElementById('l_bonus').innerHTML != 'Empty')
         {
             leftWeapon = document.getElementById('l_weapon')
+            l_bonus = parseInt(document.getElementById('l_bonus').innerHTML)
             if(leftWeapon.getAttribute("name") == 'shield'){
                 if(action=='parry'){
                     l_block = parseInt(document.getElementById('l_block').innerHTML)
-                    l_bonus = parseInt(document.getElementById('l_bonus').innerHTML)
                     left.innerHTML = '<b>Left hand | '+action+': </b>'+
                     'BLOCK'+'('+l_block+')'+ ' + '+
                     'BONUS'+'('+l_bonus+') = '+
@@ -230,6 +230,8 @@ function calculate(action){
                     shield_attack_mods = sil-10
                     left.innerHTML = '<b>Left hand | '+action+': </b>'+
                     'SIŁ'+'('+sil+')'+ ' + '+
+                    'MODS'+'('+sil_mod+')'+' + '+
+                    'BONUS'+'('+l_bonus+')'+' + '+
                     'BASIC(-10) = '+
                     "<span onclick='getDiceWMods(this,shield_attack_mods)'><u>Check</u></span>" 
                 }
@@ -237,7 +239,6 @@ function calculate(action){
             else{
                 leftWeaponDmg = parseInt(document.getElementById('l_dmg').innerHTML)
                 leftWeaponAp = parseInt(document.getElementById('l_ap').innerHTML)
-                l_bonus = parseInt(document.getElementById('l_bonus').innerHTML)
                 l_mods = sil+sil_mod+leftWeaponDmg+l_bonus
                 left.innerHTML = '<b>Left hand | '+action+': </b>'+
                 'SIŁ'+'('+sil+')'+ ' + '+
@@ -257,13 +258,13 @@ function calculate(action){
         }
 
         if(rightOperative){
+            r_bonus = parseInt(document.getElementById('r_bonus').innerHTML)
             if(document.getElementById('r_bonus').innerHTML != 'Empty')
             {
                 rightWeapon = document.getElementById('r_weapon')
                 if(rightWeapon.getAttribute("name") == 'shield'){
                     if(action=='parry'){
                         r_block = parseInt(document.getElementById('r_block').innerHTML)
-                        r_bonus = parseInt(document.getElementById('r_bonus').innerHTML)
                         right.innerHTML = '<b>Right hand | '+action+': </b>'+
                         'BLOCK'+'('+r_block+')'+ ' + '+
                         'BONUS'+'('+r_bonus+') = '+
@@ -273,6 +274,8 @@ function calculate(action){
                         shield_attack_mods = sil-10
                         right.innerHTML = '<b>Right hand | '+action+': </b>'+
                         'SIŁ'+'('+sil+')'+ ' + '+
+                        'MODS'+'('+sil_mod+')'+' + '+
+                        'BONUS'+'('+r_bonus+')'+' + '+
                         'BASIC(-10) = '+
                         "<span onclick='getDiceWMods(this,shield_attack_mods)'><u>Check</u></span>" 
                     }
@@ -280,7 +283,6 @@ function calculate(action){
                 else{
                     rightWeaponDmg = parseInt(document.getElementById('r_dmg').innerHTML)
                     rightWeaponAp = parseInt(document.getElementById('r_ap').innerHTML)
-                    r_bonus = parseInt(document.getElementById('r_bonus').innerHTML)
                     r_mods = sil+sil_mod+rightWeaponDmg+r_bonus
                     right.innerHTML = '<b>Right hand | '+action+': </b>'+
                     'SIŁ'+'('+sil+')'+ ' + '+
