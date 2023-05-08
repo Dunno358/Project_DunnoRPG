@@ -259,13 +259,13 @@ class CharacterDetails(APIView):
         }
         return Response(context) 
 
-def character_edit(request,id):
-    chosen_character = list(models.Character.objects.all().filter(id=id).values())[0]
-
-    context = {
-        'character': chosen_character
-    }
-    return render(request, "character_edit.html", context)    
+#def character_edit(request,id):
+#    chosen_character = list(models.Character.objects.all().filter(id=id).values())[0]
+#
+#    context = {
+#        'character': chosen_character
+#    }
+#    return render(request, "character_edit.html", context)    
 
 class Skills(APIView):
     serializer_class = SkillsDecsSerializer

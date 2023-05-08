@@ -37,6 +37,8 @@ def getItemBlock(itemName):
 @register.filter
 def getItemType(itemName):
     return models.Items.objects.all().filter(name=itemName).values()[0]['type']
+   
+   
     
 @register.filter
 def isDualHanded(itemName):
@@ -82,6 +84,8 @@ def isPreffereOrUnliked(character, itemName):
     else:
         return "Empty"
 
+
+
 @register.filter
 def getMod(character,stat_for_mod):
     value = 0
@@ -91,6 +95,12 @@ def getMod(character,stat_for_mod):
         value = f"+{value}"
     return value
 
+
+
 @register.filter
 def getCharacterEffects(character):
     return models.Effects.objects.all().filter(character=character['name']).values()
+
+@register.filter
+def getEffectDesc(effect):
+    return models.Effects_Decs.objects.all().filter(name=effect).values()[0]['desc']

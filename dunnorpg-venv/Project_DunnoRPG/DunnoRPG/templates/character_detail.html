@@ -85,8 +85,8 @@
             <p class="text-center fw-bold">Effects: </p>
             <ul>
             {% for effect in value|getCharacterEffects %}
-            <li onclick="show_or_hideById(this.attributes['name'].value)" name='ef{{ effect.id }}' class='fw-bold fst-italic'>{{ effect.name }} ({{ effect.time }})</li>
-            <p id='ef{{ effect.id }}' class='d-none'>{{ effect.desc }}</p>
+            <li onclick="show_or_hideById(this.attributes['name'].value)" name='ef{{ effect.id }}' class='fw-bold fst-italic'>{{ effect.name }} (+{{ effect.bonus }}) | Time left: {{ effect.time }}</li>
+            <p id='ef{{ effect.id }}' class='d-none'>{{ effect.name|getEffectDesc }}</p>
             {% endfor %}
             </ul>
         </div>
