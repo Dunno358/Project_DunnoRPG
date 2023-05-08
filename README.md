@@ -5,7 +5,7 @@ Web application made with Django and REST Framework which target is to help Game
 &emsp; ![Home page](https://github.com/Dunno358/Pictures/blob/main/dunnorpg_home_logged_in.png?raw=true)
 
 ## Added
-- Account management (Register, Login, Logout)
+- Account management (Register, Login, Logout and Guest Account)
 
 &emsp; ![Home page](https://github.com/Dunno358/Pictures/blob/main/dunno_login_signin.png?raw=true)
 
@@ -24,10 +24,13 @@ Web application made with Django and REST Framework which target is to help Game
 
 &emsp; ![Home page](https://github.com/Dunno358/Pictures/blob/main/dunnorpg_detailed_in_dev.png?raw=true)
 
+- Character actions
+
+&emsp; ![Home page](https://github.com/Dunno358/Pictures/blob/main/dunnorpg_char_actions.png?raw=true)
+
 ## Will appear in future
 - Manage character equipment and skills
 - View items
-- Manage actions and effects based on turns
 - Roll dice
 
 ### Tech stack: Django, DRF, Bootstrap, SASS, JavaScript, HTML, CSS
