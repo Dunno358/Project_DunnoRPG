@@ -29,8 +29,8 @@ Web application made with Django and REST Framework which target is to help Game
 &emsp; ![Home page](https://github.com/Dunno358/Pictures/blob/main/dunnorpg_char_actions.png?raw=true)
 
 ## Will appear in future
-- Manage character equipment and skills
-- View items
-- Roll dice
+- Manage character equipment
+- View items found during game
+- Game Master management panel
 
 ### Tech stack: Django, DRF, Bootstrap, SASS, JavaScript, HTML, CSS
