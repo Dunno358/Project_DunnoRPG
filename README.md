@@ -1,6 +1,6 @@
 ## Currently in development
 # DunnoRPG
-Web application made with Django and REST Framework which target is to help Game Master to manage RPG sessions, as well as to help players to view and update their characters. 
+Web application designed to ease management of RPG sessions for Game Masters, as well as to help players to see and update their characters. Built with Django(DRF).
 
 &emsp; ![Home page](https://github.com/Dunno358/Pictures/blob/main/dunnorpg_home_logged_in.png?raw=true)
 
