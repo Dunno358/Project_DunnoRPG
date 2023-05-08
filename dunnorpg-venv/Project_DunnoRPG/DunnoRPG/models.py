@@ -130,9 +130,8 @@ class Effects(models.Model):
     owner = models.CharField(max_length = 150)
     character = models.CharField(max_length = 150)
     name = models.CharField(max_length = 150)
-    category = models.CharField(max_length = 150, null=True)
-    desc = models.TextField()
-    time = models.CharField(max_length=10)
+    bonus = models.IntegerField(default=0)
+    time = models.IntegerField(default=0)
     def __str__(self):
         return f"{self.character}: {self.name} ({self.time})"
     
@@ -157,7 +156,8 @@ class Effects_Decs(models.Model):
     name = models.CharField(max_length = 150)
     category = models.CharField(max_length = 150, choices=types)
     desc = models.TextField()
-    bonus = models.IntegerField(blank=True, null=True)
+    bonus = models.IntegerField(default=0)
+    time = models.IntegerField(default=0)
     def __str__(self):
         return self.name
     
