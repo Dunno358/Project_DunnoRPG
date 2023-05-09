@@ -141,7 +141,8 @@ USE_TZ = True
 STATIC_URL = 'static/'
 ROOT_URLCONF = 'Project_DunnoRPG.urls'
 
-STATIC_ROOT = os.path.join(BASE_DIR, 'static/') 
+STATIC_ROOT = "/home/Dunno358/Project_DunnoRPG/DunnoRPG/static"
+#STATIC_ROOT = os.path.join(BASE_DIR, 'static/') 
 STATICFILES_FINDERS =( 'django.contrib.staticfiles.finders.FileSystemFinder',  'django.contrib.staticfiles.finders.AppDirectoriesFinder',    'compressor.finders.CompressorFinder',
 ) 
 COMPRESS_PRECOMPILERS = (    
