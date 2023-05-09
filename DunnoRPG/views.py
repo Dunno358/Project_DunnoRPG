@@ -16,7 +16,6 @@ from django.contrib.auth import authenticate, login
 from django.contrib.auth.models import User
 from . import models
 from .forms import CharacterForm, CharacterSkillsForm
-#test
 
 class charGET(APIView):
     serializer_class = CharacterSerializer
