@@ -32,5 +32,6 @@ Web application designed to ease management of RPG sessions for Game Masters, as
 - Manage character equipment
 - View items found during game
 - Game Master management panel
+- Mobile responsiveness
 
 ### Tech stack: Django, DRF, Bootstrap, SASS, JavaScript, HTML, CSS
