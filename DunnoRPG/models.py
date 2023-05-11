@@ -33,8 +33,8 @@ class Character(models.Model):
     CEL = models.IntegerField()
     points_left = models.IntegerField(null=True)
     weaponBonus = models.IntegerField(null=True)
-    preferredWeapons = models.TextField(blank=True, null=True)
-    unlikedWeapons = models.TextField(blank=True, null=True)
+    preferredWeapons = models.TextField(null=True)
+    unlikedWeapons = models.TextField(null=True)
     
 
     def __str__(self):
