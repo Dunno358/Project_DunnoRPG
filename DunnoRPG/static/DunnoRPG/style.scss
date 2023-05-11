@@ -22,6 +22,9 @@ $gold: goldenrod;
 body{
     background: $background_img;
     background-size: cover;
+    width: 100vw;
+    height: 100vh;
+    background-position: center, center;
 }
 
 a{
@@ -36,6 +39,9 @@ a:link, a:visited, a:hover, a:active{
     display:inline-block;
 }
 
+.home-btn{
+    margin-top: 3vh;
+}
 .home-btn:hover{
     font-size: 130%;
 }
@@ -55,6 +61,10 @@ a:link, a:visited, a:hover, a:active{
     @include mg-t($value: 10%)
 }
 
+.ms50{
+    margin-left: 20vw;
+}
+
 .ms-6
 {
     margin-left: 50%;
@@ -70,6 +80,14 @@ a:link, a:visited, a:hover, a:active{
 
 .w-15{
     width: 15%;
+}
+
+.w-10v{
+    width: 10vw;
+}
+
+.w-25v{
+    width: 25vw;
 }
 
 .f-size-100{
@@ -110,3 +128,6 @@ a:link, a:visited, a:hover, a:active{
     @include bg;
 }
 
+.mgt20{
+    margin-top: 20vh;
+}
