@@ -6,13 +6,15 @@
 <div class="text-center mt-3">
   <h1 class="c-gold txt-shadow">Login</h1>
   
-    <form class="f-size-150 mt-5" method="post">
+    <form class="f-size-150 mt-5 card-body" method="post">
       {% csrf_token %}
         {{ form.as_p }}
           <input class="btn btn-success btn-lg" type="submit" value="Submit">
     </form>
 
-    <a href="{% url 'signup' %}" class="btn btn-primary btn-lg home-btn mg-top-5">Sign Up</a>
+    <p class="c-gold txt-shadow fw-bold mg-top-5">Or maybe you don't have an account?</p>
+    <a href="{% url 'signup' %}" class="btn btn-primary btn-lg home-btn">Sign Up</a><br>
+    <a href="{% url 'home' %}" class="btn btn-dark btn-outline-warning home-btn"><- Back   home</a>
 
 </div>
 {% endblock %}

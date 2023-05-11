@@ -63,6 +63,12 @@ class charPOST(FormView):
             character.CEL += int(pluses[4])-int(minuses[4])
 
             character.fullHP = character.HP
+                
+            character.weaponBonus = chosen_race['weaponsBonus']
+            character.preferredWeapons = chosen_race['weaponsPreffered']
+            character.unlikedWeapons = chosen_race['weaponsUnliked']
+
+            character.save()
 
             skills = models.Skills.objects
             for skill in chosen_race['Skills'].split(';'):
@@ -76,12 +82,6 @@ class charPOST(FormView):
                     level=skill_level,
                     desc = models.Skills_Decs.objects.all().filter(name=skill_name).values()[0]['desc']
                     )
-                
-            character.weaponBonus = chosen_race['weaponsBonus']
-            character.preferredWeapons = chosen_race['weaponsPreffered']
-            character.unlikedWeapons = chosen_race['weaponsUnliked']
-
-            character.save()
 
             return redirect(f'character_add_skills/{character.id}')
         else:

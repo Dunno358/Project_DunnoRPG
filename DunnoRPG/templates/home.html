@@ -8,7 +8,7 @@
   <div class="container card-body">
     <div class="row">
         {% for character in characters %}
-        <div class="col-3 ms-5 m-1 p-1 border border-warning bg-gray c-gold rounded text-center">
+        <div class="col m-5 p-1 border border-warning bg-gray c-gold rounded text-center">
           <dl>
             <dt>Character:</dt>
               <dd>{{ character.name }}</dd>
@@ -20,41 +20,32 @@
         {% endfor %}
 
         {% if characters_count > 0 %}
-        <div class="col-2 d-flex align-items-center m-3 ms-5">
-          {% if characters_count|divisibleby:"3" %}
-            <a class="ms-6 mt-2 btn btn-dark btn-outline-warning w-100 h-100 fs-2" href="{% url 'character_add' %}">+</a>
-          {% else %}
-            <a class="ms-6 btn btn-dark btn-outline-warning w-50 h-50 fs-2" href="{% url 'character_add' %}">+</a>
-          {% endif %}
+        <div class="col mt-5 m-3 ms-5">
+            <a class="ms50 mt-4 btn btn-dark btn-outline-warning fs-2 w-25v" href="{% url 'character_add' %}">+</a>
         </div>
         {% else %}
         <div class="row">
-          <div class="col-4"></div>
-          <div class="col-4 m-2">
+          <div class="col text-center m-2">
             <h2 class="c-gold fw-bold fst-italic txt-shadow">None characters found</h2>
           </div>
         </div>
         <div class='row'>
-          <div class="col-5"></div>
-          <div class="col-3 d-flex align-items-center m-3">
-            <a class="btn btn-dark btn-outline-warning w-50 h-100 fs-1" href="{% url 'character_add' %}">+</a>
+          <div class="col align-items-center m-3 text-center">
+            <a class="btn btn-dark btn-outline-warning w-25 h-100 fs-1" href="{% url 'character_add' %}">+</a>
           </div>
         </div>
         {% endif %}
-      <div class="col-4"></div>
     </div>
   </div>
 
   {% else %}
-    <div class="home-test">
-    <div class="d-grid gap-2 col-6 mx-auto mg-top-10">
-      <a href="/accounts/login/" class="btn btn-dark btn-outline-warning btn-lg home-btn">Log In</a>
+      <div class="d-grid gap-2 col-6 mx-auto mgt20">
+        <a href="/accounts/login/" class="btn btn-dark btn-outline-success btn-lg home-btn">Log In</a>
 
-      <a href="guest/" class="btn btn-dark btn-outline-warning btn-lg home-btn">Guest Account</a>
+        <a href="guest/" class="btn btn-dark btn-outline-warning btn-lg home-btn">Guest Account</a>
 
-      <a href="signup/" class="btn btn-dark btn-outline-warning btn-lg home-btn">Sign Up</a>
-    </div>
-    </div>
+        <a href="signup/" class="btn btn-dark btn-outline-primary btn-lg home-btn">Sign Up</a>
+      </div>
 {% endif %}
 
 <script>
