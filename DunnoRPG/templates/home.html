@@ -18,11 +18,10 @@
           <a class="btn btn-dark btn-outline-warning m-1" href="{% url 'character_detail' character.id %}">Choose</a>
       </div>
         {% endfor %}
-
         {% if characters_count > 0 %}
-        <div class="col mt-5 m-3 ms-5">
-            <a class="ms50 mt-4 btn btn-dark btn-outline-warning fs-2 w-25v" href="{% url 'character_add' %}">+</a>
-        </div>
+          <div class="col mt-5 m-3 text-center">
+              <a class="mt-4 btn btn-dark btn-outline-warning fs-2 w-15vh" href="{% url 'character_add' %}">+</a>
+          </div>
         {% else %}
         <div class="row">
           <div class="col text-center m-2">

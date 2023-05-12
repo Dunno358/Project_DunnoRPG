@@ -82,13 +82,34 @@ a:link, a:visited, a:hover, a:active{
     width: 15%;
 }
 
+.w-5v{
+    width: 5vw;
+}
+
 .w-10v{
     width: 10vw;
+}
+
+.w-10vh{
+    width: 10vh;
+}
+
+.w-15v{
+    width: 15vw;
+}
+
+.w-15vh{
+    width: 15vh;
+}
+
+.w-20v{
+    width: 20vw;
 }
 
 .w-25v{
     width: 25vw;
 }
+
 
 .f-size-100{
     @include f-size;
