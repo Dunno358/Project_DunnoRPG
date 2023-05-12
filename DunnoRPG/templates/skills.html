@@ -3,23 +3,23 @@
 {% block content %}
 {% include 'top_bar.html' %}
 
-<div id='top' class='container row mt-2 bg-gray p-2 rounded border border-warning' style='margin-left: 6%;'>
-        {% for skill in skills %}
-            <div class='col ms-4'>
-                <button type='button' onclick="show(this)" class='btn btn-dark btn-outline-warning btn-block'>{{ skill }}</button>
-            </div>
-        {% endfor %}
-</div>
-
-<div id='Magical' class='container row bg-dark d-none' style='margin-left: 6%;'>
-{% for skill in magical_skills %}
-    <div class='col m-1 border border-warning rounded bg-gray text-center p-2'>
-        <a title='{{ skill.desc }}' href='{{ skill.id }}/' class='h3 c-gold'>{{ skill.name }}</a>
+<div class='container'>
+    <div id='top' class='row mt-1 bg-gray p-1 rounded border border-warning'>
+            {% for skill in skills %}
+                    <button type='button' onclick="show(this)" class='col m-1 btn btn-dark btn-outline-warning'>{{ skill }}</button>
+            {% endfor %}
     </div>
-{% endfor %}
 </div>
 
-<div id='Melee' class='container row bg-dark d-none' style='margin-left: 6%;'>
+<div id='Magical' class='row bg-dark d-none ms-1 me-1'>
+    {% for skill in magical_skills %}
+        <div class='col m-1 border border-warning rounded bg-gray text-center p-2'>
+            <a title='{{ skill.desc }}' href='{{ skill.id }}/' class='h3 c-gold'>{{ skill.name }}</a>
+        </div>
+    {% endfor %}
+</div>
+
+<div id='Melee' class='row bg-dark d-none ms-1 me-1'>
     {% for skill in melee_skills %}
         <div class='col m-1 border border-warning rounded bg-gray text-center p-2'>
             <a title='{{ skill.desc }}' href='{{ skill.id }}/' class='h3 c-gold'>{{ skill.name }}</a>
@@ -27,7 +27,7 @@
     {% endfor %}
 </div>
 
-<div id='Range' class='container row bg-dark d-none' style='margin-left: 6%;'>
+<div id='Range' class='row bg-dark d-none ms-1 me-1'>
     {% for skill in range_skills %}
         <div class='col m-1 border border-warning rounded bg-gray text-center p-2'>
             <a title='{{ skill.desc }}' href='{{ skill.id }}/' class='h3 c-gold'>{{ skill.name }}</a>
@@ -35,7 +35,7 @@
     {% endfor %}
 </div>
 
-<div id='Agility' class='container row bg-dark d-none' style='margin-left: 6%;'>
+<div id='Agility' class='row bg-dark d-none ms-1 me-1'>
     {% for skill in agility_skills %}
         <div class='col m-1 border border-warning rounded bg-gray text-center p-2'>
             <a title='{{ skill.desc }}' href='{{ skill.id }}/' class='h3 c-gold'>{{ skill.name }}</a>
@@ -43,7 +43,7 @@
     {% endfor %}
 </div>
 
-<div id='Education' class='container row bg-dark d-none' style='margin-left: 6%;'>
+<div id='Education' class='row bg-dark d-none ms-1 me-1'>
     {% for skill in education_skills %}
         <div class='col m-1 border border-warning rounded bg-gray text-center p-2'>
             <a title='{{ skill.desc }}' href='{{ skill.id }}/' class='h3 c-gold'>{{ skill.name }}</a>
@@ -51,7 +51,7 @@
     {% endfor %}
 </div>
 
-<div id='Animals' class='container row bg-dark d-none' style='margin-left: 6%;'>
+<div id='Animals' class='row bg-dark d-none ms-1 me-1'>
     {% for skill in animals_skills %}
         <div class='col m-1 border border-warning rounded bg-gray text-center p-2'>
             <a title='{{ skill.desc }}' href='{{ skill.id }}/' class='h3 c-gold'>{{ skill.name }}</a>
@@ -59,7 +59,7 @@
     {% endfor %}
 </div>
 
-<div id='Equipment' class='container row bg-dark d-none' style='margin-left: 6%;'>
+<div id='Equipment' class='row bg-dark d-none ms-1 me-1'>
     {% for skill in eq_skills %}
         <div class='col m-1 border border-warning rounded bg-gray text-center p-2'>
             <a title='{{ skill.desc }}' href='{{ skill.id }}/' class='h3 c-gold'>{{ skill.name }}</a>
@@ -67,7 +67,7 @@
     {% endfor %}
 </div>
 
-<div id='Other' class='container row bg-dark d-none' style='margin-left: 6%;'>
+<div id='Other' class='row bg-dark d-none ms-1 me-1'>
     {% for skill in other_skills %}
         <div class='col m-1 border border-warning rounded bg-gray text-center p-2'>
             <a title='{{ skill.desc }}' href='{{ skill.id }}/' class='h3 c-gold'>{{ skill.name }}</a>
@@ -79,6 +79,7 @@
     document.getElementById('tb-skills').classList.remove('btn-outline-warning')
     document.getElementById('tb-skills').classList.add('btn-outline-primary')
     function show(btn) {
+        console.log(btn)
         let ids = ['Magical','Melee','Range','Agility','Education','Animals','Equipment','Other']
         for (let i = 0; i < ids.length; i++) {
             element = document.getElementById(ids[i])
@@ -89,8 +90,8 @@
             }
             else{
                 element.classList.add("d-none");
-                document.getElementById('top').children[i].children[0].classList.remove('btn-outline-primary')
-                document.getElementById('top').children[i].children[0].classList.add('btn-outline-warning')                
+                document.getElementById('top').children[i].classList.remove('btn-outline-primary')
+                document.getElementById('top').children[i].classList.add('btn-outline-warning')                
             }
           }
         }
