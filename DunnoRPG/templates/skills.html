@@ -11,7 +11,7 @@
     </div>
 </div>
 
-<div id='Magical' class='row bg-dark d-none ms-1 me-1'>
+<div id='Magical' class='row bg-dark d-none ms-1 me-1 border border-primary rounded'>
     {% for skill in magical_skills %}
         <div class='col m-1 border border-warning rounded bg-gray text-center p-2'>
             <a title='{{ skill.desc }}' href='{{ skill.id }}/' class='h3 c-gold'>{{ skill.name }}</a>
@@ -19,7 +19,7 @@
     {% endfor %}
 </div>
 
-<div id='Melee' class='row bg-dark d-none ms-1 me-1'>
+<div id='Melee' class='row bg-dark d-none ms-1 me-1 border border-primary rounded'>
     {% for skill in melee_skills %}
         <div class='col m-1 border border-warning rounded bg-gray text-center p-2'>
             <a title='{{ skill.desc }}' href='{{ skill.id }}/' class='h3 c-gold'>{{ skill.name }}</a>
@@ -27,7 +27,7 @@
     {% endfor %}
 </div>
 
-<div id='Range' class='row bg-dark d-none ms-1 me-1'>
+<div id='Range' class='row bg-dark d-none ms-1 me-1 border border-primary rounded'>
     {% for skill in range_skills %}
         <div class='col m-1 border border-warning rounded bg-gray text-center p-2'>
             <a title='{{ skill.desc }}' href='{{ skill.id }}/' class='h3 c-gold'>{{ skill.name }}</a>
@@ -35,7 +35,7 @@
     {% endfor %}
 </div>
 
-<div id='Agility' class='row bg-dark d-none ms-1 me-1'>
+<div id='Agility' class='row bg-dark d-none ms-1 me-1 border border-primary rounded'>
     {% for skill in agility_skills %}
         <div class='col m-1 border border-warning rounded bg-gray text-center p-2'>
             <a title='{{ skill.desc }}' href='{{ skill.id }}/' class='h3 c-gold'>{{ skill.name }}</a>
@@ -43,7 +43,7 @@
     {% endfor %}
 </div>
 
-<div id='Education' class='row bg-dark d-none ms-1 me-1'>
+<div id='Education' class='row bg-dark d-none ms-1 me-1 border border-primary rounded'>
     {% for skill in education_skills %}
         <div class='col m-1 border border-warning rounded bg-gray text-center p-2'>
             <a title='{{ skill.desc }}' href='{{ skill.id }}/' class='h3 c-gold'>{{ skill.name }}</a>
@@ -51,7 +51,7 @@
     {% endfor %}
 </div>
 
-<div id='Animals' class='row bg-dark d-none ms-1 me-1'>
+<div id='Animals' class='row bg-dark d-none ms-1 me-1 border border-primary rounded'>
     {% for skill in animals_skills %}
         <div class='col m-1 border border-warning rounded bg-gray text-center p-2'>
             <a title='{{ skill.desc }}' href='{{ skill.id }}/' class='h3 c-gold'>{{ skill.name }}</a>
@@ -59,7 +59,7 @@
     {% endfor %}
 </div>
 
-<div id='Equipment' class='row bg-dark d-none ms-1 me-1'>
+<div id='Equipment' class='row bg-dark d-none ms-1 me-1 border border-primary rounded'>
     {% for skill in eq_skills %}
         <div class='col m-1 border border-warning rounded bg-gray text-center p-2'>
             <a title='{{ skill.desc }}' href='{{ skill.id }}/' class='h3 c-gold'>{{ skill.name }}</a>
@@ -67,7 +67,7 @@
     {% endfor %}
 </div>
 
-<div id='Other' class='row bg-dark d-none ms-1 me-1'>
+<div id='Other' class='row bg-dark d-none ms-1 me-1 border border-primary rounded'>
     {% for skill in other_skills %}
         <div class='col m-1 border border-warning rounded bg-gray text-center p-2'>
             <a title='{{ skill.desc }}' href='{{ skill.id }}/' class='h3 c-gold'>{{ skill.name }}</a>
@@ -79,7 +79,6 @@
     document.getElementById('tb-skills').classList.remove('btn-outline-warning')
     document.getElementById('tb-skills').classList.add('btn-outline-primary')
     function show(btn) {
-        console.log(btn)
         let ids = ['Magical','Melee','Range','Agility','Education','Animals','Equipment','Other']
         for (let i = 0; i < ids.length; i++) {
             element = document.getElementById(ids[i])
