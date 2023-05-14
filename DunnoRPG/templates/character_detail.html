@@ -23,7 +23,7 @@
 <div class="container row">
     {% for value in chosen_character %}
 
-    <div name='Stats' class="d-none mt-1 ms-5 me-5 h-25 card-body c-gold border border-warning bg-dark rounded">
+    <div name='Stats' style='margin-left: 20%; margin-right: 20%;' class="d-none text-center mt-1 card-body c-gold border border-warning bg-dark rounded">
         <p name='stat'><span class="text-white-50">INT:</span> <span id='stat-INT'>{{ value.INT }}</span> (<span id='stat-INT-mod'>{{ value|getMod:"INT" }}</span>)</p>
         <p name='stat'><span class="text-white-50">SIŁ:</span> <span id='stat-SIŁ'>{{ value.SIŁ }}</span> (<span id='stat-SIŁ-mod'>{{ value|getMod:"SIŁ" }}</span>)</p>
         <p name='stat'><span class="text-white-50">ZRE:</span> <span id='stat-ZRE'>{{ value.ZRE }}</span> (<span id='stat-ZRE-mod'>{{ value|getMod:"ZRE" }}</span>)</p>
@@ -31,7 +31,7 @@
         <p name='stat'><span class="text-white-50">CEL:</span> <span id='stat-CEL'>{{ value.CEL }}</span> (<span id='stat-CEL-mod'>{{ value|getMod:"CEL" }}</span>)</p>
     </div>
 
-        <div name='Equipment' class="col mt-1 ms-1 card-body c-gold border border-warning bg-dark rounded">
+        <div name='Equipment' style='margin-left: 10%;' class="col mt-1 card-body c-gold border border-warning bg-dark rounded">
             <p class="text-center fw-bold">{{ value.name }}</p>
             <p title='{{ race_desc }}'><span class="text-white-50">Race:</span> {{ value.race }} ({{ value.size }})</p>
             <p><span class="text-white-50">Health:</span> {{ value.HP }}/{{ value.fullHP }}</p>
@@ -73,7 +73,7 @@
             <p><span class="text-white-50">Side:</span> <a class='c-gold'  href=''>{{ value.Side }} [{{ value.Side|getItemStatByName }}]</a></p>
         </div>
 
-        <div name='Effects' style='width: auto; height:5%;' class="d-none rounded container col card-body c-gold border border-warning bg-dark m-2">
+        <div name='Effects' style='margin-left: 5%; margin-right: -5%;' class="d-none rounded container col card-body c-gold border border-warning bg-dark mt-1">
             <p class="text-center fw-bold">Effects: </p>
             <ul>
             {% for effect in value|getCharacterEffects %}
@@ -84,7 +84,7 @@
         </div>
     {% endfor %}
 
-    <div name='Skills' style='width: auto; height:5%;' class="d-none rounded container col card-body c-gold border border-warning bg-dark m-2">
+    <div name='Skills' style='margin-left: 5%; margin-right: -5%;' class="d-none rounded container col card-body c-gold border border-warning bg-dark mt-1">
         <p class="text-center fw-bold">Skills: </p>
         <ul class='ms-4'>
         {% for skill in skills %}
@@ -96,7 +96,7 @@
         <ul>
     </div>
     {% for skill in skills %}
-        <div id='{{ skill.id }}' name="desc_block" style='width: 22%; height:5%;' class="d-none rounded container col-3 card-body c-gold border border-warning bg-dark m-2">
+        <div id='{{ skill.id }}' name="desc_block" style='margin-left: 5%; margin-right: -5%;' class="d-none rounded container col-3 card-body c-gold border border-warning bg-dark mt-1">
             <p class='fw-bold text-center'>{{ skill.skill }} lvl.{{ skill.level }}</p>
             {{ skill.desc }}
             <br>
@@ -105,7 +105,7 @@
     {% endfor %}
 </div>
 
-<div class='container-fluid mt-2'>
+<div class='container mt-2'>
     <div class='row'>
         <div onclick="calculate('parry')" class='col m-1 btn btn-dark btn-outline-warning border border-warning rounded'>
             <span class=''>Parry</span>

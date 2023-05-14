@@ -3,35 +3,43 @@
 {% block content %}
 {% include 'top_bar.html' %}
 
-<div class='container-fluid row'>
-    <div class='col text-center c-gold txt-shadow fst-italic'>
-        <h1>{{ skill.name }}</h1>
+<div class='container'>
+    <div class='row ms-4 me-4'>
+        <div class='col text-center c-gold txt-shadow fst-italic'>
+            <h1>{{ skill.name }}</h1>
+        </div>
     </div>
 </div>
 
-<div class='container-fluid row'>
-    <div class='col c-gold fst-italic bg-gray opacity-75 border border-warning rounded text-center' style='font-size: 115%;'>
-        <p>{{ skill.desc }}</p>
+<div class='container'>
+    <div class='row ms-3 me-3'>
+        <div class='col c-gold fst-italic bg-gray opacity-75 border border-warning rounded text-center' style='font-size: 115%;'>
+            <p>{{ skill.desc }}</p>
+        </div>
     </div>
 </div>
 
-<div class='container-fluid row'>
-    <div class='m-5 me-1 txt-shadow col c-gold fst-italic fw-bolder rounded text-center' style='font-size: 215%;'>
-        <p>Cost(per level): {{ skill.cost }}</p>
-    </div>
-    
-    {% for level in levels %}
-        <div class='mt-5 col c-gold rounded text-center'>
-            <button id='{{ level.level }}_btn' onclick='show(this)' type='button' class='fw-bold btn btn-dark btn-lg btn-outline-warning'>{{ level.level }}</button>
-        </div>        
-    {% endfor %}
+<div class='container-fluid'>
+    <div class='row'>
+        <div class='txt-shadow col c-gold fst-italic fw-bold rounded text-center' style='font-size: 175%;'>
+            <p>Cost(per level): {{ skill.cost }}</p>
+        </div>
 
-    <div class='m-5 ms-1 txt-shadow col c-gold fst-italic fw-bolder rounded text-center' style='font-size: 215%;'>
-        {% if skill.useAmount < 6 %}
-            <p>Uses(max): {{ skill.useAmount }}</p> 
-        {% else %}
-            <p>Uses: Infinite</p>
-        {% endif %}
+        <div class='txt-shadow col c-gold fst-italic fw-bold rounded text-center' style='font-size: 175%;'>
+            {% if skill.useAmount < 6 %}
+                <p>Uses(max): {{ skill.useAmount }}</p> 
+            {% else %}
+                <p>Uses: Infinite</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class='row'>
+        {% for level in levels %}
+            <div class='mt-5 col c-gold rounded text-center'>
+                <button id='{{ level.level }}_btn' onclick='show(this)' type='button' class='fw-bold btn btn-dark btn-lg btn-outline-warning'>{{ level.level }}</button>
+            </div>        
+        {% endfor %}
     </div>
 </div>
 
@@ -40,8 +48,8 @@
     {% for level in levels %}
         <div class='d-none' id='{{ level.level }}'>
             <div class='row'>
-                <div class='col text-center c-gold txt-shadow fst-italic' style='font-size: 150%;'>
-                    <p style="--bs-bg-opacity: .7;" class='m-5 mt-0 bg-dark rounded border border-warning'><span class='opacity-100'>{{ level.desc }}</span></p>
+                <div class='col text-center c-gold txt-shadow fst-italic' style='font-size: 140%;'>
+                    <p style="--bs-bg-opacity: .7;" class='m-4 mt-3 mb-3 bg-dark rounded border border-warning p-1'><span class='opacity-100'>{{ level.desc }}</span></p>
                 </div>
             </div>
             <div class='row c-gold text-center txt-shadow'>
@@ -54,12 +62,12 @@
             <div class='row'>
                 {% if  level.need1|length > 0 %}
                 <div class='col text-center c-gold txt-shadow fst-italic' style='font-size: 150%;'>
-                    <p style="--bs-bg-opacity: .7;" class='m-5 mt-0 bg-dark rounded border border-warning'><span class='opacity-100'>{{ level.need1 }}</span></p>
+                    <p style="--bs-bg-opacity: .7;" class='m-1 bg-dark rounded border border-warning'><span class='opacity-100'>{{ level.need1 }}</span></p>
                 </div> 
                 {% endif %}   
                 {% if level.need2|length > 0 %}
                 <div class='col text-center c-gold txt-shadow fst-italic' style='font-size: 150%;'>
-                    <p style="--bs-bg-opacity: .7;" class='m-5 mt-0 bg-dark rounded border border-warning'><span class='opacity-100'>{{ level.need2 }}</span></p>
+                    <p style="--bs-bg-opacity: .7;" class='m-1 bg-dark rounded border border-warning'><span class='opacity-100'>{{ level.need2 }}</span></p>
                 </div> 
                 {% endif %}         
             </div>
@@ -75,6 +83,7 @@
             var lvls = ['level1','level2','level3','level4']
             element = document.getElementById(btn.innerHTML)
             for (let i = 0; i < lvls.length; i++){
+                console.log(lvls[i])
                 if(btn.innerHTML==lvls[i]){
                     element.classList.remove("d-none");
                     btn.classList.remove('btn-outline-warning')
@@ -82,6 +91,7 @@
                 }
                 else{
                     document.getElementById(lvls[i]).classList.add('d-none')
+                    console.log(document.getElementById(lvls[i]))
                     document.getElementById(`${lvls[i]}_btn`).classList.remove('btn-outline-primary')
                     document.getElementById(`${lvls[i]}_btn`).classList.add('btn-outline-warning')
                 }
