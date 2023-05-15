@@ -3,6 +3,7 @@ from DunnoRPG import models
 
 register = template.Library()
 
+#ITEM-GET
 @register.filter
 def getItemStatByName(itemName):
     try:
@@ -38,8 +39,10 @@ def getItemBlock(itemName):
 def getItemType(itemName):
     return models.Items.objects.all().filter(name=itemName).values()[0]['type']
    
+
+
    
-    
+#ITEM-IS
 @register.filter
 def isDualHanded(itemName):
     try:
@@ -55,13 +58,6 @@ def isShield(itemName):
         else:
             return False
     except:
-        return False
-
-@register.filter
-def isNotEmpty(hand):
-    if len(hand)>0:
-        return True
-    else:
         return False
     
 @register.filter
@@ -86,6 +82,8 @@ def isPreffereOrUnliked(character, itemName):
 
 
 
+
+#CHARACTER-GET
 @register.filter
 def getMod(character,stat_for_mod):
     value = 0
@@ -95,8 +93,6 @@ def getMod(character,stat_for_mod):
         value = f"+{value}"
     return value
 
-
-
 @register.filter
 def getCharacterEffects(character):
     return models.Effects.objects.all().filter(character=character['name']).values()
@@ -104,3 +100,37 @@ def getCharacterEffects(character):
 @register.filter
 def getEffectDesc(effect):
     return models.Effects_Decs.objects.all().filter(name=effect).values()[0]['desc']
+
+@register.filter
+def getEffectsBonus(character_name, action):
+    if action=='accuraccy':
+        categories = ['cel','all']
+    elif action=='attack':
+        categories = ['all','attack','attack&parry']
+    elif action=='parry':
+        categories = ['all','parry','attack&parry']
+    elif action=='dodge':
+        categories = ['all','dodge']
+    
+    
+    acc_effects = []
+    bonus = 0
+
+    for effect in models.Effects_Decs.objects.all().values():
+        if effect['category'] in categories:
+            acc_effects.append(effect['name'])
+    
+    for effect in models.Effects.objects.all().filter(character=character_name).values():
+        if effect['name'] in acc_effects:
+            bonus += effect['bonus']
+
+    return bonus
+
+
+#CHARACTER-IS
+@register.filter
+def isNotEmpty(hand):
+    if len(hand)>0:
+        return True
+    else:
+        return False
