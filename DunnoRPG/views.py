@@ -256,15 +256,7 @@ class CharacterDetails(APIView):
             'race_desc': race['desc'],
             'mods': mods
         }
-        return Response(context) 
-
-#def character_edit(request,id):
-#    chosen_character = list(models.Character.objects.all().filter(id=id).values())[0]
-#
-#    context = {
-#        'character': chosen_character
-#    }
-#    return render(request, "character_edit.html", context)    
+        return Response(context)  
 
 class Skills(APIView):
     serializer_class = SkillsDecsSerializer
@@ -353,6 +345,17 @@ def log_as_guest(request):
         return redirect('home')
     else:
         return HttpResponse('Invalid login')
+
+class GMPanel(APIView):
+    template_name = 'gm_panel.html'
+    renderer_classes = [TemplateHTMLRenderer]
+    def get(self,request):
+        
+        context = {
+            
+        }
+        
+        return Response(context)
 
 class SignUp(CreateView):
     form_class = UserCreationForm

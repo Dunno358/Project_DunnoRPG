@@ -1,0 +1,24 @@
+{% extends 'master.html' %}
+
+{% block content %}
+{% include 'top_bar.html' %}
+
+{% if user.is_superuser %}
+
+<!-- options to manage time left on effects, effects themselves, items etc. to be added soon, preferably working on APIs -->
+
+{% else %}
+
+    <h1 class='mt-5 col txt-shadow fst-italic text-center c-gold'>This content is restricted for <span class='text-danger'>Game Masters.</span></h1>
+    <h3 class='col txt-shadow fst-italic text-center c-gold'> 
+        <a href='https://www.linkedin.com/in/mariusz-walczyk-84904326a/' class='c-gold text-decoration-underline' target='_blank'>Contact me</a>
+        if you want to become one.</h3>
+
+{% endif %}
+
+<script>
+    document.getElementById('tb-gm').classList.remove('btn-outline-warning')
+    document.getElementById('tb-gm').classList.add('btn-outline-primary')
+</script>
+
+{% endblock content %}
