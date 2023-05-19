@@ -5,14 +5,20 @@
 
 {% if user.is_superuser %}
 
+<div class='container'>
+    <div class='row mt-5'>
+        <a class='col btn btn-dark btn-outline-warning m-3 c-gold'
+            href='acc-rules/' >
+            Accuraccy
+        </a>
+    </div>
+</div>
+
 <!-- options to manage time left on effects, effects themselves, items etc. to be added soon, preferably working on APIs -->
 
 {% else %}
 
-    <h1 class='mt-5 col txt-shadow fst-italic text-center c-gold'>This content is restricted for <span class='text-danger'>Game Masters.</span></h1>
-    <h3 class='col txt-shadow fst-italic text-center c-gold'> 
-        <a href='https://www.linkedin.com/in/mariusz-walczyk-84904326a/' class='c-gold text-decoration-underline' target='_blank'>Contact me</a>
-        if you want to become one.</h3>
+{% include 'user-not-gm.html' %}
 
 {% endif %}
 

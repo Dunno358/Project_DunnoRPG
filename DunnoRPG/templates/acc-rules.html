@@ -1,0 +1,234 @@
+{% extends 'master.html' %}
+
+{% block content %}
+{% include 'top_bar.html' %}
+
+{% if user.is_superuser %}
+
+<div name='content-container' class='container'>
+
+    <div name='weapon-btns' class='row mt-1 bg-gray rounded border border-warning'>
+
+        <div onclick="showById('Bow')" class='col btn btn-dark btn-outline-warning m-1 c-gold'>
+            Bow
+        </div>
+
+        <div onclick="showById('Crossbow')" class='col btn btn-dark btn-outline-warning m-1 c-gold'>
+            Crossbow
+        </div>
+
+        <div onclick="showById('Pistol')" class='col btn btn-dark btn-outline-warning m-1 c-gold'>
+            Pistol
+        </div>
+
+        <div onclick="showById('Musket')" class='col btn btn-dark btn-outline-warning m-1 c-gold'>
+            Musket
+        </div>
+
+        <div onclick="showById('Singlehand')" class='col btn btn-dark btn-outline-warning m-1 c-gold'>
+            Singlehand
+        </div>
+
+        <div onclick="showById('Twohand')" class='col btn btn-dark btn-outline-warning m-1 c-gold'>
+            Twohand
+        </div>
+
+        <div onclick="showById('Shield')" class='col btn btn-dark btn-outline-warning m-1 c-gold'>
+            Shield
+        </div>
+
+        <div onclick="showById('Wand')" class='col btn btn-dark btn-outline-warning m-1 c-gold'>
+            Wand
+        </div>
+
+        <div onclick="showById('Lute')" class='col btn btn-dark btn-outline-warning m-1 c-gold'>
+           Bard lute
+        </div>
+
+    </div>
+
+    <div name='weapon-desc' class='row mt-1 bg-dark rounded border border-warning'>
+
+        <div id='Bow' class='d-none col bg-gray border rounded border-warning m-2 c-gold'>
+            <h3 class='text-center'>Bow</h3>
+            <ul>
+            <li>Shoot: CEL>=6</li> 
+            <li>Melee: CEL>=5; 1K-10+SIŁ</li>
+            <li>Parry: 1K, destroyed if not succeeded</li>    
+            <li>You can shoot every turn</li>   
+            <li>Failure: Hit ally with 1 on dice</li>    
+            </ul>        
+        </div>
+
+        <div id='Crossbow' class='d-none col bg-gray border rounded border-warning m-2 c-gold'>
+            <h3 class='text-center'>Crossbow</h3>
+            <ul>
+            <li>Shoot: CEL>=6</li> 
+            <li>Melee: None</li>
+            <li>Parry: None</li>    
+            <li>You can shoot every two turns</li>    
+            <li>Failure: Hit ally with 1 on dice</li>   
+            </ul>        
+        </div>
+
+        <div id='Pistol' class='d-none col bg-gray border rounded border-warning m-2 c-gold'>
+            <h3 class='text-center'>Pistol</h3>
+            <ul>
+            <li>Shoot: CEL>=8</li> 
+            <li>Melee: None</li>
+            <li>Parry: None</li>    
+            <li>You can shoot every two turns</li>     
+            <li>Failure: Hit ally with 1 on dice</li>  
+            </ul>        
+        </div>
+
+        <div id='Musket' class='d-none col bg-gray border rounded border-warning m-2 c-gold'>
+            <h3 class='text-center'>Musket</h3>
+            <ul>
+            <li>Shoot: CEL>=7</li> 
+            <li>Melee: None</li>
+            <li>Parry: None</li>    
+            <li>You can shoot every three turns</li>    
+            <li>Failure: Hit ally with 1 on dice</li>   
+            </ul>        
+        </div>
+
+        <div id='Singlehand' class='d-none col bg-gray border rounded border-warning m-2 c-gold'>
+            <h3 class='text-center'>Singlehand</h3>
+            <ul>
+            <li>Melee: CEL>=5</li>
+            <li>Parry: Weapon+SIŁ</li>  
+            <li>Failure: Hit ally with 1 on dice</li>     
+            </ul>        
+        </div>
+
+        <div id='Twohand' class='d-none col bg-gray border rounded border-warning m-2 c-gold'>
+            <h3 class='text-center'>Twohand</h3>
+            <ul>
+            <li>Melee: CEL>=8</li>
+            <li>Parry: Weapon+SIŁ</li>  
+            <li>Failure: Hit ally with 1 or 2 on dice</li>    
+            </ul>        
+        </div>
+
+        <div id='Shield' class='d-none col bg-gray border rounded border-warning m-2 c-gold'>
+            <h3 class='text-center'>Shield</h3>
+            <ul>
+            <li>If attack>shield block then shield is destroyed but absorbed as much as it could</li>
+            <li>Melee: CEL>=6; 1K-10+SIŁ</li>  
+            <li>Failure: Hit ally with 1 on dice</li>    
+            </ul>        
+        </div>
+
+        <div id='Wand' class='d-none col bg-gray border rounded border-warning m-2 c-gold'>
+            <h3 class='text-center'>Wand</h3>
+            <ul>
+            <li>Melee: CEL>=6; 1K-15+SIŁ</li>  
+            <li>Parry: 1K; destroyed if not succeed</li>  
+            <li>Failure: Hit ally with 1 on dice</li>    
+            </ul>        
+        </div>
+
+        <div id='Lute' class='d-none col bg-gray border rounded border-warning m-2 c-gold'>
+            <h3 class='text-center'>Lute</h3>
+            <ul>
+            <li>Magic attacks with right skill</li> 
+            <li>Melee: CEL>=6; 1K-12+SIŁ; -25 Item Durability</li>  
+            <li>Parry: You can block as it is shield with 12 block power</li>  
+            <li>Failure: Hit ally with 1 on dice</li>    
+            </ul>        
+        </div>
+
+    </div>
+
+    <div name='body-part-btns' class='row mt-3 bg-gray rounded border border-warning text-center'>
+
+        <div class='btn btn-dark btn-outline-warning col border rounded border-warning m-2 c-gold'
+        onclick="showById('head-attack-desc')">
+            Head
+        </div>
+
+        <div class='btn btn-dark btn-outline-warning col border rounded border-warning m-2 c-gold'
+        onclick="showById('torso-attack-desc')">
+            Torso
+        </div>
+
+        <div class='btn btn-dark btn-outline-warning col border rounded border-warning m-2 c-gold'
+        onclick="showById('hands-attack-desc')">
+            Hands
+        </div>
+
+        <div class='btn btn-dark btn-outline-warning col border rounded border-warning m-2 c-gold'
+        onclick="showById('legs-attack-desc')">
+            Legs
+        </div>
+
+    </div>
+
+    <div name='body-part-desc' class='row mt-3 bg-dark rounded border border-warning'>
+
+        <div id='head-attack-desc' class='d-none col bg-gray border rounded border-warning m-2 c-gold'>
+            <h3 class='text-center'>Head</h3>
+            <ul>
+                <li>2xCEL</li>
+                <li>1.5xDMG</li>
+                <li>1.5xDMG</li>
+                <li>-6 for all actions next turn[Oszołomiony]</li>
+            </ul>
+        </div>
+
+        <div id='torso-attack-desc'  class='d-none col bg-gray border rounded border-warning m-2 c-gold'>
+            <h3 class='text-center'>Torso</h3>
+            <ul>
+                <li>Default attack</li>
+                <li>1xCEL</li>
+                <li>1xDMG</li>
+            </ul>
+        </div>
+
+        <div id='hands-attack-desc'  class='d-none col bg-gray border rounded border-warning m-2 c-gold'>
+            <h3 class='text-center'>Hands</h3>
+            <ul>
+                <li>1.5xCEL</li>
+                <li>Can't kill[min.1 HP left]</li>
+                <li>DMG>=1/2 enemy HP cut offs the hand</li>
+                <li>Effect: Przerażony</li>
+            </ul>
+        </div>
+
+        <div id='legs-attack-desc'  class='d-none col bg-gray border rounded border-warning m-2 c-gold'>
+            <h3 class='text-center'>Legs</h3>
+            <ul>
+                <li>1.5xCEL</li>
+                <li>Can't kill[min.1 HP left]</li>
+                <li>DMG>=1/2 enemy HP cut offs the leg</li>
+                <li>Effect: Przerażony</li>
+            </ul>
+        </div>
+
+    </div>
+
+</div>
+
+{% else %}
+
+{% include 'user-not-gm.html' %}
+
+{% endif %}
+
+<script>
+    function showById(id){
+        element = document.getElementById(id)
+        if(element.classList.contains('d-none')){
+            element.classList.remove('d-none')
+        }
+        else{
+            element.classList.add('d-none')
+        }
+    }
+
+    document.getElementById('tb-gm').classList.remove('btn-outline-warning')
+    document.getElementById('tb-gm').classList.add('btn-outline-primary')
+</script>
+
+{% endblock content %}

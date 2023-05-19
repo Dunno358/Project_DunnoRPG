@@ -13,7 +13,8 @@ urlpatterns = [
     path('skills/<id>/', views.SkillDetail.as_view(), name='skill_detail'),
     path('character_add_skills/<char_id>/delete/<skill_id>', views.skill_delete, name='skill_delete'),
     path('guest/', views.log_as_guest, name='log_as_guest'),
-    path('gmpanel/', views.GMPanel.as_view(), name='gm_panel')
+    path('gmpanel/', views.GMPanel.as_view(), name='gm_panel'),
+    path('gmpanel/acc-rules/', views.AccRules.as_view(), name='gm_panel_acc_rules')
 ]
 
 urlpatterns = format_suffix_patterns(urlpatterns)

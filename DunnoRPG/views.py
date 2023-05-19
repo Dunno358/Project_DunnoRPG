@@ -12,6 +12,7 @@ from rest_framework.parsers import JSONParser
 from rest_framework.renderers import JSONRenderer, TemplateHTMLRenderer
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from django.views.generic.detail import DetailView
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.models import User
 from . import models
@@ -348,6 +349,17 @@ def log_as_guest(request):
 
 class GMPanel(APIView):
     template_name = 'gm_panel.html'
+    renderer_classes = [TemplateHTMLRenderer]
+    def get(self,request):
+        
+        context = {
+            
+        }
+        
+        return Response(context)
+    
+class AccRules(APIView):
+    template_name = 'acc-rules.html'
     renderer_classes = [TemplateHTMLRenderer]
     def get(self,request):
         

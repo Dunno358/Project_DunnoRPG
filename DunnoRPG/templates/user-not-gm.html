@@ -1,0 +1,35 @@
+<h1 class='mt-5 col txt-shadow fst-italic text-center c-gold'>This content is restricted for <span class='text-danger'>Game Masters.</span></h1>
+
+<h3 class='col txt-shadow fst-italic text-center c-gold'> 
+<a onclick="showById('contact-opts')"
+class='c-gold text-decoration-underline'>
+Contact me</a>
+
+if you want to become one.
+</h3>
+
+
+<div id='contact-opts' class='container d-none'>
+    <div class='row mt-5'>
+        <a class='col m-1 btn btn-dark btn-outline-warning'
+        href='mailto: mariusz.walczyk358@gmail.com'>
+            E-mail
+        </a>
+
+        <a class='col m-1 btn btn-dark btn-outline-warning'
+        href='https://www.linkedin.com/in/mariusz-walczyk-84904326a/' target='_blank'>
+            LinkedIn
+        </a>
+    </div>
+</div>
+
+<script>
+
+function showById(id){
+    element = document.getElementById(id)
+    if(element.classList.contains('d-none')){
+        element.classList.remove('d-none')
+    }
+}
+
+</script>
