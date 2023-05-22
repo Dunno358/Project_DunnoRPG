@@ -3,46 +3,59 @@
  {% include 'top_bar.html' %}
  {% include 'dunnorpg/messages.html' %}
  
- <div class="container row mt-4">
-    <div class="col-4 c-gold fst-italic txt-shadow">
-        {% if skills_count_magical >= 0 %}
-            <h2>Magical points: {{ skills_count_magical }}</h2> 
-        {% else %}
-            <h2>Magical points: 0</h2> 
-        {% endif %}
-        <h2>Skill points: {{ skills_count }}</h2>
+<div class='container'>
+    <div class='row'>
+        <div class='col c-gold fst-italic txt-shadow'>
+            {% if skills_count_magical >= 0 %}
+                <h2>Magic points: {{ skills_count_magical }}</h2> 
+            {% else %}
+                <h2>Magic points: 0</h2> 
+            {% endif %}
+        </div>
+        <div class='col c-gold fst-italic txt-shadow'>
+        <h2>Skill points: {{ skills_count }}</h2>            
+        </div>
     </div>
-        <div class="fs-5 ms-1 ps-5 p-3 col-6 bg-gray border border-warning c-gold rounded text-center">
-            <form method='POST' class='pt-3'>
-            {% csrf_token %}
-            {{ form.as_table }}
-            <input class="btn btn-dark border border-warning btn-lg w-75 me-4 m-1" type="submit" value="Add and continue"></input>
-            </form>
-        </div>   
-        <div class="col-2 ms-3 txt-shadow bg-gray border border-warning c-gold rounded text-center" style='width: 12%;'>
-            <p class='pt-1'>INT: {{ character_stats.INT }}</p>
-            <p>SIŁ: {{ character_stats.SIŁ }}</p>
-            <p>ZRE: {{ character_stats.ZRE }}</p>
-            <p>CHAR: {{ character_stats.CHAR }}</p>
-            <p>CEL: {{ character_stats.CEL }}</p>
-        </div>     
- </div>
+</div>
 
- <div class='container row mt-2'>
-    <div class='col-5 ms-4'></div>
-    <a target='_blank' href="{% url 'skills' %}" class='ms-3 col-1 btn btn-lg btn-dark border btn-outline-warning border border-warning'>Skills</a>
-    <a href="/dunnorpg/character_edit/{{ character_id }}" class='ms-2 col-1 btn btn-lg btn-dark border btn-outline-danger border border-danger'>Back</a>
-    <a href="{% url 'home' %}" class='ms-2 col-1 btn btn-lg btn-dark border btn-outline-warning border border-warning'>Finish</a>
- </div>
-
- <div class='container row mt-2'>
-    <div class='col-5'></div>
-    <div class='col-3 c-gold fw-bolder fst-italic fs-4 ms-5 bg-gray text-center rounded border border-warning'>
-        <p>{{ character }} skills:</p>
+<div class="container">
+    <div class='row items txt-shadow bg-gray border border-warning c-gold rounded text-center'>  
+        <p class='col align-items-center'>INT: {{ character_stats.INT }}</p>
+        <p class='col'>SIŁ: {{ character_stats.SIŁ }}</p>
+        <p class='col'>ZRE: {{ character_stats.ZRE }}</p>
+        <p class='col'>CHA: {{ character_stats.CHAR }}</p>
+        <p class='col'>CEL: {{ character_stats.CEL }}</p>
     </div> 
-<div class='row container'>
-    <div class='col-4'></div>
-        <div class='col-2 rounded ms-3 mt-1 fs-5 w-50 c-gold bg-gray text-center border border-warning'>
+    <div class='row'>
+        <div class="fs-5 p-2 col bg-gray border border-warning c-gold rounded text-center">
+            <form method='POST' class='pt-1'>
+            {% csrf_token %}
+            {{ form.as_p }}
+            <input class="btn btn-dark border border-warning btn-lg w-75 m-1" type="submit" value="Add and continue"></input>
+            </form>
+        </div> 
+    </div>  
+ </div>
+
+ <div class='container mt-2'>
+    <div class='row text-center ms-5 me-5'>
+        <a class='col m-1 btn btn-dark border btn-outline-warning border border-warning' target='_blank' href="{% url 'skills' %}">Skills</a>
+        <a class='col m-1 btn btn-dark border btn-outline-danger border border-danger' href="/dunnorpg/character_edit/{{ character_id }}">Back</a>
+        <a class='col m-1 btn btn-dark border btn-outline-warning border border-warning' href="{% url 'home' %}">Finish</a>
+    </div>
+</div>
+
+<div class='container mt-2'>
+    <div class='row text-center' style='margin-left: 20%; margin-right: 20%;'>
+        <div class='col w-50 c-gold fw-bolder fst-italic fs-4 bg-gray text-center rounded border border-warning'>
+            <p>{{ character }} skills:</p>
+        </div>
+    </div> 
+</div>
+
+<div class='container'>
+    <div class='row'>
+        <div class='col rounded fs-5 c-gold bg-gray text-center border border-warning'>
                 {% for skill in skills %}
                 <p class='mt-1'>{{ skill.skill }} | lvl. {{ skill.level }} 
                 {% if skill.category != '1free' %}
@@ -51,7 +64,7 @@
                 </p>
                 {% endfor %}
         </div>
-    </div>
+    </div class='row'>
  </div>
  
  {% endblock content %}

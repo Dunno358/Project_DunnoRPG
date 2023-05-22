@@ -5,11 +5,19 @@
 {% block content %}
 
 {% include 'dunnorpg/messages.html' %}
-<div class="container row mt-2">
-    <div class="col-5 c-gold">
-        <h1 class='ms-5 mt-5 txt-shadow fst-italic'><span id='points_left'>10</span> points left</h1>
+<div class='container mt-2'>
+    <div class='row'>
+        <div class='col-1 c-gold'>
+            <a class='btn btn-dark btn-outline-danger' href={% url 'home' %}>Back</a>
+        </div>
+        <div class='col c-gold text-center'>
+            <h1 class='txt-shadow fst-italic'><span id='points_left'>10</span> points left</h1>
+        </div>
     </div>
-        <div class="ms-1 ps-5 pb-2 col-4 bg-gray border border-warning c-gold rounded text-center">
+</div>
+<div class="container">
+    <div class='row ms-1 me-1'>
+        <div class="col bg-gray border border-warning c-gold rounded text-center">
             <form method='POST'>
             {% csrf_token %}
             {{ form.as_p }}

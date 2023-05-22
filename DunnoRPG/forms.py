@@ -108,12 +108,12 @@ class CharacterSkillsForm(forms.ModelForm):
     skills_choices = sorted(skills_choices)
 
     skill = forms.ChoiceField(choices=skills_choices, widget=forms.Select(attrs={
-        'class': 'me-4 border border-warning w-50 bg-dark text-white-50 rounded'
+        'class': 'text-center border border-warning bg-dark text-white-50 rounded'
     }))
 
     lvls = [('1','1'),('2','2'),('3','3'), ('4','4')]
     level = forms.ChoiceField(choices=lvls,widget=forms.Select(attrs={
-        'class': 'w-10 ps-3 border border-warning bg-dark text-white-50 rounded'
+        'class': 'text-center border border-warning bg-dark text-white-50 rounded'
     }))
 
     owner = forms.CharField(max_length=50,label='',widget=forms.TextInput(attrs={
