@@ -33,7 +33,6 @@ class CharacterForm(forms.ModelForm):
     }))
 
     query_races = Races.objects.all().values()
-    #query_races = []
     races = []
     races.append(('Choose a race','Choose a race'))
     for race in query_races:
@@ -107,18 +106,18 @@ class CharacterSkillsForm(forms.ModelForm):
         skills_choices[x] = (skills_choices[x]['name'], skills_choices[x]['name'])
     skills_choices = sorted(skills_choices)
 
-    skill = forms.ChoiceField(choices=skills_choices, widget=forms.Select(attrs={
-        'class': 'text-center border border-warning bg-dark text-white-50 rounded'
+    skill = forms.ChoiceField(choices=skills_choices,label='',widget=forms.Select(attrs={
+        'class': 'text-center w-75 border border-warning bg-dark text-white-50 rounded'
     }))
 
     lvls = [('1','1'),('2','2'),('3','3'), ('4','4')]
-    level = forms.ChoiceField(choices=lvls,widget=forms.Select(attrs={
-        'class': 'text-center border border-warning bg-dark text-white-50 rounded'
+    level = forms.ChoiceField(choices=lvls,label='',widget=forms.Select(attrs={
+        'class': 'text-center w-15 border border-warning bg-dark text-white-50 rounded'
     }))
 
     owner = forms.CharField(max_length=50,label='',widget=forms.TextInput(attrs={
-        'value': 'owner will be added automatically',
-        'class': 'invisible'
+        'value': '',
+        'class': 'invisible w-0'
     }))
 
     class Meta:
