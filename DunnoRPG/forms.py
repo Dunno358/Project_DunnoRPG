@@ -116,7 +116,7 @@ class CharacterSkillsForm(forms.ModelForm):
     }))
 
     owner = forms.CharField(max_length=50,label='',widget=forms.TextInput(attrs={
-        'value': '',
+        'value': 'o',
         'class': 'invisible w-0'
     }))
 
