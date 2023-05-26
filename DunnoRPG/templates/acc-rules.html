@@ -3,8 +3,6 @@
 {% block content %}
 {% include 'top_bar.html' %}
 
-{% if user.is_superuser %}
-
 <div name='content-container' class='container'>
 
     <div name='weapon-btns' class='row mt-1 bg-gray rounded border border-warning'>
@@ -172,7 +170,6 @@
             <ul>
                 <li>2xCEL</li>
                 <li>1.5xDMG</li>
-                <li>1.5xDMG</li>
                 <li>-6 for all actions next turn[Oszołomiony]</li>
             </ul>
         </div>
@@ -210,11 +207,6 @@
 
 </div>
 
-{% else %}
-
-{% include 'user-not-gm.html' %}
-
-{% endif %}
 
 <script>
     function showById(id){
@@ -227,8 +219,8 @@
         }
     }
 
-    document.getElementById('tb-gm').classList.remove('btn-outline-warning')
-    document.getElementById('tb-gm').classList.add('btn-outline-primary')
+    document.getElementById('tb-info').classList.remove('btn-outline-warning')
+    document.getElementById('tb-info').classList.add('btn-outline-primary')
 </script>
 
 {% endblock content %}

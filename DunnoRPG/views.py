@@ -358,6 +358,17 @@ class GMPanel(APIView):
         
         return Response(context)
     
+class Info(APIView):
+    template_name = 'info.html'
+    renderer_classes = [TemplateHTMLRenderer]
+    def get(self,request):
+        
+        context = {
+            
+        }
+        
+        return Response(context)
+    
 class AccRules(APIView):
     template_name = 'acc-rules.html'
     renderer_classes = [TemplateHTMLRenderer]
