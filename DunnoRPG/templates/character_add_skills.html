@@ -9,7 +9,7 @@
             {% if skills_count_magical >= 0 %}
                 <h3 class='text-end'>Magic points: {{ skills_count_magical }}</h3> 
             {% else %}
-                <h3>Magic points: 0</h3> 
+                <h3 class='text-end'>Magic points: 0</h3> 
             {% endif %}
         </div>
         <div class='col c-gold fst-italic txt-shadow'>
@@ -59,11 +59,15 @@
     <div class='row m-1'>
         <div class='col rounded fs-5 c-gold bg-gray text-center border border-warning'>
                 {% for skill in skills %}
-                <p class='mt-1'>{{ skill.skill }} | lvl. {{ skill.level }} 
+                <a href='downgrade/{{ skill.id }}' class='mt-1 btn btn-sm btn-dark btn-outline-warning w-10'>-</a>
+                <a href='upgrade/{{ skill.id }}' class='mt-1 btn btn-sm btn-dark btn-outline-warning w-10'>+</a>
+                <p class='m-1'>{{ skill.skill }} | lvl. {{ skill.level }} 
+
                 {% if skill.category != '1free' %}
                 <a href='delete/{{ skill.id }}' class='ms-2 btn btn-dark btn-outline-danger'>Delete</a>               
                 {% endif %}
                 </p>
+
                 {% endfor %}
         </div>
     </div class='row'>

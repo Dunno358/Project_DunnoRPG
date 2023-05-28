@@ -337,6 +337,16 @@ def skill_delete(request,char_id,skill_id):
     character.save()
     skill.delete()
     return redirect(f'/dunnorpg/character_add_skills/{char_id}/')
+def skill_upgrade(request,char_id,skill_id):
+    skill = models.Skills.objects.filter(id=skill_id)
+    character = models.Character.objects.filter(id=char_id).get()
+    #perform lvl+1 for chosen skill and take point from character points_left
+    return redirect(f'/dunnorpg/character_add_skills/{char_id}/')
+def skill_downgrade(request,char_id,skill_id):
+    skill = models.Skills.objects.filter(id=skill_id)
+    character = models.Character.objects.filter(id=char_id).get()
+    #perform lvl-1 for chosen skill and add point to character points_left
+    return redirect(f'/dunnorpg/character_add_skills/{char_id}/')
 
 def log_as_guest(request):
     guest_user = User.objects.get(username='Guest')
