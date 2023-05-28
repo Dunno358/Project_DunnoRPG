@@ -4,7 +4,7 @@ from rest_framework import serializers
 class ItemSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Items
-        fields = ['id','name','type','desc','found','stats','skill','weight']
+        fields = '__all__'
 
 class CharacterSerializer(serializers.ModelSerializer):
     class Meta:
@@ -19,19 +19,16 @@ class SkillsDecsSerializer(serializers.ModelSerializer):
         fields = '__all__'
         
 class SkillsSerializer(serializers.ModelSerializer):
-    model = models.Skills
-    fields = '__all__'
-    def create(self,validated_data):
-        return models.Skills.objects.create(**validated_data)
+    class Meta:
+        model = models.Skills
+        fields = '__all__'
 
 class EqSerializer(serializers.ModelSerializer):
-    model = models.Eq
-    fields = [
-        'owner', 'character', 'name', 'weight'
-    ]
+    class Meta:
+        model = models.Eq
+        fields = '__all__'
 
 class ModsSerializer(serializers.ModelSerializer):
-    model = models.Mods
-    fields = [
-        'id','owner','character','INT','SIŁ','ZRE','CHAR','CEL'
-    ]
+    class Meta:
+        model = models.Mods
+        fields = '__all__'
