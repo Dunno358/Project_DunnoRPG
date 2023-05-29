@@ -32,7 +32,6 @@ class charGET(APIView):
             'characters_count': len(serialized_data)            
         }
         return Response(context)
-    
 class charPOST(FormView):
     template_name = 'character_add.html'
     form_class = CharacterForm
@@ -341,12 +340,26 @@ def skill_delete(request,char_id,skill_id):
 def skill_upgrade(request,char_id,skill_id):
     skill = get_object_or_404(models.Skills, id=skill_id)
     skill_details = models.Skills_Decs.objects.filter(name=skill.skill).values()[0]
-    character = get_object_or_404(models.Character, id=char_id)
-    upgrade_possible = len(skill_details[f"level{skill.level+1}"])>0
+    character = models.Character.objects.filter(id=char_id).values()[0]
+    character_object = get_object_or_404(models.Character, id=char_id)
+    not_max_lvl = len(skill_details[f"level{skill.level+1}"])>0
     
-    if upgrade_possible:
-        #with level need check if both needs(if not empty) are satisfied, then perform lvl+1 and points-1(if possible and check if skill is normal or magical)
-        pass
+    if not_max_lvl:
+        need1 = skill_details[f"need{skill.level+1}_1"]
+        need2 = skill_details[f"need{skill.level+1}_2"]
+        req1_OK = (need1==None) or ( int(character[f"{need1[:3]}"])>int(need1[3]) )
+        req2_OK = (need2==None) or ( int(character[f"{need2[:3]}"])>int(need2[3]) )
+
+        if req1_OK and req2_OK:
+            cat = skill_details['category']
+            skill.level += 1
+            skill.desc = skill_details['desc']+' '+skill_details[f"level{skill.level}"]
+            skill.save()
+
+            character_object.points_left -= int(skill_details['cost'])
+            character_object.save()
+        else:
+            pass #message
     
     #perform lvl+1 for chosen skill and take point from character points_left
     return redirect(f'/dunnorpg/character_add_skills/{char_id}/')
