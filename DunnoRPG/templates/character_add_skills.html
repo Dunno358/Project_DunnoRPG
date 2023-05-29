@@ -57,17 +57,18 @@
 
 <div class='container'>
     <div class='row m-1'>
-        <div class='col rounded fs-5 c-gold bg-gray text-center border border-warning'>
+        <div class='col rounded fs-5 p-1 c-gold bg-gray text-center border border-warning'>
                 {% for skill in skills %}
-                <a href='downgrade/{{ skill.id }}' class='mt-1 btn btn-sm btn-dark btn-outline-warning w-10'>-</a>
-                <a href='upgrade/{{ skill.id }}' class='mt-1 btn btn-sm btn-dark btn-outline-warning w-10'>+</a>
-                <p class='m-1'>{{ skill.skill }} | lvl. {{ skill.level }} 
+                <div style='margin-left: 12%;' class='bg-dark border border-warning rounded w-75'>
+                    <a href='downgrade/{{ skill.id }}' class='mt-1 btn btn-sm btn-outline-warning w-10'>-</a>
+                    <a href='upgrade/{{ skill.id }}' class='mt-1 btn btn-sm btn-outline-warning w-10'>+</a>
+                    <p class='m-1'>{{ skill.skill }} | lvl. {{ skill.level }} 
 
-                {% if skill.category != '1free' %}
-                <a href='delete/{{ skill.id }}' class='ms-2 btn btn-dark btn-outline-danger'>Delete</a>               
-                {% endif %}
-                </p>
-
+                    {% if skill.category != '1free' %}
+                    <a href='delete/{{ skill.id }}' class='ms-2 btn btn-dark btn-outline-danger'>Delete</a>               
+                    {% endif %}
+                    </p>
+                </div>
                 {% endfor %}
         </div>
     </div class='row'>
