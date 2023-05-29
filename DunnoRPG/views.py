@@ -359,9 +359,10 @@ def skill_upgrade(request,char_id,skill_id):
             character_object.points_left -= int(skill_details['cost'])
             character_object.save()
         else:
-            pass #message
+            pass #return message about reqs
+    else:
+        pass #return message that max lvl has been reached
     
-    #perform lvl+1 for chosen skill and take point from character points_left
     return redirect(f'/dunnorpg/character_add_skills/{char_id}/')
 def skill_downgrade(request,char_id,skill_id):
     skill = models.Skills.objects.filter(id=skill_id)
