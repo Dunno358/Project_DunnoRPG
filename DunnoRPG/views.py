@@ -330,16 +330,24 @@ class SkillDetail(APIView):
         return Response(context)
 
 def skill_delete(request,char_id,skill_id):
-    skill = models.Skills.objects.filter(id=skill_id)
-    skill_details = models.Skills_Decs.objects.filter(name = skill.values()[0]['skill']).values()[0]
-    character = models.Character.objects.filter(id=char_id).get()
-    character.points_left += skill.values()[0]['level']*int(skill_details['cost'])
+    skill = get_object_or_404(models.Skills, id=skill_id)
+    skill_details = get_object_or_404(models.Skills_Decs, name=skill.skill)
+    character = get_object_or_404(models.Character, id=char_id)
+    
+    character.points_left += skill.level*int(skill_details.cost)
     character.save()
     skill.delete()
     return redirect(f'/dunnorpg/character_add_skills/{char_id}/')
 def skill_upgrade(request,char_id,skill_id):
-    skill = models.Skills.objects.filter(id=skill_id)
-    character = models.Character.objects.filter(id=char_id).get()
+    skill = get_object_or_404(models.Skills, id=skill_id)
+    skill_details = models.Skills_Decs.objects.filter(name=skill.skill).values()[0]
+    character = get_object_or_404(models.Character, id=char_id)
+    upgrade_possible = len(skill_details[f"level{skill.level+1}"])>0
+    
+    if upgrade_possible:
+        #with level need check if both needs(if not empty) are satisfied, then perform lvl+1 and points-1(if possible and check if skill is normal or magical)
+        pass
+    
     #perform lvl+1 for chosen skill and take point from character points_left
     return redirect(f'/dunnorpg/character_add_skills/{char_id}/')
 def skill_downgrade(request,char_id,skill_id):
