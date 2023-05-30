@@ -59,7 +59,7 @@
     <div class='row m-1'>
         <div class='col rounded fs-5 p-1 c-gold bg-gray text-center border border-warning'>
                 {% for skill in skills %}
-                <div style='margin-left: 12%;' class='bg-dark border border-warning rounded w-75'>
+                <div style='margin-left: 12%;' class='p-1 bg-dark border border-warning rounded w-75'>
                     <a href='downgrade/{{ skill.id }}' class='mt-1 btn btn-sm btn-outline-warning w-10'>-</a>
                     <a href='upgrade/{{ skill.id }}' class='mt-1 btn btn-sm btn-outline-warning w-10'>+</a>
                     <p class='m-1'>{{ skill.skill }} | lvl. {{ skill.level }} 
