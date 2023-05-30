@@ -333,8 +333,9 @@ def skill_delete(request,char_id,skill_id):
     skill_details = get_object_or_404(models.Skills_Decs, name=skill.skill)
     character = get_object_or_404(models.Character, id=char_id)
     
-    character.points_left += skill.level*int(skill_details.cost)
-    character.save()
+    if skill.category != 'Magical':
+        character.points_left += skill.level*int(skill_details.cost)
+        character.save()
     skill.delete()
     return redirect(f'/dunnorpg/character_add_skills/{char_id}/')
 def skill_upgrade(request,char_id,skill_id):
@@ -355,13 +356,27 @@ def skill_upgrade(request,char_id,skill_id):
 
         if req1_OK and req2_OK:
             cat = skill_details['category']
-            #if skill is magical need to check if magic points isn't 0
-            skill.level += 1
-            skill.desc = skill_details['desc']+' '+skill_details[f"level{skill.level}"]
-            skill.save()
+            points_ok = True
+            if cat=='Magical':
+                mag_points = 0
+                magical_skills = models.Skills.objects.filter(character=character['name'], category='Magical').values()
+                
+                for mag_skill in magical_skills:
+                    detailed_info = get_object_or_404(models.Skills_Decs, name=mag_skill['skill'])
+                    mag_points += int(mag_skill['level'])*int(detailed_info.cost)
+                
+                if int(character['INT'])-mag_points <= 0:
+                    points_ok = False
+               
+            if points_ok:        
+                skill.level += 1
+                skill.desc = skill_details['desc']+' '+skill_details[f"level{skill.level}"]
+                skill.save()
 
-            character_object.points_left -= int(skill_details['cost'])
-            character_object.save()
+                character_object.points_left -= int(skill_details['cost'])
+                character_object.save()
+            else:
+                messages.error(request, f'Not enough points to upgrade {skill.skill}.')
         else:
             msg = f"Your stats are too low to upgrade {skill.skill}, you need "
             if need1!=None:
