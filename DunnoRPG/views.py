@@ -205,7 +205,7 @@ class CharacterSkills(APIView):
                     if validated_skill['name'] not in current_skills:
                         correct = True
                     else:
-                        msg = f"{validated_skill['name']} is your skill already. Delete current one if you want to update."
+                        msg = f"{validated_skill['name']} is your skill already."
                 else:
                     msg = f"Requirements: "
                     for stat in req_stats:
@@ -342,7 +342,10 @@ def skill_upgrade(request,char_id,skill_id):
     skill_details = models.Skills_Decs.objects.filter(name=skill.skill).values()[0]
     character = models.Character.objects.filter(id=char_id).values()[0]
     character_object = get_object_or_404(models.Character, id=char_id)
-    not_max_lvl = len(skill_details[f"level{skill.level+1}"])>0
+    try:
+        not_max_lvl = len(skill_details[f"level{skill.level+1}"])>0
+    except:
+        not_max_lvl = False
     
     if not_max_lvl:
         need1 = skill_details[f"need{skill.level+1}_1"]
@@ -352,6 +355,7 @@ def skill_upgrade(request,char_id,skill_id):
 
         if req1_OK and req2_OK:
             cat = skill_details['category']
+            #if skill is magical need to check if magic points isn't 0
             skill.level += 1
             skill.desc = skill_details['desc']+' '+skill_details[f"level{skill.level}"]
             skill.save()
@@ -359,15 +363,39 @@ def skill_upgrade(request,char_id,skill_id):
             character_object.points_left -= int(skill_details['cost'])
             character_object.save()
         else:
-            pass #return message about reqs
+            msg = f"Your stats are too low to upgrade {skill.skill}, you need "
+            if need1!=None:
+                msg += f"{need1[:3]}({need1[3]})"
+                if need2 != None:
+                    msg += f" and {need2[:3]}({need2[3]})."
+            elif need2!=None:
+                msg += f"{need2[:3]}({need2[3]})."
+            messages.error(request, msg)
     else:
-        pass #return message that max lvl has been reached
+        messages.error(request,f'{skill.skill} maximum level reached!')
     
     return redirect(f'/dunnorpg/character_add_skills/{char_id}/')
 def skill_downgrade(request,char_id,skill_id):
-    skill = models.Skills.objects.filter(id=skill_id)
-    character = models.Character.objects.filter(id=char_id).get()
-    #perform lvl-1 for chosen skill and add point to character points_left
+    skill = get_object_or_404(models.Skills, id=skill_id)
+    skill_details = models.Skills_Decs.objects.filter(name=skill.skill).values()[0]
+    character = models.Character.objects.filter(id=char_id).values()[0]
+    character_object = get_object_or_404(models.Character, id=char_id)
+    
+    try:
+        not_min_lvl = len(skill_details[f"level{skill.level-1}"])>0
+    except:
+        not_min_lvl = False   
+        
+    if not_min_lvl:
+        skill.level -= 1
+        skill.desc = skill_details['desc']+' '+skill_details[f"level{skill.level}"]
+        skill.save()
+        
+        character_object.points_left += int(skill_details['cost'])
+        character_object.save()
+    else:
+        messages.error(request,f'{skill.skill} level cannot be lower!')
+    
     return redirect(f'/dunnorpg/character_add_skills/{char_id}/')
 
 def log_as_guest(request):
