@@ -20,6 +20,8 @@ urlpatterns = [
     
     path('character_add_skills/<int:char_id>/up/<str:stat>', views.UpgradeCharacterStats.as_view(), name='stat_upgrade'),
     path('character_add_skills/<int:char_id>/down/<str:stat>', views.DowngradeCharacterStats.as_view(), name='stat_downgrade'),
+
+    path('char-delete/<int:char_id>', views.DeleteCharacter.as_view(), name='delete_character'),
     
     path('guest/', views.log_as_guest, name='log_as_guest'),
     path('gmpanel/', views.GMPanel.as_view(), name='gm_panel'),
