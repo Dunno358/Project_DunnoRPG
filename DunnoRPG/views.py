@@ -92,6 +92,18 @@ class charPOST(FormView):
         context = super().get_context_data(**kwargs)
         return context
 
+class DeleteCharacter(APIView):
+    def get(self,request,char_id):
+        character = get_object_or_404(models.Character,id=char_id)
+        character_skills = models.Skills.objects.filter(owner=request.user ,character=character.name)
+        character_effects = models.Effects.objects.filter(owner=request.user ,character=character.name)
+
+        character.delete()
+        character_skills.delete()
+        character_effects.delete()
+
+        return redirect('/dunnorpg')
+
 class CharacterSkills(APIView):
     serializer_class = SkillsSerializer
     template_name = 'character_add_skills.html'
@@ -404,7 +416,7 @@ def skill_upgrade(request,char_id,skill_id):
                 if int(character['INT'])-mag_points <= 0:
                     points_ok = False
                
-            if points_ok:        
+            if points_ok and character_object.points_left>0:        
                 skill.level += 1
                 skill.desc = skill_details['desc']+' '+skill_details[f"level{skill.level}"]
                 skill.save()
@@ -448,7 +460,6 @@ def skill_downgrade(request,char_id,skill_id):
         messages.error(request,f'{skill.skill} level cannot be lower!')
     
     return redirect(f'/dunnorpg/character_add_skills/{char_id}/')
-
 def log_as_guest(request):
     guest_user = User.objects.get(username='Guest')
     user = authenticate(request, username='Guest', password='GuestPassword')
