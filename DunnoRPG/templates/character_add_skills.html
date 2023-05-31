@@ -22,33 +22,33 @@
     <div class='row txt-shadow bg-gray border border-warning c-gold rounded text-center m-1'> 
         <table>
             <td class='border border-warning'>
-                <a href='' class='col text-decoration-none text-success fsw-bold'>+</a>
+                <a href='up/INT' class='col text-decoration-none text-success fsw-bold'>+</a>
                 <div class='row'><span class='col'>INT: {{ character_stats.INT }}</span></div>
-                <a href='' class='col text-decoration-none text-danger fsw-bold'>-</a>
+                <a href='down/INT' class='col text-decoration-none text-danger fsw-bold'>-</a>
             </td>
 
             <td class='border border-warning'>
-                <a href='' class='col text-decoration-none text-success fsw-bold'>+</a>
+                <a href='up/SIŁ' class='col text-decoration-none text-success fsw-bold'>+</a>
                 <div class='row'><span class='col'>SIŁ: {{ character_stats.SIŁ }}</span></div>
-                <a href='' class='col text-decoration-none text-danger fsw-bold'>-</a>
+                <a href='down/SIŁ' class='col text-decoration-none text-danger fsw-bold'>-</a>
             </td>
 
             <td class='border border-warning'>
-                <a href='' class='col text-decoration-none text-success fsw-bold'>+</a>
+                <a href='up/ZRE' class='col text-decoration-none text-success fsw-bold'>+</a>
                 <div class='row'><span class='col'>ZRE: {{ character_stats.ZRE }}</span></div>
-                <a href='' class='col text-decoration-none text-danger fsw-bold'>-</a>
+                <a href='down/ZRE' class='col text-decoration-none text-danger fsw-bold'>-</a>
             </td>
 
             <td class='border border-warning'>
-                <a href='' class='col text-decoration-none text-success fsw-bold'>+</a>
+                <a href='up/CHAR' class='col text-decoration-none text-success fsw-bold'>+</a>
                 <div class='row'><span class='col'>CHAR: {{ character_stats.CHAR }}</span></div>
-                <a href='' class='col text-decoration-none text-danger fsw-bold'>-</a>
+                <a href='down/CHAR' class='col text-decoration-none text-danger fsw-bold'>-</a>
             </td>
 
             <td class='border border-warning'>
-                <a href='' class='col text-decoration-none text-success fsw-bold'>+</a>
+                <a href='up/CEL' class='col text-decoration-none text-success fsw-bold'>+</a>
                 <div class='row'><span class='col'>CEL: {{ character_stats.CEL }}</span></div>
-                <a href='' class='col text-decoration-none text-danger fsw-bold'>-</a>
+                <a href='down/CEL' class='col text-decoration-none text-danger fsw-bold'>-</a>
             </td>
         </table> 
     </div> 
@@ -66,8 +66,7 @@
  <div class='container mt-2'>
     <div class='row text-center ms-5 me-5'>
         <a class='col m-1 btn btn-dark border btn-outline-warning border border-warning' target='_blank' href="{% url 'skills' %}">Skills</a>
-        <a class='col m-1 btn btn-dark border btn-outline-danger border border-danger' href="">Back</a>
-        <a class='col m-1 btn btn-dark border btn-outline-warning border border-warning' href="{% url 'home' %}">Finish</a>
+        <a class='col m-1 btn btn-dark border btn-outline-success border border-warning' href="{% url 'home' %}">Finish</a>
     </div>
 </div>
 
