@@ -265,16 +265,7 @@ class UpgradeCharacterStats(APIView):
         
         character = get_object_or_404(models.Character, id=char_id)
         if int(character.points_left)>0:
-            if stat == 'INT':
-                character.INT += 1
-            elif stat == 'SIŁ':
-                character.SIŁ += 1
-            elif stat == 'ZRE':
-                character.ZRE += 1
-            elif stat == 'CHAR':
-                character.CHAR += 1
-            elif stat == 'CEL':
-                character.CEL += 1
+            setattr(character, stat, int(getattr(character, stat))+1)
                 
             character.points_left -= 1
             character.save()
@@ -289,17 +280,11 @@ class DowngradeCharacterStats(APIView):
         stat = kwargs['stat']
         
         character = get_object_or_404(models.Character, id=char_id)
-        if stat == 'INT' and character.INT>0:
-            #Also check if magical_points>0 so character can't have less INT than skills require
-            character.INT -= 1
-        elif stat == 'SIŁ' and character.SIŁ>0:
-            character.SIŁ -= 1
-        elif stat == 'ZRE' and character.ZRE>0:
-            character.ZRE -= 1
-        elif stat == 'CHAR' and character.CHAR>0:
-            character.CHAR -= 1
-        elif stat == 'CEL' and character.CEL>0:
-            character.CEL -= 1
+        stat_val = getattr(character,stat)
+        
+        if stat_val>0:
+            #if int also check if magical_skills>0
+            setattr(character,stat,stat_val-1)
         else:
             messages.error(request, 'Stat cannot be lower than 0.')
             return redirect(f'/dunnorpg/character_add_skills/{char_id}/')
