@@ -387,8 +387,8 @@ def skill_upgrade(request,char_id,skill_id):
     if not_max_lvl:
         need1 = skill_details[f"need{skill.level+1}_1"]
         need2 = skill_details[f"need{skill.level+1}_2"]
-        req1_OK = (need1==None) or ( int(character[f"{need1[:3]}"])>int(need1[3]) )
-        req2_OK = (need2==None) or ( int(character[f"{need2[:3]}"])>int(need2[3]) )
+        req1_OK = (need1==None) or ( int(character[f"{need1[:3]}"])>=int(need1[3]) )
+        req2_OK = (need2==None) or ( int(character[f"{need2[:3]}"])>=int(need2[3]) )
 
         if req1_OK and req2_OK:
             cat = skill_details['category']
