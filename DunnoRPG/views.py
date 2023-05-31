@@ -85,7 +85,7 @@ class charPOST(FormView):
 
             return redirect(f'character_add_skills/{character.id}')
         else:
-            messages.warning(self.request,'Not enought points.')
+            messages.error(self.request,'Not enought points.')
             return redirect(f'character_add')
     
     def get_context_data(self, **kwargs):
@@ -257,6 +257,57 @@ class CharacterDetails(APIView):
             'mods': mods
         }
         return Response(context)  
+
+class UpgradeCharacterStats(APIView):
+    def get(self, request, *args, **kwargs):
+        char_id = kwargs['char_id']
+        stat = kwargs['stat']
+        
+        character = get_object_or_404(models.Character, id=char_id)
+        if int(character.points_left)>0:
+            if stat == 'INT':
+                character.INT += 1
+            elif stat == 'SIŁ':
+                character.SIŁ += 1
+            elif stat == 'ZRE':
+                character.ZRE += 1
+            elif stat == 'CHAR':
+                character.CHAR += 1
+            elif stat == 'CEL':
+                character.CEL += 1
+                
+            character.points_left -= 1
+            character.save()
+        else:
+            messages.error(request, 'Not enough points.')
+        
+        return redirect(f'/dunnorpg/character_add_skills/{char_id}/')
+    
+class DowngradeCharacterStats(APIView):
+    def get(self, request, *args, **kwargs):
+        char_id = kwargs['char_id']
+        stat = kwargs['stat']
+        
+        character = get_object_or_404(models.Character, id=char_id)
+        if stat == 'INT' and character.INT>0:
+            #Also check if magical_points>0 so character can't have less INT than skills require
+            character.INT -= 1
+        elif stat == 'SIŁ' and character.SIŁ>0:
+            character.SIŁ -= 1
+        elif stat == 'ZRE' and character.ZRE>0:
+            character.ZRE -= 1
+        elif stat == 'CHAR' and character.CHAR>0:
+            character.CHAR -= 1
+        elif stat == 'CEL' and character.CEL>0:
+            character.CEL -= 1
+        else:
+            messages.error(request, 'Stat cannot be lower than 0.')
+            return redirect(f'/dunnorpg/character_add_skills/{char_id}/')
+                
+        character.points_left += 1
+        character.save()
+        
+        return redirect(f'/dunnorpg/character_add_skills/{char_id}/')
 
 class Skills(APIView):
     serializer_class = SkillsDecsSerializer
