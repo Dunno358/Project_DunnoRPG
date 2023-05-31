@@ -38,7 +38,7 @@ class Character(models.Model):
     
 
     def __str__(self):
-        return f"{self.name} ({self.id})"
+        return f"{self.owner}: {self.name} ({self.id})"
 
 class Mods(models.Model):
     owner = models.CharField(max_length=50, null=True)
