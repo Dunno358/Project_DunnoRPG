@@ -5,6 +5,16 @@
 {% if user.is_authenticated %}
   {% include 'top_bar.html' %}
 
+<div id='del-confirm' class='d-none position-absolute container-fluid'>
+  <div class='row bg-dark c-gold rounded border border-warning mt-5 ms-5 me-5'>
+    <div class='col text-center'>
+      <h2 id='del-confirm-title' class='m-2 mt-5 fst-150'>Jesteś pewien?</h2>
+      <a onclick='this.parentNode.parentNode.parentNode.classList.add("d-none")' class='btn btn-lg btn-outline-danger m-1 mb-5'>Nie</a>
+      <a href='char-delete/' id='del-confirm-positive' class='btn btn-lg btn-outline-success m-1 mb-5'>Tak</a>
+    </div>
+  </div>
+</div>
+
   <div class="container card-body">
     <div class="row">
         {% for character in characters %}
@@ -15,8 +25,14 @@
             <dt>Race:</dt>
             <dd>{{ character.race }}</dd>
           </dl>
-          <a class="btn btn-dark btn-outline-warning m-1" href="{% url 'character_detail' character.id %}">Choose</a>
-      </div>
+            <div name='char_card_btns'>
+              <a onclick="charDeleteConfirmation('Usunąć {{ character.name }}?',{{ character.id }})" class="btn btn-sm btn-dark btn-outline-danger m-1">Delete</a>
+              <a class="btn btn-sm btn-dark btn-outline-primary m-1" href="{% url 'character_add_skills' character.id %}">Edit</a>
+              <div class='container'>
+                <a class="btn btn-dark btn-outline-warning m-1" href="{% url 'character_detail' character.id %}">Choose</a>
+              </div>
+            </div>
+        </div>
         {% endfor %}
         {% if characters_count > 0 %}
           <div class="col mt-5 m-3 text-center">
@@ -50,6 +66,14 @@
 <script>
   document.getElementById('tb-characters').classList.remove('btn-outline-warning')
   document.getElementById('tb-characters').classList.add('btn-outline-primary')
+
+  function charDeleteConfirmation(text='Jesteś pewien?',id){
+    document.getElementById('del-confirm-title').innerHTML = text
+
+    document.getElementById('del-confirm-positive').href += id
+
+    document.getElementById('del-confirm').classList.remove('d-none')
+  }
 </script>
 
 {% endblock  %}
