@@ -283,7 +283,7 @@ class DowngradeCharacterStats(APIView):
         stat_val = getattr(character,stat)
         
         if stat_val>0:
-            #if int also check if magical_skills>0
+            #if int also check if magical_skills>0, also might be problem when e.g. downgrading SIŁ from 2 to 1 when skill needs 2 SIŁ
             setattr(character,stat,stat_val-1)
         else:
             messages.error(request, 'Stat cannot be lower than 0.')
