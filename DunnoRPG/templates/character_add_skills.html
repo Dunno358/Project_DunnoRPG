@@ -21,11 +21,35 @@
 <div class="container mt-3">
     <div class='row txt-shadow bg-gray border border-warning c-gold rounded text-center m-1'> 
         <table>
-            <td class='border border-warning'>INT: {{ character_stats.INT }}</td>
-            <td class='border border-warning'>SIŁ: {{ character_stats.SIŁ }}</td>
-            <td class='border border-warning'>ZRE: {{ character_stats.ZRE }}</td>
-            <td class='border border-warning'>CHAR: {{ character_stats.CHAR }}</td>
-            <td class='border border-warning'>CEL: {{ character_stats.CEL }}</td>
+            <td class='border border-warning'>
+                <a href='' class='col text-decoration-none text-success fsw-bold'>+</a>
+                <div class='row'><span class='col'>INT: {{ character_stats.INT }}</span></div>
+                <a href='' class='col text-decoration-none text-danger fsw-bold'>-</a>
+            </td>
+
+            <td class='border border-warning'>
+                <a href='' class='col text-decoration-none text-success fsw-bold'>+</a>
+                <div class='row'><span class='col'>SIŁ: {{ character_stats.SIŁ }}</span></div>
+                <a href='' class='col text-decoration-none text-danger fsw-bold'>-</a>
+            </td>
+
+            <td class='border border-warning'>
+                <a href='' class='col text-decoration-none text-success fsw-bold'>+</a>
+                <div class='row'><span class='col'>ZRE: {{ character_stats.ZRE }}</span></div>
+                <a href='' class='col text-decoration-none text-danger fsw-bold'>-</a>
+            </td>
+
+            <td class='border border-warning'>
+                <a href='' class='col text-decoration-none text-success fsw-bold'>+</a>
+                <div class='row'><span class='col'>CHAR: {{ character_stats.CHAR }}</span></div>
+                <a href='' class='col text-decoration-none text-danger fsw-bold'>-</a>
+            </td>
+
+            <td class='border border-warning'>
+                <a href='' class='col text-decoration-none text-success fsw-bold'>+</a>
+                <div class='row'><span class='col'>CEL: {{ character_stats.CEL }}</span></div>
+                <a href='' class='col text-decoration-none text-danger fsw-bold'>-</a>
+            </td>
         </table> 
     </div> 
     <div class='row'>
@@ -59,7 +83,7 @@
     <div class='row m-1'>
         <div class='col rounded fs-5 p-1 c-gold bg-gray text-center border border-warning'>
                 {% for skill in skills %}
-                <div style='margin-left: 12%;' class='p-1 bg-dark border border-warning rounded w-75'>
+                <div style='margin-left: 2%; width: 96%;' class='p-1 bg-dark border border-warning rounded'>
                     <a href='downgrade/{{ skill.id }}' class='mt-1 btn btn-sm btn-outline-warning w-10'>-</a>
                     <a href='upgrade/{{ skill.id }}' class='mt-1 btn btn-sm btn-outline-warning w-10'>+</a>
                     <p class='m-1'>{{ skill.skill }} | lvl. {{ skill.level }} 
