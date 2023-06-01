@@ -31,3 +31,5 @@ urlpatterns = [
 ]
 
 urlpatterns = format_suffix_patterns(urlpatterns)
+
+handler404 = "DunnoRPG.views.view_404"
