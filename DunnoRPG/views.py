@@ -274,6 +274,8 @@ class UpgradeCharacterStats(APIView):
     def get(self, request, *args, **kwargs):
         char_id = kwargs['char_id']
         stat = kwargs['stat']
+        if stat not in {'INT', 'SIŁ', 'ZRE', 'CHAR', 'CEL'}:
+            raise Http404('Invalid character statistic')
         
         character = get_object_or_404(models.Character, id=char_id)
         if int(character.points_left)>0:
