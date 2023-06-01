@@ -27,6 +27,14 @@ body{
     background-position: center, center;
 }
 
+.body-bg404{
+    background: url('https://i.pinimg.com/originals/f4/dc/c3/f4dcc36601f213aec99dfdec25917d33.jpg');
+    background-size: cover;
+    width: 100vw;
+    height: 100vh;
+    background-position: center, center;
+}
+
 a{
     text-decoration: none;
 }
@@ -139,6 +147,12 @@ a:link, a:visited, a:hover, a:active{
     font-family: $special_font;
     color: $gold;
     font-size: 300%;
+}
+
+.title404{
+    font-family: 'Lobster';
+    color: $gold;
+    font-size: 800%;    
 }
 
 .header-bg{
