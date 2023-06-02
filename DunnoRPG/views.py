@@ -241,34 +241,37 @@ class CharacterSkills(APIView):
                 messages.error(request,msg)
         return HttpResponseRedirect(f'/dunnorpg/character_add_skills/{id}') 
 
-class CharacterDetails(APIView):
-    serializer_class = CharacterSerializer
+class CharacterDetails(DetailView):
+    model = models.Character
     template_name = 'character_detail.html'
-    renderer_classes = [TemplateHTMLRenderer]
+    #context_object_name = 'chosen_character'
 
-    def get(self,request,id):
-        chosen = models.Character.objects.all().filter(id=id).values()
-        serializer = CharacterSerializer(chosen, many=True)
+    def get_object(self,queryset=None):
+        char_id = self.kwargs.get('id')
+        return self.get_queryset().get(id=char_id)
 
-        skills = models.Skills.objects.all().filter(owner=request.user,character=chosen[0]['name']).values()
-        race = models.Races.objects.all().filter(name=serializer.data[0]['race']).values()[0]
-        mods = models.Mods.objects.all().filter(owner=request.user,character=serializer.data[0]['name']).values()
+    def get_context_data(self,**kwargs):
+        context = super().get_context_data(**kwargs)
+        chosen = self.get_object()
+        serializer = CharacterSerializer(chosen)
 
-        for index in range(len(skills)):
-            skill = skills[index]
-            skill_description = models.Skills_Decs.objects.all().filter(name=skills[index]['skill']).values()[0]
+        skills = models.Skills.objects.all().filter(owner=self.request.user,character=serializer.data['name']).values()
+        race = models.Races.objects.all().filter(name=serializer.data['race']).values()[0]
+        mods = models.Mods.objects.all().filter(owner=self.request.user,character=serializer.data['name']).values()
+
+        for skill in skills:
+            skill_description = models.Skills_Decs.objects.all().filter(name=skill['skill']).values()[0]
             skill['original_id'] = skill_description['id']
             skill['original_desc'] = skill_description['desc']
             skill['level_desc'] = skill_description[f"level{skill['level']}"]
 
-        context = {
-            'chosen_character': serializer.data,
-            'mods': mods,
-            'skills': skills,
-            'race_desc': race['desc'],
-            'mods': mods
-        }
-        return Response(context)  
+        #HTML loop was made for serializer with many=True even tho it's one object, HTML to be fixed soon
+        context['chosen_character'] = [serializer.data] 
+        context['mods'] = mods
+        context['skills'] = skills
+        context['race_desc'] = race['desc']
+
+        return context 
 
 class UpgradeCharacterStats(APIView):
     def get(self, request, *args, **kwargs):
