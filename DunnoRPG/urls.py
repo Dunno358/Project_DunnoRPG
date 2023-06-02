@@ -18,8 +18,8 @@ urlpatterns = [
     path('character_add_skills/<char_id>/upgrade/<skill_id>', views.skill_upgrade, name='skill_upgrade'),
     path('character_add_skills/<char_id>/downgrade/<skill_id>', views.skill_downgrade, name='skill_downgrade'),
     
-    path('character_add_skills/<int:char_id>/up/<str:stat>', views.UpgradeCharacterStats.as_view(), name='stat_upgrade'),
-    path('character_add_skills/<int:char_id>/down/<str:stat>', views.DowngradeCharacterStats.as_view(), name='stat_downgrade'),
+    path('character_add_skills/<int:char_id>/up/<str:stat>', views.UpgradeCharacterStats.as_view(), name='stat-upgrade'),
+    path('character_add_skills/<int:char_id>/down/<str:stat>', views.DowngradeCharacterStats.as_view(), name='stat-downgrade'),
 
     path('char-delete/<int:char_id>', views.DeleteCharacter.as_view(), name='delete_character'),
     
@@ -31,3 +31,5 @@ urlpatterns = [
 ]
 
 urlpatterns = format_suffix_patterns(urlpatterns)
+
+handler404 = "DunnoRPG.views.view_404"

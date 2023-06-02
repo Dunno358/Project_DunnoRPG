@@ -112,6 +112,7 @@ class CharacterSkills(APIView):
 
     def get(self,request,id):
         current_user = request.user
+        character_exist = get_object_or_404(models.Character, id=id)
         chosen_character = models.Character.objects.filter(owner=current_user, id=id).values()[0]['name']
         character_skills_queryset = models.Skills.objects.all().filter(owner=current_user,character=chosen_character).values()
         skills_count = 0
@@ -248,7 +249,7 @@ class CharacterDetails(DetailView):
 
     def get_object(self,queryset=None):
         char_id = self.kwargs.get('id')
-        return self.get_queryset().get(id=char_id)
+        return get_object_or_404(models.Character, id=char_id)
 
     def get_context_data(self,**kwargs):
         context = super().get_context_data(**kwargs)
@@ -277,6 +278,8 @@ class UpgradeCharacterStats(APIView):
     def get(self, request, *args, **kwargs):
         char_id = kwargs['char_id']
         stat = kwargs['stat']
+        if stat not in {'INT', 'SIŁ', 'ZRE', 'CHAR', 'CEL'}:
+            raise Http404('Invalid character statistic')
         
         character = get_object_or_404(models.Character, id=char_id)
         if int(character.points_left)>0:
@@ -293,6 +296,8 @@ class DowngradeCharacterStats(APIView):
     def get(self, request, *args, **kwargs):
         char_id = kwargs['char_id']
         stat = kwargs['stat']
+        if stat not in {'INT', 'SIŁ', 'ZRE', 'CHAR', 'CEL'}:
+            raise Http404('Invalid character statistic')
         
         character = get_object_or_404(models.Character, id=char_id)
         stat_val = getattr(character,stat)
@@ -354,6 +359,7 @@ class SkillDetail(APIView):
 
     def get(self,request,id):
         current_user = request.user
+        skill_exist = get_object_or_404(models.Skills_Decs, id=id)
         serializer = SkillsDecsSerializer(models.Skills_Decs.objects.all().filter(id=id).values()[0])
         levels = []
 
@@ -509,3 +515,6 @@ class SignUp(CreateView):
     form_class = UserCreationForm
     success_url = reverse_lazy("login")
     template_name = "registration/signup.html"
+    
+def view_404(request, exception):
+    return render(request, '404.html', status=404)
