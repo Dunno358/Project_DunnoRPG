@@ -112,6 +112,7 @@ class CharacterSkills(APIView):
 
     def get(self,request,id):
         current_user = request.user
+        character_exist = get_object_or_404(models.Character, id=id)
         chosen_character = models.Character.objects.filter(owner=current_user, id=id).values()[0]['name']
         character_skills_queryset = models.Skills.objects.all().filter(owner=current_user,character=chosen_character).values()
         skills_count = 0
@@ -247,6 +248,7 @@ class CharacterDetails(APIView):
     renderer_classes = [TemplateHTMLRenderer]
 
     def get(self,request,id):
+        character_exist = get_object_or_404(models.Character, id=id)
         chosen = models.Character.objects.all().filter(id=id).values()
         serializer = CharacterSerializer(chosen, many=True)
 
@@ -292,6 +294,8 @@ class DowngradeCharacterStats(APIView):
     def get(self, request, *args, **kwargs):
         char_id = kwargs['char_id']
         stat = kwargs['stat']
+        if stat not in {'INT', 'SIŁ', 'ZRE', 'CHAR', 'CEL'}:
+            raise Http404('Invalid character statistic')
         
         character = get_object_or_404(models.Character, id=char_id)
         stat_val = getattr(character,stat)
@@ -353,6 +357,7 @@ class SkillDetail(APIView):
 
     def get(self,request,id):
         current_user = request.user
+        skill_exist = get_object_or_404(models.Skills_Decs, id=id)
         serializer = SkillsDecsSerializer(models.Skills_Decs.objects.all().filter(id=id).values()[0])
         levels = []
 
