@@ -94,9 +94,12 @@
         <div id='Singlehand' class='d-none col bg-gray border rounded border-warning m-2 c-gold'>
             <h3 class='text-center'>Singlehand</h3>
             <ul>
-            <li>Melee: CEL>=5</li>
-            <li>Parry: Weapon+SIŁ</li>  
-            <li>Failure: Hit ally with 1 on dice</li>     
+            <li>Melee: CEL>5</li>
+            <li>Parry: Weapon+SIŁ</li>   
+            <li>Failure: Hit ally with 1 on dice</li>   
+            <li>Dagger AP: 0 always</li>  
+            <li>Dagger melee: CEL>2</li>
+            <li>Dagger parry: Weapon+SIŁ-3</li> 
             </ul>        
         </div>
 
@@ -112,7 +115,8 @@
         <div id='Shield' class='d-none col bg-gray border rounded border-warning m-2 c-gold'>
             <h3 class='text-center'>Shield</h3>
             <ul>
-            <li>If attack>shield block then shield is destroyed but absorbed as much as it could</li>
+            <li>Dmg from <u>twohanded</u> weapon>shield block then shield is destroyed but absored as much as it could</li>
+            <li>Dmg from <u>singlehanded</u> weapon>shield block then it absorbed as much as it could but the rest got to player/enemy</li>
             <li>Melee: CEL>=6; 1K-10+SIŁ</li>  
             <li>Failure: Hit ally with 1 on dice</li>    
             </ul>        
@@ -139,7 +143,7 @@
 
     </div>
 
-    <div name='body-part-btns' class='row mt-3 bg-gray rounded border border-warning text-center'>
+    <div name='body-part-btns' class='row bg-gray rounded border border-warning text-center'>
 
         <div class='btn btn-dark btn-outline-warning col border rounded border-warning m-2 c-gold'
         onclick="showById('head-attack-desc')">
