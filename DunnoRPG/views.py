@@ -3,7 +3,7 @@ from django.contrib.auth.forms import UserCreationForm
 from django.http import Http404, HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse_lazy
-from django.views.generic import FormView
+from django.views.generic import FormView, ListView
 from django.views.generic.edit import CreateView
 from DunnoRPG.serializers import (CharacterSerializer, ItemSerializer, SkillsDecsSerializer, SkillsSerializer)
 from rest_framework import generics, status
@@ -499,7 +499,7 @@ class Info(APIView):
         }
         
         return Response(context)
-    
+#Info options:    
 class AccRules(APIView):
     template_name = 'acc-rules.html'
     renderer_classes = [TemplateHTMLRenderer]
@@ -510,6 +510,11 @@ class AccRules(APIView):
         }
         
         return Response(context)
+class InfoEffects(ListView):
+    model = models.Effects_Decs
+    template_name = 'info-effects.html'
+    context_object_name = 'effects'
+    ordering = ['name']
 
 class SignUp(CreateView):
     form_class = UserCreationForm

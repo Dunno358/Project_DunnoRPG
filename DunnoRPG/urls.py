@@ -27,7 +27,8 @@ urlpatterns = [
     path('gmpanel/', views.GMPanel.as_view(), name='gm_panel'),
     
     path('info/', views.Info.as_view(), name='info'),
-    path('info/acc-rules/', views.AccRules.as_view(), name='info_acc_rules')
+    path('info/acc-rules/', views.AccRules.as_view(), name='info_acc_rules'),
+    path('info/effects/', views.InfoEffects.as_view(), name='info_effects')
 ]
 
 urlpatterns = format_suffix_patterns(urlpatterns)

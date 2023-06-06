@@ -1,0 +1,44 @@
+{% extends 'master.html' %}
+
+{% block content %}
+{% include 'top_bar.html' %}
+
+<div class='container mt-2'>
+    {% for effect in effects %}
+
+        <div class='col' id='effect{{ effect.id }}'>
+            <h4 onclick="showDescription('{{ effect.id }}')" class='c-gold bg-dark border rounded border-warning text-center p-1'>
+                {{ effect.name }}
+            </h4>
+            <div class='row-cols-auto d-none' id='desc{{ effect.id }}'>
+                <p class='ms-3 me-3 text-primary bg-dark border rounded border-primary text-center p-1'>
+                    {{ effect.desc }} [+{{ effect.bonus }}; T{{ effect.time }}]
+                </p>
+            </div>
+        </div>
+
+    {% endfor %}
+</div>
+
+
+<script>
+    document.getElementById('tb-info').classList.remove('btn-outline-warning');
+    document.getElementById('tb-info').classList.add('btn-outline-primary');
+
+    function showDescription(id){
+        let element = document.getElementById('desc'+id.toString());
+        let effect = document.getElementById('effect'+id.toString()).children[0];
+
+        if (element.classList.contains('d-none')){
+            element.classList.remove('d-none');
+            effect.classList.remove('c-gold');
+            effect.classList.add('text-primary');
+        } else {
+            element.classList.add('d-none');
+            effect.classList.remove('text-primary');
+            effect.classList.add('c-gold');
+        }
+    } 
+</script>
+
+{% endblock content %}
