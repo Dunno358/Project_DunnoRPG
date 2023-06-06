@@ -10,12 +10,6 @@ class CharacterCreation{
         const zre = document.getElementsByTagName('label')[4]
         const char = document.getElementsByTagName('label')[5]
         const cel = document.getElementsByTagName('label')[6]
-        //const int = document.getElementById('id_INT')
-        //const sil = document.getElementById('id_SIŁ')
-        //const zre = document.getElementById('id_ZRE')
-        //const char = document.getElementById('id_CHAR')
-        //const cel = document.getElementById('id_CEL')
-        console.log(document.getElementsByTagName('label'))
     
         const raceAttributes = {
             'Leśne Elfy (Athel Loren)': { int: '-1', sil: '+0', zre: '+2', char: '-2', cel: '+1', p: 10 },
@@ -65,7 +59,6 @@ class CharacterCreation{
         const cel = parseInt(document.getElementById('id_CEL').value)
         let pointsLeft = document.getElementById('points_left')
         let pointsArray = [0,0,0,0,0]
-        //console.log(document.getElementsByTagName('label'))
     
         for (let i = 0; i < fields.length; i++) {
             fields[i].addEventListener("input", () => {
@@ -74,7 +67,6 @@ class CharacterCreation{
                     let pointsUsed = pointsArray.reduce((a, b) => {
                             return a + b;
                           })
-                    console.log(CharacterCreation.pointsToUse,pointsUsed)
                     pointsLeft.innerHTML = CharacterCreation.pointsToUse - pointsUsed
                 }
             });
