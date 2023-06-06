@@ -140,6 +140,7 @@ class Effects_Decs(models.Model):
         ('attack', 'attack'),
         ('parry', 'parry'),
         ('attack&parry', 'attack&parry'),
+        ('dodge&parry', 'dodge&parry'),
         ('all','all'),
         ('other','other'),
         ('dodge','dodge'),
