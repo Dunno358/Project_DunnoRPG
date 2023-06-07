@@ -38,28 +38,28 @@
         <p name='stat'><span class="text-white-50">CEL:</span> <span id='stat-CEL'>{{ value.CEL }}</span> (<span id='stat-CEL-mod'>{{ value|getMod:"CEL" }}</span>)</p>
     </div>
 
-        <div name='Equipment' style='' class="col ms-3 mt-1 card-body c-gold border border-warning bg-dark rounded">
-            <p class="text-center fw-bold">{{ value.name }}</p>
-            <p title='{{ race_desc }}'><span class="text-white-50">Race:</span> {{ value.race }} ({{ value.size }})</p>
-            <p><span class="text-white-50">Health:</span> {{ value.HP }}/{{ value.fullHP }}</p>
-            <p><span class="text-white-50">Helmet:</span> <a class='c-gold' href=''>{{ value.Helmet }}</a></p>
-            <p><span class="text-white-50">Torso:</span> <a class='c-gold'  href=''>{{ value.Torso }}</a></p>
-            <p><span class="text-white-50">Gloves:</span> <a class='c-gold'  href=''>{{ value.Gloves }}</a></p>
-            <p><span class="text-white-50">Boots:</span> <a class='c-gold'  href=''>{{ value.Boots }}</a></p>
+    <div name='Equipment' style='' class="row text-center ms-3 mt-1 card-body c-gold border border-warning bg-dark rounded">
+        <p class="text-center fw-bold">{{ value.name }}</p>
 
-            <p name="LeftHand">
-            <span class="text-white-50">LeftHand:</span> (<span id='l_bonus'>{{ value.name|isPreffereOrUnliked:value.LeftHand }}</span>)
-            {% if value.LeftHand|isNotEmpty %} 
-            <a class='c-gold'  href=''><span name="{{ value.LeftHand|getItemType }}" id='l_weapon'>{{ value.LeftHand }}</span>
-                {% if value.LeftHand|isShield %}
-                [<span id='l_block'>{{ value.LeftHand|getItemBlock }}</span>]
-                {% else %}
-                [1K<span id='l_dmg'>{{ value.LeftHand|getItemBonus }}</span>, <span id='l_ap'>{{ value.LeftHand|getItemAP }}</span>AP]
-                {% endif %}
-            {% endif %}
-            </a>
-            </p>
+        <div class='row'>
+            <p class='col' title='{{ race_desc }}'><span class="text-white-50">Race:</span> {{ value.race }} ({{ value.size }})</p>
+            <p class='col'><span class="text-white-50">Health:</span> {{ value.HP }}/{{ value.fullHP }}</p>
+        </div>
 
+        <div name='head' class='row mt-2'>
+            <div class='col'></div>
+            <div class='col'><p><span class="text-white-50">Head:</span> <a class='c-gold' href=''>{{ value.Helmet }}</a></p></div>
+            <div class='col'></div>
+        </div>
+
+        <div name='torso' class='row mt-2'>
+            <div class='col'></div>
+            <div class='col'><p><span class="text-white-50">Torso:</span> <a class='c-gold'  href=''>{{ value.Torso }}</a></p></div>
+            <div class='col'></div>
+        </div>
+
+        <div name='hands' class='row mt-2'>
+            <div name='hand-right' class='col text-start'>
             {% if value.LeftHand|isDualHanded %}
                 <p><span class="text-white-50">RightHand:</span> <span id='r_weapon' class='c-gold'>Above weapon is two-handed</span></p>
             {% else %}
@@ -75,11 +75,36 @@
                 {% endif %}
                 </a>
                 </p>
-            
-                {% endif %}
-            <p><span class="text-white-50">Side:</span> <a class='c-gold'  href=''>{{ value.Side }} [{{ value.Side|getItemStatByName }}]</a></p>
+            </div>
+            <div class='col'></div>
+            <div name='hand-left' class='col'><p name="LeftHand">
+                    <span class="text-white-50">LeftHand:</span> (<span id='l_bonus'>{{ value.name|isPreffereOrUnliked:value.LeftHand }}</span>)
+                    {% if value.LeftHand|isNotEmpty %} 
+                    <a class='c-gold'  href=''><span name="{{ value.LeftHand|getItemType }}" id='l_weapon'>{{ value.LeftHand }}</span>
+                        {% if value.LeftHand|isShield %}
+                        [<span id='l_block'>{{ value.LeftHand|getItemBlock }}</span>]
+                        {% else %}
+                        [1K<span id='l_dmg'>{{ value.LeftHand|getItemBonus }}</span>, <span id='l_ap'>{{ value.LeftHand|getItemAP }}</span>AP]
+                        {% endif %}
+                    {% endif %}
+                    </a></p>
+            </div>
         </div>
 
+        <div name='side' class='row mt-2'>
+            <div class='col'></div>
+            <div class='col'><p><span class="text-white-50">Side:</span> <a class='c-gold'  href=''>{{ value.Side }} [{{ value.Side|getItemStatByName }}]</a></p></div>
+            <div class='col'></div>
+        </div>
+
+        <div name='boots-gloves' class='row mt-2'>
+            <div class='col'><p><span class="text-white-50">Gloves:</span> <a class='c-gold'  href=''>{{ value.Gloves }}</a></p></div>
+            <div class='col'></div>
+            <div class='col'><p><span class="text-white-50">Boots:</span> <a class='c-gold'  href=''>{{ value.Boots }}</a></p></div>
+        </div>
+
+    </div>    
+    
         <div name='Effects' class="d-none rounded container ms-3 col card-body c-gold border border-warning bg-dark mt-1">
             <p class="text-center fw-bold">Effects: </p>
             <ul>
@@ -89,7 +114,7 @@
             {% endfor %}
             </ul>
         </div>
-    {% endfor %}
+    
 
     <div name='Skills' style='' class="d-none ms-3 rounded container col card-body c-gold border border-warning bg-dark mt-1">
         <p class="text-center fw-bold">Skills: </p>
@@ -334,4 +359,6 @@ function getDiceWMods(instance,modsPoints){
 }
 </script>
 
+{% endif %}
+{% endfor %}
 {% endblock content %}
