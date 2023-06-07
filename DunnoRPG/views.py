@@ -1,10 +1,13 @@
+from typing import Any
 from django.contrib import messages
 from django.contrib.auth.forms import UserCreationForm
+from django.db.models.query import QuerySet
 from django.http import Http404, HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse_lazy
 from django.views.generic import FormView, ListView
 from django.views.generic.edit import CreateView
+from django.db.models import Q
 from DunnoRPG.serializers import (CharacterSerializer, ItemSerializer, SkillsDecsSerializer, SkillsSerializer)
 from rest_framework import generics, status
 from rest_framework.decorators import api_view
@@ -515,6 +518,21 @@ class InfoEffects(ListView):
     template_name = 'info-effects.html'
     context_object_name = 'effects'
     ordering = ['name']
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        value = self.request.GET.get('search-input')
+
+        if value:
+            search_fields = [field.name for field in models.Effects_Decs._meta.fields]
+            query = Q()
+
+            for field in search_fields:
+                query |= Q(**{f"{field}__icontains": value})
+
+            queryset = queryset.filter(query)
+
+        return queryset
 
 class SignUp(CreateView):
     form_class = UserCreationForm

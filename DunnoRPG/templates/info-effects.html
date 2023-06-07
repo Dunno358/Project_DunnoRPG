@@ -4,6 +4,16 @@
 {% include 'top_bar.html' %}
 
 <div class='container mt-2'>
+    <div class='row text-center'>
+        <form action="{% url 'info_effects' %}" method='GET' class='container-fluid'>
+            <input name='search-input' class='text-center bg-gray c-gold border rounded border-warning' 
+            placeholder='Any keyword...'>
+            <button type='submit' class='fas fa-search bg-dark btn btn-outline-warning' href=""></button>
+        </form>
+    </div>
+</div>
+
+<div class='container mt-4'>
     {% for effect in effects %}
 
         <div class='col' id='effect{{ effect.id }}'>
@@ -11,7 +21,7 @@
                 {{ effect.name }}
             </h4>
             <div class='row-cols-auto d-none' id='desc{{ effect.id }}'>
-                <p class='ms-3 me-3 text-primary bg-dark border rounded border-primary text-center p-1'>
+                <p class='ms-3 me-3 text-primary bg-dark border rounded border-primary text-center p-2'>
                     {{ effect.desc }} 
                     {% if effect.time == 105 %}[{% if effect.bonus >= 0 %}+{% endif %}{{ effect.bonus }}; T: PERM]
                     {% elif effect.time == 666 %}[{% if effect.bonus >= 0 %}+{% endif %}{{ effect.bonus }}; T: ?]
