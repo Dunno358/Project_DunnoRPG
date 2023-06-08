@@ -1,40 +1,44 @@
-from typing import Any
+from typing import Any, Dict
 from django.contrib import messages
+from django.contrib.auth import authenticate, login
 from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.models import User
+from django.db.models import Q
 from django.db.models.query import QuerySet
 from django.http import Http404, HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse_lazy
 from django.views.generic import FormView, ListView
+from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView
-from django.db.models import Q
-from DunnoRPG.serializers import (CharacterSerializer, ItemSerializer, SkillsDecsSerializer, SkillsSerializer)
 from rest_framework import generics, status
 from rest_framework.decorators import api_view
 from rest_framework.parsers import JSONParser
 from rest_framework.renderers import JSONRenderer, TemplateHTMLRenderer
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from django.views.generic.detail import DetailView
-from django.contrib.auth import authenticate, login
-from django.contrib.auth.models import User
+
+from DunnoRPG.serializers import (CharacterSerializer, ItemSerializer,
+                                  SkillsDecsSerializer, SkillsSerializer)
+
 from . import models
 from .forms import CharacterForm, CharacterSkillsForm
 
-class charGET(APIView):
-    serializer_class = CharacterSerializer
-    template_name = 'home.html'
-    renderer_classes = [TemplateHTMLRenderer]
 
-    def get(self, request):
-        avaible_characters = models.Character.objects.all().filter(owner=self.request.user)
-        serializer = self.serializer_class(avaible_characters, many=True)
-        serialized_data = serializer.data
-        context = {
-            'characters': serialized_data,
-            'characters_count': len(serialized_data)            
-        }
-        return Response(context)
+class charGET(ListView):
+    model = models.Character
+    template_name = 'home.html'
+    context_object_name = 'characters'
+    
+    def get_queryset(self):
+        return self.model.objects.filter(owner=self.request.user)
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['characters_count'] = self.get_queryset().count()
+        return context
+    
 class charPOST(FormView):
     template_name = 'character_add.html'
     form_class = CharacterForm
