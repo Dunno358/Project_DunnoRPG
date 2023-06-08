@@ -4,6 +4,7 @@ from django.contrib.auth import authenticate, login
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User
+from django.db import transaction
 from django.db.models import Q
 from django.db.models.query import QuerySet
 from django.http import Http404, HttpResponse, HttpResponseRedirect
@@ -102,12 +103,11 @@ class charPOST(FormView):
 class DeleteCharacter(APIView):
     def get(self,request,char_id):
         character = get_object_or_404(models.Character,id=char_id)
-        character_skills = models.Skills.objects.filter(owner=request.user ,character=character.name)
-        character_effects = models.Effects.objects.filter(owner=request.user ,character=character.name)
-
-        character.delete()
-        character_skills.delete()
-        character_effects.delete()
+        
+        with transaction.atomic():
+            models.Skills.objects.filter(owner=request.user ,character=character.name).delete()
+            models.Effects.objects.filter(owner=request.user ,character=character.name).delete()
+            character.delete()
 
         return redirect('/dunnorpg')
 
