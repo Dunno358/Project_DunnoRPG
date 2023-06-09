@@ -447,12 +447,9 @@ function getDiceWMods(instance,modsPoints,getResult=false){
     if(result < 1){
         result = 1
     }
+    instance.innerHTML = 'Result: ' + result + ' (Dice ' + dice + ')'
     if (getResult){
-        instance.innerHTML = 'Result: ' + result + ' (Dice ' + dice + ')'
         return 'Result: ' + result + ' (Dice ' + dice + ')'
-    }
-    else{
-        instance.innerHTML = 'Result: ' + result + ' (Dice ' + dice + ')'
     }
 }
 </script>
