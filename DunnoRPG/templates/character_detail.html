@@ -4,6 +4,36 @@
 {% block content %}
 {% include 'top_bar.html' %}
 
+<div id='pop-window' class='d-none position-fixed container-fluid mt-5'>
+    <div class='row bg-dark c-gold rounded border border-warning mt-5 ms-5 me-5'>
+
+        <div class='row text-center ms-1'>
+            <div class='col mt-4'>
+                <h5 id='window-action-text-top' class='m-1'></h5>
+            </div>
+        </div>
+
+        <div class='row text-center ms-1'>
+            <div class='col mt-4 mb-2'>
+                <h5 id='window-action-text-center' class='m-1'>Action</h5>
+            </div>
+        </div>
+
+        <div class='row text-end'>
+            <div class='col'>
+                <a href='https://g.co/kgs/iznN81' id='window-footer-text' class='c-gold text-decoration-underline'></a>
+            </div>
+        </div>
+
+        <div class='row text-center ms-1'>
+            <div class='col m-2'>
+                <a onclick='this.parentNode.parentNode.parentNode.classList.add("d-none")' class='btn btn-lg btn-outline-danger'>Back</a>
+            </div>
+        </div>
+
+    </div>
+</div>
+
 <div class="container-fluid">        
     <div class="header-bg bg-dark border-top border-bottom border-primary mt-1 row">
         <button id='Stats'  onclick="show_or_hideByName(this)" class='col m-1 btn btn-dark btn-outline-warning border border-warning rounded'>
@@ -139,16 +169,19 @@
 
 <div class='container mt-2'>
     <div class='row'>
+        <div onclick="show_result_at_window('Accuraccy')" class='col m-1 btn btn-dark btn-outline-warning border border-warning rounded'>
+            <span class=''>Accuraccy</span>
+        </div>
         <div onclick="calculate('parry')" class='col m-1 btn btn-dark btn-outline-warning border border-warning rounded'>
             <span class=''>Parry</span>
         </div>
         <div onclick="calculate('attack')" class='col m-1 btn btn-dark btn-outline-warning border border-warning rounded'>
             <span class=''>Attack</span>
         </div>
-        <div onclick="calculate('dodge')" class='col m-1 btn btn-dark btn-outline-warning border border-warning rounded'>
+        <div onclick="show_result_at_window('Dodge')" class='col m-1 btn btn-dark btn-outline-warning border border-warning rounded'>
             <span class=''>Dodge</span>
         </div>
-        <div onclick="calculate('dice')" class='col m-1 btn btn-dark btn-outline-warning border border-warning rounded'>
+        <div onclick="show_result_at_window('Dice')" class='col m-1 btn btn-dark btn-outline-warning border border-warning rounded'>
             <span class=''>Dice</span>
         </div>
     
@@ -219,6 +252,65 @@ function show_or_hideById(id){
         element.classList.add('d-none')
     }
 };
+
+function change_result(text, element, mods, result){
+    if (document.getElementById('window-action-text-center').innerHTML == text){
+        document.getElementById('window-action-text-center').innerHTML = result
+    }
+    else{
+        document.getElementById('window-action-text-center').innerHTML = text
+    }
+}
+
+function show_result_at_window(action){
+    show_or_hideById('pop-window')
+
+
+    window_action = document.getElementById('window-action-text-center')
+    window_action_additional = document.getElementById('window-action-text-top')
+
+    window_url = document.getElementById('window-footer-text')
+
+    if(action=='Dice'){
+        window_url.innerHTML = 'Google Dice'
+    }
+    else{
+        window_url.innerHTML = ''
+    }
+
+
+    if(action == 'Dice'){
+        diceRoll = getRandomInt(1,21)
+        window_action.innerHTML = "<b>Dice:</b> " + diceRoll
+    }
+    else if (action == 'Accuraccy'){
+
+        cel_effect_bonus = parseInt(document.getElementById('effects-accuraccy').innerHTML)
+        cel = parseInt(document.getElementById('stat-CEL').innerHTML)
+        cel_mod = parseInt(document.getElementById('stat-CEL-mod').innerHTML)
+        cel_mods = cel+cel_mod+cel_effect_bonus  
+
+        dice_result = getDiceWMods(window_action,cel_mods,getResult=true)
+
+        details = 'CEL'+'('+cel+')'+ ' + '+'MODS'+'('+(cel_mod+cel_effect_bonus)+')'
+        window_action.onclick = function() {change_result(details,window_action,cel_mods, dice_result)}
+    }
+    else if (action == 'Dodge'){
+
+        dodge_effect_bonus = parseInt(document.getElementById('effects-dodge').innerHTML)
+        zre = parseInt(document.getElementById('stat-ZRE').innerHTML)
+        zre_mod = parseInt(document.getElementById('stat-ZRE-mod').innerHTML) 
+        dodge_mods = zre+zre_mod+dodge_effect_bonus 
+
+        dice_result = getDiceWMods(window_action,dodge_mods,getResult=true)
+
+        details = 'ZRE'+'('+zre+')'+ ' + '+'MODS'+'('+(zre_mod+dodge_effect_bonus)+')'
+        window_action.onclick = function() {change_result(details,window_action,dodge_mods, dice_result)}
+    }
+    //Attack (+ both left and right hand)
+    //Parry
+
+}
 
 function calculate(action){
     document.getElementById('calc_field').classList.remove('d-none')
@@ -349,13 +441,19 @@ function calculate(action){
         dice.innerHTML = "<span onclick="+"this.innerHTML=''"+"><b>Dice:</b> " + diceRoll+" (Click to hide)"+"</span>"
     }
 }
-function getDiceWMods(instance,modsPoints){
+function getDiceWMods(instance,modsPoints,getResult=false){
     dice = getRandomInt(1,21)
     result = dice+modsPoints
     if(result < 1){
         result = 1
     }
-    instance.innerHTML = 'Result: ' + result + ' (Dice ' + dice + ')'
+    if (getResult){
+        instance.innerHTML = 'Result: ' + result + ' (Dice ' + dice + ')'
+        return 'Result: ' + result + ' (Dice ' + dice + ')'
+    }
+    else{
+        instance.innerHTML = 'Result: ' + result + ' (Dice ' + dice + ')'
+    }
 }
 </script>
 
