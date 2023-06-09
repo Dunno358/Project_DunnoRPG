@@ -27,7 +27,7 @@
 
         <div class='row text-center ms-1'>
             <div class='col m-2'>
-                <a onclick='this.parentNode.parentNode.parentNode.classList.add("d-none")' class='btn btn-lg btn-outline-danger'>Back</a>
+                <a onclick='this.parentNode.parentNode.parentNode.parentNode.classList.add("d-none")' class='btn btn-lg btn-outline-danger'>Back</a>
             </div>
         </div>
 
@@ -263,7 +263,7 @@ function change_result(text, element, mods, result){
 }
 
 function show_result_at_window(action){
-    show_or_hideById('pop-window')
+    document.getElementById('pop-window').classList.remove('d-none')
 
 
     window_action = document.getElementById('window-action-text-center')
