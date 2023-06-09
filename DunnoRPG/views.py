@@ -111,59 +111,62 @@ class DeleteCharacter(APIView):
 
         return redirect('/dunnorpg')
 
-class CharacterSkills(APIView):
-    serializer_class = SkillsSerializer
+class CharacterSkills(ListView, FormView):
+    model = models.Skills
     template_name = 'character_add_skills.html'
+    context_object_name = 'skills'
     form_class = CharacterSkillsForm
-    renderer_classes = [TemplateHTMLRenderer]
-
-    def get(self,request,id):
-        current_user = request.user
+    
+    def get_queryset(self):
+        user = self.request.user
+        id = self.kwargs['id']
         character_exist = get_object_or_404(models.Character, id=id)
+        chosen_character = models.Character.objects.filter(owner=user, id=id).values()[0]['name']
+        character_skills_queryset = models.Skills.objects.all().filter(owner=user, character=chosen_character).values() 
+        
+        return character_skills_queryset
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        
+        current_user = self.request.user
+        id = self.kwargs['id']
         chosen_character = models.Character.objects.filter(owner=current_user, id=id).values()[0]['name']
-        character_skills_queryset = models.Skills.objects.all().filter(owner=current_user,character=chosen_character).values()
-        skills_count = 0
-        skills_count_magical = 0
-        current_skills = []
-        character_skills = []
-
-        for data in character_skills_queryset:
-            character_skills.append({'id': data['id'], 'skill': data['skill'], 'level': data['level'], 'category': data['category']})
-
-        for skill in character_skills:
-            cost = int(models.Skills_Decs.objects.filter(name=skill['skill']).values()[0]['cost'])       
-            current_skills.append(skill['skill'])    
-            if skill['category'].lower() == 'magical':
-                skills_count_magical += skill['level']*cost
-            else:
-                if skill['category'][1:] != 'free':
-                    skills_count += skill['level']*cost
-
         character_stats = models.Character.objects.filter(owner=current_user, id=id).values()[0]
         skills_points = character_stats['points_left']
+        skills_count_magical = 0
+        current_skills = []
+
+        for skill in context['skills']:
+            cost = int(models.Skills_Decs.objects.filter(name=skill['skill']).values()[0]['cost'])
+            current_skills.append(skill['skill'])
+            if skill['category'].lower() == 'magical':
+                skills_count_magical += skill['level'] * cost
+
         magical_skills_points = character_stats['INT'] - skills_count_magical
-        context = {
-            'user': current_user,
-            'character': chosen_character,
-            'character_id': id,
-            'character_stats': character_stats,
-            'skills': character_skills,
-            'skills_count': skills_points,
-            'skills_count_magical': magical_skills_points,
-            'form': CharacterSkillsForm()
-        }
-        return Response(context) 
-    def post(self,request,id):
-        current_user = request.user
+        if magical_skills_points < 0:
+            magical_skills_points = 0
+
+        context['user'] = current_user
+        context['character'] = chosen_character
+        context['character_id'] = id
+        context['character_stats'] = character_stats
+        context['skills_count'] = skills_points
+        context['skills_count_magical'] = magical_skills_points
+        context['form'] = CharacterSkillsForm()
+
+        return context            
+    def form_valid(self, form):
+        current_user = self.request.user
+        id = self.kwargs['id']
         chosen_character = models.Character.objects.filter(owner=current_user, id=id).values()[0]
         character_skills_queryset = models.Skills.objects.filter(owner=current_user, character=chosen_character['name']).values()
         character_skills = []
 
         for data in character_skills_queryset:
             character_skills.append({
-                'id': data['id'], 
-                'skill': data['skill'], 
-                'level': data['level'], 
+                'id': data['id'],
+                'skill': data['skill'],
+                'level': data['level'],
                 'category': data['category']
             })
 
@@ -175,84 +178,82 @@ class CharacterSkills(APIView):
             cost = int(models.Skills_Decs.objects.filter(name=skill['skill']).values()[0]['cost'])
             current_skills.append(skill['skill'])
             if skill['category'].lower() == 'magical':
-                skills_count_magical += skill['level']*cost
+                skills_count_magical += skill['level'] * cost
             elif skill['category'][1:] != 'free':
-                skills_count += skill['level']*cost
-
+                skills_count += skill['level'] * cost
+                
         skills_points = chosen_character['points_left']
         magical_skills_points = chosen_character['INT'] - skills_count_magical
-        if magical_skills_points<0:
+        if magical_skills_points < 0:
             magical_skills_points = 0
 
-        form = CharacterSkillsForm(request.POST)
-        if form.is_valid():
-            skill_to_add = form.save(commit=False)
-            validated_skill = models.Skills_Decs.objects.filter(name=skill_to_add.skill).values()[0]
+        skill_to_add = form.save(commit=False)
+        validated_skill = models.Skills_Decs.objects.filter(name=skill_to_add.skill).values()[0]
 
-            level = skill_to_add.level
-            while True:
-                level_desc = validated_skill[f"level{level}"]
-                if len(level_desc)>0:
-                    skill_to_add.level = level
-                    break
+        level = skill_to_add.level
+        while True:
+            level_desc = validated_skill[f"level{level}"]
+            if len(level_desc) > 0:
+                skill_to_add.level = level
+                break
+            else:
+                level -= 1
+                continue
+
+        requirements_satisfied = [True, True]
+        req_stats = []
+        for x in range(2):
+            try:
+                req_stat = validated_skill[f"need{skill_to_add.level}_{x+1}"][:3]
+                req_value = int(validated_skill[f"need{skill_to_add.level}_{x+1}"][3])
+                if req_stat == 'CHA':
+                    req_stat = 'CHAR'
+                req_stats.append(f"{req_stat}: {req_value}")
+                req_satisfied = chosen_character[req_stat] >= req_value
+                requirements_satisfied[x] = req_satisfied
+            except:
+                req_satisfied = True
+
+        requirements_satisfied = requirements_satisfied[0] and requirements_satisfied[1]
+        if validated_skill['category'].lower() == 'magical':
+            available_points = magical_skills_points
+        else:
+            available_points = skills_points
+
+        correct = False
+        if available_points > 0 and skill_to_add.level <= available_points:
+            if requirements_satisfied:
+                if validated_skill['name'] not in current_skills:
+                    correct = True
                 else:
-                    level -= 1
-                    continue
-                    
-            requirements_satisfied = [True,True]
-            req_stats = []
-            for x in range(2):
-                try:
-                    req_stat = validated_skill[f"need{skill_to_add.level}_{x+1}"][:3]
-                    req_value = int(validated_skill[f"need{skill_to_add.level}_{x+1}"][3])
-                    if req_stat == 'CHA':
-                        req_stat = 'CHAR'
-                    req_stats.append(f"{req_stat}: {req_value}")
-                    req_satisfied = chosen_character[req_stat] >= req_value
-                    requirements_satisfied[x] = req_satisfied
-                except:
-                    req_satisfied = True
-            
-            requirements_satisfied = requirements_satisfied[0] and requirements_satisfied[1]
-            if validated_skill['category'].lower()=='magical':
-                avaible_points = magical_skills_points
+                    msg = f"{validated_skill['name']} is already one of your skills."
             else:
-                avaible_points = skills_points
+                msg = "Requirements: " + ", ".join(req_stats)
+        else:
+            msg = f"Not enough points: {available_points} points available and {skill_to_add.level} points are needed for {validated_skill['name']} lvl.{skill_to_add.level}"
 
-            correct = False
-            if avaible_points > 0 and skill_to_add.level <= avaible_points:
-                if requirements_satisfied:
-                    if validated_skill['name'] not in current_skills:
-                        correct = True
-                    else:
-                        msg = f"{validated_skill['name']} is your skill already."
-                else:
-                    msg = f"Requirements: "
-                    for stat in req_stats:
-                        msg += f"{stat}, "
-                    msg = msg[:-2]
-            else:
-                msg = f"Not enough points: {avaible_points} points available and {skill_to_add.level} points are needed for {validated_skill['name']} lvl.{skill_to_add.level}"
+        if correct:
+            skill_details = models.Skills_Decs.objects.filter(name=skill_to_add.skill).values()[0]
+            character = models.Character.objects.get(id=id)
+            if validated_skill['category'].lower() != 'magical':
+                character.points_left -= skill_to_add.level * int(skill_details['cost'])
+            character.save()
+            skill_to_add.owner = current_user
+            skill_to_add.character = chosen_character['name']
+            skill_to_add.desc = skill_details['desc']
+            skill_to_add.category = skill_details['category']
+            skill_to_add.save()
+        else:
+            messages.error(self.request, msg)
 
-            if correct:
-                skill_details = models.Skills_Decs.objects.filter(name=skill_to_add.skill).values()[0]
-                character = models.Character.objects.get(id=id)
-                if validated_skill['category'].lower() != 'magical':
-                    character.points_left -= skill_to_add.level*int(skill_details['cost'])
-                character.save()
-                skill_to_add.owner = current_user
-                skill_to_add.character = chosen_character['name']
-                skill_to_add.desc = skill_details['desc']
-                skill_to_add.category = skill_details['category']
-                skill_to_add.save()
-            else:
-                messages.error(request,msg)
-        return HttpResponseRedirect(f'/dunnorpg/character_add_skills/{id}') 
+        return HttpResponseRedirect(self.get_success_url())
+    def get_success_url(self):
+        id = self.kwargs['id']
+        return f'/dunnorpg/character_add_skills/{id}'
 
 class CharacterDetails(DetailView):
     model = models.Character
     template_name = 'character_detail.html'
-    #context_object_name = 'chosen_character'
 
     def get_object(self,queryset=None):
         char_id = self.kwargs.get('id')
