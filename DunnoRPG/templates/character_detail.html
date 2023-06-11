@@ -77,19 +77,15 @@
         </div>
 
         <div name='head' class='row mt-2'>
-            <div class='col'></div>
             <div class='col'><p><span class="text-white-50">Head:</span> <a class='c-gold' href=''>{{ value.Helmet }}</a></p></div>
-            <div class='col'></div>
         </div>
 
         <div name='torso' class='row mt-2'>
-            <div class='col'></div>
             <div class='col'><p><span class="text-white-50">Torso:</span> <a class='c-gold'  href=''>{{ value.Torso }}</a></p></div>
-            <div class='col'></div>
         </div>
 
         <div name='hands' class='row mt-2'>
-            <div name='hand-right' class='col text-start'>
+            <div name='hand-right' class='row text-center'>
             {% if value.LeftHand|isDualHanded %}
                 <p><span class="text-white-50">RightHand:</span> <span id='r_weapon' class='c-gold'>Above weapon is two-handed</span></p>
             {% else %}
@@ -107,7 +103,7 @@
                 </p>
             </div>
             <div class='col'></div>
-            <div name='hand-left' class='col'><p name="LeftHand">
+            <div name='hand-left' class='row'><p name="LeftHand">
                     <span class="text-white-50">LeftHand:</span> (<span id='l_bonus'>{{ value.name|isPreffereOrUnliked:value.LeftHand }}</span>)
                     {% if value.LeftHand|isNotEmpty %} 
                     <a class='c-gold'  href=''><span name="{{ value.LeftHand|getItemType }}" id='l_weapon'>{{ value.LeftHand }}</span>
@@ -122,15 +118,15 @@
         </div>
 
         <div name='side' class='row mt-2'>
-            <div class='col'></div>
             <div class='col'><p><span class="text-white-50">Side:</span> <a class='c-gold'  href=''>{{ value.Side }} [{{ value.Side|getItemStatByName }}]</a></p></div>
-            <div class='col'></div>
         </div>
 
-        <div name='boots-gloves' class='row mt-2'>
-            <div class='col'><p><span class="text-white-50">Gloves:</span> <a class='c-gold'  href=''>{{ value.Gloves }}</a></p></div>
-            <div class='col'></div>
+        <div name='boots' class='row mt-2'>
             <div class='col'><p><span class="text-white-50">Boots:</span> <a class='c-gold'  href=''>{{ value.Boots }}</a></p></div>
+        </div>
+
+        <div name='gloves' class='row mt-2'>
+            <div class='col'><p><span class="text-white-50">Gloves:</span> <a class='c-gold'  href=''>{{ value.Gloves }}</a></p></div>
         </div>
 
     </div>    
@@ -169,19 +165,19 @@
 
 <div class='container mt-2'>
     <div class='row'>
-        <div onclick="show_result_at_window('Accuraccy')" class='col m-1 btn btn-dark btn-outline-warning border border-warning rounded'>
+        <div onclick='show_result_at_window("Accuraccy")' class='col m-1 btn btn-dark btn-outline-warning border border-warning rounded'>
             <span class=''>Accuraccy</span>
         </div>
-        <div onclick="calculate('parry')" class='col m-1 btn btn-dark btn-outline-warning border border-warning rounded'>
+        <div onclick='calculate("parry")' class='col m-1 btn btn-dark btn-outline-warning border border-warning rounded'>
             <span class=''>Parry</span>
         </div>
-        <div onclick="calculate('attack')" class='col m-1 btn btn-dark btn-outline-warning border border-warning rounded'>
+        <div onclick='show_result_at_window("Attack")' class='col m-1 btn btn-dark btn-outline-warning border border-warning rounded'>
             <span class=''>Attack</span>
         </div>
-        <div onclick="show_result_at_window('Dodge')" class='col m-1 btn btn-dark btn-outline-warning border border-warning rounded'>
+        <div onclick='show_result_at_window("Dodge")' class='col m-1 btn btn-dark btn-outline-warning border border-warning rounded'>
             <span class=''>Dodge</span>
         </div>
-        <div onclick="show_result_at_window('Dice')" class='col m-1 btn btn-dark btn-outline-warning border border-warning rounded'>
+        <div onclick='show_result_at_window("Dice")' class='col m-1 btn btn-dark btn-outline-warning border border-warning rounded'>
             <span class=''>Dice</span>
         </div>
     
@@ -253,12 +249,20 @@ function show_or_hideById(id){
     }
 };
 
-function change_result(text, element, mods, result){
-    if (document.getElementById('window-action-text-center').innerHTML == text){
-        document.getElementById('window-action-text-center').innerHTML = result
+function change_result(text, element, mods, result, additional=false){
+
+    if(additional){
+        element = document.getElementById('window-action-text-top')
     }
     else{
-        document.getElementById('window-action-text-center').innerHTML = text
+        element = document.getElementById('window-action-text-center')
+    }
+
+    if (element.innerHTML == text){
+        element.innerHTML = result
+    }
+    else{
+        element.innerHTML = text
     }
 }
 
@@ -271,46 +275,106 @@ function show_result_at_window(action){
 
     window_url = document.getElementById('window-footer-text')
 
-    if(action=='Dice'){
-        window_url.innerHTML = 'Google Dice'
-    }
-    else{
-        window_url.innerHTML = ''
-    }
+    if(action=='Dice'){window_url.innerHTML = 'Google Dice'}
+    else{window_url.innerHTML = ''}
 
 
-    if(action == 'Dice'){
+    if(action == 'Dice')
+    {
         diceRoll = getRandomInt(1,21)
         window_action.innerHTML = "<b>Dice:</b> " + diceRoll
+        window_action.onclick = ''
+        window_action_additional.innerHTML = ''
+        window_action_additional.onclick = ''
     }
-    else if (action == 'Accuraccy'){
 
+    else if (action == 'Accuraccy')
+    {
+        window_action_additional.innerHTML = ''
+        window_action_additional.onclick = ''
         cel_effect_bonus = parseInt(document.getElementById('effects-accuraccy').innerHTML)
         cel = parseInt(document.getElementById('stat-CEL').innerHTML)
         cel_mod = parseInt(document.getElementById('stat-CEL-mod').innerHTML)
         cel_mods = cel+cel_mod+cel_effect_bonus  
 
-        dice_result = getDiceWMods(window_action,cel_mods,getResult=true)
+        dice_result = getDiceWMods(window_action,cel_mods,getResult=true,text=action)
 
         details = 'CEL'+'('+cel+')'+ ' + '+'MODS'+'('+(cel_mod+cel_effect_bonus)+')'
         window_action.onclick = function() {change_result(details,window_action,cel_mods, dice_result)}
     }
-    else if (action == 'Dodge'){
-
+    
+    else if (action == 'Dodge')
+    {
         dodge_effect_bonus = parseInt(document.getElementById('effects-dodge').innerHTML)
         zre = parseInt(document.getElementById('stat-ZRE').innerHTML)
         zre_mod = parseInt(document.getElementById('stat-ZRE-mod').innerHTML) 
         dodge_mods = zre+zre_mod+dodge_effect_bonus 
 
-        dice_result = getDiceWMods(window_action,dodge_mods,getResult=true)
+        dice_result = getDiceWMods(window_action,dodge_mods,getResult=true,text=action)
 
         details = 'ZRE'+'('+zre+')'+ ' + '+'MODS'+'('+(zre_mod+dodge_effect_bonus)+')'
         window_action.onclick = function() {change_result(details,window_action,dodge_mods, dice_result)}
     }
-    //Attack (+ both left and right hand)
-    //Parry
 
+    else if (action == 'Attack')
+    {
+        attack_effect_bonus = parseInt(document.getElementById('effects-attack').innerHTML)
+        sil = parseInt(document.getElementById('stat-SIŁ').innerHTML)
+        sil_mod = parseInt(document.getElementById('stat-SIŁ-mod').innerHTML) 
+
+
+        if(document.getElementById('l_bonus').innerHTML != 'Empty')
+        {
+            leftWeapon = document.getElementById('l_weapon')
+            l_bonus = parseInt(document.getElementById('l_bonus').innerHTML)
+
+            if(leftWeapon.getAttribute("name") == 'shield')
+            { //shield-left-hand-attack
+                shield_attack_mods = sil+sil_mod-10+attack_effect_bonus
+                l_shield_dice_result = getDiceWMods(window_action_additional,shield_attack_mods,getResult=true,text='Left hand')
+                l_shield_details = 'SIŁ'+'('+sil+')'+ ' + ' + 'MODS'+'('+sil_mod+')'+' + '+'BONUS'+'('+l_bonus+')'+' + '+'BASIC(-10)'
+                window_action_additional.onclick = function() {change_result(l_shield_details,window_action_additional,shield_attack_mods, l_shield_dice_result,additional=true)}
+            }
+            else
+            { //normal-left-hand-attack
+                leftWeaponDmg = parseInt(document.getElementById('l_dmg').innerHTML)
+                leftWeaponAp = parseInt(document.getElementById('l_ap').innerHTML)
+                l_mods = sil+sil_mod+leftWeaponDmg+l_bonus+attack_effect_bonus
+                l_normal_dice_result = getDiceWMods(window_action_additional,l_mods,getResult=true,text='Left hand')
+                l_normal_details = 'SIŁ'+'('+sil+')'+ ' + '+'MODS'+'('+(sil_mod+attack_effect_bonus)+')'+' + '+'WEAPON'+'('+leftWeaponDmg+')'+' + '+'BONUS'+'('+l_bonus+')'+' ; '+'AP'+'('+leftWeaponAp+')'
+                window_action_additional.onclick = function() {change_result(l_normal_details,window_action_additional,l_mods, l_normal_dice_result,additional=true)}
+            }
+        }
+        else{window_action_additional.innerHTML = 'Left hand: Empty'}
+
+
+
+        if(document.getElementById('r_bonus').innerHTML != 'Empty')
+        {
+            rightWeapon = document.getElementById('r_weapon')
+            r_bonus = parseInt(document.getElementById('r_bonus').innerHTML)
+
+            if(rightWeapon.getAttribute("name") == 'shield')
+            { //shield-right-hand-attack
+                shield_attack_mods = sil+sil_mod-10+attack_effect_bonus
+                r_shield_dice_result = getDiceWMods(window_action,shield_attack_mods,getResult=true,text='Right hand')
+                r_shield_details = 'SIŁ'+'('+sil+')'+ ' + ' + 'MODS'+'('+sil_mod+')'+' + '+'BONUS'+'('+r_bonus+')'+' + '+'BASIC(-10)'
+                window_action.onclick = function() {change_result(r_shield_details,window_action,shield_attack_mods, r_shield_dice_result)}
+            }
+            else
+            { //normal-right-hand-attack
+                rightWeaponDmg = parseInt(document.getElementById('r_dmg').innerHTML)
+                rightWeaponAp = parseInt(document.getElementById('r_ap').innerHTML)
+                r_mods = sil+sil_mod+rightWeaponDmg+r_bonus+attack_effect_bonus
+                r_normal_dice_result = getDiceWMods(window_action,r_mods,getResult=true,text='Right hand')
+                r_normal_details = 'SIŁ'+'('+sil+')'+ ' + '+'MODS'+'('+(sil_mod+attack_effect_bonus)+')'+' + '+'WEAPON'+'('+rightWeaponDmg+')'+' + '+'BONUS'+'('+r_bonus+')'+' ; '+'AP'+'('+rightWeaponAp+')'
+                window_action.onclick = function() {change_result(r_normal_details,window_action,r_mods, r_normal_dice_result)}
+            }  
+        }
+        else{window_action.innerHTML = 'Right hand: Empty'}
+    }
 }
+    //Parry
 
 function calculate(action){
     document.getElementById('calc_field').classList.remove('d-none')
@@ -355,15 +419,6 @@ function calculate(action){
                     'BONUS'+'('+l_bonus+') = '+
                     (l_block+l_bonus)
                 }
-                else if(action=='attack'){
-                    shield_attack_mods = sil-10
-                    left.innerHTML = '<b>Left hand | '+action+': </b>'+
-                    'SIŁ'+'('+sil+')'+ ' + '+
-                    'MODS'+'('+sil_mod+')'+' + '+
-                    'BONUS'+'('+l_bonus+')'+' + '+
-                    'BASIC(-10) = '+
-                    "<span onclick='getDiceWMods(this,shield_attack_mods)'><u>Check</u></span>" 
-                }
             }
             else{
                 leftWeaponDmg = parseInt(document.getElementById('l_dmg').innerHTML)
@@ -373,7 +428,7 @@ function calculate(action){
                 'SIŁ'+'('+sil+')'+ ' + '+
                 'MODS'+'('+(sil_mod+effect_bonus)+')'+' + '+
                 'WEAPON'+'('+leftWeaponDmg+')'+' + '+
-                'BONUS'+'('+l_bonus+')'+' & '+
+                'BONUS'+'('+l_bonus+')'+' ; '+
                 'AP'+'('+leftWeaponAp+') = '+
                 "<span onclick='getDiceWMods(this,l_mods)'><u>Check</u></span>"                
             }
@@ -417,39 +472,23 @@ function calculate(action){
                     'SIŁ'+'('+sil+')'+ ' + '+
                     'MODS'+'('+(sil_mod+effect_bonus)+')'+' + '+
                     'WEAPON'+'('+rightWeaponDmg+')'+' + '+
-                    'BONUS'+'('+r_bonus+')'+' & '+
+                    'BONUS'+'('+r_bonus+')'+' ; '+
                     'AP'+'('+rightWeaponAp+') = '+
                     "<span onclick='getDiceWMods(this,r_mods)'><u>Check</u></span>"                
                 }
             }
         }
     }
-    else if(action=='dodge'){
-        right.innerHTML = ""
-
-        zre = parseInt(document.getElementById('stat-ZRE').innerHTML)
-        zre_mod = parseInt(document.getElementById('stat-ZRE-mod').innerHTML) 
-        dodge_mods = zre+zre_mod+dodge_effect_bonus
-
-        left.innerHTML="<b>Dodge:</b> "+
-        "ZRE"+'('+zre+')'+' + '+
-        "MODS"+'('+(zre_mod+dodge_effect_bonus)+') = '+
-        "<span onclick='getDiceWMods(this,dodge_mods)'><u>Check</u></span>"
-    }
-    else if(action=='dice'){
-        diceRoll = getRandomInt(1,21)
-        dice.innerHTML = "<span onclick="+"this.innerHTML=''"+"><b>Dice:</b> " + diceRoll+" (Click to hide)"+"</span>"
-    }
 }
-function getDiceWMods(instance,modsPoints,getResult=false){
+function getDiceWMods(instance,modsPoints,getResult=false,text='Result'){
     dice = getRandomInt(1,21)
     result = dice+modsPoints
     if(result < 1){
         result = 1
     }
-    instance.innerHTML = 'Result: ' + result + ' (Dice ' + dice + ')'
+    instance.innerHTML = text + ': ' + result + ' (Dice ' + dice + ')'
     if (getResult){
-        return 'Result: ' + result + ' (Dice ' + dice + ')'
+        return text + ': ' + result + ' (Dice ' + dice + ')'
     }
 }
 </script>
