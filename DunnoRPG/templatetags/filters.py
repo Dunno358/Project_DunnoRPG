@@ -1,5 +1,6 @@
 from django import template
 from DunnoRPG import models
+from django.shortcuts import get_object_or_404
 
 register = template.Library()
 
@@ -21,11 +22,11 @@ def getItemStatByName(itemName):
     
 @register.filter
 def getItemAP(itemName):
-    return models.Items.objects.all().filter(name=itemName).values()[0]['AP']
+    return get_object_or_404(models.Items, name=itemName).AP
 
 @register.filter
 def getItemBonus(itemName):
-    bonus = models.Items.objects.all().filter(name=itemName).values()[0]['diceBonus']
+    bonus = get_object_or_404(models.Items, name=itemName).diceBonus
     if bonus>=0:
         return f"+{bonus}"
     else:
@@ -33,11 +34,11 @@ def getItemBonus(itemName):
 
 @register.filter
 def getItemBlock(itemName):
-    return models.Items.objects.all().filter(name=itemName).values()[0]['block']
+    return get_object_or_404(models.Items, name=itemName).block
 
 @register.filter
 def getItemType(itemName):
-    return models.Items.objects.all().filter(name=itemName).values()[0]['type']
+    return get_object_or_404(models.Items, name=itemName).type
    
 
 
