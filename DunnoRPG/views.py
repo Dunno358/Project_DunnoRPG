@@ -432,13 +432,16 @@ def skill_upgrade(request,char_id,skill_id):
                 
                 if int(character['INT'])-mag_points <= 0:
                     points_ok = False
+            else:
+                points_ok = character_object.points_left>0
                
-            if points_ok and character_object.points_left>0:        
+            if points_ok:        
                 skill.level += 1
                 skill.desc = skill_details['desc']+' '+skill_details[f"level{skill.level}"]
                 skill.save()
 
-                character_object.points_left -= int(skill_details['cost'])
+                if cat != 'Magical':
+                    character_object.points_left -= int(skill_details['cost'])
                 character_object.save()
             else:
                 messages.error(request, f'Not enough points to upgrade {skill.skill}.')
@@ -471,7 +474,8 @@ def skill_downgrade(request,char_id,skill_id):
         skill.desc = skill_details['desc']+' '+skill_details[f"level{skill.level}"]
         skill.save()
         
-        character_object.points_left += int(skill_details['cost'])
+        if skill_details['category'] != 'Magical':
+            character_object.points_left += int(skill_details['cost'])
         character_object.save()
     else:
         messages.error(request,f'{skill.skill} level cannot be lower!')
