@@ -168,7 +168,7 @@
         <div onclick='show_result_at_window("Accuraccy")' class='col m-1 btn btn-dark btn-outline-warning border border-warning rounded'>
             <span class=''>Accuraccy</span>
         </div>
-        <div onclick='calculate("parry")' class='col m-1 btn btn-dark btn-outline-warning border border-warning rounded'>
+        <div onclick='show_result_at_window("Parry")' class='col m-1 btn btn-dark btn-outline-warning border border-warning rounded'>
             <span class=''>Parry</span>
         </div>
         <div onclick='show_result_at_window("Attack")' class='col m-1 btn btn-dark btn-outline-warning border border-warning rounded'>
@@ -373,115 +373,73 @@ function show_result_at_window(action){
         }
         else{window_action.innerHTML = 'Right hand: Empty'}
     }
-}
-    //Parry
 
-function calculate(action){
-    document.getElementById('calc_field').classList.remove('d-none')
-    left = document.getElementById('calc_left')
-    right = document.getElementById('calc_right')
-    dice = document.getElementById('calc_dice')
-
-    attack_effect_bonus = parseInt(document.getElementById('effects-attack').innerHTML)
-    parry_effect_bonus = parseInt(document.getElementById('effects-parry').innerHTML)
-    cel_effect_bonus = parseInt(document.getElementById('effects-accuraccy').innerHTML)
-    dodge_effect_bonus = parseInt(document.getElementById('effects-dodge').innerHTML)
-
-    if(action=='attack' || action=='parry')
+    else if (action == 'Parry')
     {
-        if(action=='attack'){ //accuraccy
-            effect_bonus = attack_effect_bonus
-            cel = parseInt(document.getElementById('stat-CEL').innerHTML)
-            cel_mod = parseInt(document.getElementById('stat-CEL-mod').innerHTML)
-            cel_mods = cel+cel_mod+cel_effect_bonus
-
-            dice.innerHTML = '<b>Accuracy: </b>'+
-            'CEL'+'('+cel+')'+ ' + '+
-            'MODS'+'('+(cel_mod+cel_effect_bonus)+') = '+
-            "<span onclick='getDiceWMods(this,cel_mods)'><u>Check</u></span>"
-        }
-        else{
-            effect_bonus = parry_effect_bonus
-        }
-
+        parry_effect_bonus = parseInt(document.getElementById('effects-parry').innerHTML)
         sil = parseInt(document.getElementById('stat-SIŁ').innerHTML)
         sil_mod = parseInt(document.getElementById('stat-SIŁ-mod').innerHTML) 
+
 
         if(document.getElementById('l_bonus').innerHTML != 'Empty')
         {
             leftWeapon = document.getElementById('l_weapon')
             l_bonus = parseInt(document.getElementById('l_bonus').innerHTML)
-            if(leftWeapon.getAttribute("name") == 'shield'){
-                if(action=='parry'){
-                    l_block = parseInt(document.getElementById('l_block').innerHTML)
-                    left.innerHTML = '<b>Left hand | '+action+': </b>'+
-                    'BLOCK'+'('+l_block+')'+ ' + '+
-                    'BONUS'+'('+l_bonus+') = '+
-                    (l_block+l_bonus)
-                }
+
+            if(leftWeapon.getAttribute("name") == 'shield')
+            { //shield-left-hand-attack
+                l_block = parseInt(document.getElementById('l_block').innerHTML)
+                l_shield_dice_result = getDiceWMods(window_action_additional,(l_block+l_bonus),getResult=true,text='Left hand', d0exception=true)
+                l_shield_details = 'BLOCK'+'('+l_block+')'+ ' + ' + 'BONUS'+'('+l_bonus+')'
+                window_action_additional.onclick = function() {change_result(l_shield_details,window_action_additional,(l_block+l_bonus), l_shield_dice_result,additional=true)}
             }
-            else{
+            else
+            { //normal-left-hand-parry
                 leftWeaponDmg = parseInt(document.getElementById('l_dmg').innerHTML)
                 leftWeaponAp = parseInt(document.getElementById('l_ap').innerHTML)
-                l_mods = sil+sil_mod+leftWeaponDmg+l_bonus+effect_bonus
-                left.innerHTML = '<b>Left hand | '+action+': </b>'+
-                'SIŁ'+'('+sil+')'+ ' + '+
-                'MODS'+'('+(sil_mod+effect_bonus)+')'+' + '+
-                'WEAPON'+'('+leftWeaponDmg+')'+' + '+
-                'BONUS'+'('+l_bonus+')'+' ; '+
-                'AP'+'('+leftWeaponAp+') = '+
-                "<span onclick='getDiceWMods(this,l_mods)'><u>Check</u></span>"                
+                l_mods = sil+sil_mod+leftWeaponDmg+l_bonus+parry_effect_bonus
+                l_normal_dice_result = getDiceWMods(window_action_additional,l_mods,getResult=true,text='Left hand')
+                l_normal_details = 'SIŁ'+'('+sil+')'+ ' + '+'MODS'+'('+(sil_mod+parry_effect_bonus)+')'+' + '+'WEAPON'+'('+leftWeaponDmg+')'+' + '+'BONUS'+'('+l_bonus+')'
+                window_action_additional.onclick = function() {change_result(l_normal_details,window_action_additional,l_mods, l_normal_dice_result,additional=true)}
             }
         }
+        else{window_action_additional.innerHTML = 'Left hand: Empty'}
 
-        rightOperative = false
-        rightWeapon = document.getElementById('r_weapon')
-        if(rightWeapon.innerHTML!='Above weapon is two-handed')
+
+
+        if(document.getElementById('r_bonus').innerHTML != 'Empty')
         {
-            rightOperative=true
-        }
-
-        if(rightOperative){
+            rightWeapon = document.getElementById('r_weapon')
             r_bonus = parseInt(document.getElementById('r_bonus').innerHTML)
-            if(document.getElementById('r_bonus').innerHTML != 'Empty')
-            {
-                rightWeapon = document.getElementById('r_weapon')
-                if(rightWeapon.getAttribute("name") == 'shield'){
-                    if(action=='parry'){
-                        r_block = parseInt(document.getElementById('r_block').innerHTML)
-                        right.innerHTML = '<b>Right hand | '+action+': </b>'+
-                        'BLOCK'+'('+r_block+')'+ ' + '+
-                        'BONUS'+'('+r_bonus+') = '+
-                        (r_block+r_bonus)
-                    }
-                    else if(action=='attack'){
-                        shield_attack_mods = sil-10
-                        right.innerHTML = '<b>Right hand | '+action+': </b>'+
-                        'SIŁ'+'('+sil+')'+ ' + '+
-                        'MODS'+'('+sil_mod+')'+' + '+
-                        'BONUS'+'('+r_bonus+')'+' + '+
-                        'BASIC(-10) = '+
-                        "<span onclick='getDiceWMods(this,shield_attack_mods)'><u>Check</u></span>" 
-                    }
-                }
-                else{
-                    rightWeaponDmg = parseInt(document.getElementById('r_dmg').innerHTML)
-                    rightWeaponAp = parseInt(document.getElementById('r_ap').innerHTML)
-                    r_mods = sil+sil_mod+rightWeaponDmg+r_bonus+effect_bonus
-                    right.innerHTML = '<b>Right hand | '+action+': </b>'+
-                    'SIŁ'+'('+sil+')'+ ' + '+
-                    'MODS'+'('+(sil_mod+effect_bonus)+')'+' + '+
-                    'WEAPON'+'('+rightWeaponDmg+')'+' + '+
-                    'BONUS'+'('+r_bonus+')'+' ; '+
-                    'AP'+'('+rightWeaponAp+') = '+
-                    "<span onclick='getDiceWMods(this,r_mods)'><u>Check</u></span>"                
-                }
+
+            if(rightWeapon.getAttribute("name") == 'shield')
+            { //shield-right-hand-attack
+                r_block = parseInt(document.getElementById('r_block').innerHTML)
+                r_shield_dice_result = getDiceWMods(window_action,(r_block+r_bonus),getResult=true,text='Right hand', d0exception=true)
+                r_shield_details = 'BLOCK'+'('+r_block+')'+ ' + ' + 'BONUS'+'('+r_bonus+')'
+                window_action.onclick = function() {change_result(r_shield_details,window_action,(r_block+r_bonus), r_shield_dice_result)}
+            }
+            else
+            { //normal-right-hand-parry
+                rightWeaponDmg = parseInt(document.getElementById('r_dmg').innerHTML)
+                rightWeaponAp = parseInt(document.getElementById('r_ap').innerHTML)
+                r_mods = sil+sil_mod+rightWeaponDmg+r_bonus+parry_effect_bonus
+                r_normal_dice_result = getDiceWMods(window_action,r_mods,getResult=true,text='Right hand')
+                r_normal_details = 'SIŁ'+'('+sil+')'+ ' + '+'MODS'+'('+(sil_mod+parry_effect_bonus)+')'+' + '+'WEAPON'+'('+rightWeaponDmg+')'+' + '+'BONUS'+'('+r_bonus+')'
+                window_action.onclick = function() {change_result(r_normal_details,window_action,r_mods, r_normal_dice_result)}
             }
         }
+        else{window_action.innerHTML = 'Right hand: Empty'}
     }
 }
-function getDiceWMods(instance,modsPoints,getResult=false,text='Result'){
-    dice = getRandomInt(1,21)
+
+function getDiceWMods(instance,modsPoints,getResult=false,text='Result', d0exception=false){
+    if (d0exception){
+        dice = 0
+    }
+    else{
+        dice = getRandomInt(1,21)
+    }
     result = dice+modsPoints
     if(result < 1){
         result = 1
