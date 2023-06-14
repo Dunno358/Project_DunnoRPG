@@ -406,8 +406,8 @@ def skill_delete(request,char_id,skill_id):
 def skill_upgrade(request,char_id,skill_id):
     skill = get_object_or_404(models.Skills, id=skill_id)
     skill_details = models.Skills_Decs.objects.filter(name=skill.skill).values()[0]
-    character = models.Character.objects.filter(id=char_id).values()[0]
     character_object = get_object_or_404(models.Character, id=char_id)
+    character = models.Character.objects.filter(id=char_id).values()[0]
     try:
         not_max_lvl = len(skill_details[f"level{skill.level+1}"])>0
     except:
@@ -461,8 +461,8 @@ def skill_upgrade(request,char_id,skill_id):
 def skill_downgrade(request,char_id,skill_id):
     skill = get_object_or_404(models.Skills, id=skill_id)
     skill_details = models.Skills_Decs.objects.filter(name=skill.skill).values()[0]
-    character = models.Character.objects.filter(id=char_id).values()[0]
     character_object = get_object_or_404(models.Character, id=char_id)
+    character = models.Character.objects.filter(id=char_id).values()[0]
     
     try:
         not_min_lvl = len(skill_details[f"level{skill.level-1}"])>0
