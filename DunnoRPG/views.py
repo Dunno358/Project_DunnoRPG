@@ -275,6 +275,9 @@ class CharacterDetails(DetailView):
             skill['level_desc'] = skill_description[f"level{skill['level']}"]
 
         #HTML loop was made for serializer with many=True even tho it's one object, HTML to be fixed soon
+        context['leftItem'] = models.CharItems.objects.filter(owner=self.request.user, character=serializer.data['name'], hand='Left').first()
+        context['rightItem'] = models.CharItems.objects.filter(owner=self.request.user, character=serializer.data['name'], hand='Right').first()
+        context['sideItem'] = models.CharItems.objects.filter(owner=self.request.user, character=serializer.data['name'], hand='Side').first()
         context['chosen_character'] = [serializer.data] 
         context['mods'] = mods
         context['skills'] = skills

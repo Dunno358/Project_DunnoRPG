@@ -37,6 +37,10 @@ def getItemBlock(itemName):
     return get_object_or_404(models.Items, name=itemName).block
 
 @register.filter
+def getMaxDurability(itemName):
+   return get_object_or_404(models.Items, name=itemName).maxDurability 
+
+@register.filter
 def getItemType(itemName):
     return get_object_or_404(models.Items, name=itemName).type
    
