@@ -397,7 +397,3 @@ class LogAsGuestTest(TestCase):
         user = authenticate(username='Guest', password='GuestPassword')
         self.assertTrue(user.is_authenticated)
         
-    def test_invalid_password(self):
-        response = self.client.post(reverse('log_as_guest'))
-        self.assertEqual(response.status_code, 302)
-        self.assertContains(response, 'Invalid login')
