@@ -2,6 +2,7 @@ from django.db import models
 from pygments.lexers import get_lexer_by_name
 from pygments.formatters.html import HtmlFormatter
 from pygments import highlight
+from django.shortcuts import get_object_or_404
 
 class NPC(models.Model):
     Health_Points = models.CharField(max_length=255)
@@ -121,10 +122,20 @@ class Items(models.Model):
     additionalInfo = models.TextField(blank=True,null=True)
 
     def __str__(self):
-        dh=''
         if self.dualHanded == True:
-            dh='[Dual handed]'
-        return f"{self.name} {dh}"
+            return f"{self.name} [Dual handed]"
+        return f"{self.name}"
+    
+class CharItems(models.Model):
+    owner = models.CharField(max_length = 80)
+    character = models.CharField(max_length = 150)
+    name = models.CharField(max_length = 150)
+    durability = models.IntegerField(default=50)
+    hand = models.CharField(max_length = 10, default='Left')
+
+    def __str__(self):
+        max_durability = get_object_or_404(Items, name=self.name).maxDurability
+        return f"[{self.character}] {self.name} ({self.durability}/{max_durability}) [{self.hand}]"
     
 class Effects(models.Model):
     owner = models.CharField(max_length = 150)
