@@ -1,6 +1,7 @@
+from django.contrib.auth import authenticate
 from django.contrib.auth.models import User
 from django.contrib.messages import get_messages
-from django.test import TestCase
+from django.test import Client, TestCase
 from django.urls import reverse
 from rest_framework.test import APIClient
 
@@ -383,3 +384,20 @@ class SkillDowngradeTest(TestCase):
         response = self.client.post(reverse('skill_downgrade', args=[self.character.id, 100])) 
         self.assertEqual(response.status_code, 404)
         
+class LogAsGuestTest(TestCase):
+    def setUp(self):
+        self.client = Client()
+        self.guest_user = User.objects.create_user(username='Guest', password='GuestPassword')
+        
+    def test_logging_as_guest(self):
+        response = self.client.post(reverse('log_as_guest'))
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, '/dunnorpg/')
+        
+        user = authenticate(username='Guest', password='GuestPassword')
+        self.assertTrue(user.is_authenticated)
+        
+    def test_invalid_password(self):
+        response = self.client.post(reverse('log_as_guest'))
+        self.assertEqual(response.status_code, 302)
+        self.assertContains(response, 'Invalid login')
