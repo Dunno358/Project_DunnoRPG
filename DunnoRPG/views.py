@@ -50,20 +50,20 @@ class charPOST(FormView):
         current_user = self.request.user
 
         character.owner = current_user
-        chosen_race = models.Races.objects.all().filter(name=character.race).values()[0]
+        chosen_race = get_object_or_404(models.Races, name=character.race)
         usedPoints = character.INT+character.SIŁ+character.ZRE+character.CHAR+character.CEL
         
         valid = False
-        if usedPoints <= chosen_race['points_limit']:
+        if usedPoints <= chosen_race.points_limit:
             valid = True
 
         if valid:
-            character.size = chosen_race['size']
+            character.size = chosen_race.size
 
-            character.points_left = chosen_race['points_limit'] - (character.INT+character.SIŁ+character.ZRE+character.CHAR+character.CEL)
+            character.points_left = chosen_race.points_limit - (character.INT+character.SIŁ+character.ZRE+character.CHAR+character.CEL)
 
-            pluses = chosen_race['statPlus'].split(';')
-            minuses = chosen_race['statMinus'].split(';')
+            pluses = chosen_race.statPlus.split(';')
+            minuses = chosen_race.statMinus.split(';')
             character.INT += int(pluses[0])-int(minuses[0])
             character.SIŁ += int(pluses[1])-int(minuses[1])
             character.ZRE += int(pluses[2])-int(minuses[2])
@@ -72,14 +72,14 @@ class charPOST(FormView):
 
             character.fullHP = character.HP
                 
-            character.weaponBonus = chosen_race['weaponsBonus']
-            character.preferredWeapons = chosen_race['weaponsPreffered']
-            character.unlikedWeapons = chosen_race['weaponsUnliked']
+            character.weaponBonus = chosen_race.weaponsBonus
+            character.preferredWeapons = chosen_race.weaponsPreffered
+            character.unlikedWeapons = chosen_race.weaponsUnliked
 
             character.save()
 
             skills = models.Skills.objects
-            for skill in chosen_race['Skills'].split(';'):
+            for skill in chosen_race.Skills.split(';'):
                 skill_name = skill[1:].strip()
                 skill_level = skill[0]
                 skills.create(
