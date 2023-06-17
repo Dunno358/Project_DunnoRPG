@@ -15,8 +15,6 @@ class CharacterModelTest(TestCase):
             Torso='Torso 1',
             Gloves='Gloves 1',
             Boots='Boots 1',
-            LeftHand='Left Hand 1',
-            RightHand='Right Hand 1',
             Side='Side 1',
             INT=10,
             SIŁ=8,
@@ -45,8 +43,6 @@ class CharacterModelTest(TestCase):
         self.assertEqual(character.Torso, 'Torso 1')
         self.assertEqual(character.Gloves, 'Gloves 1')
         self.assertEqual(character.Boots, 'Boots 1')
-        self.assertEqual(character.LeftHand, 'Left Hand 1')
-        self.assertEqual(character.RightHand, 'Right Hand 1')
         self.assertEqual(character.Side, 'Side 1')
         self.assertEqual(character.INT, 10)
         self.assertEqual(character.SIŁ, 8)
@@ -88,8 +84,6 @@ class CharacterModelTest(TestCase):
                 Torso='Torso 1',
                 Gloves='Gloves 1',
                 Boots='Boots 1',
-                LeftHand='Left Hand 1',
-                RightHand='Right Hand 1',
                 Side='Side 1',
                 INT=10,
                 SIŁ=8,
