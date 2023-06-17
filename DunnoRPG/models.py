@@ -24,8 +24,6 @@ class Character(models.Model):
     Torso = models.CharField(max_length=50, blank=True)
     Gloves = models.CharField(max_length=50, blank=True)
     Boots = models.CharField(max_length=50, blank=True)
-    LeftHand = models.CharField(max_length=50, blank=True)
-    RightHand = models.CharField(max_length=50, blank=True)
     Side = models.CharField(max_length=50, blank=True)
     INT = models.IntegerField()
     SIŁ = models.IntegerField()
