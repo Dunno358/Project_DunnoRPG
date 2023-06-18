@@ -5,6 +5,7 @@
 <script>
     function show_or_hideById(instance){
         block = document.getElementById(instance.innerHTML.trim())
+        document.getElementById('search-result').classList.add('d-none')
 
         if(block.classList.contains('d-none')){
             block.classList.remove('d-none')
@@ -20,11 +21,6 @@
 </script>
 
 <div name='bar' class='container mt-1'>
-    <div class='row d-none'>
-        <div class='col text-center c-gold'>
-            <h1 style='-webkit-text-stroke: 1px black;'>In development</h1>
-        </div>
-    </div>
     <div class='row bg-gray border border-warning rounded'>
 
         <div class='col btn btn-dark btn-outline-warning p-2 m-2' onclick='show_or_hideById(this)'>
@@ -54,111 +50,139 @@
     </div>
 </div>
 
-<div id='Singlehand' class='container'>
-{% for item in items_singlehand %}
-    <div class='row bg-dark border border-primary rounded m-2 p-2'>
-        <a href='{{ item.id }}'>
-        <div class='col text-center c-gold'>
-            <span
-            {% if item.maxDurability == 50 %}style='color: dimgray;'{% endif %}
-            {% if item.maxDurability == 100 %}style='color: silver;'{% endif %}
-            {% if item.maxDurability == 150 %}style='color: green;'{% endif %}
-            {% if item.maxDurability == 200 %}style='color: blue;'{% endif %}
-            {% if item.maxDurability == 250 %}style='color: purple;'{% endif %} 
-            >{{ item.name }}</span>
-        </div>
-        </a>
+<div class='container mt-2'>
+    <div class='row text-center'>
+        <form action="{% url 'items' %}" method='GET' class='container-fluid'>
+            <input name='search' class='text-center bg-gray c-gold border rounded border-warning' 
+            placeholder="Item's name...">
+            <button type='submit' class='fas fa-search bg-dark btn btn-outline-warning' href=""></button>
+        </form>
     </div>
-{% endfor %}
 </div>
 
-<div id='Twohand' class='container'>
+<div id='search-result' class='container'>
+    {% for item in items %}
+        <a href='{{ item.id }}'>
+            <div class='row bg-dark border border-primary rounded m-2 p-2'>
+                <div class='col text-center c-gold'>
+                    <span
+                    {% if item.maxDurability == 50 %}style='color: dimgray;'{% endif %}
+                    {% if item.maxDurability == 100 %}style='color: silver;'{% endif %}
+                    {% if item.maxDurability == 150 %}style='color: green;'{% endif %}
+                    {% if item.maxDurability == 200 %}style='color: blue;'{% endif %}
+                    {% if item.maxDurability == 250 %}style='color: purple;'{% endif %} 
+                    >{{ item.name }}</span>
+                </div>
+            </div>
+        </a>
+    {% endfor %}
+</div>
+
+<div id='Singlehand' class='container d-none'>
+    {% for item in items_singlehand %}
+        <a href='{{ item.id }}'>
+            <div class='row bg-dark border border-primary rounded m-2 p-2'>
+                <div class='col text-center c-gold'>
+                    <span
+                    {% if item.maxDurability == 50 %}style='color: dimgray;'{% endif %}
+                    {% if item.maxDurability == 100 %}style='color: silver;'{% endif %}
+                    {% if item.maxDurability == 150 %}style='color: green;'{% endif %}
+                    {% if item.maxDurability == 200 %}style='color: blue;'{% endif %}
+                    {% if item.maxDurability == 250 %}style='color: purple;'{% endif %} 
+                    >{{ item.name }}</span>
+                </div>
+            </div>
+        </a>
+    {% endfor %}
+</div>
+
+<div id='Twohand' class='container d-none'>
     {% for item in items_twohand %}
-        <div class='row bg-dark border border-primary rounded m-2 p-2'>
-            <a href='{{ item.id }}'>
-            <div class='col text-center c-gold'>
-                <span
-                {% if item.maxDurability == 50 %}style='color: dimgray;'{% endif %}
-                {% if item.maxDurability == 100 %}style='color: silver;'{% endif %}
-                {% if item.maxDurability == 150 %}style='color: green;'{% endif %}
-                {% if item.maxDurability == 200 %}style='color: blue;'{% endif %}
-                {% if item.maxDurability == 250 %}style='color: purple;'{% endif %} 
-                >{{ item.name }}</span>
+        <a href='{{ item.id }}'>
+            <div class='row bg-dark border border-primary rounded m-2 p-2'>
+                <div class='col text-center c-gold'>
+                    <span
+                    {% if item.maxDurability == 50 %}style='color: dimgray;'{% endif %}
+                    {% if item.maxDurability == 100 %}style='color: silver;'{% endif %}
+                    {% if item.maxDurability == 150 %}style='color: green;'{% endif %}
+                    {% if item.maxDurability == 200 %}style='color: blue;'{% endif %}
+                    {% if item.maxDurability == 250 %}style='color: purple;'{% endif %} 
+                    >{{ item.name }}</span>
+                </div>
             </div>
-            </a>
-        </div>
+        </a>
     {% endfor %}
 </div>
 
-<div id='Helmets' class='container'>
+<div id='Helmets' class='container d-none'>
     {% for item in items_helmet %}
-        <div class='row bg-dark border border-primary rounded m-2 p-2'>
-            <a href='{{ item.id }}'>
-            <div class='col text-center c-gold'>
-                <span
-                {% if item.maxDurability == 50 %}style='color: dimgray;'{% endif %}
-                {% if item.maxDurability == 100 %}style='color: silver;'{% endif %}
-                {% if item.maxDurability == 150 %}style='color: green;'{% endif %}
-                {% if item.maxDurability == 200 %}style='color: blue;'{% endif %}
-                {% if item.maxDurability == 250 %}style='color: purple;'{% endif %} 
-                >{{ item.name }}</span>
+        <a href='{{ item.id }}'>
+            <div class='row bg-dark border border-primary rounded m-2 p-2'>
+                <div class='col text-center c-gold'>
+                    <span
+                    {% if item.maxDurability == 50 %}style='color: dimgray;'{% endif %}
+                    {% if item.maxDurability == 100 %}style='color: silver;'{% endif %}
+                    {% if item.maxDurability == 150 %}style='color: green;'{% endif %}
+                    {% if item.maxDurability == 200 %}style='color: blue;'{% endif %}
+                    {% if item.maxDurability == 250 %}style='color: purple;'{% endif %} 
+                    >{{ item.name }}</span>
+                </div>
             </div>
-            </a>
-        </div>
+        </a>
     {% endfor %}
 </div>
 
-<div id='Torso' class='container'>
+<div id='Torso' class='container d-none'>
     {% for item in items_torso %}
-        <div class='row bg-dark border border-primary rounded m-2 p-2'>
-            <a href='{{ item.id }}'>
-            <div class='col text-center c-gold'>
-                <span
-                {% if item.maxDurability == 50 %}style='color: dimgray;'{% endif %}
-                {% if item.maxDurability == 100 %}style='color: silver;'{% endif %}
-                {% if item.maxDurability == 150 %}style='color: green;'{% endif %}
-                {% if item.maxDurability == 200 %}style='color: blue;'{% endif %}
-                {% if item.maxDurability == 250 %}style='color: purple;'{% endif %} 
-                >{{ item.name }}</span>
+        <a href='{{ item.id }}'>
+            <div class='row bg-dark border border-primary rounded m-2 p-2'>
+                <div class='col text-center c-gold'>
+                    <span
+                    {% if item.maxDurability == 50 %}style='color: dimgray;'{% endif %}
+                    {% if item.maxDurability == 100 %}style='color: silver;'{% endif %}
+                    {% if item.maxDurability == 150 %}style='color: green;'{% endif %}
+                    {% if item.maxDurability == 200 %}style='color: blue;'{% endif %}
+                    {% if item.maxDurability == 250 %}style='color: purple;'{% endif %} 
+                    >{{ item.name }}</span>
+                </div>
             </div>
-            </a>
-        </div>
+        </a>
     {% endfor %}
 </div>
 
-<div id='Boots' class='container'>
+<div id='Boots' class='container d-none'>
     {% for item in items_boots %}
-        <div class='row bg-dark border border-primary rounded m-2 p-2'>
-            <a href='{{ item.id }}'>
-            <div class='col text-center c-gold'>
-                <span
-                {% if item.maxDurability == 50 %}style='color: dimgray;'{% endif %}
-                {% if item.maxDurability == 100 %}style='color: silver;'{% endif %}
-                {% if item.maxDurability == 150 %}style='color: green;'{% endif %}
-                {% if item.maxDurability == 200 %}style='color: blue;'{% endif %}
-                {% if item.maxDurability == 250 %}style='color: purple;'{% endif %} 
-                >{{ item.name }}</span>
+        <a href='{{ item.id }}'>
+            <div class='row bg-dark border border-primary rounded m-2 p-2'>
+                <div class='col text-center c-gold'>
+                    <span
+                    {% if item.maxDurability == 50 %}style='color: dimgray;'{% endif %}
+                    {% if item.maxDurability == 100 %}style='color: silver;'{% endif %}
+                    {% if item.maxDurability == 150 %}style='color: green;'{% endif %}
+                    {% if item.maxDurability == 200 %}style='color: blue;'{% endif %}
+                    {% if item.maxDurability == 250 %}style='color: purple;'{% endif %} 
+                    >{{ item.name }}</span>
+                </div>
             </div>
-            </a>
-        </div>
+        </a>
     {% endfor %}
 </div>
 
-<div id='Gloves' class='container'>
+<div id='Gloves' class='container d-none'>
     {% for item in items_gloves %}
-        <div class='row bg-dark border border-primary rounded m-2 p-2'>
-            <a href='{{ item.id }}'>
-            <div class='col text-center c-gold'>
-                <span
-                {% if item.maxDurability == 50 %}style='color: dimgray;'{% endif %}
-                {% if item.maxDurability == 100 %}style='color: silver;'{% endif %}
-                {% if item.maxDurability == 150 %}style='color: green;'{% endif %}
-                {% if item.maxDurability == 200 %}style='color: blue;'{% endif %}
-                {% if item.maxDurability == 250 %}style='color: purple;'{% endif %} 
-                >{{ item.name }}</span>
+        <a href='{{ item.id }}'>
+            <div class='row bg-dark border border-primary rounded m-2 p-2'>
+                <div class='col text-center c-gold'>
+                    <span
+                    {% if item.maxDurability == 50 %}style='color: dimgray;'{% endif %}
+                    {% if item.maxDurability == 100 %}style='color: silver;'{% endif %}
+                    {% if item.maxDurability == 150 %}style='color: green;'{% endif %}
+                    {% if item.maxDurability == 200 %}style='color: blue;'{% endif %}
+                    {% if item.maxDurability == 250 %}style='color: purple;'{% endif %} 
+                    >{{ item.name }}</span>
+                </div>
             </div>
-            </a>
-        </div>
+        </a>
     {% endfor %}
 </div>
 

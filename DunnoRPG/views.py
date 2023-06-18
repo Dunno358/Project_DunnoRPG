@@ -500,7 +500,13 @@ class ItemsView(ListView):
     ordering = ['name']
 
     def get_queryset(self):
-        return self.model.objects.filter(found=True)
+        queryset = ''
+        value = self.request.GET.get('search')
+
+        if value:
+            queryset = models.Items.objects.filter(name__icontains=value, found=True)
+            
+        return queryset
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
