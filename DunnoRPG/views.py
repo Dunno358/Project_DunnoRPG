@@ -493,6 +493,25 @@ def log_as_guest(request):
     else:
         return HttpResponse('Invalid login')
 
+class ItemsView(ListView):
+    model = models.Items
+    template_name = 'items.html'
+    context_object_name = 'items'
+    ordering = ['name']
+
+    def get_queryset(self):
+        return self.model.objects.filter(found=True)
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['items_singlehand'] = models.Items.objects.filter(dualHanded=False, found=True)
+        context['items_twohand'] = models.Items.objects.filter(dualHanded=True, found=True)
+        context['items_helmet'] = models.Items.objects.filter(type='Helmet', found=True)
+        context['items_torso'] = models.Items.objects.filter(type='Torso', found=True)
+        context['items_boots'] = models.Items.objects.filter(type='Boots', found=True)
+        context['items_gloves'] = models.Items.objects.filter(type='Gloves', found=True)
+        return context
+
 class GMPanel(APIView):
     template_name = 'gm_panel.html'
     renderer_classes = [TemplateHTMLRenderer]
