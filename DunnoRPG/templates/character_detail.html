@@ -312,6 +312,9 @@ function show_result_at_window(action){
         zre_mod = parseInt(document.getElementById('stat-ZRE-mod').innerHTML) 
         dodge_mods = zre+zre_mod+dodge_effect_bonus 
 
+        window_action_additional.innerHTML = ''
+        window_action_additional.onclick = ''
+
         dice_result = getDiceWMods(window_action,dodge_mods,getResult=true,text=action)
 
         details = 'ZRE'+'('+zre+')'+ ' + '+'MODS'+'('+(zre_mod+dodge_effect_bonus)+')'
