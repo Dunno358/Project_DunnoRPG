@@ -116,7 +116,7 @@ class Items(models.Model):
     weight = models.DecimalField(decimal_places=1, max_digits=50, default=1)
     altAttack = models.CharField(max_length=250, default='None')
     maxDurability = models.IntegerField(default=50)
-    neededAccuraccy = models.IntegerField(default=5)
+    neededAccuraccy = models.IntegerField(default=6)
     additionalInfo = models.TextField(blank=True,null=True)
 
     def __str__(self):
