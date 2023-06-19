@@ -517,6 +517,7 @@ class ItemsView(ListView):
         context['items_torso'] = models.Items.objects.filter(type='Torso', found=True)
         context['items_boots'] = models.Items.objects.filter(type='Boots', found=True)
         context['items_gloves'] = models.Items.objects.filter(type='Gloves', found=True)
+        context['items_amulets'] = models.Items.objects.filter(type='Amulet', found=True)
         return context
 
 class GMPanel(APIView):
