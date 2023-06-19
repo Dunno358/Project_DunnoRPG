@@ -498,6 +498,7 @@ class ItemsView(ListView):
     template_name = 'items.html'
     context_object_name = 'items'
     ordering = ['name']
+    armor_types = ['Helmet','Torso','Boots','Gloves','Amulet']
 
     def get_queryset(self):
         queryset = ''
@@ -510,7 +511,7 @@ class ItemsView(ListView):
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['items_singlehand'] = models.Items.objects.filter(dualHanded=False, found=True)
+        context['items_singlehand'] = models.Items.objects.filter(dualHanded=False, found=True).exclude(type__in=self.armor_types)
         context['items_twohand'] = models.Items.objects.filter(dualHanded=True, found=True)
         context['items_helmet'] = models.Items.objects.filter(type='Helmet', found=True)
         context['items_torso'] = models.Items.objects.filter(type='Torso', found=True)
