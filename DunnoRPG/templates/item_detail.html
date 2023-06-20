@@ -1,0 +1,42 @@
+{% extends 'master.html' %}
+{% load filters %}
+
+{% block content %}
+{% include 'top_bar.html' %}
+
+<div class='container mt-3'>
+    <div class='row text-border-black'>
+        <div class='col text-center c-gold fst-italic'>
+            <h1>{{ item.name }}</h1>
+        </div>
+    </div>
+
+    <div class='row mt-2 text-border-black'>
+        <div class='col text-center c-gold fst-italic'>
+            <h1>
+                <span>Rarity: </span>
+                <span
+                    {% if item.rarity == 'neutral-low' or item.rarity == 'start-weapon' %}style='color: dimgray;'{% endif %}
+                    {% if item.rarity == 'neutral-high' %}style='color: silver;'{% endif %}
+                    {% if item.rarity == 'unique' %}style='color: #0ec800;'{% endif %}
+                    {% if item.rarity == 'magical' %}style='color: blue;'{% endif %}
+                    {% if item.rarity == 'uncommon' %}style='color: #b401b4;'{% endif %} 
+                >{{ item.rarity }}</span>
+            </h1>
+        </div>
+    </div>
+
+    <div class='row mt-1 card-body'>
+        <div class='col text-center c-gold bg-dark border border-warning rounded ms-5 me-5 p-1 pt-2'>
+            {% if item.name|isShield %}
+                <h2>Block: {{ item.block }}</h2>
+            {% elif item.name|isArmor %}
+                <h2>Armor: {{ item.armor }}</h2>
+            {% else %}
+                <h2>1K{% if item.diceBonus >= 0 %}+{% endif %}{{ item.diceBonus }}, {{ item.AP }}AP</h2>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+{% endblock content %}

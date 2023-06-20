@@ -24,6 +24,7 @@ urlpatterns = [
     path('char-delete/<int:char_id>', views.DeleteCharacter.as_view(), name='delete_character'),
     
     path('items/', views.ItemsView.as_view(), name='items'),
+    path('items/<int:id>', views.ItemDetailView.as_view(), name='item_detail'),
     
     path('guest/', views.log_as_guest, name='log_as_guest'),
     path('gmpanel/', views.GMPanel.as_view(), name='gm_panel'),

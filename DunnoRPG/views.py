@@ -505,7 +505,7 @@ class ItemsView(ListView):
         value = self.request.GET.get('search')
 
         if value:
-            queryset = models.Items.objects.filter(name__icontains=value, found=True)
+            queryset = models.Items.objects.filter((Q(name__icontains=value) | Q(desc__icontains=value)), found=True)
             
         return queryset
     
@@ -518,6 +518,22 @@ class ItemsView(ListView):
         context['items_boots'] = models.Items.objects.filter(type='Boots', found=True)
         context['items_gloves'] = models.Items.objects.filter(type='Gloves', found=True)
         context['items_amulets'] = models.Items.objects.filter(type='Amulet', found=True)
+        return context
+
+class ItemDetailView(DetailView):
+    model = models.Items
+    template_name = 'item_detail.html'
+
+    def get_object(self,queryset=None):
+        item_id = self.kwargs.get('id')
+        return get_object_or_404(models.Items, id=item_id)
+    
+    def get_context_data(self,**kwargs):
+        context = super().get_context_data(**kwargs)
+        item = self.get_object()
+
+        context['item'] = item
+
         return context
 
 class GMPanel(APIView):
@@ -569,6 +585,7 @@ class InfoEffects(ListView):
             for field in search_fields:
                 query |= Q(**{f"{field}__icontains": value})
 
+            print(query)
             queryset = queryset.filter(query)
 
         return queryset
