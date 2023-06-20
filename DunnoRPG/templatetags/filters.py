@@ -66,6 +66,16 @@ def isShield(itemName):
         return False
     
 @register.filter
+def isArmor(itemName):
+    try:
+        if models.Items.objects.all().filter(name=itemName).values()[0]['type'].lower() in ['helmet','armor','torso','boots','gloves','amulet']:
+            return True
+        else:
+            return False
+    except:
+        return False    
+    
+@register.filter
 def isPreffereOrUnliked(character, itemName):
     if len(itemName)>0:
         try:
