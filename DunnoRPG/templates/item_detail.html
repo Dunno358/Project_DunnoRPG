@@ -4,6 +4,17 @@
 {% block content %}
 {% include 'top_bar.html' %}
 
+<script>
+    document.getElementById('tb-items').classList.remove('btn-outline-warning')
+    document.getElementById('tb-items').classList.add('btn-outline-primary')
+
+    function showDesc(instance){
+        instance.classList.add('d-none')
+
+        document.getElementById('item_desc').classList.remove('d-none')
+    }
+</script>
+
 <div class='container mt-3'>
     <div class='row text-border-black'>
         <div class='col text-center c-gold fst-italic'>
@@ -26,8 +37,8 @@
         </div>
     </div>
 
-    <div class='row mt-1 card-body'>
-        <div class='col text-center c-gold bg-dark border border-warning rounded ms-5 me-5 p-1 pt-2'>
+    <div class='row mt-1'>
+        <div class='col bg-opacity-75 text-center c-gold bg-dark border border-warning rounded ms-5 me-5 p-1 pt-2'>
             {% if item.name|isShield %}
                 <h2>Block: {{ item.block }}</h2>
             {% elif item.name|isArmor %}
@@ -35,6 +46,21 @@
             {% else %}
                 <h2>1K{% if item.diceBonus >= 0 %}+{% endif %}{{ item.diceBonus }}, {{ item.AP }}AP</h2>
             {% endif %}
+        </div>
+    </div>
+
+    <div class='row'>
+        <div 
+        class='col text-center c-gold bg-dark ms50 me50 bg-opacity-75 border border-warning border-top-0'
+        onclick='showDesc(this)'
+        >
+            &darr;
+        </div>
+    </div>
+
+    <div class='row mt-1 d-none' id='item_desc'>
+        <div class='col bg-opacity-75 text-center c-gold bg-dark border border-warning rounded ms-5 mt-3 me-5 p-2 fst-italic'>
+            {{ item.desc }}
         </div>
     </div>
 </div>
