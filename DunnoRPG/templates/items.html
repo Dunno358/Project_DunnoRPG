@@ -3,6 +3,8 @@
 {% block content %}
 {% include 'top_bar.html' %}
 <script>
+    document.getElementById('tb-items').classList.remove('btn-outline-warning')
+    document.getElementById('tb-items').classList.add('btn-outline-primary')
     function show_or_hideById(instance){
         block = document.getElementById(instance.innerHTML.trim())
         document.getElementById('search-result').classList.add('d-none')
