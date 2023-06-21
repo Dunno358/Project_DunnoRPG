@@ -118,6 +118,7 @@ class Items(models.Model):
     maxDurability = models.IntegerField(default=50)
     neededAccuraccy = models.IntegerField(default=6)
     additionalInfo = models.TextField(blank=True,null=True)
+    price = models.IntegerField(default=5)
 
     def __str__(self):
         if self.dualHanded == True:
