@@ -8,14 +8,19 @@
     document.getElementById('tb-items').classList.remove('btn-outline-warning')
     document.getElementById('tb-items').classList.add('btn-outline-primary')
 
-    function showDesc(instance){
-        instance.classList.add('d-none')
-
+    function showDesc(){
+        document.getElementById('desc-btn').classList.add('d-none')
         document.getElementById('item_desc').classList.remove('d-none')
+    }
+
+    function hideDesc(instance){
+        document.getElementById('item_desc').classList.add('d-none')
+        document.getElementById('desc-btn').classList.remove('d-none')
     }
 </script>
 
 <div class='container mt-3'>
+
     <div class='row text-border-black'>
         <div class='col text-center c-gold fst-italic'>
             <h1>{{ item.name }}</h1>
@@ -24,7 +29,15 @@
 
     <div class='row mt-2 text-border-black'>
         <div class='col text-center c-gold fst-italic'>
-            <h1>
+            <h2>
+                Type: {{ item.type }}
+            </h2>
+        </div>
+    </div>
+
+    <div class='row mt-2 text-border-black'>
+        <div class='col text-center c-gold fst-italic'>
+            <h2>
                 <span>Rarity: </span>
                 <span
                     {% if item.rarity == 'neutral-low' or item.rarity == 'start-weapon' %}style='color: dimgray;'{% endif %}
@@ -33,11 +46,11 @@
                     {% if item.rarity == 'magical' %}style='color: blue;'{% endif %}
                     {% if item.rarity == 'uncommon' %}style='color: #b401b4;'{% endif %} 
                 >{{ item.rarity }}</span>
-            </h1>
+            </h2>
         </div>
     </div>
 
-    <div class='row mt-1'>
+    <div class='row mt-4'>
         <div class='col bg-opacity-75 text-center c-gold bg-dark border border-warning rounded ms-5 me-5 p-1 pt-2'>
             {% if item.name|isShield %}
                 <h2>Block: {{ item.block }}</h2>
@@ -49,20 +62,48 @@
         </div>
     </div>
 
+    {% if item.skill != '' %}
+        <div class='row'>
+            <div class='col bg-opacity-75 text-center c-gold bg-dark rounded border border-warning border-top-0 ms-5 me-5 p-1 pt-2'>
+                    {{ item.skill }}
+            </div>
+        </div>    
+    {% endif %}
+
     <div class='row'>
         <div 
         class='col text-center c-gold bg-dark ms50 me50 bg-opacity-75 border border-warning border-top-0'
-        onclick='showDesc(this)'
+        onclick='showDesc()' id='desc-btn'
         >
             &darr;
         </div>
     </div>
 
-    <div class='row mt-1 d-none' id='item_desc'>
-        <div class='col bg-opacity-75 text-center c-gold bg-dark border border-warning rounded ms-5 mt-3 me-5 p-2 fst-italic'>
-            {{ item.desc }}
+    <div id='item_desc' class='d-none mt-3'>
+        <div class='row'>
+            <div 
+            class='col text-center c-gold bg-dark ms50 me50 bg-opacity-75 border border-warning border-bottom-0'
+            onclick='hideDesc()'
+            >
+                &uarr;
+            </div>
+        </div>
+        <div class='row'>
+            <div class='col bg-opacity-75 text-center c-gold bg-dark border border-warning rounded ms-5 me-5 p-2 fst-italic'>
+                {{ item.desc }}
+            </div>
         </div>
     </div>
+
+    <div class='row mt-5 c-gold text-center'>
+        <div class='col bg-dark p-2 border border-warning rounded ms-3 me-3'>
+            <h5>Price: {{ item.price }}</h5>
+        </div>
+        <div class='col bg-dark p-2 border border-warning rounded ms-2 me-2'>
+            <h5>Weight: {{ item.weight }}kg</h5>
+        </div>
+    </div>
+
 </div>
 
 {% endblock content %}
