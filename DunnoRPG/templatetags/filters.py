@@ -43,6 +43,10 @@ def getMaxDurability(itemName):
 @register.filter
 def getItemType(itemName):
     return get_object_or_404(models.Items, name=itemName).type
+
+@register.filter
+def getDescId(itemName):
+    return get_object_or_404(models.Items, name=itemName).id
    
 
 
