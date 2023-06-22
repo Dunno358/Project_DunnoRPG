@@ -20,6 +20,10 @@
         {% for character in characters %}
         <div class="col m-4 p-3 border border-warning bg-gray c-gold rounded text-center">
           <dl>
+            {% if user.is_superuser %}
+              <dt>Owner:</dt>
+                <dd>{{ character.owner }}</dd>
+            {% endif %}
             <dt>Character:</dt>
               <dd>{{ character.name }}</dd>
             <dt>Race:</dt>
@@ -70,8 +74,7 @@
   function charDeleteConfirmation(text='Jesteś pewien?',id){
     document.getElementById('del-confirm-title').innerHTML = text
 
-    document.getElementById('del-confirm-positive').href += id
-
+    document.getElementById('del-confirm-positive').href = 'char-delete/'+id
     document.getElementById('del-confirm').classList.remove('d-none')
   }
 </script>
