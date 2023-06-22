@@ -68,19 +68,29 @@
 
 <div id='search-result' class='container'>
     {% for item in items %}
-        <a href='{{ item.id }}'>
-            <div class='row bg-dark border border-primary rounded m-2 p-2'>
-                <div class='col text-center c-gold'>
-                    <span
-                    {% if item.rarity == 'neutral-low' or item.rarity == 'start-weapon' %}style='color: dimgray;'{% endif %}
-                    {% if item.rarity == 'neutral-high' %}style='color: silver;'{% endif %}
-                    {% if item.rarity == 'unique' %}style='color: #0ec800;'{% endif %}
-                    {% if item.rarity == 'magical' %}style='color: blue;'{% endif %}
-                    {% if item.rarity == 'uncommon' %}style='color: #b401b4;'{% endif %} 
-                    >{{ item.name }}</span>
-                </div>
-            </div>
-        </a>
+    <div>
+        <div class='row bg-dark bg-opacity-75 rounded m-2 p-2'>
+            {% if user.is_superuser %}
+            <a class='col-3 btn btn-danger' href=''>
+                Unfound
+            </a>                
+            {% endif %}
+            <a class='col text-center c-gold bg-dark p-2 rounded border border-primary' href='{{ item.id }}'> 
+                <span
+                {% if item.rarity == 'neutral-low' or item.rarity == 'start-weapon' %}style='color: dimgray;'{% endif %}
+                {% if item.rarity == 'neutral-high' %}style='color: silver;'{% endif %}
+                {% if item.rarity == 'unique' %}style='color: #0ec800;'{% endif %}
+                {% if item.rarity == 'magical' %}style='color: blue;'{% endif %}
+                {% if item.rarity == 'uncommon' %}style='color: #b401b4;'{% endif %} 
+                >{{ item.name }}</span>
+            </a>
+            {% if user.is_superuser %}
+            <a class='col-3 btn btn-success' href=''>
+                Found
+            </a>  
+            {% endif %}
+        </div>
+    </div>
     {% endfor %}
 </div>
 
