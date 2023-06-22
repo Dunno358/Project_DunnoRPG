@@ -33,7 +33,10 @@ class charGET(ListView):
     context_object_name = 'characters'
     
     def get_queryset(self):
-        return self.model.objects.filter(owner=self.request.user)
+        if self.request.user.is_superuser:
+            return self.model.objects.all()
+        else:
+            return self.model.objects.filter(owner=self.request.user)
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
