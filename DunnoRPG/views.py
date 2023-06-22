@@ -123,8 +123,7 @@ class CharacterSkills(ListView, FormView):
     def get_queryset(self):
         user = self.request.user
         id = self.kwargs['id']
-        character_exist = get_object_or_404(models.Character, id=id)
-        chosen_character = models.Character.objects.filter(owner=user, id=id).values()[0]['name']
+        chosen_character = get_object_or_404(models.Character, id=id).name
         character_skills_queryset = models.Skills.objects.all().filter(owner=user, character=chosen_character).values() 
         
         return character_skills_queryset
@@ -133,8 +132,8 @@ class CharacterSkills(ListView, FormView):
         
         current_user = self.request.user
         id = self.kwargs['id']
-        chosen_character = models.Character.objects.filter(owner=current_user, id=id).values()[0]['name']
-        character_stats = models.Character.objects.filter(owner=current_user, id=id).values()[0]
+        chosen_character = get_object_or_404(models.Character, id=id).name
+        character_stats = models.Character.objects.filter(id=id).values()[0]
         skills_points = character_stats['points_left']
         skills_count_magical = 0
         current_skills = []
