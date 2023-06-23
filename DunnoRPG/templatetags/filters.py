@@ -62,7 +62,7 @@ def isDualHanded(itemName):
 @register.filter
 def isShield(itemName):
     try:
-        if models.Items.objects.all().filter(name=itemName).values()[0]['type'] == 'shield':
+        if models.Items.objects.all().filter(name=itemName).values()[0]['type'].lower() == 'shield':
             return True
         else:
             return False
