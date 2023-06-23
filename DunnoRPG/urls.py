@@ -26,6 +26,8 @@ urlpatterns = [
     path('items/', views.ItemsView.as_view(), name='items'),
     path('items/<int:id>', views.ItemDetailView.as_view(), name='item_detail'),
     
+    path('items/setFound-<int:id>-<int:state>', views.changeItemFoundState.as_view(), name='change_found_state'),
+    
     path('guest/', views.log_as_guest, name='log_as_guest'),
     path('gmpanel/', views.GMPanel.as_view(), name='gm_panel'),
     

@@ -541,6 +541,24 @@ class ItemDetailView(DetailView):
 
         return context
 
+class changeItemFoundState(APIView):
+    def get(self, request, *args, **kwargs):
+        if request.user.is_superuser:
+            state = kwargs['state']
+            item_id = kwargs['id']
+
+            item = get_object_or_404(models.Items, id=item_id)
+
+            try:
+                item.found = bool(state)
+            except:
+                print('changeItemFoundState at views; cannot state to bool')
+                raise Http404('changeItemFoundState at views; cannot state to bool')
+            
+            item.save()
+            
+        return redirect('/dunnorpg/items')
+
 class GMPanel(APIView):
     template_name = 'gm_panel.html'
     renderer_classes = [TemplateHTMLRenderer]
