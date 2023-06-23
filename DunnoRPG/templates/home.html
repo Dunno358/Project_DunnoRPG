@@ -23,11 +23,14 @@
             {% if user.is_superuser %}
               <dt>Owner:</dt>
                 <dd>{{ character.owner }}</dd>
-            {% endif %}
+              <dt>Character:</dt>
+                <dd>{{ character.name }}</dd>
+            {% else %}
             <dt>Character:</dt>
               <dd>{{ character.name }}</dd>
             <dt>Race:</dt>
-            <dd>{{ character.race }}</dd>
+              <dd>{{ character.race }}</dd>
+            {% endif %}
           </dl>
             <div name='char_card_btns'>
               <a onclick="charDeleteConfirmation('Usunąć {{ character.name }}?',{{ character.id }})" class="btn btn-sm btn-dark btn-outline-danger m-1">Delete</a>
