@@ -510,19 +510,29 @@ class ItemsView(ListView):
             if self.request.user.is_superuser:
                 queryset = models.Items.objects.filter((Q(name__icontains=value) | Q(desc__icontains=value)))
             else:
-                queryset = models.Items.objects.filter((Q(name__icontains=value) | Q(desc__icontains=value)), found=True)
+                queryset = models.Items.objects.filter((Q(name__icontains=value) | Q(desc__icontains=value)), found=state)
             
         return queryset
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['items_singlehand'] = models.Items.objects.filter(dualHanded=False, found=True).exclude(type__in=self.armor_types)
-        context['items_twohand'] = models.Items.objects.filter(dualHanded=True, found=True)
-        context['items_helmet'] = models.Items.objects.filter(type='Helmet', found=True)
-        context['items_torso'] = models.Items.objects.filter(type='Torso', found=True)
-        context['items_boots'] = models.Items.objects.filter(type='Boots', found=True)
-        context['items_gloves'] = models.Items.objects.filter(type='Gloves', found=True)
-        context['items_amulets'] = models.Items.objects.filter(type='Amulet', found=True)
+        
+        names = ['items_helmet','items_torso','items_boots','items_gloves','items_amulets']
+        types = ['Helmet','Torso','Boots','Gloves','Amulet']
+        
+        if self.request.user.is_superuser:
+            context['items_singlehand'] = models.Items.objects.filter(dualHanded=False).exclude(type__in=self.armor_types)
+            context['items_twohand'] = models.Items.objects.filter(dualHanded=True)    
+        else:
+            context['items_singlehand'] = models.Items.objects.filter(dualHanded=False, found=True).exclude(type__in=self.armor_types)
+            context['items_twohand'] = models.Items.objects.filter(dualHanded=True, found=True) 
+        
+        for x in range(len(names)):
+            if self.request.user.is_superuser:
+                context[names[x]] = models.Items.objects.filter(type=types[x])
+            else:
+                context[names[x]] = models.Items.objects.filter(type=types[x], found=True)
+        
         return context
 
 class ItemDetailView(DetailView):
