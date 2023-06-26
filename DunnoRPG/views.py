@@ -510,7 +510,7 @@ class ItemsView(ListView):
             if self.request.user.is_superuser:
                 queryset = models.Items.objects.filter((Q(name__icontains=value) | Q(desc__icontains=value)))
             else:
-                queryset = models.Items.objects.filter((Q(name__icontains=value) | Q(desc__icontains=value)), found=state)
+                queryset = models.Items.objects.filter((Q(name__icontains=value) | Q(desc__icontains=value)), found=True)
             
         return queryset
     
