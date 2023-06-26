@@ -56,6 +56,8 @@
                 <h2>Block: {{ item.block }}</h2>
             {% elif item.name|isArmor %}
                 <h2>Armor: {{ item.armor }}</h2>
+            {% elif item.type == 'Other' %}
+                <h2>Usable or valuable item</h2>
             {% else %}
                 <h2>1K{% if item.diceBonus >= 0 %}+{% endif %}{{ item.diceBonus }}, {{ item.AP }}AP</h2>
             {% endif %}

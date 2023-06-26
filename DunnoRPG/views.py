@@ -517,21 +517,21 @@ class ItemsView(ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         
-        names = ['items_helmet','items_torso','items_boots','items_gloves','items_amulets']
-        types = ['Helmet','Torso','Boots','Gloves','Amulet']
+        names = ['items_helmet','items_torso','items_boots','items_gloves','items_amulets','items_other']
+        types = ['Helmet','Torso','Boots','Gloves','Amulet','Other']
         
         if self.request.user.is_superuser:
-            context['items_singlehand'] = models.Items.objects.filter(dualHanded=False).exclude(type__in=self.armor_types)
-            context['items_twohand'] = models.Items.objects.filter(dualHanded=True)    
+            context['items_singlehand'] = models.Items.objects.filter(dualHanded=False).order_by('rarity').exclude(type__in=self.armor_types)
+            context['items_twohand'] = models.Items.objects.filter(dualHanded=True).order_by('rarity')    
         else:
-            context['items_singlehand'] = models.Items.objects.filter(dualHanded=False, found=True).exclude(type__in=self.armor_types)
-            context['items_twohand'] = models.Items.objects.filter(dualHanded=True, found=True) 
+            context['items_singlehand'] = models.Items.objects.filter(dualHanded=False, found=True).order_by('rarity').exclude(type__in=self.armor_types)
+            context['items_twohand'] = models.Items.objects.filter(dualHanded=True, found=True) .order_by('rarity')
         
         for x in range(len(names)):
             if self.request.user.is_superuser:
-                context[names[x]] = models.Items.objects.filter(type=types[x])
+                context[names[x]] = models.Items.objects.filter(type=types[x]).order_by('rarity')
             else:
-                context[names[x]] = models.Items.objects.filter(type=types[x], found=True)
+                context[names[x]] = models.Items.objects.filter(type=types[x], found=True).order_by('rarity')
         
         return context
 

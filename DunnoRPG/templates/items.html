@@ -53,6 +53,10 @@
             Amulets
         </div>
 
+        <div class='col btn btn-dark btn-outline-warning p-2 m-2' onclick='show_or_hideById(this)'>
+            Other
+        </div>
+
     </div>
 </div>
 
@@ -292,6 +296,38 @@
 
 <div id='Amulets' class='container d-none'>
     {% for item in items_amulets %}
+    <div>
+        <div class='row bg-dark bg-opacity-75 rounded m-2 p-2'>
+            {% if user.is_superuser %}
+            <a class='col-3 btn btn-danger' href='setFound-{{ item.id }}-0'>
+                Unfound
+            </a>                
+            {% endif %}
+            <a class='col text-center c-gold bg-dark p-2 rounded border border-primary' href='{{ item.id }}'> 
+                <span
+                {% if item.rarity == 'neutral-low' or item.rarity == 'start-weapon' %}style='color: dimgray;'{% endif %}
+                {% if item.rarity == 'neutral-high' %}style='color: silver;'{% endif %}
+                {% if item.rarity == 'unique' %}style='color: #0ec800;'{% endif %}
+                {% if item.rarity == 'magical' %}style='color: blue;'{% endif %}
+                {% if item.rarity == 'uncommon' %}style='color: #b401b4;'{% endif %} 
+                >{{ item.name }}</span>
+            </a>
+            {% if user.is_superuser %}
+                <a class='col-3 btn btn-success' href='setFound-{{ item.id }}-1'>
+                    {% if item.found == True %}
+                        Already found
+                    {% else %}
+                        Found
+                    {% endif %}
+                </a> 
+            {% endif %}
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<div id='Other' class='container d-none'>
+    {% for item in items_other %}
     <div>
         <div class='row bg-dark bg-opacity-75 rounded m-2 p-2'>
             {% if user.is_superuser %}
