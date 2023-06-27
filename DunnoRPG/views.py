@@ -259,13 +259,16 @@ class CharacterDetails(DetailView):
 
     def get_object(self,queryset=None):
         char_id = self.kwargs.get('id')
-        return get_object_or_404(models.Character, id=char_id)
+        character = get_object_or_404(models.Character, id=char_id)
+        if character.owner != self.request.user.username and self.request.user.is_superuser == False:
+            raise Http404('Invalid character')
+        return character
 
     def get_context_data(self,**kwargs):
         context = super().get_context_data(**kwargs)
         chosen = self.get_object()
         serializer = CharacterSerializer(chosen)
-
+        
         skills = models.Skills.objects.all().filter(owner=self.request.user,character=serializer.data['name']).values()
         race = models.Races.objects.all().filter(name=serializer.data['race']).values()[0]
         mods = models.Mods.objects.all().filter(owner=self.request.user,character=serializer.data['name']).values()
@@ -276,10 +279,15 @@ class CharacterDetails(DetailView):
             skill['original_desc'] = skill_description['desc']
             skill['level_desc'] = skill_description[f"level{skill['level']}"]
 
-        #HTML loop was made for serializer with many=True even tho it's one object, HTML to be fixed soon
-        context['leftItem'] = models.CharItems.objects.filter(owner=self.request.user, character=serializer.data['name'], hand='Left').first()
-        context['rightItem'] = models.CharItems.objects.filter(owner=self.request.user, character=serializer.data['name'], hand='Right').first()
-        context['sideItem'] = models.CharItems.objects.filter(owner=self.request.user, character=serializer.data['name'], hand='Side').first()
+        
+        context['helmet'] = models.CharItems.objects.filter(character=serializer.data['name'], position='Helmet').first()
+        context['torso'] = models.CharItems.objects.filter(character=serializer.data['name'], position='Torso').first()
+        context['gloves'] = models.CharItems.objects.filter(character=serializer.data['name'], position='Gloves').first()
+        context['boots'] = models.CharItems.objects.filter(character=serializer.data['name'], position='Boots').first()
+        context['amulet'] = models.CharItems.objects.filter(character=serializer.data['name'], position='Amulet').first()
+        context['leftItem'] = models.CharItems.objects.filter(character=serializer.data['name'], hand='Left').first()
+        context['rightItem'] = models.CharItems.objects.filter(character=serializer.data['name'], hand='Right').first()
+        context['sideItem'] = models.CharItems.objects.filter(character=serializer.data['name'], hand='Side').first()
         context['chosen_character'] = [serializer.data] 
         context['mods'] = mods
         context['skills'] = skills

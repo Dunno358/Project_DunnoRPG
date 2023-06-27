@@ -72,16 +72,28 @@
         <p class="text-center fw-bold">{{ value.name }}</p>
 
         <div class='row'>
-            <p class='col' title='{{ race_desc }}'><span class="text-white-50">Race:</span> {{ value.race }} ({{ value.size }})</p>
+            <p class='col' title='{{ race_desc }}'>
+                <span class="text-white-50">Armor:</span> 
+                <span id='armor'>{{ value.name|getArmor }}</span>; <span id='armor-weight'>{{ value.name|getArmorWeight }}</span>kg (-<span id='armor-mod'></span> ZRE)</p>
             <p class='col'><span class="text-white-50">Health:</span> {{ value.HP }}/{{ value.fullHP }}</p>
         </div>
 
         <div name='head' class='row mt-2'>
-            <div class='col'><p><span class="text-white-50">Head:</span> <a class='c-gold' href=''>{{ value.Helmet }}</a></p></div>
+            <div class='col'><p><span class="text-white-50">Helmet:</span> 
+                {% if helmet != None %}
+                    <a class='c-gold' href='/dunnorpg/items/{{ helmet.name|getDescId }}'>
+                    {{ helmet.name }} ({{ helmet.durability }}/{{ helmet.name|getMaxDurability }})</a>                
+                {% endif %}
+            </p></div>
         </div>
 
         <div name='torso' class='row mt-2'>
-            <div class='col'><p><span class="text-white-50">Torso:</span> <a class='c-gold'  href=''>{{ value.Torso }}</a></p></div>
+            <div class='col'><p><span class="text-white-50">Torso:</span> 
+                {% if torso != None %}
+                    <a class='c-gold'  href='/dunnorpg/items/{{ torso.name|getDescId }}'>
+                    {{ torso.name }} ({{ torso.durability }}/{{ torso.name|getMaxDurability }})</a>                
+                {% endif %}
+            </p></div>
         </div>
 
         <div name='hands' class='row mt-2'>
@@ -135,11 +147,31 @@
         </div>
 
         <div name='boots' class='row mt-2'>
-            <div class='col'><p><span class="text-white-50">Boots:</span> <a class='c-gold'  href=''>{{ value.Boots }}</a></p></div>
+            <div class='col'><p><span class="text-white-50">Boots:</span> 
+                {% if boots != None %}
+                    <a class='c-gold'  href='/dunnorpg/items/{{ boots.name|getDescId }}'>
+                    {{ boots.name }} ({{ boots.durability }}/{{ boots.name|getMaxDurability }})</a>                
+                {% endif %}
+            </p></div>
         </div>
 
         <div name='gloves' class='row mt-2'>
-            <div class='col'><p><span class="text-white-50">Gloves:</span> <a class='c-gold'  href=''>{{ value.Gloves }}</a></p></div>
+            <div class='col'><p><span class="text-white-50">Gloves:</span> 
+                {% if gloves != None %}
+                    <a class='c-gold'  href='/dunnorpg/items/{{ gloves.name|getDescId }}'>
+                    {{ gloves.name }} ({{ gloves.durability }}/{{ gloves.name|getMaxDurability }})</a>
+                {% endif %}
+            </p></div>
+        </div>
+
+        <div class='row'>
+            <p class='col' title='{{ race_desc }}'><span class="text-white-50">Race:</span> {{ value.race }} ({{ value.size }})</p>
+            <p class='col'><span class="text-white-50">Amulet:</span> 
+                {% if amulet != None %}
+                    <a class='c-gold' href='/dunnorpg/items/{{ amulet.name|getDescId }}'>
+                    {{ amulet.name }}</a>
+                {% endif %}
+            </p>
         </div>
 
     </div>    
@@ -199,6 +231,14 @@
 <script>
 document.getElementById('tb-characters').classList.remove('btn-outline-warning')
 document.getElementById('tb-characters').classList.add('btn-outline-primary')
+function getArmorMod(){
+    armor_weight = parseInt(document.getElementById('armor-weight').innerHTML)
+    mod = armor_weight/4
+    mod = parseInt(mod)
+    document.getElementById('armor-mod').innerHTML = mod
+}
+getArmorMod()
+
 function getRandomInt(min=1,max) {
     min = Math.ceil(min);
     max = Math.floor(max);

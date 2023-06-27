@@ -46,7 +46,10 @@ def getItemType(itemName):
 
 @register.filter
 def getDescId(itemName):
-    return get_object_or_404(models.Items, name=itemName).id
+    try:
+        return models.Items.objects.filter(name=itemName).values()[0]['id']
+    except:
+        return ''
    
 
 
@@ -145,7 +148,42 @@ def getEffectsBonus(character_name, action):
 
     return bonus
 
+@register.filter
+def getArmor(charName):
+    helmet = models.CharItems.objects.filter(character=charName, position='Helmet').first()
+    torso = models.CharItems.objects.filter(character=charName, position='Torso').first()
+    boots = models.CharItems.objects.filter(character=charName, position='Boots').first()
+    gloves = models.CharItems.objects.filter(character=charName, position='Gloves').first()
+    items = [helmet,torso,boots,gloves]
+    
+    armor = 0
+    
+    for item in items:
+        try:
+            armor += models.Items.objects.filter(name=item.name).first().armor
+        except:
+            pass
+        
+    return armor
 
+@register.filter
+def getArmorWeight(charName):
+    helmet = models.CharItems.objects.filter(character=charName, position='Helmet').first()
+    torso = models.CharItems.objects.filter(character=charName, position='Torso').first()
+    boots = models.CharItems.objects.filter(character=charName, position='Boots').first()
+    gloves = models.CharItems.objects.filter(character=charName, position='Gloves').first()
+    items = [helmet,torso,boots,gloves]  
+    
+    weight = 0
+    
+    for item in items:
+        try:
+            weight += models.Items.objects.filter(name=item.name).first().weight
+        except:
+            pass
+        
+    return weight 
+    
 #CHARACTER-IS
 @register.filter
 def isNotEmpty(hand):
