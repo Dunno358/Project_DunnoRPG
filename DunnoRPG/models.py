@@ -130,7 +130,8 @@ class CharItems(models.Model):
     character = models.CharField(max_length = 150)
     name = models.CharField(max_length = 150)
     durability = models.IntegerField(default=50)
-    hand = models.CharField(max_length = 10, default='Left')
+    hand = models.CharField(max_length = 10, default='Left', null=True, blank=True)
+    position = models.CharField(max_length = 20, null=True, blank=True)
 
     def __str__(self):
         max_durability = get_object_or_404(Items, name=self.name).maxDurability
