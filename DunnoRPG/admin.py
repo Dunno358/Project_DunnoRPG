@@ -31,7 +31,14 @@ class ItemsAdmin(admin.ModelAdmin):
         return qs.order_by('name','rarity')
 admin.site.register(models.Items, ItemsAdmin)
 
-admin.site.register(models.CharItems)
+class CharItemsAdmin(admin.ModelAdmin):
+    list_display = ("character", "name", 'durability', ('maxDurability'), 'hand', 'position')
+    def get_queryset(self, request):
+        qs = super().get_queryset(request)
+        return qs.order_by('character','name')
+    def maxDurability(self, obj):
+        return models.Items.objects.filter(name=obj.name).first().maxDurability
+admin.site.register(models.CharItems, CharItemsAdmin)
 
 admin.site.register(models.Races)
 
