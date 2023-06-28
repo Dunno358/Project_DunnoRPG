@@ -20,7 +20,10 @@ Web application designed to ease management of RPG sessions for Game Masters, as
 
 &emsp; ![Home page](https://github.com/Dunno358/Pictures/blob/main/DNRPG-skills-section.png?raw=true)
 
+- Searchable items layout with options for admin to control which items are to be seen by the rest
+
+&emsp; ![Home page](https://github.com/Dunno358/Pictures/blob/main/DNRPG-items.png?raw=true)
+
 ## To be added soon
 
-- Items layout
 - GM Panel allowing for complex character changes
