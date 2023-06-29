@@ -529,10 +529,10 @@ class ItemsView(ListView):
         types = ['Helmet','Torso','Boots','Gloves','Amulet','Other']
         
         if self.request.user.is_superuser:
-            context['items_singlehand'] = models.Items.objects.filter(dualHanded=False).order_by('rarity').exclude(type__in=self.armor_types)
+            context['items_singlehand'] = models.Items.objects.filter(dualHanded=False).order_by('rarity').exclude(type__in=types)
             context['items_twohand'] = models.Items.objects.filter(dualHanded=True).order_by('rarity')    
         else:
-            context['items_singlehand'] = models.Items.objects.filter(dualHanded=False, found=True).order_by('rarity').exclude(type__in=self.armor_types)
+            context['items_singlehand'] = models.Items.objects.filter(dualHanded=False, found=True).order_by('rarity').exclude(type__in=types)
             context['items_twohand'] = models.Items.objects.filter(dualHanded=True, found=True) .order_by('rarity')
         
         for x in range(len(names)):
