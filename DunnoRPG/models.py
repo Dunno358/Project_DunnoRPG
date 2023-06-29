@@ -113,6 +113,8 @@ class Items(models.Model):
     armor = models.IntegerField(default=0)
     block = models.IntegerField(default=0)
     skill = models.TextField(blank=True)
+    skillStats = models.CharField(max_length=250, null=True, blank=True)
+    skillEffects = models.CharField(max_length=250, null=True, blank=True)
     weight = models.DecimalField(decimal_places=1, max_digits=50, default=1)
     altAttack = models.CharField(max_length=250, default='None')
     maxDurability = models.IntegerField(default=50)
