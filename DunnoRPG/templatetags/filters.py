@@ -25,6 +25,14 @@ def getItemAP(itemName):
     return get_object_or_404(models.Items, name=itemName).AP
 
 @register.filter
+def getItemArmor(itemName):
+    return get_object_or_404(models.Items, name=itemName).armor
+
+@register.filter
+def getItemWeight(itemName):
+    return get_object_or_404(models.Items, name=itemName).weight
+
+@register.filter
 def getItemBonus(itemName):
     bonus = get_object_or_404(models.Items, name=itemName).diceBonus
     if bonus>=0:
@@ -183,6 +191,21 @@ def getArmorWeight(charName):
             pass
         
     return weight 
+
+@register.filter
+def getStatFromItems(charName,statToGet):
+    items = models.CharItems.objects.filter(character=charName)
+    mod = 0
+
+    for item in items:
+        item_details = models.Items.objects.filter(name=item.name).first()
+        if item_details.skillStats != None:
+            stats = item_details.skillStats.split(';')
+            for stat in stats:
+                if stat[:-2]==statToGet:
+                    mod += int(stat[-2:])
+
+    return mod
     
 #CHARACTER-IS
 @register.filter
