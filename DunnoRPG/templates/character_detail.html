@@ -3,6 +3,7 @@
 
 {% block content %}
 {% include 'top_bar.html' %}
+{% include 'dunnorpg/messages.html' %}
 
 <div id='pop-window' class='d-none position-fixed container-fluid mt-5'>
     <div class='row bg-dark c-gold rounded border border-warning mt-5 ms-5 me-5'>
@@ -72,7 +73,7 @@
         <p class="text-center fw-bold">{{ value.name }}</p>
 
         <div class='row'>
-            <p class='col' title='{{ race_desc }}'>
+            <p class='col'>
                 <span class="text-white-50">Armor:</span> 
                 <span id='armor'>{{ value.name|getArmor }}</span>; <span id='armor-weight'>{{ value.name|getArmorWeight }}</span>kg (-<span id='armor-mod'></span> ZRE)</p>
             <p class='col'><span class="text-white-50">Health:</span> {{ value.HP }}/{{ value.fullHP }}</p>
@@ -107,14 +108,14 @@
                 {% else %}
                 [1K<span id='r_dmg'>{{ rightItem.name|getItemBonus }}</span>, <span id='r_ap'>{{ rightItem.name|getItemAP }}</span>AP]
                 {% endif %}
-                <span id='r_dur'>({{ rightItem.durability }}/{{ rightItem.name|getMaxDurability }})</span>
+            </a>
+            <a href='/dunnorpg/makerequest/{{ value.id }};CharItems;{{ rightItem.id }};durability;downgrade1;character_detail' class='c-gold' id='r_dur'>({{ rightItem.durability }}/{{ rightItem.name|getMaxDurability }})</a>
             {% else %}
                 (<span id='r_bonus'>Empty</span>)
                 {% if leftItem.name|isDualHanded %}
                 <p><span class="text-white-50">RightHand:</span> <span id='r_weapon' class='c-gold'>Above weapon is two-handed</span></p>
                 {% endif %}
             {% endif %}
-                </a>
                 </p>
             </div>
             <div class='col'></div>
@@ -128,11 +129,12 @@
                             {% else %}
                             [1K<span id='l_dmg'>{{ leftItem.name|getItemBonus }}</span>, <span id='l_ap'>{{ leftItem.name|getItemAP }}</span>AP]
                             {% endif %}
-                            <span id='l_dur'>({{ leftItem.durability }}/{{ leftItem.name|getMaxDurability }})</span>
+                        </a>
+                        <a href='/dunnorpg/makerequest/{{ value.id }};CharItems;{{ leftItem.id }};durability;downgrade1;character_detail' class='c-gold' id='l_dur'>({{ leftItem.durability }}/{{ leftItem.name|getMaxDurability }})</a>
                     {% else %}
                         (<span id='l_bonus'>Empty</span>)
                     {% endif %}
-                    </a></p>
+                    </p>
             </div>
         </div>
 
@@ -140,7 +142,7 @@
             <div class='col'><p><span class="text-white-50">Side:</span>
             {% if sideItem != None %}
                 <a class='c-gold'  href='/dunnorpg/items/{{ sideItem.name|getDescId }}'>{{ sideItem.name }} [{{ sideItem.name|getItemStatByName }}]</a>
-                <span id='s_dur'>({{ sideItem.durability }}/{{ sideItem.name|getMaxDurability }})</span>
+                <a href='/dunnorpg/makerequest/{{ value.id }};CharItems;{{ sideItem.id }};durability;downgrade1;character_detail' class='c-gold' id='s_dur'>({{ sideItem.durability }}/{{ sideItem.name|getMaxDurability }})</a>
             {% endif %}
             </p></div>
             
