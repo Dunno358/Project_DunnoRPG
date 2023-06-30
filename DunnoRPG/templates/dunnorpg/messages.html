@@ -3,9 +3,23 @@
         {% for msg in messages %}
         <div class='row'>
             <div class='col'>
-                <div id='msg' class="{{ msg.tags }} text-center rounded border border-danger">
+                <div id='msg' class="{{ msg.tags }} text-center rounded border
+                {% if msg.level == 40 %} border-danger
+                {% elif msg.level == 30 %} border-warning
+                {% elif msg.level == 25 %} border-success
+                {% elif msg.level == 20 %} border-info
+                {% elif msg.level == 10 %} border-secondary
+                {% endif %}
+                ">
                     {{msg.message}}
-                <button onclick="document.getElementById('msg').classList.add('d-none')" type="button" class="m-2 close bg-danger rounded" data-dismiss="alert" aria-hidden="true">Dismiss</button>
+                <button onclick="document.getElementById('msg').classList.add('d-none')" type="button" class="m-2 close 
+                {% if msg.level == 40 %} bg-danger
+                {% elif msg.level == 30 %} bg-warning
+                {% elif msg.level == 25 %} bg-success
+                {% elif msg.level == 20 %} bg-info
+                {% elif msg.level == 10 %} bg-secondary
+                {% endif %}
+                 rounded" data-dismiss="alert" aria-hidden="true">Dismiss</button>
                 </div>
             </div>
         </div>
