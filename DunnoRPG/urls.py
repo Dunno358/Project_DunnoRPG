@@ -33,6 +33,8 @@ urlpatterns = [
     
     path('info/', views.Info.as_view(), name='info'),
     path('info/acc-rules/', views.AccRules.as_view(), name='info_acc_rules'),
+    path('makerequest/<int:char_id>;<str:model>;<int:object_id>;<str:field>;<str:title>;<str:to_reverse>', views.makeRequest.as_view(), name='make_request'),
+    
     path('info/effects/', views.InfoEffects.as_view(), name='info_effects')
 ]
 

@@ -10,6 +10,7 @@ from django.db.models.query import QuerySet
 from django.http import Http404, HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse_lazy
+from django.urls import reverse
 from django.views.generic import FormView, ListView
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView
@@ -576,6 +577,26 @@ class changeItemFoundState(APIView):
             item.save()
             
         return redirect('/dunnorpg/items')
+
+class makeRequest(APIView):
+    def get(self, request, **kwargs):
+        try:
+            models.Requests.objects.create(
+                from_user = request.user,
+                char_id = kwargs['char_id'],
+                model = kwargs['model'],
+                filter_id = kwargs['object_id'],
+                field = kwargs['field'],
+                title = kwargs['title']            
+            )
+            messages.success(request,'Request created successfully!')
+        except:
+            messages.error(request, 'Request creation failed!')
+        if kwargs['char_id'] == 0:
+            kwargs['char_id'] = ''
+        id = kwargs['char_id']
+        reverse_url = reverse(kwargs['to_reverse'], args=(id,))
+        return redirect(reverse_url)
 
 class GMPanel(APIView):
     template_name = 'gm_panel.html'
