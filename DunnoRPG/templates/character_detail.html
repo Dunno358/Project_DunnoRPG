@@ -139,7 +139,7 @@
         <div name='side' class='row mt-2'>
             <div class='col'><p><span class="text-white-50">Side:</span>
             {% if sideItem != None %}
-                <a class='c-gold'  href=''>{{ sideItem.name }} [{{ sideItem.name|getItemStatByName }}]</a>
+                <a class='c-gold'  href='/dunnorpg/items/{{ sideItem.name|getDescId }}'>{{ sideItem.name }} [{{ sideItem.name|getItemStatByName }}]</a>
                 <span id='s_dur'>({{ sideItem.durability }}/{{ sideItem.name|getMaxDurability }})</span>
             {% endif %}
             </p></div>
