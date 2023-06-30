@@ -516,9 +516,9 @@ class ItemsView(ListView):
 
         if value:
             if self.request.user.is_superuser:
-                queryset = models.Items.objects.filter((Q(name__icontains=value) | Q(desc__icontains=value)))
+                queryset = models.Items.objects.filter((Q(name__icontains=value) | Q(desc__icontains=value))).order_by('rarity')
             else:
-                queryset = models.Items.objects.filter((Q(name__icontains=value) | Q(desc__icontains=value)), found=True)
+                queryset = models.Items.objects.filter((Q(name__icontains=value) | Q(desc__icontains=value)), found=True).order_by('rarity')
             
         return queryset
     
