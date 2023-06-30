@@ -175,5 +175,10 @@ class Effects_Decs(models.Model):
     def __str__(self):
         return self.name
     
-
-    
+class Requests(models.Model):
+    from_user = models.CharField(max_length = 150)
+    char_id = models.IntegerField(null=True)
+    model = models.CharField(max_length = 150)
+    filter_id = models.IntegerField()
+    field = models.CharField(max_length = 150, null=True, blank=True)
+    title = models.CharField(max_length = 150)

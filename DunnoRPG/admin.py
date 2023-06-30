@@ -50,3 +50,16 @@ class EffectsAdmin(admin.ModelAdmin):
 admin.site.register(models.Effects, EffectsAdmin)
 
 admin.site.register(models.Effects_Decs)
+
+class RequestAdmin(admin.ModelAdmin):
+    list_display = ("from_user", "title", 'model', ('character_name'))
+    def get_queryset(self, request):
+        qs = super().get_queryset(request)
+        return qs.order_by('from_user')
+    def character_name(self,obj):
+        try:
+            return models.Character.objects.filter(id=obj.char_id).first().name
+        except:
+            return None
+
+admin.site.register(models.Requests, RequestAdmin)
