@@ -599,6 +599,19 @@ class makeRequest(APIView):
         id = kwargs['char_id']
         reverse_url = reverse(kwargs['to_reverse'], args=(id,))
         return redirect(reverse_url)
+    
+class RequestHandling(APIView):
+    def get(self, request, **kwargs):
+        if request.user.is_superuser:
+            
+            if kwargs['status'] == 0:
+                if kwargs['all']:
+                    for rq_object in models.Requests.objects.all():
+                        rq_object.delete()
+                else:
+                    get_object_or_404(models.Requests, id=kwargs['rq_id']).delete()
+                    
+        return redirect('/dunnorpg/gmpanel')
 
 class GMPanel(ListView):
     model = models.Requests
@@ -648,7 +661,6 @@ class InfoEffects(ListView):
             for field in search_fields:
                 query |= Q(**{f"{field}__icontains": value})
 
-            print(query)
             queryset = queryset.filter(query)
 
         return queryset
