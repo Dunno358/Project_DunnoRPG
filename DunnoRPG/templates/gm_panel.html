@@ -8,6 +8,9 @@
 
 <div name='Req-Btn' class='container mt-3'>
     <div onclick='showOrHideBlock(this,"requests-block")' class='row bg-dark rounded border border-warning' id='requests-btn'>
+        <div class='col text-end mt-3 mb-2'>
+            <a href='rq0-0-1' class='btn btn-sm btn-danger btn-outline-danger text-black'>Decline all</a>
+        </div>        
         <div class='col c-gold p-2 text-center'>
             <span class='d-inline-flex'>
                 <h1>Requests</h1>
@@ -16,6 +19,9 @@
                 {% endif %}
             </span>
         </div>
+        <div class='col mt-3 mb-2'>
+            <a href='' class='btn btn-sm btn-success btn-outline-success text-black'>Accept all</a>
+        </div>  
     </div>
 </div>
 <div id='requests-block' class='container bg-dark rounded border border-primary mt-3 d-none'>
@@ -26,7 +32,7 @@
                 | <u>{{ rq.field }} {{ rq.title }}</u>
             </span>
             <span class='col-4 text-center'>
-                <a href='' class='text-end btn btn-danger btn-outline-danger text-black'>Decline</a>
+                <a href='rq{{ rq.id }}-0-0' class='text-end btn btn-danger btn-outline-danger text-black'>Decline</a>
                 <a href='' class='text-end btn btn-success btn-outline-success text-black'>Accept</a>
             </span>
         </div>
