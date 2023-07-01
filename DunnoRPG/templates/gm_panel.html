@@ -6,14 +6,19 @@
 
 {% if user.is_superuser %}
 
-<div class='container mt-3'>
+<div name='Req-Btn' class='container mt-3'>
     <div onclick='showOrHideBlock(this,"requests-block")' class='row bg-dark rounded border border-warning' id='requests-btn'>
-        <div class='col c-gold text-center p-2'>
-            <h1>Requests</h1>
+        <div class='col c-gold p-2 text-center'>
+            <span class='d-inline-flex'>
+                <h1>Requests</h1>
+                {% if requests.count > 0 %}
+                    <p class='circle ms-3 text-center'>{{ requests.count }}</p>
+                {% endif %}
+            </span>
         </div>
     </div>
 </div>
-<div class='container bg-dark rounded border border-primary mt-3 d-none' id='requests-block'>
+<div id='requests-block' class='container bg-dark rounded border border-primary mt-3 d-none'>
     {% for rq in requests %}
         <div class='row m-2 p-2 border border-warning'>
             <span class='col c-gold text-center'>
