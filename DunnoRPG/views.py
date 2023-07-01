@@ -584,8 +584,10 @@ class makeRequest(APIView):
             models.Requests.objects.create(
                 from_user = request.user,
                 char_id = kwargs['char_id'],
+                objects_model = kwargs['objects_model'],
+                object1_id = kwargs['object1_id'],
+                object2_id = kwargs['object2_id'],
                 model = kwargs['model'],
-                filter_id = kwargs['object_id'],
                 field = kwargs['field'],
                 title = kwargs['title']            
             )
@@ -598,16 +600,15 @@ class makeRequest(APIView):
         reverse_url = reverse(kwargs['to_reverse'], args=(id,))
         return redirect(reverse_url)
 
-class GMPanel(APIView):
+class GMPanel(ListView):
+    model = models.Requests
     template_name = 'gm_panel.html'
-    renderer_classes = [TemplateHTMLRenderer]
-    def get(self,request):
-        
-        context = {
-            
-        }
-        
-        return Response(context)
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        context['requests'] = models.Requests.objects.all()
+
+        return context
     
 class Info(APIView):
     template_name = 'info.html'
