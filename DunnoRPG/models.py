@@ -178,7 +178,9 @@ class Effects_Decs(models.Model):
 class Requests(models.Model):
     from_user = models.CharField(max_length = 150)
     char_id = models.IntegerField(null=True)
+    objects_model = models.CharField(max_length = 150, default='Items')
+    object1_id = models.IntegerField(default=0)
+    object2_id = models.IntegerField(default=0)
     model = models.CharField(max_length = 150)
-    filter_id = models.IntegerField()
     field = models.CharField(max_length = 150, null=True, blank=True)
     title = models.CharField(max_length = 150)
