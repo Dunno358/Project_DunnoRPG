@@ -1,18 +1,33 @@
 {% extends 'master.html' %}
+{% load filters %}
 
 {% block content %}
 {% include 'top_bar.html' %}
 
 {% if user.is_superuser %}
 
-<div class='container'>
-    <div class='row mt-5'>
-
-
-        
-        </a>
+<div class='container mt-3'>
+    <div onclick='showOrHideBlock(this,"requests-block")' class='row bg-dark rounded border border-warning' id='requests-btn'>
+        <div class='col c-gold text-center p-2'>
+            <h1>Requests</h1>
+        </div>
     </div>
 </div>
+<div class='container bg-dark rounded border border-primary mt-3 d-none' id='requests-block'>
+    {% for rq in requests %}
+        <div class='row m-2 p-2 border border-warning'>
+            <span class='col c-gold text-center'>
+                <i>[{{ rq.from_user }}] {{ rq.char_id|getCharacterName }}:</i> <b>[1]</b>{{ rq.model|getObjectName:rq.object1_id }} <b>[2]</b>{{ rq.objects_model|getObjectName:rq.object2_id }}
+                | <u>{{ rq.field }} {{ rq.title }}</u>
+            </span>
+            <span class='col-4 text-center'>
+                <a href='' class='text-end btn btn-danger btn-outline-danger text-black'>Decline</a>
+                <a href='' class='text-end btn btn-success btn-outline-success text-black'>Accept</a>
+            </span>
+        </div>
+    {% endfor %}
+</div>
+
 
 <!-- options to manage time left on effects, effects themselves, items etc. to be added soon, preferably working on APIs -->
 
@@ -25,6 +40,21 @@
 <script>
     document.getElementById('tb-gm').classList.remove('btn-outline-warning')
     document.getElementById('tb-gm').classList.add('btn-outline-primary')
+
+    function showOrHideBlock(instance,id){
+        if (instance.classList.contains('border-warning')){
+            instance.classList.remove('border-warning')
+            instance.classList.add('border-primary')
+
+            document.getElementById(id).classList.remove('d-none')
+        }
+        else{
+            instance.classList.remove('border-primary')
+            instance.classList.add('border-warning')    
+            
+            document.getElementById(id).classList.add('d-none')
+        }
+    }
 </script>
 
 {% endblock content %}
