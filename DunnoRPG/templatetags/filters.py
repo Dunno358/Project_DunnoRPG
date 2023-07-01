@@ -1,8 +1,20 @@
 from django import template
 from DunnoRPG import models
+from django.apps import apps
 from django.shortcuts import get_object_or_404
 
 register = template.Library()
+
+#OBJECT-GET
+@register.filter
+def getObjectName(model, object_id):
+    for listed_model in apps.get_models():
+        if listed_model.__name__ == model:
+            try:
+                return listed_model.objects.filter(id=object_id).first().name
+            except:
+                return listed_model.objects.filter(id=object_id).first()
+    return None
 
 #ITEM-GET
 @register.filter
@@ -206,6 +218,14 @@ def getStatFromItems(charName,statToGet):
                     mod += int(stat[-2:])
 
     return mod
+
+@register.filter
+def getCharacterName(char_id):
+    character = models.Character.objects.filter(id=char_id).first()
+    try:
+        return character.name
+    except:
+        return "No character"
     
 #CHARACTER-IS
 @register.filter
