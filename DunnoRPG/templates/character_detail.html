@@ -109,7 +109,7 @@
                 [1K<span id='r_dmg'>{{ rightItem.name|getItemBonus }}</span>, <span id='r_ap'>{{ rightItem.name|getItemAP }}</span>AP]
                 {% endif %}
             </a>
-            <a href='/dunnorpg/makerequest/{{ value.id }};CharItems;{{ rightItem.id }};0;durability;downgrade-1;character_detail' class='c-gold' id='r_dur'>({{ rightItem.durability }}/{{ rightItem.name|getMaxDurability }})</a>
+            <a href='/dunnorpg/makerequest/{{ value.id }};CharItems;CharItems;{{ rightItem.id }};0;durability;downgrade-1;character_detail' class='c-gold' id='r_dur'>({{ rightItem.durability }}/{{ rightItem.name|getMaxDurability }})</a>
             {% else %}
                 (<span id='r_bonus'>Empty</span>)
                 {% if leftItem.name|isDualHanded %}
@@ -130,7 +130,7 @@
                             [1K<span id='l_dmg'>{{ leftItem.name|getItemBonus }}</span>, <span id='l_ap'>{{ leftItem.name|getItemAP }}</span>AP]
                             {% endif %}
                         </a>
-                        <a href='/dunnorpg/makerequest/{{ value.id }};CharItems;{{ leftItem.id }};0;durability;downgrade-1;character_detail' class='c-gold' id='l_dur'>({{ leftItem.durability }}/{{ leftItem.name|getMaxDurability }})</a>
+                        <a href='/dunnorpg/makerequest/{{ value.id }};CharItems;CharItems;{{ leftItem.id }};0;durability;downgrade-1;character_detail' class='c-gold' id='l_dur'>({{ leftItem.durability }}/{{ leftItem.name|getMaxDurability }})</a>
                     {% else %}
                         (<span id='l_bonus'>Empty</span>)
                     {% endif %}
@@ -142,7 +142,7 @@
             <div class='col'><p><span class="text-white-50">Side:</span>
             {% if sideItem != None %}
                 <a class='c-gold'  href='/dunnorpg/items/{{ sideItem.name|getDescId }}'>{{ sideItem.name }} [{{ sideItem.name|getItemStatByName }}]</a>
-                <a href='/dunnorpg/makerequest/{{ value.id }};CharItems;{{ sideItem.id }};0;durability;downgrade-1;character_detail' class='c-gold' id='s_dur'>({{ sideItem.durability }}/{{ sideItem.name|getMaxDurability }})</a>
+                <a href='/dunnorpg/makerequest/{{ value.id }};CharItems;CharItems;{{ sideItem.id }};0;durability;downgrade-1;character_detail' class='c-gold' id='s_dur'>({{ sideItem.durability }}/{{ sideItem.name|getMaxDurability }})</a>
             {% endif %}
             </p></div>
             
