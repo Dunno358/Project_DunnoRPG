@@ -179,3 +179,12 @@ a:link, a:visited, a:hover, a:active{
 .text-border-black{
     -webkit-text-stroke: 1px black;
 }
+
+.circle{
+    height: 25px;
+    width: 25px;
+    background-color: red;
+    color: white;
+    border-radius: 50%;
+    display: inline-block;
+}
