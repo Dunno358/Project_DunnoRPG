@@ -511,21 +511,33 @@ class ItemsView(ListView):
     context_object_name = 'items'
     ordering = ['name']
     armor_types = ['Helmet','Torso','Boots','Gloves','Amulet']
-
+    
     def get_queryset(self):
-        queryset = ''
+        queryset = []
         value = self.request.GET.get('search')
+        char_id = self.kwargs['char_id']
+        if char_id != 0:
+            self.character = models.Character.objects.filter(id=char_id).first().name
+        else:
+            self.character = None
 
-        if value:
-            if self.request.user.is_superuser:
-                queryset = models.Items.objects.filter((Q(name__icontains=value) | Q(desc__icontains=value))).order_by('rarity')
-            else:
-                queryset = models.Items.objects.filter((Q(name__icontains=value) | Q(desc__icontains=value)), found=True).order_by('rarity')
+        if self.character == None:
+            if value:
+                if self.request.user.is_superuser:
+                    queryset = models.Items.objects.filter((Q(name__icontains=value) | Q(desc__icontains=value))).order_by('rarity')
+                else:
+                    queryset = models.Items.objects.filter((Q(name__icontains=value) | Q(desc__icontains=value)), found=True).order_by('rarity')
+        else:
+            for item in models.Eq.objects.filter(character=self.character):
+                item_obj = get_object_or_404(models.Items, name=item.name)
+                queryset.append({'id': item_obj.id, 'rarity': item_obj.rarity, 'found': item_obj.found, 'name': item.name, 'dur': item.durability, 'max_dur': item_obj.maxDurability})
             
         return queryset
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        
+        #context to be updated to give items from character Eq like above
         
         names = ['items_helmet','items_torso','items_boots','items_gloves','items_amulets','items_other']
         types = ['Helmet','Torso','Boots','Gloves','Amulet','Other']

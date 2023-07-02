@@ -62,7 +62,7 @@
 
 <div class='container mt-2'>
     <div class='row text-center'>
-        <form action="{% url 'items' %}" method='GET' class='container-fluid'>
+        <form action="{% url 'items' view.kwargs.char_id %}" method='GET' class='container-fluid'>
             <input name='search' class='text-center bg-gray c-gold border rounded border-warning' 
             placeholder="Item's name...">
             <button type='submit' class='fas fa-search bg-dark btn btn-outline-warning' href=""></button>
@@ -86,7 +86,7 @@
                 {% if item.rarity == 'unique' %}style='color: #0ec800;'{% endif %}
                 {% if item.rarity == 'magical' %}style='color: blue;'{% endif %}
                 {% if item.rarity == 'uncommon' %}style='color: #b401b4;'{% endif %} 
-                >{{ item.name }}</span>
+                >{{ item.name }} {% if item.dur %}({{ item.dur }}/{{ item.max_dur }}){% endif %}</span>
             </a>
             {% if user.is_superuser %}
                 <a class='col-3 btn btn-success' href='setFound-{{ item.id }}-1'>
