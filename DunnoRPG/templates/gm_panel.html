@@ -20,7 +20,7 @@
             </span>
         </div>
         <div class='col mt-3 mb-2'>
-            <a href='' class='btn btn-sm btn-success btn-outline-success text-black'>Accept all</a>
+            <a href='rq0-1-1' class='btn btn-sm btn-success btn-outline-success text-black'>Accept all</a>
         </div>  
     </div>
 </div>
@@ -33,18 +33,13 @@
             </span>
             <span class='col-4 text-center'>
                 <a href='rq{{ rq.id }}-0-0' class='text-end btn btn-danger btn-outline-danger text-black'>Decline</a>
-                <a href='' class='text-end btn btn-success btn-outline-success text-black'>Accept</a>
+                <a href='rq{{ rq.id }}-1-0' class='text-end btn btn-success btn-outline-success text-black'>Accept</a>
             </span>
         </div>
     {% endfor %}
 </div>
 
-
-<!-- options to manage time left on effects, effects themselves, items etc. to be added soon, preferably working on APIs -->
-
-{% else %}
-
-{% include 'user-not-gm.html' %}
+{% else %}{% include 'user-not-gm.html' %}
 
 {% endif %}
 

@@ -5,6 +5,7 @@ from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User
 from django.db import transaction
+from django.apps import apps
 from django.db.models import Q
 from django.db.models.query import QuerySet
 from django.http import Http404, HttpResponse, HttpResponseRedirect
@@ -610,6 +611,25 @@ class RequestHandling(APIView):
                         rq_object.delete()
                 else:
                     get_object_or_404(models.Requests, id=kwargs['rq_id']).delete()
+                    
+            else:
+                if kwargs['all']:
+                    pass
+                else:
+                    rq = get_object_or_404(models.Requests, id=kwargs['rq_id'])
+                    rq_op = rq.title.split('-')[0].lower()
+                    
+                    #Loop to be added iterate through models, choose correct one and do an operation on field of object
+                    #for listed_model in apps.get_models():
+                    #    if listed_model.__name__ == rq.model:
+                    #        listed_model
+                    
+                    #Temporary solution
+                    if rq_op == 'downgrade':
+                        rq_obj1 = get_object_or_404(models.CharItems, id=rq.object1_id)
+                        rq_obj1.durability -= 1
+                        rq_obj1.save()
+                        rq.delete()
                     
         return redirect('/dunnorpg/gmpanel')
 
