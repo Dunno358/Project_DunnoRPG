@@ -7,7 +7,7 @@
 {% if user.is_superuser %}
 
 <div name='Req-Btn' class='container mt-3'>
-    <div onclick='showOrHideBlock(this,"requests-block")' class='row bg-dark rounded border border-warning' id='requests-btn'>
+    <div onclick='showOrHideBlock(this,"requests-block")' class='row bg-dark rounded border border-primary' id='requests-btn'>
         <div class='col text-end mt-3 mb-2'>
             <a href='rq0-0-1' class='btn btn-sm btn-danger btn-outline-danger text-black'>Decline all</a>
         </div>        
@@ -24,7 +24,7 @@
         </div>  
     </div>
 </div>
-<div id='requests-block' class='container bg-dark rounded border border-primary mt-3 d-none'>
+<div id='requests-block' class='container bg-dark rounded border border-primary mt-3'>
     {% for rq in requests %}
         <div class='row m-2 p-2 border border-warning'>
             <span class='col c-gold text-center'>
