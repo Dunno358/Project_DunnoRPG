@@ -614,22 +614,35 @@ class RequestHandling(APIView):
                     
             else:
                 if kwargs['all']:
-                    pass
-                else:
+                    for rq_object in models.Requests.objects.all():
+                        rq_op = rq_object.title.split('-')[0].lower()
+                        for listed_model in apps.get_models():
+                            if listed_model.__name__ == rq_object.model:
+                                obj1 = listed_model.objects.filter(id=rq_object.object1_id).first()
+                                obj2 = listed_model.objects.filter(id=rq_object.object2_id).first()
+                                
+                                if obj1 != None:
+                                    if rq_op == 'downgrade':
+                                        obj1.durability -= 1
+                                        obj1.save()
+                                        rq_object.delete()
+                                if obj2 != None:
+                                    pass #not needed for downgrade ops
+                else:  
                     rq = get_object_or_404(models.Requests, id=kwargs['rq_id'])
-                    rq_op = rq.title.split('-')[0].lower()
-                    
-                    #Loop to be added iterate through models, choose correct one and do an operation on field of object
-                    #for listed_model in apps.get_models():
-                    #    if listed_model.__name__ == rq.model:
-                    #        listed_model
-                    
-                    #Temporary solution
-                    if rq_op == 'downgrade':
-                        rq_obj1 = get_object_or_404(models.CharItems, id=rq.object1_id)
-                        rq_obj1.durability -= 1
-                        rq_obj1.save()
-                        rq.delete()
+                    rq_op = rq.title.split('-')[0].lower()       
+                    for listed_model in apps.get_models():
+                        if listed_model.__name__ == rq.model:
+                            obj1 = listed_model.objects.filter(id=rq.object1_id).first()
+                            obj2 = listed_model.objects.filter(id=rq.object2_id).first()
+                            
+                            if obj1 != None:
+                                if rq_op == 'downgrade':
+                                    obj1.durability -= 1
+                                    obj1.save()
+                                    rq.delete()
+                            if obj2 != None:
+                                pass #not needed for downgrade ops
                     
         return redirect('/dunnorpg/gmpanel')
 
