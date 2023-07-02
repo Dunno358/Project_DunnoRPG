@@ -63,10 +63,11 @@ class Races(models.Model):
         return self.name
 
 class Eq(models.Model):
-    owner = models.CharField(max_length=50)
-    character = models.CharField(max_length=50)
-    name = models.CharField(max_length=50)
+    owner = models.CharField(max_length=100)
+    character = models.CharField(max_length=80)
+    name = models.CharField(max_length=80)
     weight = models.DecimalField(decimal_places=1, max_digits=50)
+    durability = models.IntegerField(default=50)
 
 class Skills(models.Model):
     owner = models.CharField(max_length=50)
