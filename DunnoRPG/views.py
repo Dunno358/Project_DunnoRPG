@@ -510,7 +510,6 @@ class ItemsView(ListView):
     template_name = 'items.html'
     context_object_name = 'items'
     ordering = ['name']
-    armor_types = ['Helmet','Torso','Boots','Gloves','Amulet']
     
     def get_queryset(self):
         queryset = []
@@ -528,33 +527,54 @@ class ItemsView(ListView):
                 else:
                     queryset = models.Items.objects.filter((Q(name__icontains=value) | Q(desc__icontains=value)), found=True).order_by('rarity')
         else:
+            self.singlehand = []
+            self.twohand = []
+            self.armor_dict = {'helmet': [], 'torso': [], 'boots': [], 'gloves': [], 'amulets': [], 'other': []}
+            
             for item in models.Eq.objects.filter(character=self.character):
                 item_obj = get_object_or_404(models.Items, name=item.name)
                 queryset.append({'id': item_obj.id, 'rarity': item_obj.rarity, 'found': item_obj.found, 'name': item.name, 'dur': item.durability, 'max_dur': item_obj.maxDurability})
-            
+                
+                if item_obj.type.lower() in self.armor_dict.keys():
+                    for item_type in self.armor_dict:
+                        if item_obj.type.lower() == item_type:
+                            self.armor_dict[item_type].append(item_obj.__dict__ | {'dur': item.durability, 'max_dur': item_obj.maxDurability})
+                else:
+                    if item_obj.dualHanded == False:
+                        self.singlehand.append(item_obj.__dict__ | {'dur': item.durability, 'max_dur': item_obj.maxDurability} )
+                    else:
+                        self.twohand.append(item_obj.__dict__ | {'dur': item.durability, 'max_dur': item_obj.maxDurability})
+
         return queryset
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         
-        #context to be updated to give items from character Eq like above
-        
         names = ['items_helmet','items_torso','items_boots','items_gloves','items_amulets','items_other']
         types = ['Helmet','Torso','Boots','Gloves','Amulet','Other']
         
-        if self.request.user.is_superuser:
-            context['items_singlehand'] = models.Items.objects.filter(dualHanded=False).order_by('rarity').exclude(type__in=types)
-            context['items_twohand'] = models.Items.objects.filter(dualHanded=True).order_by('rarity')    
-        else:
-            context['items_singlehand'] = models.Items.objects.filter(dualHanded=False, found=True).order_by('rarity').exclude(type__in=types)
-            context['items_twohand'] = models.Items.objects.filter(dualHanded=True, found=True) .order_by('rarity')
-        
-        for x in range(len(names)):
+        if self.character == None:
             if self.request.user.is_superuser:
-                context[names[x]] = models.Items.objects.filter(type=types[x]).order_by('rarity')
+                context['items_singlehand'] = models.Items.objects.filter(dualHanded=False).order_by('rarity').exclude(type__in=types)
+                context['items_twohand'] = models.Items.objects.filter(dualHanded=True).order_by('rarity')    
             else:
-                context[names[x]] = models.Items.objects.filter(type=types[x], found=True).order_by('rarity')
-        
+                context['items_singlehand'] = models.Items.objects.filter(dualHanded=False, found=True).order_by('rarity').exclude(type__in=types)
+                context['items_twohand'] = models.Items.objects.filter(dualHanded=True, found=True) .order_by('rarity')
+            
+            for x in range(len(names)):
+                if self.request.user.is_superuser:
+                    context[names[x]] = models.Items.objects.filter(type=types[x]).order_by('rarity')
+                else:
+                    context[names[x]] = models.Items.objects.filter(type=types[x], found=True).order_by('rarity')
+        else:
+            context['items_singlehand'] = self.singlehand
+            context['items_twohand'] = self.twohand
+            context['items_helmet'] = self.armor_dict['helmet']
+            context['items_torso'] = self.armor_dict['torso']
+            context['items_gloves'] = self.armor_dict['gloves']
+            context['items_boots'] = self.armor_dict['boots']
+            context['items_amulets'] = self.armor_dict['amulets']
+            context['items_other'] = self.armor_dict['other']
         return context
 
 class ItemDetailView(DetailView):
@@ -578,6 +598,7 @@ class changeItemFoundState(APIView):
         if request.user.is_superuser:
             state = kwargs['state']
             item_id = kwargs['id']
+            char_id = kwargs['char_id']
 
             item = get_object_or_404(models.Items, id=item_id)
 
@@ -589,7 +610,7 @@ class changeItemFoundState(APIView):
             
             item.save()
             
-        return redirect('/dunnorpg/items')
+        return redirect(f'/dunnorpg/items/ch{char_id}')
 
 class makeRequest(APIView):
     def get(self, request, **kwargs):
