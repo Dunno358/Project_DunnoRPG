@@ -9,7 +9,14 @@ admin.site.register(models.Character)
 
 admin.site.register(models.Mods)
 
-admin.site.register(models.Eq)
+class EqAdmin(admin.ModelAdmin):
+    list_display = ("character", "name", "weight", "durability", "price")
+    def get_queryset(self, request):
+        qs = super().get_queryset(request)
+        return qs.order_by('character')  
+    def price(self,obj):
+        return models.Items.objects.filter(name=obj.name).first().price  
+admin.site.register(models.Eq, EqAdmin)
 
 class SkillsAdmin(admin.ModelAdmin):
     def get_queryset(self, request):
@@ -32,7 +39,7 @@ class ItemsAdmin(admin.ModelAdmin):
 admin.site.register(models.Items, ItemsAdmin)
 
 class CharItemsAdmin(admin.ModelAdmin):
-    list_display = ("character", "name", 'durability', ('maxDurability'), 'hand', 'position')
+    list_display = ("character", "name", 'durability', 'maxDurability', 'hand', 'position')
     def get_queryset(self, request):
         qs = super().get_queryset(request)
         return qs.order_by('character','name')
@@ -52,7 +59,7 @@ admin.site.register(models.Effects, EffectsAdmin)
 admin.site.register(models.Effects_Decs)
 
 class RequestAdmin(admin.ModelAdmin):
-    list_display = ("from_user", "title", 'model', ('character_name'))
+    list_display = ("from_user", "title", 'model', 'character_name')
     def get_queryset(self, request):
         qs = super().get_queryset(request)
         return qs.order_by('from_user')
