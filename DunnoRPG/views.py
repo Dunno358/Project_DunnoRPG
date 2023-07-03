@@ -533,7 +533,14 @@ class ItemsView(ListView):
             
             for item in models.Eq.objects.filter(character=self.character):
                 item_obj = get_object_or_404(models.Items, name=item.name)
-                queryset.append({'id': item_obj.id, 'rarity': item_obj.rarity, 'found': item_obj.found, 'name': item.name, 'dur': item.durability, 'max_dur': item_obj.maxDurability})
+                queryset.append({'id': item_obj.id, 
+                                 'rarity': item_obj.rarity, 
+                                 'found': item_obj.found, 
+                                 'name': item.name, 
+                                 'dur': item.durability, 
+                                 'max_dur': item_obj.maxDurability,
+                                 'type': item_obj.type}
+                                )
                 
                 if item_obj.type.lower() in self.armor_dict.keys():
                     for item_type in self.armor_dict:
