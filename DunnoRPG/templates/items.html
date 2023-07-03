@@ -75,7 +75,7 @@
     <div>
         <div class='row bg-dark bg-opacity-75 rounded m-2 p-2'>
             {% if user.is_superuser %}
-            <a class='col-3 btn btn-danger' href='setFound-{{ item.id }}-0'>
+            <a class='col-3 btn btn-danger' href='setFound-{{ item.id }}-0-{{ view.kwargs.char_id }}'>
                 Unfound
             </a>                
             {% endif %}
@@ -89,7 +89,7 @@
                 >{{ item.name }} {% if item.dur %}({{ item.dur }}/{{ item.max_dur }}){% endif %}</span>
             </a>
             {% if user.is_superuser %}
-                <a class='col-3 btn btn-success' href='setFound-{{ item.id }}-1'>
+                <a class='col-3 btn btn-success' href='setFound-{{ item.id }}-1-{{ view.kwargs.char_id }}'>
                     {% if item.found == True %}
                         Already found
                     {% else %}
@@ -107,7 +107,7 @@
         <div>
             <div class='row bg-dark bg-opacity-75 rounded m-2 p-2'>
                 {% if user.is_superuser %}
-                <a class='col-3 btn btn-danger' href='setFound-{{ item.id }}-0'>
+                <a class='col-3 btn btn-danger' href='setFound-{{ item.id }}-0-{{ view.kwargs.char_id }}'>
                     Unfound
                 </a>                
                 {% endif %}
@@ -118,10 +118,10 @@
                     {% if item.rarity == 'unique' %}style='color: #0ec800;'{% endif %}
                     {% if item.rarity == 'magical' %}style='color: blue;'{% endif %}
                     {% if item.rarity == 'uncommon' %}style='color: #b401b4;'{% endif %} 
-                    >{{ item.name }}</span>
+                    >{{ item.name }} {% if item.dur %}({{ item.dur }}/{{ item.max_dur }}){% endif %}</span>
                 </a>
                 {% if user.is_superuser %}
-                <a class='col-3 btn btn-success' href='setFound-{{ item.id }}-1'>
+                <a class='col-3 btn btn-success' href='setFound-{{ item.id }}-1-{{ view.kwargs.char_id }}'>
                     {% if item.found == True %}
                         Already found
                     {% else %}
@@ -139,7 +139,7 @@
     <div>
         <div class='row bg-dark bg-opacity-75 rounded m-2 p-2'>
             {% if user.is_superuser %}
-            <a class='col-3 btn btn-danger' href='setFound-{{ item.id }}-0'>
+            <a class='col-3 btn btn-danger' href='setFound-{{ item.id }}-0-{{ view.kwargs.char_id }}'>
                 Unfound
             </a>                
             {% endif %}
@@ -150,10 +150,10 @@
                 {% if item.rarity == 'unique' %}style='color: #0ec800;'{% endif %}
                 {% if item.rarity == 'magical' %}style='color: blue;'{% endif %}
                 {% if item.rarity == 'uncommon' %}style='color: #b401b4;'{% endif %} 
-                >{{ item.name }}</span>
+                >{{ item.name }} {% if item.dur %}({{ item.dur }}/{{ item.max_dur }}){% endif %}</span>
             </a>
             {% if user.is_superuser %}
-                <a class='col-3 btn btn-success' href='setFound-{{ item.id }}-1'>
+                <a class='col-3 btn btn-success' href='setFound-{{ item.id }}-1-{{ view.kwargs.char_id }}'>
                     {% if item.found == True %}
                         Already found
                     {% else %}
@@ -171,7 +171,7 @@
     <div>
         <div class='row bg-dark bg-opacity-75 rounded m-2 p-2'>
             {% if user.is_superuser %}
-            <a class='col-3 btn btn-danger' href='setFound-{{ item.id }}-0'>
+            <a class='col-3 btn btn-danger' href='setFound-{{ item.id }}-0-{{ view.kwargs.char_id }}'>
                 Unfound
             </a>                
             {% endif %}
@@ -182,10 +182,10 @@
                 {% if item.rarity == 'unique' %}style='color: #0ec800;'{% endif %}
                 {% if item.rarity == 'magical' %}style='color: blue;'{% endif %}
                 {% if item.rarity == 'uncommon' %}style='color: #b401b4;'{% endif %} 
-                >{{ item.name }}</span>
+                >{{ item.name }} {% if item.dur %}({{ item.dur }}/{{ item.max_dur }}){% endif %}</span>
             </a>
             {% if user.is_superuser %}
-                <a class='col-3 btn btn-success' href='setFound-{{ item.id }}-1'>
+                <a class='col-3 btn btn-success' href='setFound-{{ item.id }}-1-{{ view.kwargs.char_id }}'>
                     {% if item.found == True %}
                         Already found
                     {% else %}
@@ -203,7 +203,7 @@
     <div>
         <div class='row bg-dark bg-opacity-75 rounded m-2 p-2'>
             {% if user.is_superuser %}
-            <a class='col-3 btn btn-danger' href='setFound-{{ item.id }}-0'>
+            <a class='col-3 btn btn-danger' href='setFound-{{ item.id }}-0-{{ view.kwargs.char_id }}'>
                 Unfound
             </a>                
             {% endif %}
@@ -214,10 +214,10 @@
                 {% if item.rarity == 'unique' %}style='color: #0ec800;'{% endif %}
                 {% if item.rarity == 'magical' %}style='color: blue;'{% endif %}
                 {% if item.rarity == 'uncommon' %}style='color: #b401b4;'{% endif %} 
-                >{{ item.name }}</span>
+                >{{ item.name }} {% if item.dur %}({{ item.dur }}/{{ item.max_dur }}){% endif %}</span>
             </a>
             {% if user.is_superuser %}
-                <a class='col-3 btn btn-success' href='setFound-{{ item.id }}-1'>
+                <a class='col-3 btn btn-success' href='setFound-{{ item.id }}-1-{{ view.kwargs.char_id }}'>
                     {% if item.found == True %}
                         Already found
                     {% else %}
@@ -235,7 +235,7 @@
     <div>
         <div class='row bg-dark bg-opacity-75 rounded m-2 p-2'>
             {% if user.is_superuser %}
-            <a class='col-3 btn btn-danger' href='setFound-{{ item.id }}-0'>
+            <a class='col-3 btn btn-danger' href='setFound-{{ item.id }}-0-{{ view.kwargs.char_id }}'>
                 Unfound
             </a>                
             {% endif %}
@@ -246,10 +246,10 @@
                 {% if item.rarity == 'unique' %}style='color: #0ec800;'{% endif %}
                 {% if item.rarity == 'magical' %}style='color: blue;'{% endif %}
                 {% if item.rarity == 'uncommon' %}style='color: #b401b4;'{% endif %} 
-                >{{ item.name }}</span>
+                >{{ item.name }} {% if item.dur %}({{ item.dur }}/{{ item.max_dur }}){% endif %}</span>
             </a>
             {% if user.is_superuser %}
-                <a class='col-3 btn btn-success' href='setFound-{{ item.id }}-1'>
+                <a class='col-3 btn btn-success' href='setFound-{{ item.id }}-1-{{ view.kwargs.char_id }}'>
                     {% if item.found == True %}
                         Already found
                     {% else %}
@@ -267,7 +267,7 @@
     <div>
         <div class='row bg-dark bg-opacity-75 rounded m-2 p-2'>
             {% if user.is_superuser %}
-            <a class='col-3 btn btn-danger' href='setFound-{{ item.id }}-0'>
+            <a class='col-3 btn btn-danger' href='setFound-{{ item.id }}-0-{{ view.kwargs.char_id }}'>
                 Unfound
             </a>                
             {% endif %}
@@ -278,10 +278,10 @@
                 {% if item.rarity == 'unique' %}style='color: #0ec800;'{% endif %}
                 {% if item.rarity == 'magical' %}style='color: blue;'{% endif %}
                 {% if item.rarity == 'uncommon' %}style='color: #b401b4;'{% endif %} 
-                >{{ item.name }}</span>
+                >{{ item.name }} {% if item.dur %}({{ item.dur }}/{{ item.max_dur }}){% endif %}</span>
             </a>
             {% if user.is_superuser %}
-                <a class='col-3 btn btn-success' href='setFound-{{ item.id }}-1'>
+                <a class='col-3 btn btn-success' href='setFound-{{ item.id }}-1-{{ view.kwargs.char_id }}'>
                     {% if item.found == True %}
                         Already found
                     {% else %}
@@ -299,7 +299,7 @@
     <div>
         <div class='row bg-dark bg-opacity-75 rounded m-2 p-2'>
             {% if user.is_superuser %}
-            <a class='col-3 btn btn-danger' href='setFound-{{ item.id }}-0'>
+            <a class='col-3 btn btn-danger' href='setFound-{{ item.id }}-0-{{ view.kwargs.char_id }}'>
                 Unfound
             </a>                
             {% endif %}
@@ -313,7 +313,7 @@
                 >{{ item.name }}</span>
             </a>
             {% if user.is_superuser %}
-                <a class='col-3 btn btn-success' href='setFound-{{ item.id }}-1'>
+                <a class='col-3 btn btn-success' href='setFound-{{ item.id }}-1-{{ view.kwargs.char_id }}'>
                     {% if item.found == True %}
                         Already found
                     {% else %}
@@ -331,7 +331,7 @@
     <div>
         <div class='row bg-dark bg-opacity-75 rounded m-2 p-2'>
             {% if user.is_superuser %}
-            <a class='col-3 btn btn-danger' href='setFound-{{ item.id }}-0'>
+            <a class='col-3 btn btn-danger' href='setFound-{{ item.id }}-0-{{ view.kwargs.char_id }}'>
                 Unfound
             </a>                
             {% endif %}
@@ -345,7 +345,7 @@
                 >{{ item.name }}</span>
             </a>
             {% if user.is_superuser %}
-                <a class='col-3 btn btn-success' href='setFound-{{ item.id }}-1'>
+                <a class='col-3 btn btn-success' href='setFound-{{ item.id }}-1-{{ view.kwargs.char_id }}'>
                     {% if item.found == True %}
                         Already found
                     {% else %}
