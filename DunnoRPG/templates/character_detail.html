@@ -78,7 +78,7 @@
                 <span id='armor'>{{ value.name|getArmor }}</span>; <span id='armor-weight'>{{ value.name|getArmorWeight }}</span>kg (-<span id='armor-mod'></span> ZRE)</p>
             <p class='col'>
                 <span class="text-white-50">Health:</span> 
-                <input id='hp-val' class='c-gold text-center bg-dark border-0' style='width: 6vw' value='{{ value.HP }}'>/{{ value.fullHP }}
+                <input type='number' min="1" max="25" id='hp-val' class='c-gold text-center bg-dark border-0' style='width: 6vw' value='{{ value.HP }}'>/{{ value.fullHP }}
                 <a onclick="makeChangeToRequest('hp-val','Character','hp')"
                 class='btn btn-sm btn-success ms-3 rounded text-black'>Change</a>
             </p>
