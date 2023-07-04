@@ -70,13 +70,18 @@
     </div>
 
     <div name='Equipment' style='' class="row text-center ms-3 mt-1 card-body c-gold border border-warning bg-dark rounded">
-        <p class="text-center fw-bold">{{ value.name }}</p>
+        <p id='char-name' name='{{ value.id }}' class="text-center fw-bold">{{ value.name }}</p>
 
         <div class='row'>
             <p class='col'>
                 <span class="text-white-50">Armor:</span> 
                 <span id='armor'>{{ value.name|getArmor }}</span>; <span id='armor-weight'>{{ value.name|getArmorWeight }}</span>kg (-<span id='armor-mod'></span> ZRE)</p>
-            <p class='col'><span class="text-white-50">Health:</span> {{ value.HP }}/{{ value.fullHP }}</p>
+            <p class='col'>
+                <span class="text-white-50">Health:</span> 
+                <input id='hp-val' class='c-gold text-center bg-dark border-0' style='width: 6vw' value='{{ value.HP }}'>/{{ value.fullHP }}
+                <a onclick="makeChangeToRequest('hp-val','Character','hp')"
+                class='btn btn-sm btn-success ms-3 rounded text-black'>Change</a>
+            </p>
         </div>
 
         <div name='head' class='row mt-2'>
@@ -109,7 +114,8 @@
                 [1K<span id='r_dmg'>{{ rightItem.name|getItemBonus }}</span>, <span id='r_ap'>{{ rightItem.name|getItemAP }}</span>AP]
                 {% endif %}
             </a>
-            <a href='/dunnorpg/makerequest/{{ value.id }};CharItems;CharItems;{{ rightItem.id }};0;durability;downgrade-1;character_detail' class='c-gold' id='r_dur'>({{ rightItem.durability }}/{{ rightItem.name|getMaxDurability }})</a>
+            <span class='c-gold' id='s_dur'>({{ rightItem.durability }}/{{ rightItem.name|getMaxDurability }})</span>
+            <a class='text-danger h6' href='/dunnorpg/makerequest/{{ value.id }};CharItems;CharItems;{{ rightItem.id }};0;durability;downgrade-1;character_detail'>-1</a>
             {% else %}
                 (<span id='r_bonus'>Empty</span>)
                 {% if leftItem.name|isDualHanded %}
@@ -130,7 +136,8 @@
                             [1K<span id='l_dmg'>{{ leftItem.name|getItemBonus }}</span>, <span id='l_ap'>{{ leftItem.name|getItemAP }}</span>AP]
                             {% endif %}
                         </a>
-                        <a href='/dunnorpg/makerequest/{{ value.id }};CharItems;CharItems;{{ leftItem.id }};0;durability;downgrade-1;character_detail' class='c-gold' id='l_dur'>({{ leftItem.durability }}/{{ leftItem.name|getMaxDurability }})</a>
+                        <span class='c-gold' id='s_dur'>({{ leftItem.durability }}/{{ leftItem.name|getMaxDurability }})</span>
+                        <a class='text-danger h6' href='/dunnorpg/makerequest/{{ value.id }};CharItems;CharItems;{{ leftItem.id }};0;durability;downgrade-1;character_detail'>-1</a>
                     {% else %}
                         (<span id='l_bonus'>Empty</span>)
                     {% endif %}
@@ -142,7 +149,8 @@
             <div class='col'><p><span class="text-white-50">Side:</span>
             {% if sideItem != None %}
                 <a class='c-gold'  href='/dunnorpg/items/{{ sideItem.name|getDescId }}'>{{ sideItem.name }} [{{ sideItem.name|getItemStatByName }}]</a>
-                <a href='/dunnorpg/makerequest/{{ value.id }};CharItems;CharItems;{{ sideItem.id }};0;durability;downgrade-1;character_detail' class='c-gold' id='s_dur'>({{ sideItem.durability }}/{{ sideItem.name|getMaxDurability }})</a>
+                <span class='c-gold' id='s_dur'>({{ sideItem.durability }}/{{ sideItem.name|getMaxDurability }})</span>
+                <a class='text-danger h6' href='/dunnorpg/makerequest/{{ value.id }};CharItems;CharItems;{{ sideItem.id }};0;durability;downgrade-1;character_detail'>-1</a>
             {% endif %}
             </p></div>
             
@@ -245,6 +253,19 @@
 <script>
 document.getElementById('tb-characters').classList.remove('btn-outline-warning')
 document.getElementById('tb-characters').classList.add('btn-outline-primary')
+
+document.getElementById('hp-val').oninput = () => {
+    console.log("OnInput Called");
+    document.getElementById('hp-val').setAttribute('value', document.getElementById('hp-val').value);
+}
+
+function makeChangeToRequest(field_id, model, field){
+    field_val = document.getElementById(field_id).getAttribute('value')
+    chid = document.getElementById('char-name').getAttribute('name')
+    url = '/dunnorpg/makerequest/'+chid+';'+model+';'+model+';0;0;'+field+';change_to-'+field_val+';character_detail'
+    window.location.replace(url)
+}
+
 function getArmorMod(){
     armor_weight = parseInt(document.getElementById('armor-weight').innerHTML)
     mod = armor_weight/4
