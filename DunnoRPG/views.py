@@ -667,7 +667,7 @@ class RequestHandling(APIView):
                                         obj1.save()
                                         rq_object.delete()
                                 elif rq_op == 'change_to':
-                                    val = rq.title.split('-')[1]
+                                    val = rq_object.title.split('-')[1]
                                     if rq_object.field == 'hp':
                                         char = get_object_or_404(models.Character, id=rq_object.char_id)
                                         char.HP = val
