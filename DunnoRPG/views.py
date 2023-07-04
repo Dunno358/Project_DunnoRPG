@@ -665,7 +665,14 @@ class RequestHandling(APIView):
                                     if obj1 != None:
                                         obj1.durability -= 1
                                         obj1.save()
-                                        rq.delete()
+                                        rq_object.delete()
+                                elif rq_op == 'change_to':
+                                    val = rq.title.split('-')[1]
+                                    if rq_object.field == 'hp':
+                                        char = get_object_or_404(models.Character, id=rq_object.char_id)
+                                        char.HP = val
+                                        char.save()
+                                        rq_object.delete()
                 else:  
                     rq = get_object_or_404(models.Requests, id=kwargs['rq_id'])
                     rq_op = rq.title.split('-')[0].lower()       
