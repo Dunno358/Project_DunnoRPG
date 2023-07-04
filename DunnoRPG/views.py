@@ -661,13 +661,11 @@ class RequestHandling(APIView):
                                 obj1 = listed_model.objects.filter(id=rq_object.object1_id).first()
                                 obj2 = listed_model.objects.filter(id=rq_object.object2_id).first()
                                 
-                                if obj1 != None:
-                                    if rq_op == 'downgrade':
+                                if rq_op == 'downgrade':
+                                    if obj1 != None:
                                         obj1.durability -= 1
                                         obj1.save()
-                                        rq_object.delete()
-                                if obj2 != None:
-                                    pass #not needed for downgrade ops
+                                        rq.delete()
                 else:  
                     rq = get_object_or_404(models.Requests, id=kwargs['rq_id'])
                     rq_op = rq.title.split('-')[0].lower()       
@@ -676,13 +674,18 @@ class RequestHandling(APIView):
                             obj1 = listed_model.objects.filter(id=rq.object1_id).first()
                             obj2 = listed_model.objects.filter(id=rq.object2_id).first()
                             
-                            if obj1 != None:
-                                if rq_op == 'downgrade':
+                            if rq_op == 'downgrade':
+                                if obj1 != None:
                                     obj1.durability -= 1
                                     obj1.save()
                                     rq.delete()
-                            if obj2 != None:
-                                pass #not needed for downgrade ops
+                            elif rq_op == 'change_to':
+                                val = rq.title.split('-')[1]
+                                if rq.field == 'hp':
+                                    char = get_object_or_404(models.Character, id=rq.char_id)
+                                    char.HP = val
+                                    char.save()
+                                    rq.delete()
                     
         return redirect('/dunnorpg/gmpanel')
 
