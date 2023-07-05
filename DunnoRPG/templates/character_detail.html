@@ -88,7 +88,9 @@
             <div class='col'><p><span class="text-white-50">Helmet:</span> 
                 {% if helmet != None %}
                     <a class='c-gold' href='/dunnorpg/items/{{ helmet.name|getDescId }}'>
-                    {{ helmet.name }} [{{ helmet.name|getItemArmor }}; {{ helmet.name|getItemWeight }}kg] ({{ helmet.durability }}/{{ helmet.name|getMaxDurability }})</a>                
+                    {{ helmet.name }} [{{ helmet.name|getItemArmor }}; {{ helmet.name|getItemWeight }}kg] 
+                    ({{ helmet.durability }}/{{ helmet.name|getMaxDurability }})</a>   
+                    <span class='text-info fa fa-exchange-alt' onclick=''></span>             
                 {% endif %}
             </p></div>
         </div>
@@ -97,7 +99,9 @@
             <div class='col'><p><span class="text-white-50">Torso:</span> 
                 {% if torso != None %}
                     <a class='c-gold'  href='/dunnorpg/items/{{ torso.name|getDescId }}'>
-                    {{ torso.name }} [{{ torso.name|getItemArmor }}; {{ torso.name|getItemWeight }}kg] ({{ torso.durability }}/{{ torso.name|getMaxDurability }})</a>                
+                    {{ torso.name }} [{{ torso.name|getItemArmor }}; {{ torso.name|getItemWeight }}kg] 
+                    ({{ torso.durability }}/{{ torso.name|getMaxDurability }})</a>   
+                    <span class='text-info fa fa-exchange-alt' onclick=''></span>                
                 {% endif %}
             </p></div>
         </div>
@@ -114,7 +118,8 @@
                 [1K<span id='r_dmg'>{{ rightItem.name|getItemBonus }}</span>, <span id='r_ap'>{{ rightItem.name|getItemAP }}</span>AP]
                 {% endif %}
             </a>
-            <span class='c-gold' id='s_dur'>({{ rightItem.durability }}/{{ rightItem.name|getMaxDurability }})</span>
+            <span class='c-gold' id='s_dur'>({{ rightItem.durability }}/{{ rightItem.name|getMaxDurability }})</span>   
+            <span class='text-info fa fa-exchange-alt' onclick=''></span>
             <a class='text-danger h6' href='/dunnorpg/makerequest/{{ value.id }};CharItems;CharItems;{{ rightItem.id }};0;durability;downgrade-1;character_detail'>-1</a>
             {% else %}
                 (<span id='r_bonus'>Empty</span>)
@@ -136,7 +141,8 @@
                             [1K<span id='l_dmg'>{{ leftItem.name|getItemBonus }}</span>, <span id='l_ap'>{{ leftItem.name|getItemAP }}</span>AP]
                             {% endif %}
                         </a>
-                        <span class='c-gold' id='s_dur'>({{ leftItem.durability }}/{{ leftItem.name|getMaxDurability }})</span>
+                        <span class='c-gold' id='s_dur'>({{ leftItem.durability }}/{{ leftItem.name|getMaxDurability }})</span>   
+                        <span class='text-info fa fa-exchange-alt' onclick=''></span>
                         <a class='text-danger h6' href='/dunnorpg/makerequest/{{ value.id }};CharItems;CharItems;{{ leftItem.id }};0;durability;downgrade-1;character_detail'>-1</a>
                     {% else %}
                         (<span id='l_bonus'>Empty</span>)
@@ -149,7 +155,8 @@
             <div class='col'><p><span class="text-white-50">Side:</span>
             {% if sideItem != None %}
                 <a class='c-gold'  href='/dunnorpg/items/{{ sideItem.name|getDescId }}'>{{ sideItem.name }} [{{ sideItem.name|getItemStatByName }}]</a>
-                <span class='c-gold' id='s_dur'>({{ sideItem.durability }}/{{ sideItem.name|getMaxDurability }})</span>
+                <span class='c-gold' id='s_dur'>({{ sideItem.durability }}/{{ sideItem.name|getMaxDurability }})</span>   
+                <span class='text-info fa fa-exchange-alt' onclick=''></span>
                 <a class='text-danger h6' href='/dunnorpg/makerequest/{{ value.id }};CharItems;CharItems;{{ sideItem.id }};0;durability;downgrade-1;character_detail'>-1</a>
             {% endif %}
             </p></div>
@@ -160,7 +167,9 @@
             <div class='col'><p><span class="text-white-50">Boots:</span> 
                 {% if boots != None %}
                     <a class='c-gold'  href='/dunnorpg/items/{{ boots.name|getDescId }}'>
-                    {{ boots.name }} [{{ boots.name|getItemArmor }}; {{ boots.name|getItemWeight }}kg] ({{ boots.durability }}/{{ boots.name|getMaxDurability }})</a>                
+                    {{ boots.name }} [{{ boots.name|getItemArmor }}; {{ boots.name|getItemWeight }}kg] 
+                    ({{ boots.durability }}/{{ boots.name|getMaxDurability }})</a>   
+                    <span class='text-info fa fa-exchange-alt' onclick=''></span>                
                 {% endif %}
             </p></div>
         </div>
@@ -169,7 +178,9 @@
             <div class='col'><p><span class="text-white-50">Gloves:</span> 
                 {% if gloves != None %}
                     <a class='c-gold'  href='/dunnorpg/items/{{ gloves.name|getDescId }}'>
-                    {{ gloves.name }} [{{ gloves.name|getItemArmor }}; {{ gloves.name|getItemWeight }}kg] ({{ gloves.durability }}/{{ gloves.name|getMaxDurability }})</a>
+                    {{ gloves.name }} [{{ gloves.name|getItemArmor }}; {{ gloves.name|getItemWeight }}kg] 
+                    ({{ gloves.durability }}/{{ gloves.name|getMaxDurability }})</a>   
+                    <span class='text-info fa fa-exchange-alt' onclick=''></span>
                 {% endif %}
             </p></div>
         </div>
@@ -179,7 +190,8 @@
             <p class='col'><span class="text-white-50">Amulet:</span> 
                 {% if amulet != None %}
                     <a class='c-gold' href='/dunnorpg/items/{{ amulet.name|getDescId }}'>
-                    {{ amulet.name }}</a>
+                    {{ amulet.name }}</a>   
+                    <span class='text-info fa fa-exchange-alt' onclick=''></span>
                 {% endif %}
             </p>
         </div>
@@ -221,23 +233,23 @@
 <div class='container mt-2'>
     <div class='row'>
         <div onclick='show_result_at_window("Accuraccy")' class='col m-1 btn btn-dark btn-outline-warning border border-warning rounded'>
-            <span class=''>Accuraccy</span>
+            <span class='fas fa-crosshairs'> Accuraccy</span>
         </div>
         <div onclick='show_result_at_window("Parry")' class='col m-1 btn btn-dark btn-outline-warning border border-warning rounded'>
-            <span class=''>Parry</span>
+            <span class='fas fa-shield-alt'> Parry</span>
         </div>
         <div onclick='show_result_at_window("Attack")' class='col m-1 btn btn-dark btn-outline-warning border border-warning rounded'>
-            <span class=''>Attack</span>
+            <span class='fab fa-pied-piper-alt'> Attack</span>
         </div>
         <div onclick='show_result_at_window("Dodge")' class='col m-1 btn btn-dark btn-outline-warning border border-warning rounded'>
-            <span class=''>Dodge</span>
+            <span class='fas fa-walking'> Dodge</span>
         </div>
         <div onclick='show_result_at_window("Dice")' class='col m-1 btn btn-dark btn-outline-warning border border-warning rounded'>
-            <span class=''>Dice</span>
+            <span class='fas fa-dice-d20'> Dice</span>
         </div>
 
         <a href='/dunnorpg/items/ch{{ value.id }}' name='eq-link' class='col m-1 btn btn-dark btn-outline-warning border border-warning rounded'>
-            <span class=''>Equipment</span>
+            <span class='fas fa-scroll'> Equipment</span>
         </a>
     
 </div>
