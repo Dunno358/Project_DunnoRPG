@@ -294,6 +294,12 @@ class CharacterDetails(DetailView):
         context['mods'] = mods
         context['skills'] = skills
         context['race_desc'] = race['desc']
+        context['found_items'] = models.Items.objects.filter(found=True).order_by('name')
+        context['found_helmets'] = models.Items.objects.filter(found=True, type='Helmet').order_by('name')
+        context['found_torsos'] = models.Items.objects.filter(found=True, type='Torso').order_by('name')
+        context['found_gloves'] = models.Items.objects.filter(found=True, type='Gloves').order_by('name')
+        context['found_boots'] = models.Items.objects.filter(found=True, type='Boots').order_by('name')
+        context['found_amulets'] = models.Items.objects.filter(found=True, type='Amulet').order_by('name')
 
         return context 
 
