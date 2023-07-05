@@ -85,54 +85,68 @@
         </div>
 
         <div name='head' class='row mt-2'>
-            <div class='col'><p><span class="text-white-50">Helmet:</span> 
+            <div class='col'><p><span class="text-white-50">Helmet: </span>
                 {% if helmet != None %}
+                    <span class='text-info fa fa-exchange-alt' onclick='show_or_hideById("helmet-swap")'></span> 
                     <a class='c-gold' href='/dunnorpg/items/{{ helmet.name|getDescId }}'>
                     {{ helmet.name }} [{{ helmet.name|getItemArmor }}; {{ helmet.name|getItemWeight }}kg] 
                     ({{ helmet.durability }}/{{ helmet.name|getMaxDurability }})</a>   
-                    <span class='text-info fa fa-exchange-alt' onclick=''></span>             
+                    <div id='helmet-swap' class='d-none'> 
+                        <select class='w-50 ms-2 text-center border border-warning bg-dark text-white-50 rounded'>
+                            {% for item in found_helmets %}
+                                <option value='{{ item.name }}'>{{ item.name }}</option>
+                            {% endfor %}
+                        </select>
+                        <a href='' class='btn btn-sm btn-success'>OK</a>
+                    </div>
+                {% else %}
+                    <span class='text-info fa fa-plus' onclick='show_or_hideById("helmet-add")'></span>    
+                    <div id='helmet-add' class='d-none'> 
+                        <select class='w-50 ms-2 text-center border border-warning bg-dark text-white-50 rounded'>
+                            {% for item in found_helmets %}
+                                <option value='{{ item.name }}'>{{ item.name }}</option>
+                            {% endfor %}
+                        </select>
+                        <a href='' class='btn btn-sm btn-success'>OK</a>
+                    </div>       
                 {% endif %}
             </p></div>
         </div>
 
         <div name='torso' class='row mt-2'>
-            <div class='col'><p><span class="text-white-50">Torso:</span> 
+            <div class='col'><p><span class="text-white-50">Torso: </span> 
                 {% if torso != None %}
+                    <span class='text-info fa fa-exchange-alt' onclick='show_or_hideById("torso-swap")'></span> 
                     <a class='c-gold'  href='/dunnorpg/items/{{ torso.name|getDescId }}'>
                     {{ torso.name }} [{{ torso.name|getItemArmor }}; {{ torso.name|getItemWeight }}kg] 
                     ({{ torso.durability }}/{{ torso.name|getMaxDurability }})</a>   
-                    <span class='text-info fa fa-exchange-alt' onclick=''></span>                
+                    <div id='torso-swap' class='d-none'> 
+                        <select class='w-50 ms-2 text-center border border-warning bg-dark text-white-50 rounded'>
+                            {% for item in found_torsos %}
+                                <option value='{{ item.name }}'>{{ item.name }}</option>
+                            {% endfor %}
+                        </select>
+                        <a href='' class='btn btn-sm btn-success'>OK</a>
+                    </div> 
+                {% else %}              
+                <span class='text-info fa fa-plus' onclick='show_or_hideById("torso-add")'></span>    
+                <div id='torso-add' class='d-none'> 
+                    <select class='w-50 ms-2 text-center border border-warning bg-dark text-white-50 rounded'>
+                        {% for item in found_torsos %}
+                            <option value='{{ item.name }}'>{{ item.name }}</option>
+                        {% endfor %}
+                    </select>
+                    <a href='' class='btn btn-sm btn-success'>OK</a>
+                </div> 
                 {% endif %}
             </p></div>
         </div>
 
         <div name='hands' class='row mt-2'>
-            <div name='hand-right' class='row text-center'><p name="RightHand">
-            <span class="text-white-50">RightHand:</span>
-            {% if rightItem.name != None %}
-                (<span id='r_bonus'>{{ value.name|isPreffereOrUnliked:rightItem.name }}</span>)
-                <a class='c-gold'  href='/dunnorpg/items/{{ rightItem.name|getDescId }}'><span name="{{ rightItem.name|getItemType }}" id='r_weapon'>{{ rightItem.name }}</span>
-                {% if rightItem.name|isShield %}
-                [<span id='r_block'>{{ rightItem.name|getItemBlock }}</span>]
-                {% else %}
-                [1K<span id='r_dmg'>{{ rightItem.name|getItemBonus }}</span>, <span id='r_ap'>{{ rightItem.name|getItemAP }}</span>AP]
-                {% endif %}
-            </a>
-            <span class='c-gold' id='s_dur'>({{ rightItem.durability }}/{{ rightItem.name|getMaxDurability }})</span>   
-            <span class='text-info fa fa-exchange-alt' onclick=''></span>
-            <a class='text-danger h6' href='/dunnorpg/makerequest/{{ value.id }};CharItems;CharItems;{{ rightItem.id }};0;durability;downgrade-1;character_detail'>-1</a>
-            {% else %}
-                (<span id='r_bonus'>Empty</span>)
-                {% if leftItem.name|isDualHanded %}
-                <p><span class="text-white-50">RightHand:</span> <span id='r_weapon' class='c-gold'>Above weapon is two-handed</span></p>
-                {% endif %}
-            {% endif %}
-                </p>
-            </div>
-            <div class='col'></div>
             <div name='hand-left' class='row'><p name="LeftHand">
-                    <span class="text-white-50">LeftHand:</span> 
+                <span class="text-white-50">LeftHand: </span>
                     {% if leftItem != None %}
+                        <span class='text-info fa fa-exchange-alt' onclick='show_or_hideById("left-swap")'></span> 
                         (<span id='l_bonus'>{{ value.name|isPreffereOrUnliked:leftItem.name }}</span>)
                         <a class='c-gold'  href='/dunnorpg/items/{{ leftItem.name|getDescId }}'><span name="{{ leftItem.name|getItemType }}" id='l_weapon'>{{ leftItem.name }}</span>
                             {% if leftItem.name|isShield %}
@@ -142,56 +156,188 @@
                             {% endif %}
                         </a>
                         <span class='c-gold' id='s_dur'>({{ leftItem.durability }}/{{ leftItem.name|getMaxDurability }})</span>   
-                        <span class='text-info fa fa-exchange-alt' onclick=''></span>
                         <a class='text-danger h6' href='/dunnorpg/makerequest/{{ value.id }};CharItems;CharItems;{{ leftItem.id }};0;durability;downgrade-1;character_detail'>-1</a>
+                        <div id='left-swap' class='d-none'> 
+                            <select class='w-50 ms-2 text-center border border-warning bg-dark text-white-50 rounded'>
+                                {% for item in found_items %}
+                                    <option value='{{ item.name }}'>{{ item.name }}</option>
+                                {% endfor %}
+                            </select>
+                            <a href='' class='btn btn-sm btn-success'>OK</a>
+                        </div>
                     {% else %}
                         (<span id='l_bonus'>Empty</span>)
+                        <span class='text-info fa fa-plus' onclick='show_or_hideById("left-add")'></span>    
+                        <div id='left-add' class='d-none'> 
+                            <select class='w-50 ms-2 text-center border border-warning bg-dark text-white-50 rounded'>
+                                {% for item in found_items %}
+                                    <option value='{{ item.name }}'>{{ item.name }}</option>
+                                {% endfor %}
+                            </select>
+                            <a href='' class='btn btn-sm btn-success'>OK</a>
+                        </div> 
                     {% endif %}
+                    </p>
+            </div>
+
+            <div class='col'></div>
+
+            <div name='hand-right' class='row text-center'><p name="RightHand">
+                <span class="text-white-50">RightHand: </span>
+                {% if rightItem.name != None %}
+                    <span class='text-info fa fa-exchange-alt' onclick='show_or_hideById("right-swap")'></span> 
+                    (<span id='r_bonus'>{{ value.name|isPreffereOrUnliked:rightItem.name }}</span>)
+                    <a class='c-gold'  href='/dunnorpg/items/{{ rightItem.name|getDescId }}'>
+                        <span name="{{ rightItem.name|getItemType }}" id='r_weapon'>{{ rightItem.name }}</span>
+                        {% if rightItem.name|isShield %}
+                            [<span id='r_block'>{{ rightItem.name|getItemBlock }}</span>]
+                        {% else %}
+                            [1K<span id='r_dmg'>{{ rightItem.name|getItemBonus }}</span>, <span id='r_ap'>{{ rightItem.name|getItemAP }}</span>AP]
+                        {% endif %}
+                    </a>
+                <span class='c-gold' id='s_dur'>({{ rightItem.durability }}/{{ rightItem.name|getMaxDurability }})</span>   
+                <a class='text-danger h6' href='/dunnorpg/makerequest/{{ value.id }};CharItems;CharItems;{{ rightItem.id }};0;durability;downgrade-1;character_detail'>-1</a>
+                <div id='right-swap' class='d-none'> 
+                    <select class='w-50 ms-2 text-center border border-warning bg-dark text-white-50 rounded'>
+                        {% for item in found_items %}
+                            <option value='{{ item.name }}'>{{ item.name }}</option>
+                        {% endfor %}
+                    </select>
+                    <a href='' class='btn btn-sm btn-success'>OK</a>
+                </div>
+                {% else %}
+                    {% if leftItem.name|isDualHanded %}
+                        <span id='r_weapon' class='c-gold'>Above weapon is two-handed</span>
+                    {% else %}
+                        (<span id='r_bonus'>Empty</span>) 
+                        <span class='text-info fa fa-plus' onclick='show_or_hideById("right-add")'></span>    
+                        <div id='right-add' class='d-none'> 
+                            <select class='w-50 ms-2 text-center border border-warning bg-dark text-white-50 rounded'>
+                                {% for item in found_items %}
+                                    <option value='{{ item.name }}'>{{ item.name }}</option>
+                                {% endfor %}
+                            </select>
+                            <a href='' class='btn btn-sm btn-success'>OK</a>
+                        </div> 
+                    {% endif %}
+                {% endif %}
                     </p>
             </div>
         </div>
 
         <div name='side' class='row mt-2'>
-            <div class='col'><p><span class="text-white-50">Side:</span>
+            <div class='col'><p><span class="text-white-50">Side: </span>
             {% if sideItem != None %}
+                <span class='text-info fa fa-exchange-alt' onclick='show_or_hideById("side-swap")'></span> 
                 <a class='c-gold'  href='/dunnorpg/items/{{ sideItem.name|getDescId }}'>{{ sideItem.name }} [{{ sideItem.name|getItemStatByName }}]</a>
                 <span class='c-gold' id='s_dur'>({{ sideItem.durability }}/{{ sideItem.name|getMaxDurability }})</span>   
-                <span class='text-info fa fa-exchange-alt' onclick=''></span>
                 <a class='text-danger h6' href='/dunnorpg/makerequest/{{ value.id }};CharItems;CharItems;{{ sideItem.id }};0;durability;downgrade-1;character_detail'>-1</a>
+                <div id='side-swap' class='d-none'> 
+                    <select class='w-50 ms-2 text-center border border-warning bg-dark text-white-50 rounded'>
+                        {% for item in found_items %}
+                            <option value='{{ item.name }}'>{{ item.name }}</option>
+                        {% endfor %}
+                    </select>
+                    <a href='' class='btn btn-sm btn-success'>OK</a>
+                </div>
+            {% else %}
+            <span class='text-info fa fa-plus' onclick='show_or_hideById("side-add")'></span>    
+            <div id='side-add' class='d-none'> 
+                <select class='w-50 ms-2 text-center border border-warning bg-dark text-white-50 rounded'>
+                    {% for item in found_items %}
+                        <option value='{{ item.name }}'>{{ item.name }}</option>
+                    {% endfor %}
+                </select>
+                <a href='' class='btn btn-sm btn-success'>OK</a>
+            </div> 
             {% endif %}
             </p></div>
             
         </div>
 
         <div name='boots' class='row mt-2'>
-            <div class='col'><p><span class="text-white-50">Boots:</span> 
+            <div class='col'><p><span class="text-white-50">Boots: </span> 
                 {% if boots != None %}
+                    <span class='text-info fa fa-exchange-alt' onclick='show_or_hideById("boots-swap")'></span> 
                     <a class='c-gold'  href='/dunnorpg/items/{{ boots.name|getDescId }}'>
                     {{ boots.name }} [{{ boots.name|getItemArmor }}; {{ boots.name|getItemWeight }}kg] 
-                    ({{ boots.durability }}/{{ boots.name|getMaxDurability }})</a>   
-                    <span class='text-info fa fa-exchange-alt' onclick=''></span>                
+                    ({{ boots.durability }}/{{ boots.name|getMaxDurability }})</a> 
+                    <div id='boots-swap' class='d-none'> 
+                        <select class='w-50 ms-2 text-center border border-warning bg-dark text-white-50 rounded'>
+                            {% for item in found_boots %}
+                                <option value='{{ item.name }}'>{{ item.name }}</option>
+                            {% endfor %}
+                        </select>
+                        <a href='' class='btn btn-sm btn-success'>OK</a>
+                    </div>  
+                {% else %}
+                <span class='text-info fa fa-plus' onclick='show_or_hideById("boots-add")'></span>    
+                <div id='boots-add' class='d-none'> 
+                    <select class='w-50 ms-2 text-center border border-warning bg-dark text-white-50 rounded'>
+                        {% for item in found_boots %}
+                            <option value='{{ item.name }}'>{{ item.name }}</option>
+                        {% endfor %}
+                    </select>
+                    <a href='' class='btn btn-sm btn-success'>OK</a>
+                </div> 
                 {% endif %}
             </p></div>
         </div>
 
         <div name='gloves' class='row mt-2'>
-            <div class='col'><p><span class="text-white-50">Gloves:</span> 
+            <div class='col'><p><span class="text-white-50">Gloves: </span> 
                 {% if gloves != None %}
+                    <span class='text-info fa fa-exchange-alt' onclick='show_or_hideById("gloves-swap")'></span> 
                     <a class='c-gold'  href='/dunnorpg/items/{{ gloves.name|getDescId }}'>
                     {{ gloves.name }} [{{ gloves.name|getItemArmor }}; {{ gloves.name|getItemWeight }}kg] 
                     ({{ gloves.durability }}/{{ gloves.name|getMaxDurability }})</a>   
-                    <span class='text-info fa fa-exchange-alt' onclick=''></span>
+                    <div id='gloves-swap' class='d-none'> 
+                        <select class='w-50 ms-2 text-center border border-warning bg-dark text-white-50 rounded'>
+                            {% for item in found_gloves %}
+                                <option value='{{ item.name }}'>{{ item.name }}</option>
+                            {% endfor %}
+                        </select>
+                        <a href='' class='btn btn-sm btn-success'>OK</a>
+                    </div>
+                {% else %}
+                <span class='text-info fa fa-plus' onclick='show_or_hideById("gloves-add")'></span>    
+                <div id='gloves-add' class='d-none'> 
+                    <select class='w-50 ms-2 text-center border border-warning bg-dark text-white-50 rounded'>
+                        {% for item in found_gloves %}
+                            <option value='{{ item.name }}'>{{ item.name }}</option>
+                        {% endfor %}
+                    </select>
+                    <a href='' class='btn btn-sm btn-success'>OK</a>
+                </div> 
                 {% endif %}
             </p></div>
         </div>
 
         <div class='row'>
             <p class='col' title='{{ race_desc }}'><span class="text-white-50">Race:</span> {{ value.race }} ({{ value.size }})</p>
-            <p class='col'><span class="text-white-50">Amulet:</span> 
+                    <p class='col'><span class="text-white-50">Amulet: </span> 
                 {% if amulet != None %}
+                    <span class='text-info fa fa-exchange-alt' onclick='show_or_hideById("amulet-swap")'></span> 
                     <a class='c-gold' href='/dunnorpg/items/{{ amulet.name|getDescId }}'>
-                    {{ amulet.name }}</a>   
-                    <span class='text-info fa fa-exchange-alt' onclick=''></span>
+                    {{ amulet.name }}</a>  
+                    <div id='amulet-swap' class='d-none'> 
+                        <select class='w-50 ms-2 text-center border border-warning bg-dark text-white-50 rounded'>
+                            {% for item in found_amulets %}
+                                <option value='{{ item.name }}'>{{ item.name }}</option>
+                            {% endfor %}
+                        </select>
+                        <a href='' class='btn btn-sm btn-success'>OK</a>
+                    </div>
+                {% else %}
+                <span class='text-info fa fa-plus' onclick='show_or_hideById("amulet-add")'></span>    
+                <div id='amulet-add' class='d-none'> 
+                    <select class='w-50 ms-2 text-center border border-warning bg-dark text-white-50 rounded'>
+                        {% for item in found_amulets %}
+                            <option value='{{ item.name }}'>{{ item.name }}</option>
+                        {% endfor %}
+                    </select>
+                    <a href='' class='btn btn-sm btn-success'>OK</a>
+                </div> 
                 {% endif %}
             </p>
         </div>
