@@ -281,6 +281,14 @@ class CharacterDetails(DetailView):
             skill['original_desc'] = skill_description['desc']
             skill['level_desc'] = skill_description[f"level{skill['level']}"]
 
+
+        helmets_qs = models.Items.objects.filter(found=True, type='Helmet').order_by('name')
+        torsos_qs = models.Items.objects.filter(found=True, type='Torso').order_by('name')
+        gloves_qs = models.Items.objects.filter(found=True, type='Gloves').order_by('name')
+        boots_qs = models.Items.objects.filter(found=True, type='Boots').order_by('name')
+        amulets_qs = models.Items.objects.filter(found=True, type='Amulets').order_by('name')
+        types = ['Helmet','Torso','Boots','Gloves','Amulet','Other']
+        weapons_qs = models.Items.objects.filter(found=True).exclude(type__in=types).order_by('name')
         
         context['helmet'] = models.CharItems.objects.filter(character=serializer.data['name'], position='Helmet').first()
         context['torso'] = models.CharItems.objects.filter(character=serializer.data['name'], position='Torso').first()
@@ -294,12 +302,12 @@ class CharacterDetails(DetailView):
         context['mods'] = mods
         context['skills'] = skills
         context['race_desc'] = race['desc']
-        context['found_items'] = models.Items.objects.filter(found=True).order_by('name')
-        context['found_helmets'] = models.Items.objects.filter(found=True, type='Helmet').order_by('name')
-        context['found_torsos'] = models.Items.objects.filter(found=True, type='Torso').order_by('name')
-        context['found_gloves'] = models.Items.objects.filter(found=True, type='Gloves').order_by('name')
-        context['found_boots'] = models.Items.objects.filter(found=True, type='Boots').order_by('name')
-        context['found_amulets'] = models.Items.objects.filter(found=True, type='Amulet').order_by('name')
+        context['found_weapons'] = weapons_qs
+        context['found_helmets'] = helmets_qs
+        context['found_torsos'] = torsos_qs
+        context['found_gloves'] = gloves_qs
+        context['found_boots'] = boots_qs
+        context['found_amulets'] = amulets_qs
 
         return context 
 
