@@ -84,7 +84,7 @@
             </p>
         </div>
 
-        <div name='head' class='row mt-2'>
+        <div name='head' class='row mt-2'><hr>
             <div class='col'><p><span class="text-white-50">Helmet: </span>
                 {% if helmet != None %}
                     <span class='text-info fa fa-exchange-alt' onclick='show_or_hideById("helmet-swap")'></span> 
@@ -94,26 +94,27 @@
                     <div id='helmet-swap' class='d-none'> 
                         <select class='w-50 ms-2 text-center border border-warning bg-dark text-white-50 rounded'>
                             {% for item in found_helmets %}
-                                <option value='{{ item.name }}'>{{ item.name }}</option>
+                                <option id='{{ item.id }}' value='{{ item.name }}'>{{ item.name }}</option>
                             {% endfor %}
                         </select>
-                        <a href='' class='btn btn-sm btn-success'>OK</a>
+                        
+                        <a onclick="makeSwapRequest('Items', 'name', '{{ helmet.name|getDescId }}', 'helmet-swap')" class='btn btn-sm btn-success'>OK</a>
                     </div>
                 {% else %}
                     <span class='text-info fa fa-plus' onclick='show_or_hideById("helmet-add")'></span>    
                     <div id='helmet-add' class='d-none'> 
                         <select class='w-50 ms-2 text-center border border-warning bg-dark text-white-50 rounded'>
                             {% for item in found_helmets %}
-                                <option value='{{ item.name }}'>{{ item.name }}</option>
+                                <option id='{{ item.id }}' value='{{ item.name }}'>{{ item.name }}</option>
                             {% endfor %}
                         </select>
-                        <a href='' class='btn btn-sm btn-success'>OK</a>
+                        <a onclick="makeAddItemRequest('Items', 'name', 'helmet-add')" class='btn btn-sm btn-success'>OK</a>
                     </div>       
                 {% endif %}
-            </p></div>
+            </p></div><hr>
         </div>
 
-        <div name='torso' class='row mt-2'>
+        <div name='torso' class='row mt-2'><hr>
             <div class='col'><p><span class="text-white-50">Torso: </span> 
                 {% if torso != None %}
                     <span class='text-info fa fa-exchange-alt' onclick='show_or_hideById("torso-swap")'></span> 
@@ -123,26 +124,26 @@
                     <div id='torso-swap' class='d-none'> 
                         <select class='w-50 ms-2 text-center border border-warning bg-dark text-white-50 rounded'>
                             {% for item in found_torsos %}
-                                <option value='{{ item.name }}'>{{ item.name }}</option>
+                                <option id='{{ item.id }}' value='{{ item.name }}'>{{ item.name }}</option>
                             {% endfor %}
                         </select>
-                        <a href='' class='btn btn-sm btn-success'>OK</a>
+                        <a onclick="makeSwapRequest('Items', 'name', '{{ torso.name|getDescId }}', 'torso-swap')" class='btn btn-sm btn-success'>OK</a>
                     </div> 
                 {% else %}              
                 <span class='text-info fa fa-plus' onclick='show_or_hideById("torso-add")'></span>    
                 <div id='torso-add' class='d-none'> 
                     <select class='w-50 ms-2 text-center border border-warning bg-dark text-white-50 rounded'>
                         {% for item in found_torsos %}
-                            <option value='{{ item.name }}'>{{ item.name }}</option>
+                            <option id='{{ item.id }}' value='{{ item.name }}'>{{ item.name }}</option>
                         {% endfor %}
                     </select>
-                    <a href='' class='btn btn-sm btn-success'>OK</a>
+                    <a onclick="makeAddItemRequest('Items', 'name', 'torso-add')" class='btn btn-sm btn-success'>OK</a>
                 </div> 
                 {% endif %}
-            </p></div>
+            </p></div><hr>
         </div>
 
-        <div name='hands' class='row mt-2'>
+        <div name='hands' class='row mt-2'><hr>
             <div name='hand-left' class='row'><p name="LeftHand">
                 <span class="text-white-50">LeftHand: </span>
                     {% if leftItem != None %}
@@ -159,30 +160,31 @@
                         <a class='text-danger h6' href='/dunnorpg/makerequest/{{ value.id }};CharItems;CharItems;{{ leftItem.id }};0;durability;downgrade-1;character_detail'>-1</a>
                         <div id='left-swap' class='d-none'> 
                             <select class='w-50 ms-2 text-center border border-warning bg-dark text-white-50 rounded'>
-                                {% for item in found_items %}
-                                    <option value='{{ item.name }}'>{{ item.name }}</option>
+                                {% for item in found_weapons %}
+                                    <option id='{{ item.id }}' value='{{ item.name }}'>{{ item.name }}</option>
                                 {% endfor %}
                             </select>
-                            <a href='' class='btn btn-sm btn-success'>OK</a>
+                            <a onclick="makeSwapRequest('Items', 'name', '{{ leftItem.name|getDescId }}', 'left-swap')" class='btn btn-sm btn-success'>OK</a>
                         </div>
                     {% else %}
                         (<span id='l_bonus'>Empty</span>)
                         <span class='text-info fa fa-plus' onclick='show_or_hideById("left-add")'></span>    
                         <div id='left-add' class='d-none'> 
                             <select class='w-50 ms-2 text-center border border-warning bg-dark text-white-50 rounded'>
-                                {% for item in found_items %}
-                                    <option value='{{ item.name }}'>{{ item.name }}</option>
+                                {% for item in found_weapons %}
+                                    <option id='{{ item.id }}' value='{{ item.name }}'>{{ item.name }}</option>
                                 {% endfor %}
                             </select>
-                            <a href='' class='btn btn-sm btn-success'>OK</a>
+                            <a onclick="makeAddItemRequest('Items', 'name', 'left-add')" class='btn btn-sm btn-success'>OK</a>
                         </div> 
                     {% endif %}
-                    </p>
+                    </p><hr>
             </div>
 
             <div class='col'></div>
 
-            <div name='hand-right' class='row text-center'><p name="RightHand">
+            <div name='hand-right' class='row text-center'><hr>
+                <p name="RightHand">
                 <span class="text-white-50">RightHand: </span>
                 {% if rightItem.name != None %}
                     <span class='text-info fa fa-exchange-alt' onclick='show_or_hideById("right-swap")'></span> 
@@ -199,11 +201,11 @@
                 <a class='text-danger h6' href='/dunnorpg/makerequest/{{ value.id }};CharItems;CharItems;{{ rightItem.id }};0;durability;downgrade-1;character_detail'>-1</a>
                 <div id='right-swap' class='d-none'> 
                     <select class='w-50 ms-2 text-center border border-warning bg-dark text-white-50 rounded'>
-                        {% for item in found_items %}
-                            <option value='{{ item.name }}'>{{ item.name }}</option>
+                        {% for item in found_weapons %}
+                            <option id='{{ item.id }}' value='{{ item.name }}'>{{ item.name }}</option>
                         {% endfor %}
                     </select>
-                    <a href='' class='btn btn-sm btn-success'>OK</a>
+                    <a onclick="makeSwapRequest('Items', 'name', '{{ rightItem.name|getDescId }}', 'right-swap')" class='btn btn-sm btn-success'>OK</a>
                 </div>
                 {% else %}
                     {% if leftItem.name|isDualHanded %}
@@ -213,19 +215,19 @@
                         <span class='text-info fa fa-plus' onclick='show_or_hideById("right-add")'></span>    
                         <div id='right-add' class='d-none'> 
                             <select class='w-50 ms-2 text-center border border-warning bg-dark text-white-50 rounded'>
-                                {% for item in found_items %}
-                                    <option value='{{ item.name }}'>{{ item.name }}</option>
+                                {% for item in found_weapons %}
+                                    <option id='{{ item.id }}' value='{{ item.name }}'>{{ item.name }}</option>
                                 {% endfor %}
                             </select>
-                            <a href='' class='btn btn-sm btn-success'>OK</a>
+                            <a onclick="makeAddItemRequest('Items', 'name', 'right-add')" class='btn btn-sm btn-success'>OK</a>
                         </div> 
                     {% endif %}
                 {% endif %}
                     </p>
-            </div>
+            </div><hr>
         </div>
 
-        <div name='side' class='row mt-2'>
+        <div name='side' class='row mt-2'><hr>
             <div class='col'><p><span class="text-white-50">Side: </span>
             {% if sideItem != None %}
                 <span class='text-info fa fa-exchange-alt' onclick='show_or_hideById("side-swap")'></span> 
@@ -234,28 +236,28 @@
                 <a class='text-danger h6' href='/dunnorpg/makerequest/{{ value.id }};CharItems;CharItems;{{ sideItem.id }};0;durability;downgrade-1;character_detail'>-1</a>
                 <div id='side-swap' class='d-none'> 
                     <select class='w-50 ms-2 text-center border border-warning bg-dark text-white-50 rounded'>
-                        {% for item in found_items %}
-                            <option value='{{ item.name }}'>{{ item.name }}</option>
+                        {% for item in found_weapons %}
+                            <option id='{{ item.id }}' value='{{ item.name }}'>{{ item.name }}</option>
                         {% endfor %}
                     </select>
-                    <a href='' class='btn btn-sm btn-success'>OK</a>
+                    <a onclick="makeSwapRequest('Items', 'name', '{{ sideItem.name|getDescId }}', 'side-swap')" class='btn btn-sm btn-success'>OK</a>
                 </div>
             {% else %}
             <span class='text-info fa fa-plus' onclick='show_or_hideById("side-add")'></span>    
             <div id='side-add' class='d-none'> 
                 <select class='w-50 ms-2 text-center border border-warning bg-dark text-white-50 rounded'>
-                    {% for item in found_items %}
-                        <option value='{{ item.name }}'>{{ item.name }}</option>
+                    {% for item in found_weapons %}
+                        <option id='{{ item.id }}' value='{{ item.name }}'>{{ item.name }}</option>
                     {% endfor %}
                 </select>
-                <a href='' class='btn btn-sm btn-success'>OK</a>
+                <a onclick="makeAddItemRequest('Items', 'name', 'side-add')" class='btn btn-sm btn-success'>OK</a>
             </div> 
             {% endif %}
-            </p></div>
+            </p></div><hr>
             
         </div>
 
-        <div name='boots' class='row mt-2'>
+        <div name='boots' class='row mt-2'><hr>
             <div class='col'><p><span class="text-white-50">Boots: </span> 
                 {% if boots != None %}
                     <span class='text-info fa fa-exchange-alt' onclick='show_or_hideById("boots-swap")'></span> 
@@ -265,26 +267,26 @@
                     <div id='boots-swap' class='d-none'> 
                         <select class='w-50 ms-2 text-center border border-warning bg-dark text-white-50 rounded'>
                             {% for item in found_boots %}
-                                <option value='{{ item.name }}'>{{ item.name }}</option>
+                                <option id='{{ item.id }}' value='{{ item.name }}'>{{ item.name }}</option>
                             {% endfor %}
                         </select>
-                        <a href='' class='btn btn-sm btn-success'>OK</a>
+                        <a onclick="makeSwapRequest('Items', 'name', '{{ boots.name|getDescId }}', 'boots-swap')" class='btn btn-sm btn-success'>OK</a>
                     </div>  
                 {% else %}
                 <span class='text-info fa fa-plus' onclick='show_or_hideById("boots-add")'></span>    
                 <div id='boots-add' class='d-none'> 
                     <select class='w-50 ms-2 text-center border border-warning bg-dark text-white-50 rounded'>
                         {% for item in found_boots %}
-                            <option value='{{ item.name }}'>{{ item.name }}</option>
+                            <option id='{{ item.id }}' value='{{ item.name }}'>{{ item.name }}</option>
                         {% endfor %}
                     </select>
-                    <a href='' class='btn btn-sm btn-success'>OK</a>
+                    <a onclick="makeAddItemRequest('Items', 'name', 'boots-add')" class='btn btn-sm btn-success'>OK</a>
                 </div> 
                 {% endif %}
-            </p></div>
+            </p></div><hr>
         </div>
 
-        <div name='gloves' class='row mt-2'>
+        <div name='gloves' class='row mt-2'><hr>
             <div class='col'><p><span class="text-white-50">Gloves: </span> 
                 {% if gloves != None %}
                     <span class='text-info fa fa-exchange-alt' onclick='show_or_hideById("gloves-swap")'></span> 
@@ -294,23 +296,23 @@
                     <div id='gloves-swap' class='d-none'> 
                         <select class='w-50 ms-2 text-center border border-warning bg-dark text-white-50 rounded'>
                             {% for item in found_gloves %}
-                                <option value='{{ item.name }}'>{{ item.name }}</option>
+                                <option id='{{ item.id }}' value='{{ item.name }}'>{{ item.name }}</option>
                             {% endfor %}
                         </select>
-                        <a href='' class='btn btn-sm btn-success'>OK</a>
+                        <a onclick="makeSwapRequest('Items', 'name', '{{ gloves.name|getDescId }}', 'gloves-swap')" class='btn btn-sm btn-success'>OK</a>
                     </div>
                 {% else %}
                 <span class='text-info fa fa-plus' onclick='show_or_hideById("gloves-add")'></span>    
                 <div id='gloves-add' class='d-none'> 
                     <select class='w-50 ms-2 text-center border border-warning bg-dark text-white-50 rounded'>
                         {% for item in found_gloves %}
-                            <option value='{{ item.name }}'>{{ item.name }}</option>
+                            <option id='{{ item.id }}' value='{{ item.name }}'>{{ item.name }}</option>
                         {% endfor %}
                     </select>
-                    <a href='' class='btn btn-sm btn-success'>OK</a>
+                    <a onclick="makeAddItemRequest('Items', 'name', 'gloves-add')" class='btn btn-sm btn-success'>OK</a>
                 </div> 
                 {% endif %}
-            </p></div>
+            </p></div><hr>
         </div>
 
         <div class='row'>
@@ -323,20 +325,20 @@
                     <div id='amulet-swap' class='d-none'> 
                         <select class='w-50 ms-2 text-center border border-warning bg-dark text-white-50 rounded'>
                             {% for item in found_amulets %}
-                                <option value='{{ item.name }}'>{{ item.name }}</option>
+                                <option id='{{ item.id }}' value='{{ item.name }}'>{{ item.name }}</option>
                             {% endfor %}
                         </select>
-                        <a href='' class='btn btn-sm btn-success'>OK</a>
+                        <a onclick="makeSwapRequest('Items', 'name', '{{ amulet.name|getDescId }}', 'amulet-swap')" class='btn btn-sm btn-success'>OK</a>
                     </div>
                 {% else %}
                 <span class='text-info fa fa-plus' onclick='show_or_hideById("amulet-add")'></span>    
                 <div id='amulet-add' class='d-none'> 
                     <select class='w-50 ms-2 text-center border border-warning bg-dark text-white-50 rounded'>
                         {% for item in found_amulets %}
-                            <option value='{{ item.name }}'>{{ item.name }}</option>
+                            <option id='{{ item.id }}' value='{{ item.name }}'>{{ item.name }}</option>
                         {% endfor %}
                     </select>
-                    <a href='' class='btn btn-sm btn-success'>OK</a>
+                    <a onclick="makeAddItemRequest('Items', 'name', 'amulet-add')" class='btn btn-sm btn-success'>OK</a>
                 </div> 
                 {% endif %}
             </p>
@@ -366,14 +368,14 @@
         {% endfor %}
         <ul>
     </div>
-        {% for skill in skills %}
-            <div id='{{ skill.id }}' name="desc_block" class="d-none ms-3 rounded container col-3 card-body c-gold border border-warning bg-dark mt-1">
-                <p class='fw-bold text-center'>{{ skill.skill }} lvl.{{ skill.level }}</p>
-                {{ skill.desc }}
-                <br>
-                [<span class='fst-italic'>{{ skill.level_desc }}</span>]
-            </div>
-        {% endfor %}
+    {% for skill in skills %}
+        <div id='{{ skill.id }}' name="desc_block" class="d-none ms-3 rounded container col-3 card-body c-gold border border-warning bg-dark mt-1">
+            <p class='fw-bold text-center'>{{ skill.skill }} lvl.{{ skill.level }}</p>
+            {{ skill.desc }}
+            <br>
+            [<span class='fst-italic'>{{ skill.level_desc }}</span>]
+        </div>
+    {% endfor %}
 </div>
 
 <div class='container mt-2'>
@@ -421,6 +423,21 @@ function makeChangeToRequest(field_id, model, field){
     field_val = document.getElementById(field_id).getAttribute('value')
     chid = document.getElementById('char-name').getAttribute('name')
     url = '/dunnorpg/makerequest/'+chid+';'+model+';'+model+';0;0;'+field+';change_to-'+field_val+';character_detail'
+}
+
+function makeSwapRequest(model, field, it1, it2){
+    chid = document.getElementById('char-name').getAttribute('name')
+    it2 = document.getElementById(it2).children[0]
+    it2 = it2.options[it2.selectedIndex].id
+    url = '/dunnorpg/makerequest/'+chid+';'+model+';'+model+';'+it1+';'+it2+';'+field+';char_item_swap'+';character_detail'
+    window.location.replace(url)
+}
+
+function makeAddItemRequest(model, field, it1){
+    chid = document.getElementById('char-name').getAttribute('name')
+    it1 = document.getElementById(it1).children[0]
+    it1 = it1.options[it1.selectedIndex].id
+    url = '/dunnorpg/makerequest/'+chid+';'+model+';'+model+';'+it1+';0;'+field+';char_item_add'+';character_detail'
     window.location.replace(url)
 }
 
