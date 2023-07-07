@@ -132,8 +132,8 @@ class Items(models.Model):
 class CharItems(models.Model):
     owner = models.CharField(max_length = 80)
     character = models.CharField(max_length = 150)
-    name = models.CharField(max_length = 150)
-    durability = models.IntegerField(default=50)
+    name = models.CharField(max_length = 150, null=True, blank=True)
+    durability = models.IntegerField(default=50, null=True, blank=True)
     hand = models.CharField(max_length = 10, default='Left', null=True, blank=True)
     position = models.CharField(max_length = 20, null=True, blank=True)
 
