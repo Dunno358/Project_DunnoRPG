@@ -116,7 +116,7 @@
                                 </option>
                             {% endfor %}
                         </select>
-                        <a onclick="makeAddItemRequest('Items', 'name', 'helmet-add')" class='btn btn-sm btn-success'>OK</a>
+                        <a onclick="makeAddItemRequest('Eq', 'name', 'helmet-add')" class='btn btn-sm btn-success'>OK</a>
                     </div>     
                       
                 {% endif %}
@@ -156,7 +156,7 @@
                             </option>
                         {% endfor %}
                     </select>
-                    <a onclick="makeAddItemRequest('Items', 'name', 'torso-add')" class='btn btn-sm btn-success'>OK</a>
+                    <a onclick="makeAddItemRequest('Eq', 'name', 'torso-add')" class='btn btn-sm btn-success'>OK</a>
                 </div> 
 
                 {% endif %}
@@ -204,7 +204,7 @@
                                     </option>
                                 {% endfor %}
                             </select>
-                            <a onclick="makeAddItemRequest('Items', 'name', 'left-add')" class='btn btn-sm btn-success'>OK</a>
+                            <a onclick="makeAddItemRequest('Eq', 'name', 'left-add')" class='btn btn-sm btn-success'>OK</a>
                         </div> 
                         
                     {% endif %}
@@ -259,7 +259,7 @@
                                     </option>
                                 {% endfor %}
                             </select>
-                            <a onclick="makeAddItemRequest('Items', 'name', 'right-add')" class='btn btn-sm btn-success'>OK</a>
+                            <a onclick="makeAddItemRequest('Eq', 'name', 'right-add')" class='btn btn-sm btn-success'>OK</a>
                         </div> 
 
                     {% endif %}
@@ -302,7 +302,7 @@
                         </option>
                     {% endfor %}
                 </select>
-                <a onclick="makeAddItemRequest('Items', 'name', 'side-add')" class='btn btn-sm btn-success'>OK</a>
+                <a onclick="makeAddItemRequest('Eq', 'name', 'side-add')" class='btn btn-sm btn-success'>OK</a>
             </div> 
             {% endif %}
 
@@ -344,7 +344,7 @@
                             </option>
                         {% endfor %}
                     </select>
-                    <a onclick="makeAddItemRequest('Items', 'name', 'boots-add')" class='btn btn-sm btn-success'>OK</a>
+                    <a onclick="makeAddItemRequest('Eq', 'name', 'boots-add')" class='btn btn-sm btn-success'>OK</a>
                 </div> 
 
                 {% endif %}
@@ -384,7 +384,7 @@
                             </option>
                         {% endfor %}
                     </select>
-                    <a onclick="makeAddItemRequest('Items', 'name', 'gloves-add')" class='btn btn-sm btn-success'>OK</a>
+                    <a onclick="makeAddItemRequest('Eq', 'name', 'gloves-add')" class='btn btn-sm btn-success'>OK</a>
                 </div> 
 
                 {% endif %}
@@ -422,7 +422,7 @@
                             <option id='{{ item.id }}' value='{{ item.name }}'>{{ item.name }} ({{ item.durability }}/{{ item.name|getMaxDurability }})</option>
                         {% endfor %}
                     </select>
-                    <a onclick="makeAddItemRequest('Items', 'name', 'amulet-add')" class='btn btn-sm btn-success'>OK</a>
+                    <a onclick="makeAddItemRequest('Eq', 'name', 'amulet-add')" class='btn btn-sm btn-success'>OK</a>
                 </div> 
 
                 {% endif %}
