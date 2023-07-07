@@ -708,7 +708,7 @@ class RequestHandling(APIView):
                                 elif rq_op == 'char_item_add':
                                     char = get_object_or_404(models.Character, id=rq_object.char_id)
                                     val = rq_object.title.split('-')[1].lower()
-                                    item_eq_obj = models.Eq.objects.get(owner=request.user,character=char.name,id=rq_object.object1_id)
+                                    item_eq_obj = models.Eq.objects.get(character=char.name,id=rq_object.object1_id)
                                     item = models.Items.objects.get(name=item_eq_obj.name)
                                     if val == 'right' and item.dualHanded==True:
                                         messages.warning(request, 'Dual-Handed weapons can only be added to left hand!')
@@ -797,7 +797,7 @@ class RequestHandling(APIView):
                             elif rq_op == 'char_item_add':
                                 char = get_object_or_404(models.Character, id=rq.char_id)
                                 val = rq.title.split('-')[1].lower()
-                                item_eq_obj = models.Eq.objects.get(owner=request.user,character=char.name,id=rq.object1_id)
+                                item_eq_obj = models.Eq.objects.get(character=char.name,id=rq.object1_id)
                                 item = models.Items.objects.get(name=item_eq_obj.name)
                                 if val == 'right' and item.dualHanded==True:
                                     messages.warning(request, 'Dual-Handed weapons can only be added to left hand!')
