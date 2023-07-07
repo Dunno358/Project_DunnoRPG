@@ -25,6 +25,7 @@ urlpatterns = [
     path('char-delete/<int:char_id>', views.DeleteCharacter.as_view(), name='delete_character'),
     
     path('items/ch<int:char_id>', views.ItemsView.as_view(), name='items'),
+    path('items/<int:char_id>del<int:obj_id>', views.del_eq_item, name='del_eq_item'),
     path('items/<int:id>', views.ItemDetailView.as_view(), name='item_detail'),
     
     path('items/setFound-<int:id>-<int:state>-<int:char_id>', views.changeItemFoundState.as_view(), name='change_found_state'),

@@ -536,6 +536,11 @@ def log_as_guest(request):
         return redirect('home')
     else:
         return HttpResponse('Invalid login')
+def del_eq_item(request, **kwargs):
+    itemDesc = get_object_or_404(models.Items, id=kwargs['obj_id'])
+    char = get_object_or_404(models.Character, id=kwargs['char_id'])
+    get_object_or_404(models.Eq, name=itemDesc.name, character=char.name).delete()
+    return redirect(f"/dunnorpg/items/ch{kwargs['char_id']}")
 
 class ItemsView(ListView):
     model = models.Items
