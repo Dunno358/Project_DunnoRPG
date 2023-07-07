@@ -8,6 +8,7 @@ urlpatterns = [
     path("signup/", views.SignUp.as_view(), name="signup"),
     
     path('character_detail/<int:id>/', views.CharacterDetails.as_view(), name='character_detail'),
+    path('character_detail/<int:char_id>/move_eq-<int:item_id>', views.MoveItemToEq.as_view(), name='move_item_to_eq'),
     path('character_add', views.charPOST.as_view(), name="character_add"),
     path('character_add_skills/<id>/', views.CharacterSkills.as_view(), name="character_add_skills"),
     
