@@ -316,17 +316,34 @@ class MoveItemToEq(APIView):
     def get(self, request, *args, **kwargs):
         item = get_object_or_404(models.CharItems, id=kwargs['item_id'])
         item_desc = get_object_or_404(models.Items, name=item.name)
+        
+        char = get_object_or_404(models.Character, name=item.character)
+        
+        eq_weight = 0
+        eq = models.Eq.objects.filter(character=item.character)
+        for obj in eq:
+            eq_weight += obj.weight
+            
+        if char.SIŁ > 0:
+            max_weight = char.SIŁ*5
+        elif char.SIŁ < 0:
+            max_weight = 3-(char.SIŁ*0.5)
+        else:
+            max_weight = 3            
 
-        models.Eq.objects.create(
-            owner = item.owner,
-            character = item.character,
-            name = item.name,
-            type = item_desc.type,
-            weight = item_desc.weight,
-            durability = item.durability
-        )
+        if eq_weight+item_desc.weight <= max_weight:
+            models.Eq.objects.create(
+                owner = item.owner,
+                character = item.character,
+                name = item.name,
+                type = item_desc.type,
+                weight = item_desc.weight,
+                durability = item.durability
+            )
 
-        item.delete()
+            item.delete()
+        else:
+            messages.error(request, f"Not enough space in {char.name}'s equipment for '{item.name}' ({eq_weight}/{max_weight}kg)")
 
         return redirect(f"/dunnorpg/character_detail/{kwargs['char_id']}")
 
@@ -553,7 +570,7 @@ class ItemsView(ListView):
         value = self.request.GET.get('search')
         char_id = self.kwargs['char_id']
         if char_id != 0:
-            self.character = models.Character.objects.filter(id=char_id).first().name
+            self.character = models.Character.objects.filter(id=char_id).first()
         else:
             self.character = None
 
@@ -568,7 +585,7 @@ class ItemsView(ListView):
             self.twohand = []
             self.armor_dict = {'helmet': [], 'torso': [], 'boots': [], 'gloves': [], 'amulets': [], 'other': []}
             
-            for item in models.Eq.objects.filter(character=self.character):
+            for item in models.Eq.objects.filter(character=self.character.name):
                 item_obj = get_object_or_404(models.Items, name=item.name)
                 queryset.append({'id': item_obj.id, 
                                  'rarity': item_obj.rarity, 
@@ -611,6 +628,28 @@ class ItemsView(ListView):
                 else:
                     context[names[x]] = models.Items.objects.filter(type=types[x], found=True).order_by('rarity')
         else:
+            
+            items_weight = 0
+            items = [self.singlehand,self.twohand,self.armor_dict.values()]
+            for x in range(len(items)):
+                for item in items[x]:
+                    if x != 2:
+                        items_weight += item['weight']
+                    else:
+                        try:
+                            items_weight += item[0]['weight']
+                        except:
+                            pass
+            
+            if self.character.SIŁ > 0:
+                max_weight = self.character.SIŁ*5
+            elif self.character.SIŁ < 0:
+                max_weight = 3-(self.character.SIŁ*0.5)
+            else:
+                max_weight = 3
+            
+            context['current_weight'] = items_weight
+            context['max_weight'] = max_weight
             context['items_singlehand'] = self.singlehand
             context['items_twohand'] = self.twohand
             context['items_helmet'] = self.armor_dict['helmet']
