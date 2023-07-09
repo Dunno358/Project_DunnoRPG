@@ -658,6 +658,7 @@ class ItemsView(ListView):
             context['items_boots'] = self.armor_dict['boots']
             context['items_amulets'] = self.armor_dict['amulets']
             context['items_other'] = self.armor_dict['other']
+            context['all_items'] = models.Items.objects.filter(found=True).order_by('name')
         return context
 
 class ItemDetailView(DetailView):

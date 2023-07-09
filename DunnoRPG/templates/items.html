@@ -2,6 +2,7 @@
 
 {% block content %}
 {% include 'top_bar.html' %}
+{% include 'dunnorpg/messages.html' %}
 
 <div name='bar' class='container mt-1'>
     <div class='row bg-gray border border-warning rounded'>
@@ -48,6 +49,10 @@
             {{ current_weight }}/{{ max_weight }}kg
         </h1>
     </div>
+</div>
+
+<div id='meta' class='d-none'>
+    <span id='chid'>{{ view.kwargs.char_id }}</span>
 </div>
 {% endif %}
 
@@ -106,6 +111,18 @@
         </div>
     </div>
     {% endfor %}
+    <div class='row bg-dark bg-opacity-75 rounded m-2 p-2 text-center'>
+        <h1 onclick='show_or_hideById("adding-item", true, this)' class='col text-info fa fa-plus bg-dark p-2 border border-primary rounded'></h1>
+        <div id='adding-item' class='col d-none'>
+            <select id='selected-eq-add' class='bg-dark rounded border border-warning c-gold p-1 text-center'>
+                {% for item in all_items %}
+                <option id='{{ item.id }}' value='{{ item.name }}'>{{ item.name }}</option>
+                {% endfor %}
+            </select><br>
+            <input id='selected-eq-add-dur' type='number' min="0" placeholder='Item durability here :)' class='w-25 bg-dark c-gold m-1 text-center' value='50'/>
+            <a onclick='makeAddToEqRequest()' class='btn btn-success m-1'>Add</a>
+        </div>
+    </div>
 </div>
 
 <div id='Singlehand' class='container d-none'>
@@ -408,19 +425,33 @@
 <script>
     document.getElementById('tb-items').classList.remove('btn-outline-warning')
     document.getElementById('tb-items').classList.add('btn-outline-primary')
-    function show_or_hideById(instance){
-        block = document.getElementById(instance.innerHTML.trim())
-        document.getElementById('search-result').classList.add('d-none')
 
-        if(block.classList.contains('d-none')){
-            block.classList.remove('d-none')
-            instance.classList.remove('border-warning')
-            instance.classList.add('border-primary')
+    document.getElementById('selected-eq-add-dur').oninput = () => {
+        document.getElementById('selected-eq-add-dur').setAttribute('value', document.getElementById('selected-eq-add-dur').value);
+    }
+
+    function show_or_hideById(instance, alt=false, alt_instance=null){
+        if(alt){
+            block = document.getElementById(instance)
+            if(block.classList.contains('d-none')){
+                block.classList.remove('d-none')
+                alt_instance.classList.add('d-none')
+            }
         }
         else{
-            block.classList.add('d-none')
-            instance.classList.remove('border-primary')
-            instance.classList.add('border-warning')
+            block = document.getElementById(instance.innerHTML.trim())
+            document.getElementById('search-result').classList.add('d-none')
+    
+            if(block.classList.contains('d-none')){
+                block.classList.remove('d-none')
+                instance.classList.remove('border-warning')
+                instance.classList.add('border-primary')
+            }
+            else{
+                block.classList.add('d-none')
+                instance.classList.remove('border-primary')
+                instance.classList.add('border-warning')
+            }
         }
     }
 
@@ -430,6 +461,16 @@
         document.getElementById('del-confirm-positive').href = chid+'del'+id
         document.getElementById('del-confirm').classList.remove('d-none')
       }
+
+    function makeAddToEqRequest(){
+        chid = document.getElementById('chid').innerHTML
+        dur = document.getElementById('selected-eq-add-dur').getAttribute('value')
+        it1 = document.getElementById('selected-eq-add')
+        it1 = it1.options[it1.selectedIndex].id
+
+        url = '/dunnorpg/makerequest/'+chid+';Items;Items;'+it1+';0;Equipment;eq_add-'+dur+'dur;items'
+        window.location.replace(url)
+    }
 </script>
 
 {% endblock content %}
