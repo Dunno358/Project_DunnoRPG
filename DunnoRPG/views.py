@@ -556,7 +556,7 @@ def log_as_guest(request):
 def del_eq_item(request, **kwargs):
     itemDesc = get_object_or_404(models.Items, id=kwargs['obj_id'])
     char = get_object_or_404(models.Character, id=kwargs['char_id'])
-    get_object_or_404(models.Eq, name=itemDesc.name, character=char.name).delete()
+    models.Eq.objects.filter(name=itemDesc.name, character=char.name).first().delete()
     return redirect(f"/dunnorpg/items/ch{kwargs['char_id']}")
 
 class ItemsView(ListView):
@@ -819,6 +819,34 @@ class RequestHandling(APIView):
                                     
                                     swap_item2.delete()
                                     rq_object.delete()
+                                elif rq_op == "eq_add":
+                                    dur = rq_object.title.split('-')[1][:-3]
+                                    char = get_object_or_404(models.Character, id=rq_object.char_id)
+                                    itemDesc = models.Items.objects.get(id=rq_object.object1_id)
+
+                                    if char.SIŁ > 0:
+                                        max_weight = char.SIŁ*5
+                                    elif char.SIŁ <0:
+                                        max_weight = 3-(char.SIŁ*0.5)
+                                    else:
+                                        max_weight = 3
+                                        
+                                    current_weight = 0
+                                    for item in models.Eq.objects.filter(character=char.name):
+                                        current_weight += item.weight
+
+                                    if current_weight+itemDesc.weight <= max_weight:
+                                        models.Eq.objects.create(
+                                            owner = char.owner,
+                                            character = char.name,
+                                            name = itemDesc.name,
+                                            type = itemDesc.type,
+                                            weight = itemDesc.weight,
+                                            durability = dur
+                                        )
+                                        rq_object.delete()
+                                    else:
+                                        messages.error(request, f'Not enough space for {itemDesc.name}. ({current_weight}/{max_weight}kg)')
                 else:  
                     rq = get_object_or_404(models.Requests, id=kwargs['rq_id'])
                     rq_op = rq.title.split('-')[0].lower()       
@@ -908,7 +936,34 @@ class RequestHandling(APIView):
                                 
                                 swap_item2.delete()
                                 rq.delete()
+                            elif rq_op == "eq_add":
+                                dur = rq.title.split('-')[1][:-3]
+                                char = get_object_or_404(models.Character, id=rq.char_id)
+                                itemDesc = models.Items.objects.get(id=rq.object1_id)
+                                
+                                if char.SIŁ > 0:
+                                    max_weight = char.SIŁ*5
+                                elif char.SIŁ <0:
+                                    max_weight = 3-(char.SIŁ*0.5)
+                                else:
+                                    max_weight = 3
+                                    
+                                current_weight = 0
+                                for item in models.Eq.objects.filter(character=char.name):
+                                    current_weight += item.weight
 
+                                if current_weight+itemDesc.weight <= max_weight:
+                                    models.Eq.objects.create(
+                                        owner = char.owner,
+                                        character = char.name,
+                                        name = itemDesc.name,
+                                        type = itemDesc.type,
+                                        weight = itemDesc.weight,
+                                        durability = dur
+                                    )
+                                    rq.delete()
+                                else:
+                                    messages.error(request, f'Not enough space for {itemDesc.name}. ({current_weight}/{max_weight}kg)')                        
         return redirect('/dunnorpg/gmpanel')
 
 class GMPanel(ListView):
