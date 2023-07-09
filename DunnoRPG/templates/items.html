@@ -111,18 +111,22 @@
         </div>
     </div>
     {% endfor %}
-    <div class='row bg-dark bg-opacity-75 rounded m-2 p-2 text-center'>
-        <h1 onclick='show_or_hideById("adding-item", true, this)' class='col text-info fa fa-plus bg-dark p-2 border border-primary rounded'></h1>
-        <div id='adding-item' class='col d-none'>
-            <select id='selected-eq-add' class='bg-dark rounded border border-warning c-gold p-1 text-center'>
-                {% for item in all_items %}
-                <option id='{{ item.id }}' value='{{ item.name }}'>{{ item.name }}</option>
-                {% endfor %}
-            </select><br>
-            <input id='selected-eq-add-dur' type='number' min="0" placeholder='Item durability here :)' class='w-25 bg-dark c-gold m-1 text-center' value='50'/>
-            <a onclick='makeAddToEqRequest()' class='btn btn-success m-1'>Add</a>
-        </div>
-    </div>
+
+    {% if view.kwargs.char_id != 0 %}
+        <div class='row bg-dark bg-opacity-75 rounded m-2 p-2 text-center'>
+            <h1 onclick='show_or_hideById("adding-item", true, this)' class='col text-info fa fa-plus bg-dark p-2 border border-primary rounded'></h1>
+            <div id='adding-item' class='col d-none'>
+                <select id='selected-eq-add' class='bg-dark rounded border border-warning c-gold p-1 text-center'>
+                    {% for item in all_items %}
+                    <option id='{{ item.id }}' value='{{ item.name }}'>{{ item.name }}</option>
+                    {% endfor %}
+                </select><br>
+                <input id='selected-eq-add-dur' type='number' min="0" placeholder='Item durability here :)' class='w-25 bg-dark c-gold m-1 text-center' value='50'/>
+                <a onclick='makeAddToEqRequest()' class='btn btn-success m-1'>Add</a>
+            </div>
+        </div>    
+    {% endif %}
+    
 </div>
 
 <div id='Singlehand' class='container d-none'>
