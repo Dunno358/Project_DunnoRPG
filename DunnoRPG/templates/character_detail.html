@@ -97,12 +97,12 @@
                     <div id='helmet-swap' class='d-none'> 
                         <select class='w-50 ms-2 text-center border border-warning bg-dark text-white-50 rounded'>
                             {% for item in eq_helmets %}
-                                <option id='{{ item.name|getDescId }}' name={{ item.durability }} value='{{ item.name }}'>
+                                <option id='{{ item.id }}' name={{ item.durability }} value='{{ item.name }}'>
                                     {{ item.name }} ({{ item.durability }}/{{ item.name|getMaxDurability }})
                                 </option>
                             {% endfor %}
                         </select>
-                        <a onclick="makeSwapRequest('Items', 'name', '{{ helmet.name|getDescId }}', 'helmet-swap')" class='btn btn-sm btn-success'>OK</a>
+                        <a onclick="swapItem('{{ helmet.id }}', 'helmet-swap')" class='btn btn-sm btn-success'>OK</a>
                     </div>
 
                 {% else %}
@@ -116,7 +116,7 @@
                                 </option>
                             {% endfor %}
                         </select>
-                        <a onclick="makeAddItemRequest('Eq', 'name', 'helmet-add')" class='btn btn-sm btn-success'>OK</a>
+                        <a onclick="wearItem('Helmet', 'helmet-add')" class='btn btn-sm btn-success'>OK</a>
                     </div>     
                       
                 {% endif %}
@@ -137,12 +137,12 @@
                     <div id='torso-swap' class='d-none'> 
                         <select class='w-50 ms-2 text-center border border-warning bg-dark text-white-50 rounded'>
                             {% for item in eq_torsos %}
-                                <option id='{{ item.name|getDescId }}' name={{ item.durability }} value='{{ item.name }}'>
+                                <option id='{{ item.id }}' name={{ item.durability }} value='{{ item.name }}'>
                                     {{ item.name }} ({{ item.durability }}/{{ item.name|getMaxDurability }})
                                 </option>
                             {% endfor %}
                         </select>
-                        <a onclick="makeSwapRequest('Items', 'name', '{{ torso.name|getDescId }}', 'torso-swap')" class='btn btn-sm btn-success'>OK</a>
+                        <a onclick="swapItem('{{ torso.id }}', 'torso-swap')" class='btn btn-sm btn-success'>OK</a>
                     </div> 
 
                 {% else %}              
@@ -156,7 +156,7 @@
                             </option>
                         {% endfor %}
                     </select>
-                    <a onclick="makeAddItemRequest('Eq', 'name', 'torso-add')" class='btn btn-sm btn-success'>OK</a>
+                    <a onclick="wearItem('Torso', 'torso-add')" class='btn btn-sm btn-success'>OK</a>
                 </div> 
 
                 {% endif %}
@@ -184,12 +184,12 @@
                         <div id='left-swap' class='d-none'> 
                             <select class='w-50 ms-2 text-center border border-warning bg-dark text-white-50 rounded'>
                                 {% for item in eq_weapons %}
-                                    <option id='{{ item.name|getDescId }}' name={{ item.durability }} value='{{ item.name }}'>
+                                    <option id='{{ item.id }}' name={{ item.durability }} value='{{ item.name }}'>
                                         {{ item.name }} ({{ item.durability }}/{{ item.name|getMaxDurability }})
                                     </option>
                                 {% endfor %}
                             </select>
-                            <a onclick="makeSwapRequest('Items', 'name', '{{ leftItem.name|getDescId }}', 'left-swap')" class='btn btn-sm btn-success'>OK</a>
+                            <a onclick="swapItem('{{ leftItem.id }}', 'left-swap')" class='btn btn-sm btn-success'>OK</a>
                         </div>
 
                     {% else %}
@@ -204,7 +204,7 @@
                                     </option>
                                 {% endfor %}
                             </select>
-                            <a onclick="makeAddItemRequest('Eq', 'name', 'left-add')" class='btn btn-sm btn-success'>OK</a>
+                            <a onclick="wearItem('Left', 'left-add')" class='btn btn-sm btn-success'>OK</a>
                         </div> 
                         
                     {% endif %}
@@ -235,12 +235,12 @@
                 <div id='right-swap' class='d-none'> 
                     <select class='w-50 ms-2 text-center border border-warning bg-dark text-white-50 rounded'>
                         {% for item in eq_weapons %}
-                            <option id='{{ item.name|getDescId }}' name={{ item.durability }} value='{{ item.name }}'>
+                            <option id='{{ item.id }}' name={{ item.durability }} value='{{ item.name }}'>
                                 {{ item.name }} ({{ item.durability }}/{{ item.name|getMaxDurability }})
                             </option>
                         {% endfor %}
                     </select>
-                    <a onclick="makeSwapRequest('Items', 'name', '{{ rightItem.name|getDescId }}', 'right-swap')" class='btn btn-sm btn-success'>OK</a>
+                    <a onclick="swapItem('{{ rightItem.id }}', 'right-swap')" class='btn btn-sm btn-success'>OK</a>
                 </div>
 
                 {% else %}
@@ -259,7 +259,7 @@
                                     </option>
                                 {% endfor %}
                             </select>
-                            <a onclick="makeAddItemRequest('Eq', 'name', 'right-add')" class='btn btn-sm btn-success'>OK</a>
+                            <a onclick="wearItem('Right', 'right-add')" class='btn btn-sm btn-success'>OK</a>
                         </div> 
 
                     {% endif %}
@@ -282,12 +282,12 @@
                 <div id='side-swap' class='d-none'> 
                     <select class='w-50 ms-2 text-center border border-warning bg-dark text-white-50 rounded'>
                         {% for item in eq_weapons %}
-                            <option id='{{ item.name|getDescId }}' name={{ item.durability }} value='{{ item.name }}'>
+                            <option id='{{ item.id }}' name={{ item.durability }} value='{{ item.name }}'>
                                 {{ item.name }} ({{ item.durability }}/{{ item.name|getMaxDurability }})
                             </option>
                         {% endfor %}
                     </select>
-                    <a onclick="makeSwapRequest('Items', 'name', '{{ sideItem.name|getDescId }}', 'side-swap')" class='btn btn-sm btn-success'>OK</a>
+                    <a onclick="swapItem('{{ sideItem.id }}', 'side-swap')" class='btn btn-sm btn-success'>OK</a>
                 </div>
 
             {% else %}
@@ -302,7 +302,7 @@
                         </option>
                     {% endfor %}
                 </select>
-                <a onclick="makeAddItemRequest('Eq', 'name', 'side-add')" class='btn btn-sm btn-success'>OK</a>
+                <a onclick="wearItem('Side', 'side-add')" class='btn btn-sm btn-success'>OK</a>
             </div> 
             {% endif %}
 
@@ -324,12 +324,12 @@
                     <div id='boots-swap' class='d-none'> 
                         <select class='w-50 ms-2 text-center border border-warning bg-dark text-white-50 rounded'>
                             {% for item in eq_boots %}
-                                <option id='{{ item.name|getDescId }}' name={{ item.durability }} value='{{ item.name }}'>
+                                <option id='{{ item.id }}' name={{ item.durability }} value='{{ item.name }}'>
                                     {{ item.name }} ({{ item.durability }}/{{ item.name|getMaxDurability }})
                                 </option>
                             {% endfor %}
                         </select>
-                        <a onclick="makeSwapRequest('Items', 'name', '{{ boots.name|getDescId }}', 'boots-swap')" class='btn btn-sm btn-success'>OK</a>
+                        <a onclick="swapItem('{{ boots.id }}', 'boots-swap')" class='btn btn-sm btn-success'>OK</a>
                     </div>  
 
                 {% else %}
@@ -344,7 +344,7 @@
                             </option>
                         {% endfor %}
                     </select>
-                    <a onclick="makeAddItemRequest('Eq', 'name', 'boots-add')" class='btn btn-sm btn-success'>OK</a>
+                    <a onclick="wearItem('Boots', 'boots-add')" class='btn btn-sm btn-success'>OK</a>
                 </div> 
 
                 {% endif %}
@@ -365,12 +365,12 @@
                     <div id='gloves-swap' class='d-none'> 
                         <select class='w-50 ms-2 text-center border border-warning bg-dark text-white-50 rounded'>
                             {% for item in eq_gloves %}
-                                <option id='{{ item.name|getDescId }}' name={{ item.durability }} value='{{ item.name }}'>
+                                <option id='{{ item.id }}' name={{ item.durability }} value='{{ item.name }}'>
                                     {{ item.name }} ({{ item.durability }}/{{ item.name|getMaxDurability }})
                                 </option>
                             {% endfor %}
                         </select>
-                        <a onclick="makeSwapRequest('Items', 'name', '{{ gloves.name|getDescId }}', 'gloves-swap')" class='btn btn-sm btn-success'>OK</a>
+                        <a onclick="swapItem('{{ gloves.id }}', 'gloves-swap')" class='btn btn-sm btn-success'>OK</a>
                     </div>
 
                 {% else %}
@@ -384,7 +384,7 @@
                             </option>
                         {% endfor %}
                     </select>
-                    <a onclick="makeAddItemRequest('Eq', 'name', 'gloves-add')" class='btn btn-sm btn-success'>OK</a>
+                    <a onclick="wearItem('Gloves', 'gloves-add')" class='btn btn-sm btn-success'>OK</a>
                 </div> 
 
                 {% endif %}
@@ -405,12 +405,12 @@
                     <div id='amulet-swap' class='d-none'> 
                         <select class='w-50 ms-2 text-center border border-warning bg-dark text-white-50 rounded'>
                             {% for item in eq_amulets %}
-                                <option id='{{ item.name|getDescId }}' name={{ item.durability }} value='{{ item.name }}'>
+                                <option id='{{ item.id }}' name={{ item.durability }} value='{{ item.name }}'>
                                     {{ item.name }} ({{ item.durability }}/{{ item.name|getMaxDurability }})
                                 </option>
                             {% endfor %}
                         </select>
-                        <a onclick="makeSwapRequest('Items', 'name', '{{ amulet.name|getDescId }}', 'amulet-swap')" class='btn btn-sm btn-success'>OK</a>
+                        <a onclick="swapItem('{{ amulet.id }}', 'amulet-swap')" class='btn btn-sm btn-success'>OK</a>
                     </div>
 
                 {% else %}
@@ -422,7 +422,7 @@
                             <option id='{{ item.id }}' value='{{ item.name }}'>{{ item.name }} ({{ item.durability }}/{{ item.name|getMaxDurability }})</option>
                         {% endfor %}
                     </select>
-                    <a onclick="makeAddItemRequest('Eq', 'name', 'amulet-add')" class='btn btn-sm btn-success'>OK</a>
+                    <a onclick="wearItem('Amulet', 'amulet-add')" class='btn btn-sm btn-success'>OK</a>
                 </div> 
 
                 {% endif %}
@@ -509,22 +509,20 @@ function makeChangeToRequest(field_id, model, field){
     url = '/dunnorpg/makerequest/'+chid+';'+model+';'+model+';0;0;'+field+';change_to-'+field_val+';character_detail'
 }
 
-function makeSwapRequest(model, field, it1, it2){
+function swapItem(id1, block_id){
     chid = document.getElementById('char-name').getAttribute('name')
-    pos = it2.slice(-it2.length, -5)
-    it2 = document.getElementById(it2).children[0]
-    dur = it2.options[it2.selectedIndex].getAttribute('name')
-    it2 = it2.options[it2.selectedIndex].id
-    url = '/dunnorpg/makerequest/'+chid+';'+model+';'+model+';'+it1+';'+it2+';'+field+';char_item_swap-'+pos+'-'+dur+';character_detail'
+    id2 = document.getElementById(block_id).children[0]
+    id2 = id2.options[id2.selectedIndex].id
+    url = window.location.href
+    url = url+id1+'-'+id2
     window.location.replace(url)
 }
 
-function makeAddItemRequest(model, field, it1){
+function wearItem(place, block_id){
     chid = document.getElementById('char-name').getAttribute('name')
-    pos = it1.slice(-it1.length, -4)
-    it1 = document.getElementById(it1).children[0]
+    it1 = document.getElementById(block_id).children[0]
     it1 = it1.options[it1.selectedIndex].id
-    url = '/dunnorpg/makerequest/'+chid+';'+model+';'+model+';'+it1+';0;'+field+';char_item_add-'+pos+';character_detail'
+    url = window.location.href+it1+';'+place
     window.location.replace(url)
 }
 

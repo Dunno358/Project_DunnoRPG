@@ -558,6 +558,79 @@ def del_eq_item(request, **kwargs):
     char = get_object_or_404(models.Character, id=kwargs['char_id'])
     models.Eq.objects.filter(name=itemDesc.name, character=char.name).first().delete()
     return redirect(f"/dunnorpg/items/ch{kwargs['char_id']}")
+def char_wear_item(request, **kwargs):
+    char = get_object_or_404(models.Character, id=kwargs['char_id'])
+    place = kwargs['place'] #hand or position
+    item_id = kwargs['item_id']
+    item_eq_obj = models.Eq.objects.get(character=char.name,id=item_id)
+    item = models.Items.objects.get(name=item_eq_obj.name)
+                                
+    if item.dualHanded==True and place != 'Side':
+        if place == 'Right':
+            messages.error(request, 'Dual-Handed weapons can only be added to left hand!')
+            return redirect('character_detail', char.id)
+        elif models.CharItems.objects.filter(character=char.name, hand='Right').first() not in [None,'']:
+            messages.error(request, 'Right hand must be empty for that!')
+            return redirect('character_detail', char.id)
+            
+    charItObj = models.CharItems.objects.filter(hand=place.capitalize(), character=char.name).first()  
+    if charItObj == None: 
+        if place.lower() in ['left','right','side']:
+            models.CharItems.objects.create(
+                owner = request.user,
+                character = char.name,
+                name = item.name,
+                durability = item_eq_obj.durability,
+                hand = place.capitalize(),
+                position = ''
+                )
+        else:
+            models.CharItems.objects.create(
+                owner = request.user,
+                character = char.name,
+                name = item.name,
+                durability = item_eq_obj.durability,
+                hand = '',
+                position = place.capitalize()
+                )            
+    else:
+        charItObj.name = item.name
+        charItObj.durability = item_eq_obj.durability
+        charItObj.save()  
+    item_eq_obj.delete()
+    return redirect('character_detail', char.id)
+def char_swap_item(request, **kwargs):
+    char = get_object_or_404(models.Character, id=kwargs['char_id'])
+    it1 = get_object_or_404(models.CharItems, id=kwargs['it1_id'])
+    it1D = get_object_or_404(models.Items, name=it1.name)
+    it2 = get_object_or_404(models.Eq, id=kwargs['it2_id'])
+    it2D = get_object_or_404(models.Items, name=it2.name)
+    
+    if it2D.dualHanded and it1.hand.lower() != 'side':
+        if it1.hand.lower() == 'right':
+            messages.error(request, 'Dual-handed weapon must be added to left hand when right hand is empty.')
+            return redirect('character_detail', char.id)
+        else:
+            if models.CharItems.objects.filter(character=char.name, hand='Right').first() not in [None,'']:
+                messages.error(request, 'Dual-handed weapon must be added to left hand when right hand is empty.')
+                return redirect('character_detail', char.id)                
+    
+    models.Eq.objects.create(
+        owner=char.owner,
+        character=char.name,
+        name=it1.name,
+        type=it1D.type,
+        weight=it1D.weight,
+        durability=it1.durability
+    )
+    
+    it1.name = it2.name
+    it1.durability = it2.durability
+    it1.save()
+    
+    it2.delete()
+    
+    return redirect('character_detail', char.id)
 
 class ItemsView(ListView):
     model = models.Items
@@ -750,74 +823,6 @@ class RequestHandling(APIView):
                                         char.HP = val
                                         char.save()
                                         rq_object.delete()
-                                elif rq_op == 'char_item_add':
-                                    char = get_object_or_404(models.Character, id=rq_object.char_id)
-                                    val = rq_object.title.split('-')[1].lower()
-                                    item_eq_obj = models.Eq.objects.get(character=char.name,id=rq_object.object1_id)
-                                    item = models.Items.objects.get(name=item_eq_obj.name)
-                                    if val == 'right' and item.dualHanded==True:
-                                        messages.warning(request, 'Dual-Handed weapons can only be added to left hand!')
-                                        return redirect('/dunnorpg/gmpanel')
-                                    if val in ['left','right','side']:
-                                        charItObj = models.CharItems.objects.filter(hand=val.capitalize(), character=char.name).first()
-                                        if charItObj == None:
-                                            models.CharItems.objects.create(
-                                                owner = request.user,
-                                                character = char.name,
-                                                name = item.name,
-                                                durability = item_eq_obj.durability,
-                                                hand = val.capitalize(),
-                                                position = ''
-                                            )
-                                        else:
-                                            charItObj.name = item.name
-                                            charItObj.durability = item_eq_obj.durability
-                                            charItObj.save()
-                                        item_eq_obj.delete()
-                                    else:
-                                        charItObj = models.CharItems.objects.filter(position=val.capitalize(), character=char.name).first()
-                                        if charItObj == None:
-                                            models.CharItems.objects.create(
-                                                owner = request.user,
-                                                character = char.name,
-                                                name = item.name,
-                                                durability = item_eq_obj.durability,
-                                                hand = '',
-                                                position = val.capitalize()
-                                            )
-                                        else:
-                                            charItObj.name = item.name
-                                            charItObj.durability = item_eq_obj.durability
-                                            charItObj.save()  
-                                        item_eq_obj.delete()
-                                    rq_object.delete()    
-                                elif rq_op == 'char_item_swap':
-                                    val = rq_object.title.split('-')[1].lower()
-                                    dur = int(rq_object.title.split('-')[2])
-                                    char = get_object_or_404(models.Character, id=rq_object.char_id)
-                                    item1Desc = models.Items.objects.get(id=rq_object.object1_id)
-                                    item2Desc = models.Items.objects.get(id=rq_object.object2_id)
-                                    
-                                    if val in ['left','right','side']:
-                                        swap_item1 = models.CharItems.objects.get(character=char.name, name=item1Desc.name, hand=val.capitalize())
-                                    else:
-                                        swap_item1 = models.CharItems.objects.get(character=char.name, name=item1Desc.name, position=val.capitalize())
-                                    swap_item2 = models.Eq.objects.get(character=char.name, name=item2Desc.name, durability = dur)
-                                    
-                                    models.Eq.objects.create(
-                                        owner = request.user,
-                                        character = char.name,
-                                        name = item1Desc.name,
-                                        type = item1Desc.type,
-                                        weight = item1Desc.weight,
-                                        durability = swap_item1.durability
-                                    )
-                                    
-                                    swap_item1.name = item2Desc.name
-                                    swap_item1.durability = swap_item2.durability
-                                    swap_item1.save()
-                                    
-                                    swap_item2.delete()
                                     rq_object.delete()
                                 elif rq_op == "eq_add":
                                     dur = rq_object.title.split('-')[1][:-3]
@@ -867,75 +872,6 @@ class RequestHandling(APIView):
                                     char.HP = val
                                     char.save()
                                     rq.delete()
-                            elif rq_op == 'char_item_add':
-                                char = get_object_or_404(models.Character, id=rq.char_id)
-                                val = rq.title.split('-')[1].lower()
-                                item_eq_obj = models.Eq.objects.get(character=char.name,id=rq.object1_id)
-                                item = models.Items.objects.get(name=item_eq_obj.name)
-                                if val == 'right' and item.dualHanded==True:
-                                    messages.warning(request, 'Dual-Handed weapons can only be added to left hand!')
-                                    return redirect('/dunnorpg/gmpanel')
-                                if val in ['left','right','side']:
-                                    charItObj = models.CharItems.objects.filter(hand=val.capitalize(), character=char.name).first()
-                                    if charItObj == None:
-                                        models.CharItems.objects.create(
-                                            owner = request.user,
-                                            character = char.name,
-                                            name = item.name,
-                                            durability = item_eq_obj.durability,
-                                            hand = val.capitalize(),
-                                            position = ''
-                                        )
-                                    else:
-                                        charItObj.name = item.name
-                                        charItObj.durability = item_eq_obj.durability
-                                        charItObj.save()
-                                    item_eq_obj.delete()
-                                else:
-                                    charItObj = models.CharItems.objects.filter(position=val.capitalize(), character=char.name).first()
-                                    if charItObj == None:
-                                        models.CharItems.objects.create(
-                                            owner = request.user,
-                                            character = char.name,
-                                            name = item.name,
-                                            durability = item_eq_obj.durability,
-                                            hand = '',
-                                            position = val.capitalize()
-                                        )
-                                    else:
-                                        charItObj.name = item.name
-                                        charItObj.durability = item_eq_obj.durability
-                                        charItObj.save()  
-                                    item_eq_obj.delete()
-                                rq.delete()                                  
-                            elif rq_op == 'char_item_swap':
-                                val = rq.title.split('-')[1].lower()
-                                dur = int(rq.title.split('-')[2])
-                                char = get_object_or_404(models.Character, id=rq.char_id)
-                                item1Desc = models.Items.objects.get(id=rq.object1_id)
-                                item2Desc = models.Items.objects.get(id=rq.object2_id)
-                                
-                                if val in ['left','right','side']:
-                                    swap_item1 = models.CharItems.objects.get(character=char.name, name=item1Desc.name, hand=val.capitalize())
-                                else:
-                                    swap_item1 = models.CharItems.objects.get(character=char.name, name=item1Desc.name, position=val.capitalize())
-                                swap_item2 = models.Eq.objects.get(character=char.name, name=item2Desc.name, durability = dur)
-                                
-                                models.Eq.objects.create(
-                                    owner = request.user,
-                                    character = char.name,
-                                    name = item1Desc.name,
-                                    type = item1Desc.type,
-                                    weight = item1Desc.weight,
-                                    durability = swap_item1.durability
-                                )
-                                
-                                swap_item1.name = item2Desc.name
-                                swap_item1.durability = swap_item2.durability
-                                swap_item1.save()
-                                
-                                swap_item2.delete()
-                                rq.delete()
                             elif rq_op == "eq_add":
                                 dur = rq.title.split('-')[1][:-3]
                                 char = get_object_or_404(models.Character, id=rq.char_id)
