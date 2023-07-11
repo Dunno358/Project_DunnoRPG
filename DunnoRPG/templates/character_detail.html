@@ -92,9 +92,9 @@
                     <a class='{{ helmet.name|getItemRarity }} fw-bold' href='/dunnorpg/items/{{ helmet.name|getDescId }}'>
                     {{ helmet.name }}</a>
 
-                    <span class='{{ helmet.name|getItemRarity }}'><b>[{{ helmet.name|getItemArmor }}; {{ helmet.name|getItemWeight }}kg
+                    <span class='{{ helmet.name|getItemRarity }}'><b>[ {{ helmet.name|getItemArmor }}; {{ helmet.name|getItemWeight }}kg
                     {% if helmet.name|getSkill %};
-                        <span onclick="" class='fw-normal' title="{{ helmet.name|getSkill }}">
+                        <span onclick="showSkill(this)" class='fw-normal' title="{{ helmet.name|getSkill }}">
                             Check skill
                         </span>
                     {% endif %}]</b></span>
@@ -140,9 +140,9 @@
                     <a class='{{ torso.name|getItemRarity }} fw-bold' href='/dunnorpg/items/{{ torso.name|getDescId }}'>
                         {{ torso.name }}</a>
     
-                        <span class='{{ torso.name|getItemRarity }}'><b>[{{ torso.name|getItemArmor }}; {{ torso.name|getItemWeight }}kg
+                        <span class='{{ torso.name|getItemRarity }}'><b>[ {{ torso.name|getItemArmor }}; {{ torso.name|getItemWeight }}kg
                         {% if torso.name|getSkill %};
-                            <span onclick="" class='fw-normal' title="{{ torso.name|getSkill }}">
+                            <span onclick="showSkill(this)" class='fw-normal' title="{{ torso.name|getSkill }}">
                                 Check skill
                             </span>
                         {% endif %}]</b></span>
@@ -184,15 +184,25 @@
                 <span class="text-white-50">LeftHand: </span>
                     {% if leftItem != None %}
                         <span class='text-info fa fa-exchange-alt' onclick='show_or_hideById("left-swap")'></span> 
-
                         (<span id='l_bonus'>{{ value.name|isPreffereOrUnliked:leftItem.name }}</span>)
-                        <a class='{{ leftItem.name|getItemRarity }}'  href='/dunnorpg/items/{{ leftItem.name|getDescId }}'><span name="{{ leftItem.name|getItemType }}" id='l_weapon'>{{ leftItem.name }}</span>
-                            {% if leftItem.name|isShield %}
-                            [<span id='l_block'>{{ leftItem.name|getItemBlock }}</span>]
-                            {% else %}
-                            [1K<span id='l_dmg'>{{ leftItem.name|getItemBonus }}</span>, <span id='l_ap'>{{ leftItem.name|getItemAP }}</span>AP]
-                            {% endif %}
+
+                        <a class='{{ leftItem.name|getItemRarity }}'  href='/dunnorpg/items/{{ leftItem.name|getDescId }}'>
+                            <span name="{{ leftItem.name|getItemType }}" id='l_weapon'>{{ leftItem.name }}</span>
                         </a>
+                        <span class='fw-bold {{ leftItem.name|getItemRarity }}'>
+                            {% if leftItem.name|isShield %}
+                            [ <span id='l_block'>{{ leftItem.name|getItemBlock }}</span>; {{ leftItem.name|getItemWeight }}kg
+                            {% else %}
+                            [ 1K<span id='l_dmg'>{{ leftItem.name|getItemBonus }}</span>, <span id='l_ap'>{{ leftItem.name|getItemAP }}</span>AP; {{ leftItem.name|getItemWeight }}kg
+                            {% endif %}
+
+                            {% if leftItem.name|getSkill %};
+                                <span onclick="showSkill(this)" class='fw-normal' title="{{ leftItem.name|getSkill }}">
+                                    Check skill
+                                </span>
+                            {% endif %}]
+                        </span>
+                        
                         <span class='c-gold' id='s_dur'>({{ leftItem.durability }}/{{ leftItem.name|getMaxDurability }})</span>   
                         <a class='text-danger h6' href='/dunnorpg/makerequest/{{ value.id }};CharItems;CharItems;{{ leftItem.id }};0;durability;downgrade-1;character_detail'>-1</a>
                         <a href='move_eq-{{ leftItem.id }}' class='fa fa-arrow-right text-success text-decoration-none'>EQ</a>
@@ -234,16 +244,25 @@
                 <span class="text-white-50">RightHand: </span>
                 {% if rightItem.name != None %}
                     <span class='text-info fa fa-exchange-alt' onclick='show_or_hideById("right-swap")'></span> 
-
                     (<span id='r_bonus'>{{ value.name|isPreffereOrUnliked:rightItem.name }}</span>)
-                    <a class='{{ rightItem.name|getItemRarity }}'  href='/dunnorpg/items/{{ rightItem.name|getDescId }}'>
+                    
+                    <a class='{{ rightItem.name|getItemRarity }} fw-bold'  href='/dunnorpg/items/{{ rightItem.name|getDescId }}'>
                         <span name="{{ rightItem.name|getItemType }}" id='r_weapon'>{{ rightItem.name }}</span>
-                        {% if rightItem.name|isShield %}
-                            [<span id='r_block'>{{ rightItem.name|getItemBlock }}</span>]
-                        {% else %}
-                            [1K<span id='r_dmg'>{{ rightItem.name|getItemBonus }}</span>, <span id='r_ap'>{{ rightItem.name|getItemAP }}</span>AP]
-                        {% endif %}
                     </a>
+                    <span class='fw-bold {{ rightItem.name|getItemRarity }}'>
+                        {% if rightItem.name|isShield %}
+                            [ <span id='r_block'>{{ rightItem.name|getItemBlock }}</span>; {{ rightItem.name|getItemWeight }}kg
+                        {% else %}
+                            [ 1K<span id='r_dmg'>{{ rightItem.name|getItemBonus }}</span>, <span id='r_ap'>{{ rightItem.name|getItemAP }}</span>AP; {{ rightItem.name|getItemWeight }}kg
+                        {% endif %}
+
+                        {% if rightItem.name|getSkill %};
+                            <span onclick="showSkill(this)" class='fw-normal' title="{{ rightItem.name|getSkill }}">
+                                Check skill
+                            </span>
+                        {% endif %}]
+                    </span>
+
                 <span class='c-gold' id='s_dur'>({{ rightItem.durability }}/{{ rightItem.name|getMaxDurability }})</span>   
                 <a class='text-danger h6' href='/dunnorpg/makerequest/{{ value.id }};CharItems;CharItems;{{ rightItem.id }};0;durability;downgrade-1;character_detail'>-1</a>
                 <a href='move_eq-{{ rightItem.id }}' class='fa fa-arrow-right text-success text-decoration-none'>EQ</a>
@@ -290,7 +309,18 @@
             {% if sideItem != None %}
                 <span class='text-info fa fa-exchange-alt' onclick='show_or_hideById("side-swap")'></span> 
 
-                <a class='{{ sideItem.name|getItemRarity }}'  href='/dunnorpg/items/{{ sideItem.name|getDescId }}'>{{ sideItem.name }} [{{ sideItem.name|getItemStatByName }}]</a>
+                <a class='{{ sideItem.name|getItemRarity }} fw-bold'  href='/dunnorpg/items/{{ sideItem.name|getDescId }}'>
+                    {{ sideItem.name }}
+                </a>
+                <span class='{{ sideItem.name|getItemRarity }} fw-bold'>
+                    [ {{ sideItem.name|getItemStatByName }}; {{ sideItem.name|getItemWeight }}kg
+                    {% if sideItem.name|getSkill %};
+                        <span onclick='showSkill(this)' class='fw-normal' title="{{ sideItem.name|getSkill }}">
+                            Check skill
+                        </span>
+                    {% endif %}]
+                </span>
+
                 <span class='c-gold' id='s_dur'>({{ sideItem.durability }}/{{ sideItem.name|getMaxDurability }})</span>   
                 <a class='text-danger h6' href='/dunnorpg/makerequest/{{ value.id }};CharItems;CharItems;{{ sideItem.id }};0;durability;downgrade-1;character_detail'>-1</a>
                 <a href='move_eq-{{ sideItem.id }}' class='fa fa-arrow-right text-success text-decoration-none'>EQ</a>
@@ -335,9 +365,9 @@
                     <a class='{{ boots.name|getItemRarity }} fw-bold' href='/dunnorpg/items/{{ boots.name|getDescId }}'>
                         {{ boots.name }}</a>
     
-                        <span class='{{ boots.name|getItemRarity }}'><b>[{{ boots.name|getItemArmor }}; {{ boots.name|getItemWeight }}kg
+                        <span class='{{ boots.name|getItemRarity }}'><b>[ {{ boots.name|getItemArmor }}; {{ boots.name|getItemWeight }}kg
                         {% if boots.name|getSkill %};
-                            <span onclick="" class='fw-normal' title="{{ boots.name|getSkill }}">
+                            <span onclick="showSkill(this)" class='fw-normal' title="{{ boots.name|getSkill }}">
                                 Check skill
                             </span>
                         {% endif %}]</b></span>
@@ -384,9 +414,9 @@
                     <a class='{{ gloves.name|getItemRarity }} fw-bold' href='/dunnorpg/items/{{ gloves.name|getDescId }}'>
                         {{ gloves.name }}</a>
     
-                        <span class='{{ gloves.name|getItemRarity }}'><b>[{{ gloves.name|getItemArmor }}; {{ gloves.name|getItemWeight }}kg
+                        <span class='{{ gloves.name|getItemRarity }}'><b>[ {{ gloves.name|getItemArmor }}; {{ gloves.name|getItemWeight }}kg
                         {% if gloves.name|getSkill %};
-                            <span onclick="" class='fw-normal' title="{{ gloves.name|getSkill }}">
+                            <span onclick="showSkill(this)" class='fw-normal' title="{{ gloves.name|getSkill }}">
                                 Check skill
                             </span>
                         {% endif %}]</b></span>
@@ -423,7 +453,7 @@
             </p></div>
         </div>
 
-        <div name='gloves' class='row mt-2'><hr>
+        <div name='amulet' class='row mt-2'><hr>
             <p class='col'><span class="text-white-50">Amulet: </span> 
 
                 {% if amulet != None %}
@@ -432,9 +462,11 @@
                     <a class='{{ amulet.name|getItemRarity }} fw-bold' href='/dunnorpg/items/{{ amulet.name|getDescId }}'>
                     {{ amulet.name }}</a>  
                     <b class="{{ amulet.name|getItemRarity }}">
-                        [{{ amulet.name|getItemWeight }}
+                        [ {{ amulet.name|getItemWeight }}kg
                         {% if amulet.name|getSkill %};
-                            <span onlick="" class="fw-normal" title="{{ amulet.name|getSkill }}">Check skill</span>
+                            <span onlick='showSkill(this)' class="fw-normal" title="{{ amulet.name|getSkill }}">
+                                {{ amulet.name|getSkill }}
+                            </span>
                         {% endif %}]
                     </b>
                     <a href='move_eq-{{ amulet.id }}' class='fa fa-arrow-right text-success text-decoration-none'>EQ</a>
@@ -490,7 +522,7 @@
         <ul class=''>
         {% for skill in skills %}
             <li>
-                <a class='c-gold fst-italic' href='/dunnorpg/skills/{{ skill.original_id }}'>{{ skill.skill }} [{{ skill.level }}]</a>
+                <a class='c-gold fst-italic' href='/dunnorpg/skills/{{ skill.original_id }}'>{{ skill.skill }} [ {{ skill.level }}]</a>
                 <button onclick="show_block(this)" name="{{ skill.id }}" type='button' class='fst-italic ms-2 rounded-circle border border-warning btn btn-sm btn-warning btn-outline-dark c-gold'>i</button>
             </li><br>
         {% endfor %}
@@ -544,6 +576,15 @@ document.getElementById('tb-characters').classList.add('btn-outline-primary')
 
 document.getElementById('hp-val').oninput = () => {
     document.getElementById('hp-val').setAttribute('value', document.getElementById('hp-val').value);
+}
+
+function showSkill(instance){
+    if(instance.innerHTML == "Check skill"){
+        instance.innerHTML = instance.title
+    }
+    else{
+        instance.innerHTML = "Check skill"
+    }
 }
 
 function makeChangeToRequest(field_id, model, field){
