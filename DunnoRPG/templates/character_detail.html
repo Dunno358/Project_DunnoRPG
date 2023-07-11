@@ -186,7 +186,7 @@
                         <span class='text-info fa fa-exchange-alt' onclick='show_or_hideById("left-swap")'></span> 
                         (<span id='l_bonus'>{{ value.name|isPreffereOrUnliked:leftItem.name }}</span>)
 
-                        <a class='{{ leftItem.name|getItemRarity }}'  href='/dunnorpg/items/{{ leftItem.name|getDescId }}'>
+                        <a class='{{ leftItem.name|getItemRarity }} fw-bold'  href='/dunnorpg/items/{{ leftItem.name|getDescId }}'>
                             <span name="{{ leftItem.name|getItemType }}" id='l_weapon'>{{ leftItem.name }}</span>
                         </a>
                         <span class='fw-bold {{ leftItem.name|getItemRarity }}'>
