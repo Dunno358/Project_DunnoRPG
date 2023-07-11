@@ -65,6 +65,20 @@ def getItemType(itemName):
     return get_object_or_404(models.Items, name=itemName).type
 
 @register.filter
+def getItemRarity(itemName):
+    try:
+        return models.Items.objects.filter(name=itemName).get().rarity
+    except:
+        return None
+    
+@register.filter
+def getSkill(itemName):
+    try:
+        return models.Items.objects.filter(name=itemName).get().skill
+    except:
+        return False
+
+@register.filter
 def getDescId(itemName):
     try:
         return models.Items.objects.filter(name=itemName).values()[0]['id']

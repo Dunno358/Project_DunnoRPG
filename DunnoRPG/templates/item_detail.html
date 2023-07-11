@@ -39,13 +39,7 @@
         <div class='col text-center c-gold fst-italic'>
             <h2>
                 <span>Rarity: </span>
-                <span
-                    {% if item.rarity == 'neutral-low' or item.rarity == 'start-weapon' %}style='color: dimgray;'{% endif %}
-                    {% if item.rarity == 'neutral-high' %}style='color: silver;'{% endif %}
-                    {% if item.rarity == 'unique' %}style='color: #0ec800;'{% endif %}
-                    {% if item.rarity == 'magical' %}style='color: #4a76c7;'{% endif %}
-                    {% if item.rarity == 'uncommon' %}style='color: #b401b4;'{% endif %} 
-                >{{ item.rarity }}</span>
+                <span class="{{ item.rarity }}">{{ item.rarity }}</span>
             </h2>
         </div>
     </div>

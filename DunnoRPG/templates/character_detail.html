@@ -89,9 +89,17 @@
                 {% if helmet != None %}
                     <span class='text-info fa fa-exchange-alt' onclick='show_or_hideById("helmet-swap")'></span> 
 
-                    <a class='c-gold' href='/dunnorpg/items/{{ helmet.name|getDescId }}'>
-                    {{ helmet.name }} [{{ helmet.name|getItemArmor }}; {{ helmet.name|getItemWeight }}kg] 
-                    ({{ helmet.durability }}/{{ helmet.name|getMaxDurability }})</a>   
+                    <a class='{{ helmet.name|getItemRarity }} fw-bold' href='/dunnorpg/items/{{ helmet.name|getDescId }}'>
+                    {{ helmet.name }}</a>
+
+                    <span class='{{ helmet.name|getItemRarity }}'><b>[{{ helmet.name|getItemArmor }}; {{ helmet.name|getItemWeight }}kg
+                    {% if helmet.name|getSkill %};
+                        <span onclick="" class='fw-normal' title="{{ helmet.name|getSkill }}">
+                            Check skill
+                        </span>
+                    {% endif %}]</b></span>
+                    
+                    ({{ helmet.durability }}/{{ helmet.name|getMaxDurability }})   
                     <a href='move_eq-{{ helmet.id }}' class='fa fa-arrow-right text-success text-decoration-none'>EQ</a>
                     
                     <div id='helmet-swap' class='d-none'> 
@@ -129,8 +137,16 @@
                 {% if torso != None %}
                     <span class='text-info fa fa-exchange-alt' onclick='show_or_hideById("torso-swap")'></span> 
 
-                    <a class='c-gold'  href='/dunnorpg/items/{{ torso.name|getDescId }}'>
-                    {{ torso.name }} [{{ torso.name|getItemArmor }}; {{ torso.name|getItemWeight }}kg] 
+                    <a class='{{ torso.name|getItemRarity }} fw-bold' href='/dunnorpg/items/{{ torso.name|getDescId }}'>
+                        {{ torso.name }}</a>
+    
+                        <span class='{{ torso.name|getItemRarity }}'><b>[{{ torso.name|getItemArmor }}; {{ torso.name|getItemWeight }}kg
+                        {% if torso.name|getSkill %};
+                            <span onclick="" class='fw-normal' title="{{ torso.name|getSkill }}">
+                                Check skill
+                            </span>
+                        {% endif %}]</b></span>
+                        
                     ({{ torso.durability }}/{{ torso.name|getMaxDurability }})</a>   
                     <a href='move_eq-{{ torso.id }}' class='fa fa-arrow-right text-success text-decoration-none'>EQ</a>
 
@@ -170,7 +186,7 @@
                         <span class='text-info fa fa-exchange-alt' onclick='show_or_hideById("left-swap")'></span> 
 
                         (<span id='l_bonus'>{{ value.name|isPreffereOrUnliked:leftItem.name }}</span>)
-                        <a class='c-gold'  href='/dunnorpg/items/{{ leftItem.name|getDescId }}'><span name="{{ leftItem.name|getItemType }}" id='l_weapon'>{{ leftItem.name }}</span>
+                        <a class='{{ leftItem.name|getItemRarity }}'  href='/dunnorpg/items/{{ leftItem.name|getDescId }}'><span name="{{ leftItem.name|getItemType }}" id='l_weapon'>{{ leftItem.name }}</span>
                             {% if leftItem.name|isShield %}
                             [<span id='l_block'>{{ leftItem.name|getItemBlock }}</span>]
                             {% else %}
@@ -220,7 +236,7 @@
                     <span class='text-info fa fa-exchange-alt' onclick='show_or_hideById("right-swap")'></span> 
 
                     (<span id='r_bonus'>{{ value.name|isPreffereOrUnliked:rightItem.name }}</span>)
-                    <a class='c-gold'  href='/dunnorpg/items/{{ rightItem.name|getDescId }}'>
+                    <a class='{{ rightItem.name|getItemRarity }}'  href='/dunnorpg/items/{{ rightItem.name|getDescId }}'>
                         <span name="{{ rightItem.name|getItemType }}" id='r_weapon'>{{ rightItem.name }}</span>
                         {% if rightItem.name|isShield %}
                             [<span id='r_block'>{{ rightItem.name|getItemBlock }}</span>]
@@ -274,7 +290,7 @@
             {% if sideItem != None %}
                 <span class='text-info fa fa-exchange-alt' onclick='show_or_hideById("side-swap")'></span> 
 
-                <a class='c-gold'  href='/dunnorpg/items/{{ sideItem.name|getDescId }}'>{{ sideItem.name }} [{{ sideItem.name|getItemStatByName }}]</a>
+                <a class='{{ sideItem.name|getItemRarity }}'  href='/dunnorpg/items/{{ sideItem.name|getDescId }}'>{{ sideItem.name }} [{{ sideItem.name|getItemStatByName }}]</a>
                 <span class='c-gold' id='s_dur'>({{ sideItem.durability }}/{{ sideItem.name|getMaxDurability }})</span>   
                 <a class='text-danger h6' href='/dunnorpg/makerequest/{{ value.id }};CharItems;CharItems;{{ sideItem.id }};0;durability;downgrade-1;character_detail'>-1</a>
                 <a href='move_eq-{{ sideItem.id }}' class='fa fa-arrow-right text-success text-decoration-none'>EQ</a>
@@ -316,9 +332,17 @@
                 {% if boots != None %}
                     <span class='text-info fa fa-exchange-alt' onclick='show_or_hideById("boots-swap")'></span> 
 
-                    <a class='c-gold'  href='/dunnorpg/items/{{ boots.name|getDescId }}'>
-                    {{ boots.name }} [{{ boots.name|getItemArmor }}; {{ boots.name|getItemWeight }}kg] 
-                    ({{ boots.durability }}/{{ boots.name|getMaxDurability }})</a> 
+                    <a class='{{ boots.name|getItemRarity }} fw-bold' href='/dunnorpg/items/{{ boots.name|getDescId }}'>
+                        {{ boots.name }}</a>
+    
+                        <span class='{{ boots.name|getItemRarity }}'><b>[{{ boots.name|getItemArmor }}; {{ boots.name|getItemWeight }}kg
+                        {% if boots.name|getSkill %};
+                            <span onclick="" class='fw-normal' title="{{ boots.name|getSkill }}">
+                                Check skill
+                            </span>
+                        {% endif %}]</b></span>
+                        
+                    ({{ boots.durability }}/{{ boots.name|getMaxDurability }}) 
                     <a href='move_eq-{{ boots.id }}' class='fa fa-arrow-right text-success text-decoration-none'>EQ</a>
 
                     <div id='boots-swap' class='d-none'> 
@@ -357,9 +381,17 @@
                 {% if gloves != None %}
                     <span class='text-info fa fa-exchange-alt' onclick='show_or_hideById("gloves-swap")'></span> 
 
-                    <a class='c-gold'  href='/dunnorpg/items/{{ gloves.name|getDescId }}'>
-                    {{ gloves.name }} [{{ gloves.name|getItemArmor }}; {{ gloves.name|getItemWeight }}kg] 
-                    ({{ gloves.durability }}/{{ gloves.name|getMaxDurability }})</a>   
+                    <a class='{{ gloves.name|getItemRarity }} fw-bold' href='/dunnorpg/items/{{ gloves.name|getDescId }}'>
+                        {{ gloves.name }}</a>
+    
+                        <span class='{{ gloves.name|getItemRarity }}'><b>[{{ gloves.name|getItemArmor }}; {{ gloves.name|getItemWeight }}kg
+                        {% if gloves.name|getSkill %};
+                            <span onclick="" class='fw-normal' title="{{ gloves.name|getSkill }}">
+                                Check skill
+                            </span>
+                        {% endif %}]</b></span>
+                        
+                    ({{ gloves.durability }}/{{ gloves.name|getMaxDurability }})
                     <a href='move_eq-{{ gloves.id }}' class='fa fa-arrow-right text-success text-decoration-none'>EQ</a>
 
                     <div id='gloves-swap' class='d-none'> 
@@ -391,15 +423,20 @@
             </p></div>
         </div>
 
-        <div class='row'><hr>
-            <p class='col' title='{{ race_desc }}'><span class="text-white-50">Race:</span> {{ value.race }} ({{ value.size }})</p>
-                    <p class='col'><span class="text-white-50">Amulet: </span> 
+        <div name='gloves' class='row mt-2'><hr>
+            <p class='col'><span class="text-white-50">Amulet: </span> 
 
                 {% if amulet != None %}
                     <span class='text-info fa fa-exchange-alt' onclick='show_or_hideById("amulet-swap")'></span> 
 
-                    <a class='c-gold' href='/dunnorpg/items/{{ amulet.name|getDescId }}'>
+                    <a class='{{ amulet.name|getItemRarity }} fw-bold' href='/dunnorpg/items/{{ amulet.name|getDescId }}'>
                     {{ amulet.name }}</a>  
+                    <b class="{{ amulet.name|getItemRarity }}">
+                        [{{ amulet.name|getItemWeight }}
+                        {% if amulet.name|getSkill %};
+                            <span onlick="" class="fw-normal" title="{{ amulet.name|getSkill }}">Check skill</span>
+                        {% endif %}]
+                    </b>
                     <a href='move_eq-{{ amulet.id }}' class='fa fa-arrow-right text-success text-decoration-none'>EQ</a>
 
                     <div id='amulet-swap' class='d-none'> 
@@ -426,6 +463,12 @@
                 </div> 
 
                 {% endif %}
+            </p>
+        </div>
+
+        <div class='row'><hr>
+            <p class='col' title='{{ race_desc }}'><span class="text-white-50">Race:</span> {{ value.race }} ({{ value.size }})</p>
+                <p class='col'><span class="text-white-50">Coins:</span> {{ value.coins }}</p>
             </p>
         </div>
 
@@ -507,6 +550,7 @@ function makeChangeToRequest(field_id, model, field){
     field_val = document.getElementById(field_id).getAttribute('value')
     chid = document.getElementById('char-name').getAttribute('name')
     url = '/dunnorpg/makerequest/'+chid+';'+model+';'+model+';0;0;'+field+';change_to-'+field_val+';character_detail'
+    window.location.replace(url)
 }
 
 function swapItem(id1, block_id){
