@@ -20,6 +20,7 @@ class Character(models.Model):
     size = models.CharField(max_length=2)
     HP = models.IntegerField()
     fullHP = models.IntegerField(null=True)
+    coins = models.IntegerField(default=5)
     Helmet = models.CharField(max_length=50, blank=True)
     Torso = models.CharField(max_length=50, blank=True)
     Gloves = models.CharField(max_length=50, blank=True)
