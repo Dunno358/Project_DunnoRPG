@@ -1,10 +1,6 @@
 from django import forms
 from django.forms import ModelForm
-from DunnoRPG.models import Users
-from DunnoRPG.models import Character
-from DunnoRPG.models import Skills
-from DunnoRPG.models import Skills_Decs
-from DunnoRPG.models import Races
+from DunnoRPG.models import Users, Character, Skills, Skills_Decs, Races, Eq, Items
 from django.contrib.auth.forms import UserCreationForm
 
 
@@ -127,3 +123,34 @@ class CharacterSkillsForm(forms.ModelForm):
             'level',
             'owner'
         ]
+        
+class AddEqItemForm(forms.ModelForm):
+    
+    characters = []
+    for character in Character.objects.all().order_by('name'):
+        characters.append((character.id, character.name))
+    character = forms.ChoiceField(choices=characters,label='',widget=forms.Select(attrs={
+        'class': 'text-center bg-dark rounded border border-warning c-gold p-1 m-1'
+    }))
+    
+    items = []
+    for item in Items.objects.all().order_by('name'):
+        items.append((item.id, item.name))
+    name = forms.ChoiceField(choices=items,label='',widget=forms.Select(attrs={
+        'class': 'text-center bg-dark rounded border border-info c-gold p-1 m-1'
+    }))  
+    
+    durability = forms.IntegerField(label='dur',widget=forms.NumberInput(attrs={
+        'class': 'text-center bg-dark c-gold rounded border border-info m-1',
+        'value': 50,
+        'min': 1
+    }))  
+    
+    override = forms.BooleanField(required=False,label='override_weight',widget=forms.CheckboxInput(attrs={
+        'class': '',
+        'name': 'override'
+    }))
+    
+    class Meta: 
+        model = Eq
+        fields = ['character','name','durability']
