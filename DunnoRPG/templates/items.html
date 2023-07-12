@@ -56,6 +56,7 @@
 </div>
 {% endif %}
 
+{% if view.kwargs.char_id == 0 %}
 <div class='container mt-2'>
     <div class='row text-center'>
         <form action="{% url 'items' view.kwargs.char_id %}" method='GET' class='container-fluid'>
@@ -65,6 +66,7 @@
         </form>
     </div>
 </div>
+{% endif %}
 
 <div id='del-confirm' class='d-none position-fixed container-fluid'>
     <div class='row bg-dark c-gold rounded border border-warning mt-5 ms-5 me-5'>
