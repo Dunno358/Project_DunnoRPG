@@ -12,7 +12,7 @@ from django.http import Http404, HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse_lazy
 from django.urls import reverse
-from django.views.generic import FormView, ListView
+from django.views.generic import FormView, ListView, TemplateView
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView
 from rest_framework import generics, status
@@ -26,7 +26,7 @@ from DunnoRPG.serializers import (CharacterSerializer, ItemSerializer,
                                   SkillsDecsSerializer, SkillsSerializer)
 
 from . import models
-from .forms import CharacterForm, CharacterSkillsForm
+from .forms import CharacterForm, CharacterSkillsForm, AddEqItemForm
 
 
 class charGET(ListView):
@@ -327,7 +327,7 @@ class MoveItemToEq(APIView):
         if char.SIŁ > 0:
             max_weight = char.SIŁ*5
         elif char.SIŁ < 0:
-            max_weight = 3-(char.SIŁ*0.5)
+            max_weight = 3+(char.SIŁ*0.5)
         else:
             max_weight = 3            
 
@@ -394,19 +394,19 @@ class Skills(APIView):
     def get(self,request):
         skills = models.Skills_Decs.objects.all()
 
-        magical_skills = list(skills.filter(category='Magical').values())
-        melee_skills = list(skills.filter(category='Melee').values())
-        range_skills = list(skills.filter(category='Range').values())
-        agility_skills = list(skills.filter(category='Agility').values())
-        education_skills = list(skills.filter(category='Education').values())
-        animals_skills = list(skills.filter(category='Animals').values())
-        eq_skills = list(skills.filter(category='Equipment').values())
-        crafting_skills = list(skills.filter(category='Crafting').values())
-        drinking_skills = list(skills.filter(category='Drinking').values())
-        charisma_skills = list(skills.filter(category='Charisma').values())
-        command_skills = list(skills.filter(category='Command').values())
-        horsemanship_skills = list(skills.filter(category='Horsemanship').values())
-        aliigment_skills = list(skills.filter(category='Alligment').values())
+        magical_skills = list(skills.filter(category='Magical').values().order_by('name'))
+        melee_skills = list(skills.filter(category='Melee').values().order_by('name'))
+        range_skills = list(skills.filter(category='Range').values().order_by('name'))
+        agility_skills = list(skills.filter(category='Agility').values().order_by('name'))
+        education_skills = list(skills.filter(category='Education').values().order_by('name'))
+        animals_skills = list(skills.filter(category='Animals').values().order_by('name'))
+        eq_skills = list(skills.filter(category='Equipment').values().order_by('name'))
+        crafting_skills = list(skills.filter(category='Crafting').values().order_by('name'))
+        drinking_skills = list(skills.filter(category='Drinking').values().order_by('name'))
+        charisma_skills = list(skills.filter(category='Charisma').values().order_by('name'))
+        command_skills = list(skills.filter(category='Command').values().order_by('name'))
+        horsemanship_skills = list(skills.filter(category='Horsemanship').values().order_by('name'))
+        aliigment_skills = list(skills.filter(category='Alligment').values().order_by('name'))
         current_user = request.user
 
         other_skills = drinking_skills+charisma_skills+command_skills+horsemanship_skills+aliigment_skills+crafting_skills
@@ -678,7 +678,6 @@ class ItemsView(ListView):
                         self.singlehand.append(item_obj.__dict__ | {'dur': item.durability, 'max_dur': item_obj.maxDurability} )
                     else:
                         self.twohand.append(item_obj.__dict__ | {'dur': item.durability, 'max_dur': item_obj.maxDurability})
-
         return queryset
     
     def get_context_data(self, **kwargs):
@@ -703,21 +702,13 @@ class ItemsView(ListView):
         else:
             
             items_weight = 0
-            items = [self.singlehand,self.twohand,self.armor_dict.values()]
-            for x in range(len(items)):
-                for item in items[x]:
-                    if x != 2:
-                        items_weight += item['weight']
-                    else:
-                        try:
-                            items_weight += item[0]['weight']
-                        except:
-                            pass
+            for item in models.Eq.objects.filter(character=self.character.name):
+                items_weight += item.weight
             
             if self.character.SIŁ > 0:
                 max_weight = self.character.SIŁ*5
             elif self.character.SIŁ < 0:
-                max_weight = 3-(self.character.SIŁ*0.5)
+                max_weight = 3+(self.character.SIŁ*0.5)
             else:
                 max_weight = 3
             
@@ -832,7 +823,7 @@ class RequestHandling(APIView):
                                     if char.SIŁ > 0:
                                         max_weight = char.SIŁ*5
                                     elif char.SIŁ <0:
-                                        max_weight = 3-(char.SIŁ*0.5)
+                                        max_weight = 3+(char.SIŁ*0.5)
                                     else:
                                         max_weight = 3
                                         
@@ -880,7 +871,7 @@ class RequestHandling(APIView):
                                 if char.SIŁ > 0:
                                     max_weight = char.SIŁ*5
                                 elif char.SIŁ <0:
-                                    max_weight = 3-(char.SIŁ*0.5)
+                                    max_weight = 3+(char.SIŁ*0.5)
                                 else:
                                     max_weight = 3
                                     
@@ -902,15 +893,50 @@ class RequestHandling(APIView):
                                     messages.error(request, f'Not enough space for {itemDesc.name}. ({current_weight}/{max_weight}kg)')                        
         return redirect('/dunnorpg/gmpanel')
 
-class GMPanel(ListView):
+class GMPanel(FormView):
     model = models.Requests
     template_name = 'gm_panel.html'
+    form_class = AddEqItemForm
+    success_url = reverse_lazy('gm_panel')
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
         context['requests'] = models.Requests.objects.all()
 
         return context
+    
+    def form_valid(self, form):
+        override = form['override'].value()
+        form_data = form.save(commit=False)
+        
+        character = models.Character.objects.get(pk=form_data.character)
+        form_data.owner = character.owner
+        form_data.character = character.name
+        
+        item = models.Items.objects.get(pk=form_data.name)
+        form_data.name = item.name
+        form_data.type = item.type
+        form_data.weight = item.weight
+        
+        if not override:
+            if character.SIŁ > 0:
+                max_weight = character.SIŁ*5
+            elif character.SIŁ < 0:
+                max_weight = 3 + (character.SIŁ*0.5)
+            else:
+                max_weight = 3
+                
+            current_weight = 0
+            for obj in models.Eq.objects.filter(character=character.name):
+                current_weight += obj.weight
+                
+            if current_weight + item.weight > max_weight:
+                messages.error(self.request, 'Not enough space.')
+                return redirect('gm_panel')
+        
+        form_data.save()
+        messages.success(self.request, f"{item.name} added to {character.name}.")
+        return super().form_valid(form)
     
 class Info(APIView):
     template_name = 'info.html'
