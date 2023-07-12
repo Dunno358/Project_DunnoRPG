@@ -25,6 +25,7 @@
         </div>  
     </div>
 </div>
+
 <div id='requests-block' class='container bg-dark rounded border border-primary mt-3'>
     {% for rq in requests %}
         <div class='row m-2 p-2 border border-warning'>
@@ -38,6 +39,21 @@
             </span>
         </div>
     {% endfor %}
+</div>
+
+<div id='eq-add-item' class='container bg-dark rounded border border-primary mt-3'>
+    <div class='row text-center c-gold mt-1'><h2>Add item to player EQ</h2></div>
+    <form method='POST'>
+    {% csrf_token %}
+        <div class='row m-2 p-2 c-gold'>
+            {% for field in form %}
+                <div class="col">
+                    <b>{{ field.label_tag }}</b> {{ field }} 
+                </div>
+            {% endfor %}
+            <input class="col-2 btn btn-sm btn-success" type="submit" value="Add"></input>
+        </div>
+    </form>
 </div>
 
 {% else %}{% include 'user-not-gm.html' %}
