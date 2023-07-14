@@ -12,7 +12,7 @@ Web application designed to ease management of RPG sessions for Game Masters, as
 
 &emsp; ![Home page](https://github.com/Dunno358/Pictures/blob/main/DNRPG-log-reg-section.png?raw=true)
 
-- Character system (adding, editing, managing, deleting) working with several APIs (accesible by buttons).
+- Character system (adding, editing, managing, deleting) working with several APIs (accesible by buttons). Items colors are indicating their rarity.
 
 &emsp; ![Home page](https://github.com/Dunno358/Pictures/blob/main/DNRPG-char-section.png?raw=true)
 
