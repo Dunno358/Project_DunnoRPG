@@ -12,7 +12,7 @@ Web application designed to ease management of RPG sessions for Game Masters, as
 
 &emsp; ![Home page](https://github.com/Dunno358/Pictures/blob/main/DNRPG-log-reg-section.png?raw=true)
 
-- Character system (adding, editing, managing, deleting)
+- Character system (adding, editing, managing, deleting) working with several APIs (accesible by buttons).
 
 &emsp; ![Home page](https://github.com/Dunno358/Pictures/blob/main/DNRPG-char-section.png?raw=true)
 
@@ -20,10 +20,10 @@ Web application designed to ease management of RPG sessions for Game Masters, as
 
 &emsp; ![Home page](https://github.com/Dunno358/Pictures/blob/main/DNRPG-skills-section.png?raw=true)
 
-- Searchable items layout with options for admin to control which items are to be seen by the rest
+- Searchable view for items with option for GM to control which items are seen(as items that are found are those that aren't yet). This view also handles browsing through character equipment by player.
 
 &emsp; ![Home page](https://github.com/Dunno358/Pictures/blob/main/DNRPG-items.png?raw=true)
 
-## To be added soon
+- GM Panel allowing to handle requests made by players and to add items directly to chosen player equipment.
 
-- GM Panel allowing for complex character changes
+&emsp; ![Home page](https://github.com/Dunno358/Pictures/blob/main/DNRPG-GM-Panel.png?raw=true)
