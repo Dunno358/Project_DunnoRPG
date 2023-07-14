@@ -24,6 +24,6 @@ Web application designed to ease management of RPG sessions for Game Masters, as
 
 &emsp; ![Home page](https://github.com/Dunno358/Pictures/blob/main/DNRPG-items.png?raw=true)
 
-- GM Panel allowing to handle requests made by players and to add items directly to chosen player equipment.
+- GM Panel allowing to handle requests made by players and to add items directly to chosen player equipment. Blocked for players that are not GM(superuser).
 
 &emsp; ![Home page](https://github.com/Dunno358/Pictures/blob/main/DNRPG-GM-Panel.png?raw=true)
