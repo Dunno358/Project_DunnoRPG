@@ -341,6 +341,11 @@ class MoveItemToEq(APIView):
                 durability = item.durability
             )
 
+            if item_desc.skillEffects != None:
+                for effect in item_desc.skillEffects.split(';'):
+                    effect = effect.split("-")
+                    models.Effects.objects.filter(character=char.name, name=effect[0]).first().delete()
+
             item.delete()
         else:
             messages.error(request, f"Not enough space in {char.name}'s equipment for '{item.name}' ({eq_weight}/{max_weight}kg)")
@@ -597,6 +602,25 @@ def char_wear_item(request, **kwargs):
         charItObj.name = item.name
         charItObj.durability = item_eq_obj.durability
         charItObj.save()  
+
+    if item.skillEffects != None:
+        for effect in item.skillEffects.split(';'):
+            effect = effect.split("-")
+
+            curr_effect = models.Effects.objects.filter(character=char.name, name=effect[0]).first()
+
+            if curr_effect == None:
+                models.Effects.objects.create(
+                    owner = char.owner,
+                    character=char.name,
+                    name = effect[0],
+                    bonus = effect[1],
+                    time = effect[2]
+                )
+            else:
+                curr_effect.time = 100
+                curr_effect.save()
+
     item_eq_obj.delete()
     return redirect('character_detail', char.id)
 def char_swap_item(request, **kwargs):
@@ -623,10 +647,27 @@ def char_swap_item(request, **kwargs):
         weight=it1D.weight,
         durability=it1.durability
     )
+
+    if it1D.skillEffects != None:
+        for effect in it1D.skillEffects.split(';'):
+            effect = effect.split("-")
+            models.Effects.objects.filter(character=char.name, name=effect[0]).first().delete()
     
     it1.name = it2.name
     it1.durability = it2.durability
     it1.save()
+
+    if it2D.skillEffects != None:
+        for effect in it2D.skillEffects.split(';'):
+            effect = effect.split("-")
+
+            models.Effects.objects.create(
+                owner = char.owner,
+                character=char.name,
+                name = effect[0],
+                bonus = effect[1],
+                time = effect[2]
+            )    
     
     it2.delete()
     
