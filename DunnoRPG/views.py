@@ -21,12 +21,13 @@ from rest_framework.parsers import JSONParser
 from rest_framework.renderers import JSONRenderer, TemplateHTMLRenderer
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from django.contrib.auth.decorators import user_passes_test
 
 from DunnoRPG.serializers import (CharacterSerializer, ItemSerializer,
                                   SkillsDecsSerializer, SkillsSerializer)
 
 from . import models
-from .forms import CharacterForm, CharacterSkillsForm, AddEqItemForm
+from .forms import CharacterForm, CharacterSkillsForm, AddEqItemForm, AddEffectForm
 
 
 class charGET(ListView):
@@ -672,6 +673,20 @@ def char_swap_item(request, **kwargs):
     it2.delete()
     
     return redirect('character_detail', char.id)
+@user_passes_test(lambda u: u.is_superuser)
+def end_round(request, **kwargs):
+    msg = 'Deleted: '
+    for effect in models.Effects.objects.all():
+        if effect.time < 100:
+            effect.time -= 1
+            if effect.time <= 0:
+                msg += f"{effect.character}-{effect.name}; "
+                effect.delete()
+            else:
+                effect.save()
+    if msg != 'Deleted: ':
+        messages.warning(request, msg)
+    return redirect('gm_panel')
 
 class ItemsView(ListView):
     model = models.Items
@@ -934,6 +949,22 @@ class RequestHandling(APIView):
                                     messages.error(request, f'Not enough space for {itemDesc.name}. ({current_weight}/{max_weight}kg)')                        
         return redirect('/dunnorpg/gmpanel')
 
+class AddEffect(APIView):
+    def post(self,request,**kwargs):
+        if request.user.is_superuser:
+            data = request.POST
+            char = get_object_or_404(models.Character, id=data['character'])
+            effect = get_object_or_404(models.Effects_Decs, id=data['name'])
+            models.Effects.objects.create(
+                owner = char.owner,
+                character = char.name,
+                name = effect.name,
+                bonus = data['bonus'],
+                time = data['time']
+            )
+            messages.warning(request, f'Added {effect.name} to {char.name}.')
+        return redirect('gm_panel')
+
 class GMPanel(FormView):
     model = models.Requests
     template_name = 'gm_panel.html'
@@ -943,6 +974,7 @@ class GMPanel(FormView):
         context = super().get_context_data(**kwargs)
 
         context['requests'] = models.Requests.objects.all()
+        context['effect_form'] = AddEffectForm
 
         return context
     

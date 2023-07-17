@@ -41,6 +41,21 @@
     {% endfor %}
 </div>
 
+<div id='add-effect' class='container bg-dark rounded border border-primary mt-3'>
+    <div class='row text-center c-gold mt-1'><h2>Add Effect to Player</h2></div>
+    <form method='POST' action='add_effect'>
+    {% csrf_token %}
+        <div class='row m-2 p-2 c-gold'>
+            {% for field in effect_form %}
+                <div class="col">
+                    <b>{{ field.label_tag }}</b> {{ field }} 
+                </div>
+            {% endfor %}
+            <input class="col-2 btn btn-sm btn-success" type="submit" value="Add"></input>
+        </div>
+    </form>
+</div>
+
 <div id='eq-add-item' class='container bg-dark rounded border border-primary mt-3'>
     <div class='row text-center c-gold mt-1'><h2>Add item to player EQ</h2></div>
     <form method='POST'>
@@ -53,6 +68,13 @@
             {% endfor %}
             <input class="col-2 btn btn-sm btn-success" type="submit" value="Add"></input>
         </div>
+    </form>
+</div>
+
+<div id='end-round' class='container bg-danger p-2 rounded border border-white mt-3'>
+    <a class='row text-center text-white mt-1' href='end_round'>
+        <h2>End Round</h2>
+    </a>
     </form>
 </div>
 
