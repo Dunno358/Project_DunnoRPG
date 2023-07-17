@@ -1,6 +1,6 @@
 from django import forms
 from django.forms import ModelForm
-from DunnoRPG.models import Users, Character, Skills, Skills_Decs, Races, Eq, Items
+from DunnoRPG.models import Users, Character, Skills, Skills_Decs, Races, Eq, Items, Effects, Effects_Decs
 from django.contrib.auth.forms import UserCreationForm
 
 
@@ -154,3 +154,34 @@ class AddEqItemForm(forms.ModelForm):
     class Meta: 
         model = Eq
         fields = ['character','name','durability']
+
+class AddEffectForm(forms.ModelForm):
+    characters = []
+    for character in Character.objects.all().order_by('name'):
+        characters.append((character.id, character.name))
+    character = forms.ChoiceField(choices=characters,label='',widget=forms.Select(attrs={
+        'class': 'text-center bg-dark rounded border border-warning c-gold p-1 m-1'
+    }))
+
+    effects = []
+    for effect in Effects_Decs.objects.all().order_by('name'):
+        effects.append((effect.id, effect.name))
+    name = forms.ChoiceField(choices=effects,label='',widget=forms.Select(attrs={
+        'class': 'text-center bg-dark rounded border border-info c-gold p-1 m-1'
+    })) 
+
+    bonus = forms.IntegerField(label='Bonus',widget=forms.NumberInput(attrs={
+        'class': 'text-center bg-dark c-gold rounded border border-info m-1 w-50',
+        'value': 0,
+        'min': 0
+    }))  
+
+    time = forms.IntegerField(label='Time',widget=forms.NumberInput(attrs={
+        'class': 'text-center bg-dark c-gold rounded border border-info m-1 w-25',
+        'value': 1,
+        'min': 1
+    }))  
+
+    class Meta:
+        model = Effects
+        fields = ['character', 'name','bonus','time']    
