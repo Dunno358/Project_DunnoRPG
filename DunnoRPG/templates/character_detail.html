@@ -282,6 +282,9 @@
 
                     {% if leftItem.name|isDualHanded %}
                         <span id='r_weapon' class='c-gold'>Above weapon is two-handed</span>
+                        <span id='r_bonus'></span>
+                        <span id='r_dmg'></span>
+                        <span id='r_ap'></span>
                     {% else %}
                         (<span id='r_bonus'>Empty</span>) 
                         <span class='text-info fa fa-plus' onclick='show_or_hideById("right-add")'></span>   
@@ -784,7 +787,7 @@ function show_result_at_window(action){
 
 
 
-        if(document.getElementById('r_bonus').innerHTML != 'Empty')
+        if(document.getElementById('r_bonus').innerHTML != 'Empty' && document.getElementById('r_bonus').innerHTML != '')
         {
             rightWeapon = document.getElementById('r_weapon')
             r_bonus = parseInt(document.getElementById('r_bonus').innerHTML)
@@ -843,7 +846,7 @@ function show_result_at_window(action){
 
 
 
-        if(document.getElementById('r_bonus').innerHTML != 'Empty')
+        if(document.getElementById('r_bonus').innerHTML != 'Empty' && document.getElementById('r_bonus').innerHTML != '')
         {
             rightWeapon = document.getElementById('r_weapon')
             r_bonus = parseInt(document.getElementById('r_bonus').innerHTML)
