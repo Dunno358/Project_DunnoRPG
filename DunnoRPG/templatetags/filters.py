@@ -72,6 +72,16 @@ def getItemRarity(itemName):
         return None
     
 @register.filter
+def getItemPrice(itemName, full=False):
+    try:
+        price = models.Items.objects.filter(name=itemName).get().price
+        if full:
+            return price*2
+        else: return price
+    except:
+        return None
+    
+@register.filter
 def getSkill(itemName):
     try:
         return models.Items.objects.filter(name=itemName).get().skill
