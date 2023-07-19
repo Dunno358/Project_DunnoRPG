@@ -68,5 +68,11 @@ class RequestAdmin(admin.ModelAdmin):
             return models.Character.objects.filter(id=obj.char_id).first().name
         except:
             return None
-
 admin.site.register(models.Requests, RequestAdmin)
+
+class CitiesAdmin(admin.ModelAdmin):
+    list_display = ("city_name", "visiting")
+    def get_queryset(self, request):
+        qs = super().get_queryset(request)
+        return qs.order_by('-visiting')
+admin.site.register(models.Cities, CitiesAdmin)

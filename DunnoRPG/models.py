@@ -187,3 +187,10 @@ class Requests(models.Model):
     model = models.CharField(max_length = 150)
     field = models.CharField(max_length = 150, null=True, blank=True)
     title = models.CharField(max_length = 150)
+    
+class Cities(models.Model):
+    city_name = models.CharField(max_length = 150)
+    items = models.TextField()
+    magic_school = models.BooleanField(default=False)
+    champion_school_type = models.CharField(max_length = 150)
+    visiting = models.BooleanField(default=False)
