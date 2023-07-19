@@ -1063,38 +1063,39 @@ class CityView(ListView):
         context = super().get_context_data(**kwargs)
         city = self.get_object()
         is_empty = True if city == None else False
-        items = city.items.split(';')
-        items.sort()
-        armor_types = ['Helmet','Torso','Gloves','Boots']
-        
-        armor=[]
-        amulets=[]
-        weaponry_siglehand=[]
-        weaponry_twohand=[]
-        potions = []
-        other = []
-        
-        for item in items:
-            item = models.Items.objects.filter(name=item).first()
-            if item != None:
-                if item.type == 'Amulet':
-                    amulets.append(item.name)
-                elif item.type == 'Other':
-                    if item.name.split(' ')[0] in ['Eliksir','Mikstura']:
-                        potions.append(item.name)
-                    else:
-                        other.append(item.name)
-                else:
-                    if item.type in armor_types:
-                        armor.append(item.name)
-                    else:
-                        if item.dualHanded:
-                            weaponry_twohand.append(item.name)
-                        else:
-                            weaponry_siglehand.append(item.name)
 
         context['is_empty'] = is_empty
         if not is_empty:
+            items = city.items.split(';')
+            items.sort()
+            armor_types = ['Helmet','Torso','Gloves','Boots']
+            
+            armor=[]
+            amulets=[]
+            weaponry_siglehand=[]
+            weaponry_twohand=[]
+            potions = []
+            other = []
+            
+            for item in items:
+                item = models.Items.objects.filter(name=item).first()
+                if item != None:
+                    if item.type == 'Amulet':
+                        amulets.append(item.name)
+                    elif item.type == 'Other':
+                        if item.name.split(' ')[0] in ['Eliksir','Mikstura']:
+                            potions.append(item.name)
+                        else:
+                            other.append(item.name)
+                    else:
+                        if item.type in armor_types:
+                            armor.append(item.name)
+                        else:
+                            if item.dualHanded:
+                                weaponry_twohand.append(item.name)
+                            else:
+                                weaponry_siglehand.append(item.name)            
+            
             context['weaponry_singlehand'] = weaponry_siglehand
             context['weaponry_twohand'] = weaponry_twohand
             context['armor'] = armor
