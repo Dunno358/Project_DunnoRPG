@@ -21,15 +21,31 @@
             <h2>Kowal</h2>
         </div>
         <div class='container text-center c-gold rounded border border-primary bg-dark'>
-            {% for item in items %}
+            {% for item in weaponry_singlehand %}
                 <div class='row bg-gray rounded m-2 border border-primary'>
-                    <a class='col text-center {{ item|getItemRarity }} h5 m-1' href=''>
+                    <a class='col text-center {{ item|getItemRarity }} h5 m-1' id='{{ item|getDescId }}'
+                    href='/dunnorpg/items/{{ item|getDescId }}'>
                         {{ item }}
                     </a>
                     <span class='col-4 c-gold h5 m-1 border-start border-white'>
                         Cost: {{ item|getItemPrice:True }}
                     </span>
-                    <a class='col-2 text-center btn btn-sm btn-outline-success' href=''>
+                    <a class='col-2 text-center btn btn-sm btn-success' href=''>
+                        Buy
+                    </a>
+                </div>
+            {% endfor %}
+            <hr>
+            {% for item in weaponry_twohand %}
+                <div class='row bg-gray rounded m-2 border border-primary'>
+                    <a class='col text-center {{ item|getItemRarity }} h5 m-1' id='{{ item|getDescId }}'
+                    href='/dunnorpg/items/{{ item|getDescId }}'>
+                        {{ item }}
+                    </a>
+                    <span class='col-4 c-gold h5 m-1 border-start border-white'>
+                        Cost: {{ item|getItemPrice:True }}
+                    </span>
+                    <a class='col-2 text-center btn btn-sm btn-success' href=''>
                         Buy
                     </a>
                 </div>
