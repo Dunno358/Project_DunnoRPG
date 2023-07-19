@@ -1,0 +1,61 @@
+{% extends 'master.html' %}
+{% load filters %}
+
+{% block content %}
+{% include 'top_bar.html' %}
+{% include 'dunnorpg/messages.html' %}
+
+
+{% if is_empty %}
+    <div class='container mt-5'>
+        <div class='row text-center c-gold mt-1 fst-italic' style='-webkit-text-stroke: 1px black;'>
+            <h1>I can't see any city here...</h1>
+        </div>
+    </div>
+{% else %}
+    <h1 class='c-gold text-center fst-italic' style='-webkit-text-stroke: 0.5px blue; font-size:300%;' id='city-name'>
+        {{ city.city_name }}
+    </h1>
+    <div class='container mt-3'>
+        <div class='row text-center c-gold p-2 rounded border border-warning bg-dark'>
+            <h2>Kowal</h2>
+        </div>
+        <div class='container text-center c-gold rounded border border-primary bg-dark'>
+            {% for item in items %}
+                <div class='row bg-gray rounded m-2 border border-primary'>
+                    <a class='col text-center {{ item|getItemRarity }} h5 m-1' href=''>
+                        {{ item }}
+                    </a>
+                    <span class='col-4 c-gold h5 m-1 border-start border-white'>
+                        Cost: {{ item|getItemPrice:True }}
+                    </span>
+                    <a class='col-2 text-center btn btn-sm btn-outline-success' href=''>
+                        Buy
+                    </a>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+{% endif %}
+
+<script>
+    document.getElementById('tb-info').classList.remove('btn-outline-warning')
+    document.getElementById('tb-info').classList.add('btn-outline-primary')
+
+    function showOrHideBlock(instance,id){
+        if (instance.classList.contains('border-warning')){
+            instance.classList.remove('border-warning')
+            instance.classList.add('border-primary')
+
+            document.getElementById(id).classList.remove('d-none')
+        }
+        else{
+            instance.classList.remove('border-primary')
+            instance.classList.add('border-warning')    
+            
+            document.getElementById(id).classList.add('d-none')
+        }
+    }
+</script>
+
+{% endblock content %}

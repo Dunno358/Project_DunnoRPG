@@ -1052,6 +1052,24 @@ class InfoEffects(ListView):
             queryset = queryset.filter(query)
 
         return queryset
+class CityView(ListView):
+    model = models.Cities
+    template_name = 'city.html'
+
+    def get_object(self,queryset=None):
+        return models.Cities.objects.filter(visiting=True).first()
+    
+    def get_context_data(self,**kwargs):
+        context = super().get_context_data(**kwargs)
+        city = self.get_object()
+        is_empty = True if city == None else False
+
+        context['is_empty'] = is_empty
+        if not is_empty:
+            context['items'] = city.items.split(';')
+            context['city'] = city
+
+        return context       
 
 class SignUp(CreateView):
     form_class = UserCreationForm
