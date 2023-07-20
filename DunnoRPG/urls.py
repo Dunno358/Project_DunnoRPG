@@ -40,6 +40,7 @@ urlpatterns = [
     path('info/', views.Info.as_view(), name='info'),
     path('info/acc-rules/', views.AccRules.as_view(), name='info_acc_rules'),
     path('info/city/', views.CityView.as_view(), name='city_view'),
+    path('info/city/buyitem-<int:item_id>', views.BuyItem.as_view(), name='buy_item'),
     path('makerequest/<int:char_id>;<str:model>;<str:objects_model>;<int:object1_id>;<int:object2_id>;<str:field>;<str:title>;<str:to_reverse>', views.makeRequest.as_view(), name='make_request'),
     path('gmpanel/rq<int:rq_id>-<int:status>-<int:all>', views.RequestHandling.as_view(), name='handling_request'),
     
