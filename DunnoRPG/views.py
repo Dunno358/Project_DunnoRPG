@@ -1079,6 +1079,11 @@ class CityView(ListView):
             
             for item in items:
                 item = models.Items.objects.filter(name=item).first()
+
+                if not item.found:
+                    item.found = True
+                    item.save()
+
                 if item != None:
                     if item.type == 'Amulet':
                         amulets.append(item.name)
@@ -1103,8 +1108,17 @@ class CityView(ListView):
             context['potions'] = potions
             context['other'] = other
             context['city'] = city
+            if self.request.user.is_superuser:
+                context['characters'] = models.Character.objects.all()
+            else:
+                context['characters'] = models.Character.objects.filter(owner=self.request.user)
 
         return context       
+class BuyItem(APIView):
+    def get(self,request,**kwargs):
+        item = get_object_or_404(models.Items, id=kwargs['item_id'])
+
+        return redirect('/dunnorpg/info/city')
 
 class SignUp(CreateView):
     form_class = UserCreationForm
