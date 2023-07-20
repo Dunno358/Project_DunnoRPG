@@ -13,14 +13,33 @@
         </div>
     </div>
 {% else %}
+
+
     <h1 class='c-gold text-center fst-italic' style='-webkit-text-stroke: 0.5px blue; font-size:300%;' id='city-name'>
         {{ city.city_name }}
     </h1>
+
+    <div id='char-to-buy' class='d-none position-fixed container-fluid'>
+        <div class='row bg-dark c-gold rounded border border-warning mt-5 ms-5 me-5'>
+          <div class='col text-center'>
+            <select class='bg-dark text-primary h4 m-3 border border-warning rounded text-center' 
+            name="chosen_character" id="choosing_char_select">
+                {% for char in characters %}
+                    <option class='h4'>{{ char.name }}</option>
+                {% endfor %}
+            </select>
+            <p id='Item' class='c-gold h5'>Item</p>
+            <a onclick='this.parentNode.parentNode.parentNode.classList.add("d-none")' id='confirm-failure' class='btn btn-danger m-3'>Back</a>
+            <a href='' id='confirm-success' class='btn btn-success m-3'>Add</a>
+          </div>
+        </div>
+    </div>
+
     <div class='container mt-3'>
-        <div class='row text-center c-gold p-2 rounded border border-warning bg-dark'>
+        <div class='row text-center c-gold p-2 rounded border border-warning bg-dark mt-1' onclick="showOrHideBlock(this,'smith-items')">
             <h2>Kowal</h2>
         </div>
-        <div class='container text-center c-gold rounded border border-primary bg-dark'>
+        <div id='smith-items' class='container text-center c-gold rounded border border-primary bg-dark d-none'>
             {% for item in weaponry_singlehand %}
                 <div class='row bg-gray rounded m-2 border border-primary'>
                     <a class='col text-center {{ item|getItemRarity }} h5 m-1' id='{{ item|getDescId }}'
@@ -30,7 +49,7 @@
                     <span class='col-4 c-gold h5 m-1 border-start border-white'>
                         Cost: {{ item|getItemPrice:True }}
                     </span>
-                    <a class='col-2 text-center btn btn-sm btn-success' href=''>
+                    <a class='col-2 text-center btn btn-sm btn-success' onclick="buyItem('{{ item }}','{{ item|getDescId }}')">
                         Buy
                     </a>
                 </div>
@@ -45,12 +64,113 @@
                     <span class='col-4 c-gold h5 m-1 border-start border-white'>
                         Cost: {{ item|getItemPrice:True }}
                     </span>
-                    <a class='col-2 text-center btn btn-sm btn-success' href=''>
+                    <a class='col-2 text-center btn btn-sm btn-success' onclick="buyItem('{{ item.name }}','{{ item.name|getDescId }}')">
                         Buy
                     </a>
                 </div>
             {% endfor %}
         </div>
+
+        <div class='row text-center c-gold p-2 rounded border border-warning bg-dark mt-1' onclick="showOrHideBlock(this,'armorer-items')">
+            <h2>Płatnerz</h2>
+        </div>
+        <div id='armorer-items' class='container text-center c-gold rounded border border-primary bg-dark d-none'>
+            {% for item in armor %}
+                <div class='row bg-gray rounded m-2 border border-primary'>
+                    <a class='col text-center {{ item|getItemRarity }} h5 m-1' id='{{ item|getDescId }}'
+                    href='/dunnorpg/items/{{ item|getDescId }}'>
+                        {{ item }}
+                    </a>
+                    <span class='col-4 c-gold h5 m-1 border-start border-white'>
+                        Cost: {{ item|getItemPrice:True }}
+                    </span>
+                    <a class='col-2 text-center btn btn-sm btn-success' onclick="buyItem('{{ item.name }}','{{ item.name|getDescId }}')">
+                        Buy
+                    </a>
+                </div>
+            {% endfor %}
+        </div>
+
+        <div class='row text-center c-gold p-2 rounded border border-warning bg-dark mt-1' onclick="showOrHideBlock(this,'strange-items')">
+            <h2>Stoisko z różnymi przedmiotami</h2>
+        </div>
+        <div id='strange-items' class='container text-center c-gold rounded border border-primary bg-dark d-none'>
+            {% for item in amulets %}
+                <div class='row bg-gray rounded m-2 border border-primary'>
+                    <a class='col text-center {{ item|getItemRarity }} h5 m-1' id='{{ item|getDescId }}'
+                    href='/dunnorpg/items/{{ item|getDescId }}'>
+                        {{ item }}
+                    </a>
+                    <span class='col-4 c-gold h5 m-1 border-start border-white'>
+                        Cost: {{ item|getItemPrice:True }}
+                    </span>
+                    <a class='col-2 text-center btn btn-sm btn-success' onclick="buyItem('{{ item.name }}','{{ item.name|getDescId }}')">
+                        Buy
+                    </a>
+                </div>
+            {% endfor %}
+        </div>
+
+        <div class='row text-center c-gold p-2 rounded border border-warning bg-dark mt-1' onclick="showOrHideBlock(this,'potions')">
+            <h2>Stoisko z eliksirami</h2>
+        </div>
+        <div id='potions' class='container text-center c-gold rounded border border-primary bg-dark d-none'>
+            {% for item in potions %}
+                <div class='row bg-gray rounded m-2 border border-primary'>
+                    <a class='col text-center {{ item|getItemRarity }} h5 m-1' id='{{ item|getDescId }}'
+                    href='/dunnorpg/items/{{ item|getDescId }}'>
+                        {{ item }}
+                    </a>
+                    <span class='col-4 c-gold h5 m-1 border-start border-white'>
+                        Cost: {{ item|getItemPrice:True }}
+                    </span>
+                    <a class='col-2 text-center btn btn-sm btn-success' onclick="buyItem('{{ item.name }}','{{ item.name|getDescId }}')">
+                        Buy
+                    </a>
+                </div>
+            {% endfor %}
+        </div>
+
+        <div class='row text-center c-gold p-2 rounded border border-warning bg-dark mt-1' onclick="showOrHideBlock(this,'merchant')">
+            <h2>Kupiec</h2>
+        </div>
+        <div id='merchant' class='container text-center c-gold rounded border border-primary bg-dark d-none'>
+            {% for item in other %}
+                <div class='row bg-gray rounded m-2 border border-primary'>
+                    <a class='col text-center {{ item|getItemRarity }} h5 m-1' id='{{ item|getDescId }}'
+                    href='/dunnorpg/items/{{ item|getDescId }}'>
+                        {{ item }}
+                    </a>
+                    <span class='col-4 c-gold h5 m-1 border-start border-white'>
+                        Cost: {{ item|getItemPrice:True }}
+                    </span>
+                    <a class='col-2 text-center btn btn-sm btn-success' onclick="buyItem('{{ item.name }}','{{ item.name|getDescId }}')">
+                        Buy
+                    </a>
+                </div>
+            {% endfor %}
+        </div>
+
+        <div class='row text-center c-gold p-2 rounded border border-warning bg-dark mt-1' onclick="showOrHideBlock(this,'medic')">
+            <h2>Uzdrowiciel</h2>
+        </div>
+        <div id='medic' class='container text-center c-gold rounded border border-primary bg-dark d-none'>
+            {% for char in characters %}
+                <div class='row bg-gray rounded m-2 border border-primary'>
+                    <a class='col text-center c-gold h5 m-1' id='char.id' 
+                    href='/dunnorpg/character_detail/{{ char.id }}'>
+                        {{ char.name }}
+                    </a>
+                    <input type='number' max="{{ char.fullHP }}" min="0"
+                    class='col-3 c-gold m-1 bg-gray border border-warning rounded'
+                    placeholder='{{ char.HP }}/{{ char.fullHP }} HP'>
+                    <a class='col-2 text-center btn btn-sm btn-success' href=''>
+                        Heal
+                    </a>
+                </div>
+            {% endfor %}
+        </div>
+
     </div>
 {% endif %}
 
@@ -58,19 +178,14 @@
     document.getElementById('tb-info').classList.remove('btn-outline-warning')
     document.getElementById('tb-info').classList.add('btn-outline-primary')
 
-    function showOrHideBlock(instance,id){
-        if (instance.classList.contains('border-warning')){
-            instance.classList.remove('border-warning')
-            instance.classList.add('border-primary')
+    function buyItem(item,item_id){
+        document.getElementById('char-to-buy').classList.remove('d-none')
+        
+        item_line = document.getElementById('Item')
+        item_line.innerHTML = item
 
-            document.getElementById(id).classList.remove('d-none')
-        }
-        else{
-            instance.classList.remove('border-primary')
-            instance.classList.add('border-warning')    
-            
-            document.getElementById(id).classList.add('d-none')
-        }
+        API_href = document.getElementById('confirm-success').href = "buyitem-"+item_id
+
     }
 </script>
 
