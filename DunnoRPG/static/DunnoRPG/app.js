@@ -73,3 +73,18 @@ class CharacterCreation{
           }
     }
 }
+
+function showOrHideBlock(instance,id){
+    if (instance.classList.contains('border-warning')){
+        instance.classList.remove('border-warning')
+        instance.classList.add('border-primary')
+
+        document.getElementById(id).classList.remove('d-none')
+    }
+    else{
+        instance.classList.remove('border-primary')
+        instance.classList.add('border-warning')    
+        
+        document.getElementById(id).classList.add('d-none')
+    }
+}
