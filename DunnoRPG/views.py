@@ -638,7 +638,23 @@ def char_swap_item(request, **kwargs):
         else:
             if models.CharItems.objects.filter(character=char.name, hand='Right').first() not in [None,'']:
                 messages.error(request, 'Dual-handed weapon must be added to left hand when right hand is empty.')
-                return redirect('character_detail', char.id)                
+                return redirect('character_detail', char.id)
+
+    if char.SIŁ > 0:
+        max_weight = char.SIŁ*5
+    elif char.SIŁ <0:
+        max_weight = 3+(char.SIŁ*0.5)
+    else:
+        max_weight = 3
+                                        
+    current_weight = 0
+    for item in models.Eq.objects.filter(character=char.name):
+        current_weight += item.weight        
+
+    if it1D.weight-it2D.weight+current_weight > max_weight:
+        messages.error(request, f'Not enough space in equipment for {it1D.name}, {(it1D.weight-it2D.weight+current_weight)-max_weight}kg too heavy :(')
+        return redirect('character_detail', char.id)
+
     
     models.Eq.objects.create(
         owner=char.owner,
@@ -1117,6 +1133,35 @@ class CityView(ListView):
 class BuyItem(APIView):
     def get(self,request,**kwargs):
         item = get_object_or_404(models.Items, id=kwargs['item_id'])
+        character = get_object_or_404(models.Character, id=kwargs['character_id'])
+
+        if character.SIŁ > 0:
+            max_weight = character.SIŁ*5
+        elif character.SIŁ < 0:
+            max_weight = 3+(character.SIŁ*0.5)
+        else:
+            max_weight = 3 
+        current_weight = 0
+        for obj in models.Eq.objects.filter(character=character.name):
+            current_weight += obj.weight
+
+        if current_weight+item.weight <= max_weight:
+            if character.coins >= item.price*2:
+                character.coins -= item.price*2
+                character.save()
+                models.Eq.objects.create(
+                    owner = character.owner,
+                    character = character.name,
+                    name = item.name,
+                    type = item.type,
+                    weight = item.weight,
+                    durability = item.maxDurability
+                )
+                messages.success(request,f'Added {item.name} to {character.name} equipment.')
+            else:
+                messages.error(request, f'Not enough money. {character.name} has {character.coins} coins and {item.price*2} are needed.')
+        else:
+            messages.error(request, f'Not enough space for item! {current_weight}/{max_weight}kg taken.')
 
         return redirect('/dunnorpg/info/city')
 
