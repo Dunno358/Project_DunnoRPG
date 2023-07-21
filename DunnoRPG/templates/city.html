@@ -25,12 +25,12 @@
             <select class='bg-dark text-primary h4 m-3 border border-warning rounded text-center' 
             name="chosen_character" id="choosing_char_select">
                 {% for char in characters %}
-                    <option class='h4'>{{ char.name }}</option>
+                    <option value='{{ char.id }}' class='h4'>{{ char.name }}</option>
                 {% endfor %}
             </select>
             <p id='Item' class='c-gold h5'>Item</p>
             <a onclick='this.parentNode.parentNode.parentNode.classList.add("d-none")' id='confirm-failure' class='btn btn-danger m-3'>Back</a>
-            <a href='' id='confirm-success' class='btn btn-success m-3'>Add</a>
+            <a onclick="confirmBuy()" id='confirm-success' class='btn btn-success m-3'>Add</a>
           </div>
         </div>
     </div>
@@ -177,15 +177,22 @@
 <script>
     document.getElementById('tb-info').classList.remove('btn-outline-warning')
     document.getElementById('tb-info').classList.add('btn-outline-primary')
+    
 
     function buyItem(item,item_id){
         document.getElementById('char-to-buy').classList.remove('d-none')
         
         item_line = document.getElementById('Item')
         item_line.innerHTML = item
+        item_line.setAttribute('name', item_id)
 
-        API_href = document.getElementById('confirm-success').href = "buyitem-"+item_id
+    }
 
+    function confirmBuy(){
+        item_id = document.getElementById('Item').getAttribute('name')
+        char_id = document.getElementById('choosing_char_select').value
+
+        window.location.href = "buyitem-"+item_id+"-"+char_id
     }
 </script>
 
