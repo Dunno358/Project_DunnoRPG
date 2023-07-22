@@ -161,10 +161,10 @@
                     href='/dunnorpg/character_detail/{{ char.id }}'>
                         {{ char.name }}
                     </a>
-                    <input type='number' max="{{ char.fullHP }}" min="0"
+                    <input type='number' max="{{ char.fullHP }}" min="0" id="{{ char.id }}-heal-val"
                     class='col-3 c-gold m-1 bg-gray border border-warning rounded'
                     placeholder='{{ char.HP }}/{{ char.fullHP }} HP'>
-                    <a class='col-2 text-center btn btn-sm btn-success' href=''>
+                    <a class='col-2 text-center btn btn-sm btn-success' onclick="heal('{{ char.id }}')">
                         Heal
                     </a>
                 </div>
@@ -193,6 +193,17 @@
         char_id = document.getElementById('choosing_char_select').value
 
         window.location.href = "buyitem-"+item_id+"-"+char_id
+    }
+
+    function heal(char_id){
+        id = char_id+"-heal-val"
+        val = document.getElementById(id).value
+        if(val==''){
+            alert('You must give any value to input first!')
+        }
+        else{
+            window.location.href = window.location.href + char_id + "h" + val
+        }
     }
 </script>
 

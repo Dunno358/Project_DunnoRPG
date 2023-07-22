@@ -1165,6 +1165,26 @@ class BuyItem(APIView):
 
         return redirect('/dunnorpg/info/city')
 
+class healCharacter(APIView):
+    def get(self,request,**kwargs):
+        character = get_object_or_404(models.Character, id=kwargs['char_id'])
+        val = kwargs['val']
+
+        if character.HP + val <= character.fullHP:
+            if val < 0:
+                messages.error(request, 'Value for healing must be at least 0.')
+                
+            elif character.coins < val:
+                messages.error(request, 'Not enough money!')
+            else:
+                character.HP += val
+                character.coins -= val
+                character.save()
+                messages.success(request, f'{character.name} has been healed succesfully!')
+        else:
+            messages.error(request, f"Value you given doesn't fit {character.name} health points!")
+        return redirect('/dunnorpg/info/city')
+
 class SignUp(CreateView):
     form_class = UserCreationForm
     success_url = reverse_lazy("login")
