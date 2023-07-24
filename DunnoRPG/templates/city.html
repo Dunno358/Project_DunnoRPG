@@ -172,6 +172,25 @@
         </div>
 
     </div>
+ 
+    {% if city.magic_school %}
+        <div class='container c-gold mt-2'>
+            <div class='row text-center fst-italic border-top border-bottom border-warning' style='-webkit-text-stroke: 0.7px black;'>
+                <h1>Magic school avaible</h1>
+            </div>
+        </div>    
+    {% endif %}
+
+    {% if city.champion_school_type %}
+        <div class='container c-gold mt-2'>
+            <div class='row text-center fst-italic border-top border-bottom border-warning' style='-webkit-text-stroke: 0.7px black;'>
+                <h1>Champion school categories: {{ city.champion_school_type }}</h1>
+            </div>
+        </div>    
+    {% endif %}
+
+</div>    
+
 {% endif %}
 
 <script>
