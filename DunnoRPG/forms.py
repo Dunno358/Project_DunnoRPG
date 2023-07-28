@@ -146,6 +146,12 @@ class AddEqItemForm(forms.ModelForm):
         'min': 1
     }))  
     
+    amount = forms.IntegerField(label='amount',widget=forms.NumberInput(attrs={
+        'class': 'text-center bg-dark c-gold rounded border border-info m-1 w-75',
+        'value': 1,
+        'min': 1
+    }))  
+    
     override = forms.BooleanField(required=False,label='override_weight',widget=forms.CheckboxInput(attrs={
         'class': '',
         'name': 'override'
@@ -153,7 +159,7 @@ class AddEqItemForm(forms.ModelForm):
     
     class Meta: 
         model = Eq
-        fields = ['character','name','durability']
+        fields = ['character','name','durability','amount']
 
 class AddEffectForm(forms.ModelForm):
     characters = []

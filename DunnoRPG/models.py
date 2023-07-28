@@ -70,6 +70,7 @@ class Eq(models.Model):
     type = models.CharField(max_length=80, default='Other')
     weight = models.DecimalField(decimal_places=1, max_digits=50)
     durability = models.IntegerField(default=50)
+    amount = models.IntegerField(default=1)
 
 class Skills(models.Model):
     owner = models.CharField(max_length=50)

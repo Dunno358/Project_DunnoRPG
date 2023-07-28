@@ -737,6 +737,7 @@ class ItemsView(ListView):
                                  'found': item_obj.found, 
                                  'name': item.name, 
                                  'dur': item.durability, 
+                                 'amount': item.amount, 
                                  'max_dur': item_obj.maxDurability,
                                  'type': item_obj.type}
                                 )
@@ -910,7 +911,8 @@ class RequestHandling(APIView):
                                             name = itemDesc.name,
                                             type = itemDesc.type,
                                             weight = itemDesc.weight,
-                                            durability = dur
+                                            durability = dur,
+                                            amount = 1
                                         )
                                         rq_object.delete()
                                     else:
@@ -958,7 +960,8 @@ class RequestHandling(APIView):
                                         name = itemDesc.name,
                                         type = itemDesc.type,
                                         weight = itemDesc.weight,
-                                        durability = dur
+                                        durability = dur,
+                                        amount = 1
                                     )
                                     rq.delete()
                                 else:
@@ -1005,7 +1008,7 @@ class GMPanel(FormView):
         item = models.Items.objects.get(pk=form_data.name)
         form_data.name = item.name
         form_data.type = item.type
-        form_data.weight = item.weight
+        form_data.weight = item.weight*form_data.amount
         
         if not override:
             if character.SIŁ > 0:
@@ -1019,6 +1022,7 @@ class GMPanel(FormView):
             for obj in models.Eq.objects.filter(character=character.name):
                 current_weight += obj.weight
                 
+            item_weight = item.weight * form_data.amount
             if current_weight + item.weight > max_weight:
                 messages.error(self.request, 'Not enough space.')
                 return redirect('gm_panel')
