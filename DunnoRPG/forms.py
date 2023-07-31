@@ -126,9 +126,9 @@ class CharacterSkillsForm(forms.ModelForm):
         
 class AddEqItemForm(forms.ModelForm):
     
-    characters = ['Asatriel']
-    #for character in Character.objects.all().order_by('name'):
-    #    characters.append((character.id, character.name))
+    characters = []
+    for character in Character.objects.all().order_by('name'):
+        characters.append((character.id, character.name))
     character = forms.ChoiceField(choices=characters,label='',widget=forms.Select(attrs={
         'class': 'text-center bg-dark rounded border border-warning c-gold p-1 m-1'
     }))
@@ -162,9 +162,9 @@ class AddEqItemForm(forms.ModelForm):
         fields = ['character','name','durability','amount']
 
 class AddEffectForm(forms.ModelForm):
-    characters = ['Asatriel']
-    #for character in Character.objects.all().order_by('name'):
-    #    characters.append((character.id, character.name))
+    characters = []
+    for character in Character.objects.all().order_by('name'):
+        characters.append((character.id, character.name))
     character = forms.ChoiceField(choices=characters,label='',widget=forms.Select(attrs={
         'class': 'text-center bg-dark rounded border border-warning c-gold p-1 m-1'
     }))
