@@ -194,9 +194,11 @@
                         </a>
                         <span class='fw-bold {{ leftItem.name|getItemRarity }}'>
                             {% if leftItem.name|isShield %}
-                            [ <span id='l_block'>{{ leftItem.name|getItemBlock }}</span>; {{ leftItem.name|getItemWeight }}kg
+                            [ <span id='l_block'>{{ leftItem.name|getItemBlock }}</span>
+                            ; <span id='l-weight'>{{ leftItem.name|getItemWeight }}</span>kg
                             {% else %}
-                            [ 1K<span id='l_dmg'>{{ leftItem.name|getItemBonus }}</span>, <span id='l_ap'>{{ leftItem.name|getItemAP }}</span>AP; {{ leftItem.name|getItemWeight }}kg
+                            [ 1K<span id='l_dmg'>{{ leftItem.name|getItemBonus }}</span>, <span id='l_ap'>{{ leftItem.name|getItemAP }}</span>
+                            AP; <span id='l-weight'>{{ leftItem.name|getItemWeight }}</span>kg
                             {% endif %}
 
                             {% if leftItem.name|getSkill %};
@@ -254,9 +256,11 @@
                     </a>
                     <span class='fw-bold {{ rightItem.name|getItemRarity }}'>
                         {% if rightItem.name|isShield %}
-                            [ <span id='r_block'>{{ rightItem.name|getItemBlock }}</span>; {{ rightItem.name|getItemWeight }}kg
+                            [ <span id='r_block'>{{ rightItem.name|getItemBlock }}</span>
+                            ; <span id='r-weight'>{{ rightItem.name|getItemWeight }}</span>kg
                         {% else %}
-                            [ 1K<span id='r_dmg'>{{ rightItem.name|getItemBonus }}</span>, <span id='r_ap'>{{ rightItem.name|getItemAP }}</span>AP; {{ rightItem.name|getItemWeight }}kg
+                            [ 1K<span id='r_dmg'>{{ rightItem.name|getItemBonus }}</span>, <span id='r_ap'>{{ rightItem.name|getItemAP }}</span>
+                            AP; <span id='r-weight'>{{ rightItem.name|getItemWeight }}</span>kg
                         {% endif %}
 
                         {% if rightItem.name|getSkill %};
