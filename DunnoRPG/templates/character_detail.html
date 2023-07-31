@@ -70,7 +70,10 @@
     </div>
 
     <div name='Equipment' style='' class="row text-center ms-3 mt-1 card-body c-gold border border-warning bg-dark rounded">
-        <p id='char-name' name='{{ value.id }}' class="text-center fw-bold">{{ value.name }}</p>
+        <p id='char-name' name='{{ value.id }}' class="text-center fw-bold">
+            {{ value.name }}
+            {% if value.chosen_class %}| {{ value.chosen_class }}{% endif %}
+        </p>
 
         <div class='row'>
             <p class='col'>
@@ -528,7 +531,7 @@
         <ul class=''>
         {% for skill in skills %}
             <li>
-                <a class='c-gold fst-italic' href='/dunnorpg/skills/{{ skill.original_id }}'>{{ skill.skill }} [ {{ skill.level }}]</a>
+                <a class='c-gold fst-italic' href='/dunnorpg/skills/{{ skill.original_id }}'>{{ skill.skill }} [{{ skill.level }}]</a>
                 <button onclick="show_block(this)" name="{{ skill.id }}" type='button' class='fst-italic ms-2 rounded-circle border border-warning btn btn-sm btn-warning btn-outline-dark c-gold'>i</button>
             </li><br>
         {% endfor %}

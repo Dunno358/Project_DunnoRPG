@@ -17,6 +17,7 @@ class Character(models.Model):
     owner = models.CharField(max_length=100)
     name = models.CharField(max_length=50)
     race = models.CharField(max_length=30)
+    chosen_class = models.CharField(max_length=80, default='')
     size = models.CharField(max_length=2)
     HP = models.IntegerField()
     fullHP = models.IntegerField(null=True)
