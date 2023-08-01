@@ -59,6 +59,7 @@
         <p id='effects-attack'>{{ value.name|getEffectsBonus:"attack" }}</p>
         <p id='effects-parry'>{{ value.name|getEffectsBonus:"parry" }}</p>
         <p id='effects-dodge'>{{ value.name|getEffectsBonus:"dodge" }}</p>
+        <p id='weapon-weight-mod'>0</p>
     </div>
 
     <div name='Stats' style='margin-left: 22%; margin-right: 15%;' class="d-none text-center mt-1 card-body c-gold border border-warning bg-dark rounded">
@@ -624,6 +625,27 @@ function wearItem(place, block_id){
     window.location.replace(url)
 }
 
+function getWeaponMod(){
+    try{
+        l_weight = parseFloat(document.getElementById('l-weight').innerHTML)
+    }catch(error){
+        l_weight = 0
+    }
+
+    try{
+        r_weight = parseFloat(document.getElementById('r-weight').innerHTML)
+    }catch(error){
+        r_weight = 0
+    }
+
+    sil = parseInt(document.getElementById('stat-SIŁ').innerHTML)
+    mod = (r_weight+l_weight)-sil
+    mod = parseInt(mod/2)
+
+    document.getElementById('weapon-weight-mod').innerHTML = mod
+}
+getWeaponMod()
+
 function getArmorMod(){
     armor_weight = parseInt(document.getElementById('armor-weight').innerHTML)
     mod = armor_weight/4
@@ -734,11 +756,12 @@ function show_result_at_window(action){
         cel = parseInt(document.getElementById('stat-CEL').innerHTML)
         cel_mod = parseInt(document.getElementById('stat-CEL-mod').innerHTML)
         cel_from_items = parseInt(document.getElementById('item-skill-cel').innerHTML)
-        cel_mods = cel+cel_mod+cel_effect_bonus+cel_from_items
+        weight_mod = document.getElementById('weapon-weight-mod').innerHTML
+        cel_mods = cel+cel_mod+cel_effect_bonus+cel_from_items-weight_mod
 
         dice_result = getDiceWMods(window_action,cel_mods,getResult=true,text=action)
 
-        details = 'CEL'+'('+cel+')'+ ' + '+'MODS'+'('+(cel_mod+cel_effect_bonus+cel_from_items)+')'
+        details = 'CEL'+'('+cel+')'+ ' + '+'MODS'+'('+(cel_mod+cel_effect_bonus+cel_from_items)+')'+' - WEAPON WEIGHT('+weight_mod+')'
         window_action.onclick = function() {change_result(details,window_action,cel_mods, dice_result)}
     }
     
