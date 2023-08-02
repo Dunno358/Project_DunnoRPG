@@ -1100,11 +1100,11 @@ class CityView(ListView):
             for item in items:
                 item = models.Items.objects.filter(name=item).first()
 
-                if not item.found:
-                    item.found = True
-                    item.save()
-
                 if item != None:
+                    if not item.found:
+                        item.found = True
+                        item.save()
+
                     if item.type == 'Amulet':
                         amulets.append(item.name)
                     elif item.type == 'Other':
