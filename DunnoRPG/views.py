@@ -127,7 +127,7 @@ class CharacterSkills(ListView, FormView):
         user = self.request.user
         id = self.kwargs['id']
         chosen_character = get_object_or_404(models.Character, id=id).name
-        character_skills_queryset = models.Skills.objects.all().filter(owner=user, character=chosen_character).values() 
+        character_skills_queryset = models.Skills.objects.all().filter(owner=chosen_character.owner, character=chosen_character).values() 
         
         return character_skills_queryset
     def get_context_data(self, **kwargs):
