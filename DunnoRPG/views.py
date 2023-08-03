@@ -133,7 +133,6 @@ class CharacterSkills(ListView, FormView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         
-        current_user = self.request.user
         id = self.kwargs['id']
         chosen_character = get_object_or_404(models.Character, id=id).name
         character_stats = models.Character.objects.filter(id=id).values()[0]
@@ -151,7 +150,6 @@ class CharacterSkills(ListView, FormView):
         if magical_skills_points < 0:
             magical_skills_points = 0
 
-        context['user'] = current_user
         context['character'] = chosen_character
         context['character_id'] = id
         context['character_stats'] = character_stats
@@ -161,10 +159,9 @@ class CharacterSkills(ListView, FormView):
 
         return context            
     def form_valid(self, form):
-        current_user = self.request.user
         id = self.kwargs['id']
-        chosen_character = models.Character.objects.filter(owner=current_user, id=id).values()[0]
-        character_skills_queryset = models.Skills.objects.filter(owner=current_user, character=chosen_character['name']).values()
+        chosen_character = models.Character.objects.filter(id=id).values()[0]
+        character_skills_queryset = models.Skills.objects.filter(owner=chosen_character['owner'], character=chosen_character['name']).values()
         character_skills = []
 
         for data in character_skills_queryset:
@@ -243,7 +240,7 @@ class CharacterSkills(ListView, FormView):
             if validated_skill['category'].lower() != 'magical':
                 character.points_left -= skill_to_add.level * int(skill_details['cost'])
             character.save()
-            skill_to_add.owner = current_user
+            skill_to_add.owner = chosen_character['owner']
             skill_to_add.character = chosen_character['name']
             skill_to_add.desc = skill_details['desc']
             skill_to_add.category = skill_details['category']
