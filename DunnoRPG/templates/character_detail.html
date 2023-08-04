@@ -794,6 +794,11 @@ function show_result_at_window(action){
         if(document.getElementById('l_bonus').innerHTML != 'Empty')
         {
             leftWeapon = document.getElementById('l_weapon')
+            l_type = leftWeapon.getAttribute('name')
+            if(['Pistol','Musket','Crossbow','Bow'].includes(l_type)){
+                sil=0
+                sil_mod=0
+            }
             l_bonus = parseInt(document.getElementById('l_bonus').innerHTML)
 
             if(leftWeapon.getAttribute("name") == 'shield')
