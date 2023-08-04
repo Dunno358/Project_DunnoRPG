@@ -269,9 +269,9 @@ class CharacterDetails(DetailView):
         chosen = self.get_object()
         serializer = CharacterSerializer(chosen)
         
-        skills = models.Skills.objects.all().filter(owner=self.request.user,character=serializer.data['name']).values()
+        skills = models.Skills.objects.all().filter(owner=chosen.owner,character=serializer.data['name']).values()
         race = models.Races.objects.all().filter(name=serializer.data['race']).values()[0]
-        mods = models.Mods.objects.all().filter(owner=self.request.user,character=serializer.data['name']).values()
+        mods = models.Mods.objects.all().filter(owner=chosen.owner,character=serializer.data['name']).values()
 
         for skill in skills:
             skill_description = models.Skills_Decs.objects.all().filter(name=skill['skill']).values()[0]
