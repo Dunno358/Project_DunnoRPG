@@ -73,7 +73,14 @@
     <div name='Equipment' style='' class="row text-center ms-3 mt-1 card-body c-gold border border-warning bg-dark rounded">
         <p id='char-name' name='{{ value.id }}' class="text-center fw-bold">
             {{ value.name }}
-            {% if value.chosen_class %}| {{ value.chosen_class }}{% endif %}
+            {% if value.chosen_class %}| 
+            <a 
+            href='https://docs.google.com/document/d/1A-AM1SF78bhQ0blRxf06kb7VQ9WMYVeSN4VhOn3j53g/edit?usp=sharing'
+            target='_blank' class='c-gold fst-italic'
+            >
+                {{ value.chosen_class }}
+            </a>
+            {% endif %}
         </p>
 
         <div class='row'>
@@ -826,6 +833,11 @@ function show_result_at_window(action){
         {
             rightWeapon = document.getElementById('r_weapon')
             r_bonus = parseInt(document.getElementById('r_bonus').innerHTML)
+            r_type = rightWeapon.getAttribute('name')
+            if(['Pistol','Musket','Crossbow','Bow'].includes(r_type)){
+                sil=0
+                sil_mod=0
+            }
 
             if(rightWeapon.getAttribute("name") == 'shield')
             { //shield-right-hand-attack
