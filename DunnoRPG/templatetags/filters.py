@@ -155,6 +155,15 @@ def getMod(character,stat_for_mod):
     value = 0
     for stat in models.Mods.objects.all().filter(character=character['name'], field=stat_for_mod).values():
         value += stat['value']
+    items = []
+    for item in models.CharItems.objects.all().filter(character=character['name']):
+        try:
+            stats = models.Items.objects.all().filter(name=item.name).first().skillStats.split(';')
+            for stat in stats:
+                if stat[:-2].lower() == stat_for_mod.lower():
+                    value += int(stat[-1])
+        except:
+            pass
     if value>=0:
         value = f"+{value}"
     return value
