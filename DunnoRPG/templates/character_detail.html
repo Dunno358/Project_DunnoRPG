@@ -62,7 +62,8 @@
         <p id='weapon-weight-mod'>0</p>
     </div>
 
-    <div name='Stats' style='margin-left: 22%; margin-right: 15%;' class="d-none text-center mt-1 card-body c-gold border border-warning bg-dark rounded">
+    <div name='Stats' class="row card-body d-none text-center mt-4 c-gold border border-warning bg-dark rounded position-fixed">
+        <h3>Stats</h3>
         <p name='stat'><span class="text-white-50">INT:</span> <span id='stat-INT'>{{ value.INT }}</span> (<span id='stat-INT-mod'>{{ value|getMod:"INT" }}</span>)</p>
         <p name='stat'><span class="text-white-50">SIŁ:</span> <span id='stat-SIŁ'>{{ value.SIŁ }}</span> (<span id='stat-SIŁ-mod'>{{ value|getMod:"SIŁ" }}</span>)</p>
         <p name='stat'><span class="text-white-50">ZRE:</span> <span id='stat-ZRE'>{{ value.ZRE }}</span> (<span id='stat-ZRE-mod'>{{ value|getMod:"ZRE" }}</span>)</p>
@@ -95,7 +96,7 @@
             </p>
         </div>
 
-        <div name='head' class='row mt-2'><hr>
+        <div name='head' class='row mt-2'><hr />
             <div class='col'><p><span class="text-white-50">Helmet: </span>
                 {% if helmet != None %}
                     <span class='text-info fa fa-exchange-alt' onclick='show_or_hideById("helmet-swap")'></span> 
@@ -142,7 +143,7 @@
             </p></div>
         </div>
 
-        <div name='torso' class='row mt-2'><hr>
+        <div name='torso' class='row mt-2'><hr />
             <div class='col'><p><span class="text-white-50">Torso: </span> 
 
                 {% if torso != None %}
@@ -190,7 +191,7 @@
             </p></div>
         </div>
 
-        <div name='hands' class='row mt-2'><hr>
+        <div name='hands' class='row mt-2'><hr />
             <div name='hand-left' class='row'><p name="LeftHand">
                 <span class="text-white-50">LeftHand: </span>
                     {% if leftItem != None %}
@@ -252,7 +253,7 @@
 
             <div class='col'></div>
 
-            <div name='hand-right' class='row text-center'><hr>
+            <div name='hand-right' class='row text-center'><hr />
                 <p name="RightHand">
                 <span class="text-white-50">RightHand: </span>
                 {% if rightItem.name != None %}
@@ -321,7 +322,7 @@
             </div>
         </div>
 
-        <div name='side' class='row mt-2'><hr>
+        <div name='side' class='row mt-2'><hr />
             <div class='col'><p><span class="text-white-50">Side: </span>
 
             {% if sideItem != None %}
@@ -374,7 +375,7 @@
             
         </div>
 
-        <div name='boots' class='row mt-2'><hr>
+        <div name='boots' class='row mt-2'><hr />
             <div class='col'><p><span class="text-white-50">Boots: </span> 
 
                 {% if boots != None %}
@@ -423,7 +424,7 @@
             </p></div>
         </div>
 
-        <div name='gloves' class='row mt-2'><hr>
+        <div name='gloves' class='row mt-2'><hr />
             <div class='col'><p><span class="text-white-50">Gloves: </span> 
 
                 {% if gloves != None %}
@@ -471,7 +472,7 @@
             </p></div>
         </div>
 
-        <div name='amulet' class='row mt-2'><hr>
+        <div name='amulet' class='row mt-2'><hr />
             <p class='col'><span class="text-white-50">Amulet: </span> 
 
                 {% if amulet != None %}
@@ -516,7 +517,7 @@
             </p>
         </div>
 
-        <div class='row'><hr>
+        <div class='row'><hr />
             <p class='col' title='{{ race_desc }}'><span class="text-white-50">Race:</span> {{ value.race }} ({{ value.size }})</p>
                 <p class='col'><span class="text-white-50">Coins:</span> {{ value.coins }}</p>
             </p>
@@ -524,7 +525,7 @@
 
     </div>    
     
-        <div name='Effects' class="d-none rounded container ms-3 col card-body c-gold border border-warning bg-dark mt-1">
+        <div name='Effects' class="row position-absolute d-none rounded container col card-body c-gold border border-warning bg-dark mt-4">
             <p class="text-center fw-bold">Effects: </p>
             <ul>
             {% for effect in value|getCharacterEffects %}
@@ -538,25 +539,23 @@
         </div>
     
 
-    <div name='Skills' style='' class="d-none ms-3 rounded container col card-body c-gold border border-warning bg-dark mt-1">
+    <div name='Skills' style='' class="row position-absolute d-none rounded container col card-body c-gold border border-warning bg-dark">
         <p class="text-center fw-bold">Skills: </p>
         <ul class=''>
         {% for skill in skills %}
             <li>
                 <a class='c-gold fst-italic' href='/dunnorpg/skills/{{ skill.original_id }}'>{{ skill.skill }} [{{ skill.level }}]</a>
                 <button onclick="show_block(this)" name="{{ skill.id }}" type='button' class='fst-italic ms-2 rounded-circle border border-warning btn btn-sm btn-warning btn-outline-dark c-gold'>i</button>
+                <div id='{{ skill.id }}' name="desc_block" class="d-none">
+                    <p class='fw-bold text-center'>{{ skill.skill }} lvl.{{ skill.level }}</p>
+                    {{ skill.desc }}
+                    <br>
+                    [<span class='fst-italic'>{{ skill.level_desc }}</span>]
+                </div>
             </li><br>
         {% endfor %}
         <ul>
     </div>
-    {% for skill in skills %}
-        <div id='{{ skill.id }}' name="desc_block" class="d-none ms-3 rounded container col-3 card-body c-gold border border-warning bg-dark mt-1">
-            <p class='fw-bold text-center'>{{ skill.skill }} lvl.{{ skill.level }}</p>
-            {{ skill.desc }}
-            <br>
-            [<span class='fst-italic'>{{ skill.level_desc }}</span>]
-        </div>
-    {% endfor %}
 </div>
 
 <div class='container mt-2'>
