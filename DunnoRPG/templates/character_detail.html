@@ -1,6 +1,5 @@
 {% extends 'master.html' %}
 {% load filters %}
-
 {% block content %}
 {% include 'top_bar.html' %}
 {% include 'dunnorpg/messages.html' %}
@@ -72,12 +71,12 @@
     </div>
 
     <div name='Equipment' style='' class="row text-center ms-3 mt-1 card-body c-gold border border-warning bg-dark rounded">
-        <p id='char-name' name='{{ value.id }}' class="text-center fw-bold">
-            {{ value.name }}
+        <p name='{{ value.id }}' class="text-center fw-bold">
+            <span id='char-name'>{{ value.name }}</span>
             {% if value.chosen_class %}| 
             <a 
             href='https://docs.google.com/document/d/1A-AM1SF78bhQ0blRxf06kb7VQ9WMYVeSN4VhOn3j53g/edit?usp=sharing'
-            target='_blank' class='c-gold fst-italic'
+            target='_blank' class='c-gold fst-italic' id='char-class'
             >
                 {{ value.chosen_class }}
             </a>
@@ -591,6 +590,7 @@
 </div>
 
 <script>
+document.title = document.getElementById('char-name').innerHTML + " | DunnoRPG"
 document.getElementById('tb-characters').classList.remove('btn-outline-warning')
 document.getElementById('tb-characters').classList.add('btn-outline-primary')
 
@@ -656,6 +656,14 @@ function getArmorMod(){
     armor_weight = parseInt(document.getElementById('armor-weight').innerHTML)
     mod = armor_weight/4
     mod = parseInt(mod)
+    try{
+        if(document.getElementById('char-class').innerHTML.trim() == 'Berserker'){
+            mod = mod*2
+        }
+    }
+    catch(TypeError){
+        console.log('No class chosen...')
+    }
     document.getElementById('armor-mod').innerHTML = mod
 }
 getArmorMod()
@@ -761,13 +769,12 @@ function show_result_at_window(action){
         cel_effect_bonus = parseInt(document.getElementById('effects-accuraccy').innerHTML)
         cel = parseInt(document.getElementById('stat-CEL').innerHTML)
         cel_mod = parseInt(document.getElementById('stat-CEL-mod').innerHTML)
-        cel_from_items = parseInt(document.getElementById('item-skill-cel').innerHTML)
         weight_mod = document.getElementById('weapon-weight-mod').innerHTML
-        cel_mods = cel+cel_mod+cel_effect_bonus+cel_from_items-weight_mod
+        cel_mods = cel+cel_mod+cel_effect_bonus-weight_mod
 
         dice_result = getDiceWMods(window_action,cel_mods,getResult=true,text=action)
 
-        details = 'CEL'+'('+cel+')'+ ' + '+'MODS'+'('+(cel_mod+cel_effect_bonus+cel_from_items)+')'+' - WEAPON WEIGHT('+weight_mod+')'
+        details = 'CEL'+'('+cel+')'+ ' + '+'MODS'+'('+(cel_mod+cel_effect_bonus)+')'+' - WEAPON WEIGHT('+weight_mod+')'
         window_action.onclick = function() {change_result(details,window_action,cel_mods, dice_result)}
     }
     
@@ -777,15 +784,14 @@ function show_result_at_window(action){
         zre = parseInt(document.getElementById('stat-ZRE').innerHTML)
         zre_mod = parseInt(document.getElementById('stat-ZRE-mod').innerHTML) 
         armor_mod = parseInt(document.getElementById('armor-mod').innerHTML) 
-        zre_from_items = parseInt(document.getElementById('item-skill-zre').innerHTML)
-        dodge_mods = zre+zre_mod+dodge_effect_bonus-armor_mod+zre_from_items
+        dodge_mods = zre+zre_mod+dodge_effect_bonus-armor_mod
 
         window_action_additional.innerHTML = ''
         window_action_additional.onclick = ''
 
         dice_result = getDiceWMods(window_action,dodge_mods,getResult=true,text=action)
 
-        details = 'ZRE'+'('+zre+')'+ ' + '+'MODS'+'('+(zre_mod+dodge_effect_bonus+zre_from_items)+')'+ ' + '+'ARMOR'+'('+(-armor_mod)+')'
+        details = 'ZRE'+'('+zre+')'+ ' + '+'MODS'+'('+(zre_mod+dodge_effect_bonus)+')'+ ' + '+'ARMOR'+'('+(-armor_mod)+')'
         window_action.onclick = function() {change_result(details,window_action,dodge_mods, dice_result)}
     }
 
@@ -794,7 +800,6 @@ function show_result_at_window(action){
         attack_effect_bonus = parseInt(document.getElementById('effects-attack').innerHTML)
         sil = parseInt(document.getElementById('stat-SIŁ').innerHTML)
         sil_mod = parseInt(document.getElementById('stat-SIŁ-mod').innerHTML) 
-        sil_from_items = parseInt(document.getElementById('item-skill-sil').innerHTML)
 
 
         if(document.getElementById('l_bonus').innerHTML != 'Empty')
@@ -809,18 +814,18 @@ function show_result_at_window(action){
 
             if(leftWeapon.getAttribute("name") == 'shield')
             { //shield-left-hand-attack
-                shield_attack_mods = sil+sil_mod-10+attack_effect_bonus+sil_from_items
+                shield_attack_mods = sil+sil_mod-10+attack_effect_bonus
                 l_shield_dice_result = getDiceWMods(window_action_additional,shield_attack_mods,getResult=true,text='Left hand')
-                l_shield_details = 'SIŁ'+'('+sil+')'+ ' + ' + 'MODS'+'('+sil_mod+sil_from_items+')'+' + '+'BONUS'+'('+l_bonus+')'+' + '+'BASIC(-10)'
+                l_shield_details = 'SIŁ'+'('+sil+')'+ ' + ' + 'MODS'+'('+sil_mod+')'+' + '+'BONUS'+'('+l_bonus+')'+' + '+'BASIC(-10)'
                 window_action_additional.onclick = function() {change_result(l_shield_details,window_action_additional,shield_attack_mods, l_shield_dice_result,additional=true)}
             }
             else
             { //normal-left-hand-attack
                 leftWeaponDmg = parseInt(document.getElementById('l_dmg').innerHTML)
                 leftWeaponAp = parseInt(document.getElementById('l_ap').innerHTML)
-                l_mods = sil+sil_mod+leftWeaponDmg+l_bonus+attack_effect_bonus+sil_from_items
+                l_mods = sil+sil_mod+leftWeaponDmg+l_bonus+attack_effect_bonus
                 l_normal_dice_result = getDiceWMods(window_action_additional,l_mods,getResult=true,text='Left hand')
-                l_normal_details = 'SIŁ'+'('+sil+')'+ ' + '+'MODS'+'('+(sil_mod+attack_effect_bonus+sil_from_items)+')'+' + '+'WEAPON'+'('+leftWeaponDmg+')'+' + '+'BONUS'+'('+l_bonus+')'+' ; '+'AP'+'('+leftWeaponAp+')'
+                l_normal_details = 'SIŁ'+'('+sil+')'+ ' + '+'MODS'+'('+(sil_mod+attack_effect_bonus)+')'+' + '+'WEAPON'+'('+leftWeaponDmg+')'+' + '+'BONUS'+'('+l_bonus+')'+' ; '+'AP'+'('+leftWeaponAp+')'
                 window_action_additional.onclick = function() {change_result(l_normal_details,window_action_additional,l_mods, l_normal_dice_result,additional=true)}
             }
         }
@@ -840,18 +845,18 @@ function show_result_at_window(action){
 
             if(rightWeapon.getAttribute("name") == 'shield')
             { //shield-right-hand-attack
-                shield_attack_mods = sil+sil_mod-10+attack_effect_bonus+sil_from_items
+                shield_attack_mods = sil+sil_mod-10+attack_effect_bonus
                 r_shield_dice_result = getDiceWMods(window_action,shield_attack_mods,getResult=true,text='Right hand')
-                r_shield_details = 'SIŁ'+'('+sil+')'+ ' + ' + 'MODS'+'('+sil_mod+sil_from_items+')'+' + '+'BONUS'+'('+r_bonus+')'+' + '+'BASIC(-10)'
+                r_shield_details = 'SIŁ'+'('+sil+')'+ ' + ' + 'MODS'+'('+sil_mod+')'+' + '+'BONUS'+'('+r_bonus+')'+' + '+'BASIC(-10)'
                 window_action.onclick = function() {change_result(r_shield_details,window_action,shield_attack_mods, r_shield_dice_result)}
             }
             else
             { //normal-right-hand-attack
                 rightWeaponDmg = parseInt(document.getElementById('r_dmg').innerHTML)
                 rightWeaponAp = parseInt(document.getElementById('r_ap').innerHTML)
-                r_mods = sil+sil_mod+rightWeaponDmg+r_bonus+attack_effect_bonus+sil_from_items
+                r_mods = sil+sil_mod+rightWeaponDmg+r_bonus+attack_effect_bonus
                 r_normal_dice_result = getDiceWMods(window_action,r_mods,getResult=true,text='Right hand')
-                r_normal_details = 'SIŁ'+'('+sil+')'+ ' + '+'MODS'+'('+(sil_mod+attack_effect_bonus+sil_from_items)+')'+' + '+'WEAPON'+'('+rightWeaponDmg+')'+' + '+'BONUS'+'('+r_bonus+')'+' ; '+'AP'+'('+rightWeaponAp+')'
+                r_normal_details = 'SIŁ'+'('+sil+')'+ ' + '+'MODS'+'('+(sil_mod+attack_effect_bonus)+')'+' + '+'WEAPON'+'('+rightWeaponDmg+')'+' + '+'BONUS'+'('+r_bonus+')'+' ; '+'AP'+'('+rightWeaponAp+')'
                 window_action.onclick = function() {change_result(r_normal_details,window_action,r_mods, r_normal_dice_result)}
             }  
         }
@@ -863,7 +868,6 @@ function show_result_at_window(action){
         parry_effect_bonus = parseInt(document.getElementById('effects-parry').innerHTML)
         sil = parseInt(document.getElementById('stat-SIŁ').innerHTML)
         sil_mod = parseInt(document.getElementById('stat-SIŁ-mod').innerHTML) 
-        sil_from_items = parseInt(document.getElementById('item-skill-sil').innerHTML)
 
 
         if(document.getElementById('l_bonus').innerHTML != 'Empty')
@@ -882,9 +886,9 @@ function show_result_at_window(action){
             { //normal-left-hand-parry
                 leftWeaponDmg = parseInt(document.getElementById('l_dmg').innerHTML)
                 leftWeaponAp = parseInt(document.getElementById('l_ap').innerHTML)
-                l_mods = sil+sil_mod+leftWeaponDmg+l_bonus+parry_effect_bonus+sil_from_items
+                l_mods = sil+sil_mod+leftWeaponDmg+l_bonus+parry_effect_bonus
                 l_normal_dice_result = getDiceWMods(window_action_additional,l_mods,getResult=true,text='Left hand')
-                l_normal_details = 'SIŁ'+'('+sil+')'+ ' + '+'MODS'+'('+(sil_mod+parry_effect_bonus+sil_from_items)+')'+' + '+'WEAPON'+'('+leftWeaponDmg+')'+' + '+'BONUS'+'('+l_bonus+')'
+                l_normal_details = 'SIŁ'+'('+sil+')'+ ' + '+'MODS'+'('+(sil_mod+parry_effect_bonus)+')'+' + '+'WEAPON'+'('+leftWeaponDmg+')'+' + '+'BONUS'+'('+l_bonus+')'
                 window_action_additional.onclick = function() {change_result(l_normal_details,window_action_additional,l_mods, l_normal_dice_result,additional=true)}
             }
         }
@@ -908,9 +912,9 @@ function show_result_at_window(action){
             { //normal-right-hand-parry
                 rightWeaponDmg = parseInt(document.getElementById('r_dmg').innerHTML)
                 rightWeaponAp = parseInt(document.getElementById('r_ap').innerHTML)
-                r_mods = sil+sil_mod+rightWeaponDmg+r_bonus+parry_effect_bonus+sil_from_items
+                r_mods = sil+sil_mod+rightWeaponDmg+r_bonus+parry_effect_bonus
                 r_normal_dice_result = getDiceWMods(window_action,r_mods,getResult=true,text='Right hand')
-                r_normal_details = 'SIŁ'+'('+sil+')'+ ' + '+'MODS'+'('+(sil_mod+parry_effect_bonus+sil_from_items)+')'+' + '+'WEAPON'+'('+rightWeaponDmg+')'+' + '+'BONUS'+'('+r_bonus+')'
+                r_normal_details = 'SIŁ'+'('+sil+')'+ ' + '+'MODS'+'('+(sil_mod+parry_effect_bonus)+')'+' + '+'WEAPON'+'('+rightWeaponDmg+')'+' + '+'BONUS'+'('+r_bonus+')'
                 window_action.onclick = function() {change_result(r_normal_details,window_action,r_mods, r_normal_dice_result)}
             }
         }
