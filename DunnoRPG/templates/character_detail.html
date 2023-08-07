@@ -106,7 +106,7 @@
                     <span class='{{ helmet.name|getItemRarity }}'><b>[ {{ helmet.name|getItemArmor }}; {{ helmet.name|getItemWeight }}kg
                     {% if helmet.name|getSkill %};
                         <span onclick="showSkill(this)" class='fw-normal' title="{{ helmet.name|getSkill }}">
-                            Check skill
+                            {{ helmet.name|getSkill }}
                         </span>
                     {% endif %}]</b></span>
                     
@@ -154,7 +154,7 @@
                         <span class='{{ torso.name|getItemRarity }}'><b>[ {{ torso.name|getItemArmor }}; {{ torso.name|getItemWeight }}kg
                         {% if torso.name|getSkill %};
                             <span onclick="showSkill(this)" class='fw-normal' title="{{ torso.name|getSkill }}">
-                                Check skill
+                                {{ torso.name|getSkill }}
                             </span>
                         {% endif %}]</b></span>
                         
@@ -211,7 +211,7 @@
 
                             {% if leftItem.name|getSkill %};
                                 <span onclick="showSkill(this)" class='fw-normal' title="{{ leftItem.name|getSkill }}">
-                                    Check skill
+                                    {{ leftItem.name|getSkill }}
                                 </span>
                             {% endif %}]
                         </span>
@@ -273,7 +273,7 @@
 
                         {% if rightItem.name|getSkill %};
                             <span onclick="showSkill(this)" class='fw-normal' title="{{ rightItem.name|getSkill }}">
-                                Check skill
+                                {{ rightItem.name|getSkill }}
                             </span>
                         {% endif %}]
                     </span>
@@ -334,7 +334,7 @@
                     [ {{ sideItem.name|getItemStatByName }}; {{ sideItem.name|getItemWeight }}kg
                     {% if sideItem.name|getSkill %};
                         <span onclick='showSkill(this)' class='fw-normal' title="{{ sideItem.name|getSkill }}">
-                            Check skill
+                            {{ sideItem.name|getSkill }}
                         </span>
                     {% endif %}]
                 </span>
@@ -386,7 +386,7 @@
                         <span class='{{ boots.name|getItemRarity }}'><b>[ {{ boots.name|getItemArmor }}; {{ boots.name|getItemWeight }}kg
                         {% if boots.name|getSkill %};
                             <span onclick="showSkill(this)" class='fw-normal' title="{{ boots.name|getSkill }}">
-                                Check skill
+                                {{ boots.name|getSkill }}
                             </span>
                         {% endif %}]</b></span>
                         
@@ -435,7 +435,7 @@
                         <span class='{{ gloves.name|getItemRarity }}'><b>[ {{ gloves.name|getItemArmor }}; {{ gloves.name|getItemWeight }}kg
                         {% if gloves.name|getSkill %};
                             <span onclick="showSkill(this)" class='fw-normal' title="{{ gloves.name|getSkill }}">
-                                Check skill
+                                {{ gloves.name|getSkill }}
                             </span>
                         {% endif %}]</b></span>
                         
