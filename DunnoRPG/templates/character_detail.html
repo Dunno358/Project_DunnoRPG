@@ -87,12 +87,11 @@
             <p class='col'>
                 <span class="text-white-50">Armor:</span> 
                 <span id='armor'>{{ value.name|getArmor }}</span>; <span id='armor-weight'>{{ value.name|getArmorWeight }}</span>kg (-<span id='armor-mod'></span> ZRE)</p>
-            <p class='col'>
+            <form class='col' onsubmit="makeChangeToRequest('hp-val','Character','hp')">
                 <span class="text-white-50">Health:</span> 
                 <input type='number' min="1" max="25" id='hp-val' class='c-gold text-center bg-dark border-0' style='width: 6vw' value='{{ value.HP }}'>/{{ value.fullHP }}
-                <a onclick="makeChangeToRequest('hp-val','Character','hp')"
-                class='btn btn-sm btn-success ms-3 rounded text-black'>Change</a>
-            </p>
+                <button type='submit' class='btn btn-sm btn-success ms-3 rounded text-black'>Change</button>
+            </form>
         </div>
 
         <div name='head' class='row mt-2'><hr />
@@ -631,6 +630,7 @@ function makeChangeToRequest(field_id, model, field){
     field_val = document.getElementById(field_id).getAttribute('value')
     chid = document.getElementById('char-name').getAttribute('name')
     url = '/dunnorpg/makerequest/'+chid+';'+model+';'+model+';0;0;'+field+';change_to-'+field_val+';character_detail'
+    console.log(url)
     window.location.replace(url)
 }
 
