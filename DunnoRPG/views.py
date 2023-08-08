@@ -849,6 +849,7 @@ class makeRequest(APIView):
                 messages.success(request,'GM Detected: Handling request automatically!')
                 return redirect(f'/dunnorpg/gmpanel/rq{created_request.id}-1-0')
             messages.success(request,'Request created successfully!')
+            print("TRY SUCCESS")
         except:
             messages.error(request, 'Request creation failed!')
         if kwargs['char_id'] == 0:
