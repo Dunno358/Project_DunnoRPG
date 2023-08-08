@@ -72,7 +72,7 @@
 
     <div name='Equipment' class="row text-center ms-3 mt-1 card-body c-gold border border-warning bg-dark rounded">
         <p name='{{ value.id }}' class="text-center fw-bold">
-            <span id='char-name'>{{ value.name }}</span>
+            <span id='char-name' name='{{ value.id }}'>{{ value.name }}</span>
             {% if value.chosen_class %}| 
             <a 
             href='https://docs.google.com/document/d/1A-AM1SF78bhQ0blRxf06kb7VQ9WMYVeSN4VhOn3j53g/edit?usp=sharing'
@@ -535,11 +535,11 @@
 
         <div class='row'><hr />
             <p class='col' title='{{ race_desc }}'><span class="text-white-50">Race:</span> {{ value.race }} ({{ value.size }})</p>
-                <span class="text-white-50">Coins:
-                    <form> <!-- Make request to change count -->
-                        <input type='number' min="0" id='coins' class='c-gold text-center bg-dark border-0' value='{{ value.coins }}'>
+                    <form onsubmit="makeChangeToRequest('coins','Character','coins')">
+                        <span class="text-white-50">Coins: <!-- Not working as for now -->
+                            <input type='number' min="0" id='coins' class='c-gold text-center bg-dark border-0' style='width: 8vw' value='{{ value.coins }}'>
+                        </span>
                     </form>
-                </span> 
             </p>
         </div>
 
@@ -615,9 +615,8 @@ document.title = document.getElementById('char-name').innerHTML + " | DunnoRPG"
 document.getElementById('tb-characters').classList.remove('btn-outline-warning')
 document.getElementById('tb-characters').classList.add('btn-outline-primary')
 
-document.getElementById('hp-val').oninput = () => {
-    document.getElementById('hp-val').setAttribute('value', document.getElementById('hp-val').value);
-}
+trackValueChanges('hp-val')
+trackValueChanges('coins')
 
 function showSkill(instance){
     if(instance.innerHTML == "Check skill"){
