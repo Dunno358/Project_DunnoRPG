@@ -832,6 +832,7 @@ class changeItemFoundState(APIView):
 
 class makeRequest(APIView):
     def get(self, request, **kwargs):
+        print('making request')
         try:
             models.Requests.objects.create(
                 from_user = request.user,
@@ -843,6 +844,10 @@ class makeRequest(APIView):
                 field = kwargs['field'],
                 title = kwargs['title']            
             )
+            if request.user.is_superuser:
+                created_request = models.Requests.objects.last()
+                messages.success(request,'GM Detected: Handling request automatically!')
+                return redirect(f'/dunnorpg/gmpanel/rq{created_request.id}-1-0')
             messages.success(request,'Request created successfully!')
         except:
             messages.error(request, 'Request creation failed!')
@@ -883,7 +888,6 @@ class RequestHandling(APIView):
                                         char = get_object_or_404(models.Character, id=rq_object.char_id)
                                         char.HP = val
                                         char.save()
-                                        rq_object.delete()
                                     rq_object.delete()
                                 elif rq_op == "eq_add":
                                     dur = rq_object.title.split('-')[1][:-3]
@@ -934,6 +938,11 @@ class RequestHandling(APIView):
                                     char.HP = val
                                     char.save()
                                     rq.delete()
+                                elif rq.field == 'coins':
+                                    char = get_object_or_404(models.Character, id=rq.char_id)
+                                    char.coins = val
+                                    char.save()
+                                    rq.delete()                                    
                             elif rq_op == "eq_add":
                                 dur = rq.title.split('-')[1][:-3]
                                 char = get_object_or_404(models.Character, id=rq.char_id)
@@ -962,7 +971,9 @@ class RequestHandling(APIView):
                                     )
                                     rq.delete()
                                 else:
-                                    messages.error(request, f'Not enough space for {itemDesc.name}. ({current_weight}/{max_weight}kg)')                        
+                                    messages.error(request, f'Not enough space for {itemDesc.name}. ({current_weight}/{max_weight}kg)')   
+        if "/gmpanel/" not in request.META['HTTP_REFERER']:
+            return redirect(request.META['HTTP_REFERER'])                     
         return redirect('/dunnorpg/gmpanel')
 
 class AddEffect(APIView):
