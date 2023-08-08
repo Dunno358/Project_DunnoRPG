@@ -88,3 +88,9 @@ function showOrHideBlock(instance,id){
         document.getElementById(id).classList.add('d-none')
     }
 }
+
+function trackValueChanges(id){
+    document.getElementById(id).oninput = () => {
+        document.getElementById(id).setAttribute('value', document.getElementById(id).value);
+    } 
+}
