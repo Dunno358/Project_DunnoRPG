@@ -630,9 +630,11 @@ function makeChangeToRequest(field_id, model, field){
     field_val = document.getElementById(field_id).getAttribute('value')
     chid = document.getElementById('char-name').getAttribute('name')
     url = '/dunnorpg/makerequest/'+chid+';'+model+';'+model+';0;0;'+field+';change_to-'+field_val+';character_detail'
-    console.log(url)
     window.location.replace(url)
 }
+//Test Function
+//makeChangeToRequest('coins','Character','coins')
+//makeChangeToRequest('hp-val','Character','hp')
 
 function swapItem(id1, block_id){
     chid = document.getElementById('char-name').getAttribute('name')
