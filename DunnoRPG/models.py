@@ -80,6 +80,7 @@ class Skills(models.Model):
     category = models.CharField(max_length=50, null=True)
     level = models.IntegerField(null=True)
     desc = models.TextField(blank=True)
+    uses_left = models.IntegerField(default=1)
 
     def __str__(self):
         return f"{self.character}: {self.skill} lvl.{self.level}"
