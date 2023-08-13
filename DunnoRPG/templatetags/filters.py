@@ -173,6 +173,10 @@ def getCharacterEffects(character):
     return models.Effects.objects.all().filter(character=character['name']).values()
 
 @register.filter
+def getCharacterEffectsCount(character):
+    return len(models.Effects.objects.all().filter(character=character['name']).values())
+
+@register.filter
 def getEffectDesc(effect):
     return models.Effects_Decs.objects.all().filter(name=effect).values()[0]['desc']
 
