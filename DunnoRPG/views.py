@@ -633,6 +633,15 @@ def char_use_skill(request, **kwargs):
     else:
         messages.error(request, f'No uses left for {skill.skill}.')
     return redirect('character_detail', char.id)
+def reset_skills(request,mode):
+    for skill in models.Skills.objects.all():
+        skill_desc = models.Skills_Decs.objects.filter(name=skill.skill).values()
+        skill_max_uses = skill_desc[0][f"useslvl{skill.level}"]
+        if skill_max_uses != None:
+            if (mode == 'normal' and skill.category.lower() != 'magical') or mode == 'all':
+                skill.uses_left = skill_max_uses
+                skill.save()
+    return redirect('gm_panel')
 
 def char_swap_item(request, **kwargs):
     char = get_object_or_404(models.Character, id=kwargs['char_id'])

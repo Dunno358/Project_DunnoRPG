@@ -71,9 +71,11 @@
     </form>
 </div>
 
-<div id='end-round' class='container bg-danger p-2 rounded border border-white mt-3'>
-    <a class='row text-center text-white mt-1' href='end_round'>
-        <h2>End Round</h2>
+<div id='end-round' class='container bg-danger rounded border border-white mt-3'>
+    <h2 class='row text-center mt-1'>
+        <a class='col text-white border-end border-white p-2' href='reset-skills/all'>Reset all skills</a>
+        <a class='col text-white border-end border-white p-2' href='reset-skills/normal'>Reset normal skills</a>
+        <a class='col text-white border-0 border-white p-2' href='end_round'>End Round</a>
     </a>
     </form>
 </div>
@@ -85,21 +87,6 @@
 <script>
     document.getElementById('tb-gm').classList.remove('btn-outline-warning')
     document.getElementById('tb-gm').classList.add('btn-outline-primary')
-
-    function showOrHideBlock(instance,id){
-        if (instance.classList.contains('border-warning')){
-            instance.classList.remove('border-warning')
-            instance.classList.add('border-primary')
-
-            document.getElementById(id).classList.remove('d-none')
-        }
-        else{
-            instance.classList.remove('border-primary')
-            instance.classList.add('border-warning')    
-            
-            document.getElementById(id).classList.add('d-none')
-        }
-    }
 </script>
 
 {% endblock content %}
