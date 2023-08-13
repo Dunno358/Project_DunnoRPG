@@ -878,10 +878,12 @@ class RequestHandling(APIView):
                                         rq_object.delete()
                                 elif rq_op == 'change_to':
                                     val = rq_object.title.split('-')[1]
+                                    char = get_object_or_404(models.Character, id=rq_object.char_id)
                                     if rq_object.field == 'hp':
-                                        char = get_object_or_404(models.Character, id=rq_object.char_id)
                                         char.HP = val
-                                        char.save()
+                                    elif rq_object.field == 'coins':
+                                        char.coins = val
+                                    char.save()
                                     rq_object.delete()
                                 elif rq_op == "eq_add":
                                     dur = rq_object.title.split('-')[1][:-3]
@@ -927,16 +929,13 @@ class RequestHandling(APIView):
                                     rq.delete()
                             elif rq_op == 'change_to':
                                 val = rq.title.split('-')[1]
+                                char = get_object_or_404(models.Character, id=rq.char_id)
                                 if rq.field == 'hp':
-                                    char = get_object_or_404(models.Character, id=rq.char_id)
                                     char.HP = val
-                                    char.save()
-                                    rq.delete()
                                 elif rq.field == 'coins':
-                                    char = get_object_or_404(models.Character, id=rq.char_id)
                                     char.coins = val
-                                    char.save()
-                                    rq.delete()                                    
+                                char.save()
+                                rq.delete()                                    
                             elif rq_op == "eq_add":
                                 dur = rq.title.split('-')[1][:-3]
                                 char = get_object_or_404(models.Character, id=rq.char_id)
