@@ -45,7 +45,7 @@
         <button id='Skills' onclick="show_or_hideByName(this)" class='col m-1 btn btn-dark btn-outline-warning border border-warning rounded'>
             Skills</button>
         
-        <button id='Effects' onclick="show_or_hideByName(this)" class='col m-1 btn btn-dark btn-outline-warning border border-warning rounded'>
+        <button id='Effects' onclick="show_or_hideByName(this)" class='col m-1 btn btn-dark border {% if chosen_character.0|getCharacterEffectsCount > 0 %}btn-outline-danger border-danger{% else %}border-warning btn-outline-warning{% endif %} rounded'>
             Effects</button>
     </div>
 </div>
@@ -544,7 +544,7 @@
 
     </div>    
     
-        <div name='Effects' class="row position-absolute d-none rounded container col card-body c-gold border border-warning bg-dark mt-4">
+        <div name='Effects' class="row d-none position-absolute rounded container col card-body c-gold border border-warning bg-dark mt-4">
             <p class="text-center fw-bold">Effects: </p>
             <ul>
             {% for effect in value|getCharacterEffects %}
@@ -563,8 +563,12 @@
         <ul class=''>
         {% for skill in skills %}
             <li class='text-center'>
-                <a class='c-gold fst-italic' href='/dunnorpg/skills/{{ skill.original_id }}'>{{ skill.skill }} [{{ skill.level }}]</a>
+                <a class='c-gold fst-italic' href='/dunnorpg/skills/{{ skill.original_id }}'>{{ skill.skill }} lvl.{{ skill.level }}</a>
                 <button onclick="show_block(this)" name="{{ skill.id }}" type='button' class='fst-italic ms-2 rounded-circle border border-warning btn btn-sm btn-warning btn-outline-dark c-gold'>i</button>
+                {% if skill.max_uses != None %}
+                    <span>({{ skill.uses_left }}/{{ skill.max_uses }})</span>
+                    <a class='text-danger h6' href='use-skill/{{ skill.id }}'>Use</a>
+                {% endif %}
                 <div id='{{ skill.id }}' name="desc_block" class="d-none">
                     <p class='fw-bold text-center'>{{ skill.skill }} lvl.{{ skill.level }}</p>
                     {{ skill.desc }}

@@ -274,10 +274,11 @@ class CharacterDetails(DetailView):
         mods = models.Mods.objects.all().filter(owner=chosen.owner,character=serializer.data['name']).values()
 
         for skill in skills:
-            skill_description = models.Skills_Decs.objects.all().filter(name=skill['skill']).values()[0]
+            skill_description = models.Skills_Decs.objects.all().filter(name=skill['skill']).order_by('category').values()[0]
             skill['original_id'] = skill_description['id']
             skill['original_desc'] = skill_description['desc']
             skill['level_desc'] = skill_description[f"level{skill['level']}"]
+            skill['max_uses'] = skill_description[f"useslvl{skill['level']}"]
 
         types = ['Helmet','Torso','Boots','Gloves','Amulet','Other']
 
@@ -621,6 +622,18 @@ def char_wear_item(request, **kwargs):
 
     item_eq_obj.delete()
     return redirect('character_detail', char.id)
+def char_use_skill(request, **kwargs):
+    char = get_object_or_404(models.Character, id=kwargs['char_id'])
+    skill = get_object_or_404(models.Skills, id=kwargs['skill_id'])
+
+    if skill.uses_left != 0:
+        skill.uses_left -= 1
+        skill.save()
+        messages.warning(request, f'Used {skill.skill}.')
+    else:
+        messages.error(request, f'No uses left for {skill.skill}.')
+    return redirect('character_detail', char.id)
+
 def char_swap_item(request, **kwargs):
     char = get_object_or_404(models.Character, id=kwargs['char_id'])
     it1 = get_object_or_404(models.CharItems, id=kwargs['it1_id'])
