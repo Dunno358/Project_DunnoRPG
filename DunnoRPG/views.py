@@ -823,7 +823,6 @@ class changeItemFoundState(APIView):
             try:
                 item.found = bool(state)
             except:
-                print('changeItemFoundState at views; cannot state to bool')
                 raise Http404('changeItemFoundState at views; cannot state to bool')
             
             item.save()
@@ -832,23 +831,20 @@ class changeItemFoundState(APIView):
 
 class makeRequest(APIView):
     def get(self, request, **kwargs):
-        print('making request')
-        models.Requests.objects.create(
-                from_user = request.user,
-                char_id = kwargs['char_id'],
-                objects_model = kwargs['objects_model'],
-                object1_id = kwargs['object1_id'],
-                object2_id = kwargs['object2_id'],
-                model = kwargs['model'],
-                field = kwargs['field'],
-                title = kwargs['title']            
-        )
-        if request.user.is_superuser:
-                created_request = models.Requests.objects.last()
-                messages.success(request,'GM Detected: Handling request automatically!')
-                return redirect(f'/dunnorpg/gmpanel/rq{created_request.id}-1-0')
-        messages.success(request,'Request created successfully!')
-        messages.error(request, 'Request creation failed!')
+        try:
+            models.Requests.objects.create(
+                    from_user = request.user,
+                    char_id = kwargs['char_id'],
+                    objects_model = kwargs['objects_model'],
+                    object1_id = kwargs['object1_id'],
+                    object2_id = kwargs['object2_id'],
+                    model = kwargs['model'],
+                    field = kwargs['field'],
+                    title = kwargs['title']            
+            )
+            messages.success(request,'Request created successfully!')
+        except:
+            messages.error(request, 'Request creation failed!')
         if kwargs['char_id'] == 0:
             kwargs['char_id'] = ''
         id = kwargs['char_id']
@@ -933,10 +929,8 @@ class RequestHandling(APIView):
                                 val = rq.title.split('-')[1]
                                 if rq.field == 'hp':
                                     char = get_object_or_404(models.Character, id=rq.char_id)
-                                    print(char.HP)
                                     char.HP = val
                                     char.save()
-                                    print(char.HP)
                                     rq.delete()
                                 elif rq.field == 'coins':
                                     char = get_object_or_404(models.Character, id=rq.char_id)
