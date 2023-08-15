@@ -561,7 +561,14 @@
     <div name='Skills' style='' class="row position-absolute d-none rounded container col card-body c-gold border border-warning bg-dark">
         <p class="text-center fw-bold">Skills: </p>
         <ul class=''>
-        {% for skill in skills %}
+
+        <div class='row' onclick=showOrHideBlock(this,"skillsMagical")>
+            <p class='col text-center  rounded bg-gray border border-warning p-1'>
+                Magical
+            </p>
+        </div>
+        <div id='skillsMagical'>
+        {% for skill in skillsMagical %}
             <li class='text-center'>
                 <a class='c-gold fst-italic' href='/dunnorpg/skills/{{ skill.original_id }}'>{{ skill.skill }} lvl.{{ skill.level }}</a>
                 <button onclick="show_block(this)" name="{{ skill.id }}" type='button' class='fst-italic ms-2 rounded-circle border border-warning btn btn-sm btn-warning btn-outline-dark c-gold'>i</button>
@@ -577,6 +584,104 @@
                 </div>
             </li><br>
         {% endfor %}
+        </div>
+
+        <div class='row' onclick=showOrHideBlock(this,"skillsMelee")>
+            <p class='col text-center  rounded bg-gray border border-warning p-1'>
+                Melee
+            </p>
+        </div>
+        <div id='skillsMelee'>
+        {% for skill in skillsMelee %}
+            <li class='text-center'>
+                <a class='c-gold fst-italic' href='/dunnorpg/skills/{{ skill.original_id }}'>{{ skill.skill }} lvl.{{ skill.level }}</a>
+                <button onclick="show_block(this)" name="{{ skill.id }}" type='button' class='fst-italic ms-2 rounded-circle border border-warning btn btn-sm btn-warning btn-outline-dark c-gold'>i</button>
+                {% if skill.max_uses != None %}
+                    <span>({{ skill.uses_left }}/{{ skill.max_uses }})</span>
+                    <a class='text-danger h6' href='use-skill/{{ skill.id }}'>Use</a>
+                {% endif %}
+                <div id='{{ skill.id }}' name="desc_block" class="d-none">
+                    <p class='fw-bold text-center'>{{ skill.skill }} lvl.{{ skill.level }}</p>
+                    {{ skill.desc }}
+                    <br>
+                    [<span class='fst-italic'>{{ skill.level_desc }}</span>]
+                </div>
+            </li><br>
+        {% endfor %}
+        </div>
+
+        <div class='row' onclick=showOrHideBlock(this,"skillsRange")>
+            <p class='col text-center  rounded bg-gray border border-warning p-1'>
+                Range
+            </p>
+        </div>
+        <div id='skillsRange'>
+        {% for skill in skillsRange %}
+            <li class='text-center'>
+                <a class='c-gold fst-italic' href='/dunnorpg/skills/{{ skill.original_id }}'>{{ skill.skill }} lvl.{{ skill.level }}</a>
+                <button onclick="show_block(this)" name="{{ skill.id }}" type='button' class='fst-italic ms-2 rounded-circle border border-warning btn btn-sm btn-warning btn-outline-dark c-gold'>i</button>
+                {% if skill.max_uses != None %}
+                    <span>({{ skill.uses_left }}/{{ skill.max_uses }})</span>
+                    <a class='text-danger h6' href='use-skill/{{ skill.id }}'>Use</a>
+                {% endif %}
+                <div id='{{ skill.id }}' name="desc_block" class="d-none">
+                    <p class='fw-bold text-center'>{{ skill.skill }} lvl.{{ skill.level }}</p>
+                    {{ skill.desc }}
+                    <br>
+                    [<span class='fst-italic'>{{ skill.level_desc }}</span>]
+                </div>
+            </li><br>
+        {% endfor %}
+        </div>
+
+        <div class='row' onclick=showOrHideBlock(this,"skillsAgility")>
+            <p class='col text-center  rounded bg-gray border border-warning p-1'>
+                Agility
+            </p>
+        </div>
+        <div id='skillsAgility'>
+        {% for skill in skillsAgility %}
+            <li class='text-center'>
+                <a class='c-gold fst-italic' href='/dunnorpg/skills/{{ skill.original_id }}'>{{ skill.skill }} lvl.{{ skill.level }}</a>
+                <button onclick="show_block(this)" name="{{ skill.id }}" type='button' class='fst-italic ms-2 rounded-circle border border-warning btn btn-sm btn-warning btn-outline-dark c-gold'>i</button>
+                {% if skill.max_uses != None %}
+                    <span>({{ skill.uses_left }}/{{ skill.max_uses }})</span>
+                    <a class='text-danger h6' href='use-skill/{{ skill.id }}'>Use</a>
+                {% endif %}
+                <div id='{{ skill.id }}' name="desc_block" class="d-none">
+                    <p class='fw-bold text-center'>{{ skill.skill }} lvl.{{ skill.level }}</p>
+                    {{ skill.desc }}
+                    <br>
+                    [<span class='fst-italic'>{{ skill.level_desc }}</span>]
+                </div>
+            </li><br>
+        {% endfor %}
+        </div>
+
+        <div class='row' onclick=showOrHideBlock(this,"skillsOther")>
+            <p class='col text-center  rounded bg-gray border border-warning p-1'>
+                Other
+            </p>
+        </div>
+        <div id='skillsOther'>
+        {% for skill in skillsOther %}
+            <li class='text-center'>
+                <a class='c-gold fst-italic' href='/dunnorpg/skills/{{ skill.original_id }}'>{{ skill.skill }} lvl.{{ skill.level }}</a>
+                <button onclick="show_block(this)" name="{{ skill.id }}" type='button' class='fst-italic ms-2 rounded-circle border border-warning btn btn-sm btn-warning btn-outline-dark c-gold'>i</button>
+                {% if skill.max_uses != None %}
+                    <span>({{ skill.uses_left }}/{{ skill.max_uses }})</span>
+                    <a class='text-danger h6' href='use-skill/{{ skill.id }}'>Use</a>
+                {% endif %}
+                <div id='{{ skill.id }}' name="desc_block" class="d-none">
+                    <p class='fw-bold text-center'>{{ skill.skill }} lvl.{{ skill.level }}</p>
+                    {{ skill.desc }}
+                    <br>
+                    [<span class='fst-italic'>{{ skill.level_desc }}</span>]
+                </div>
+            </li><br>
+        {% endfor %}
+        </div>
+
         <ul>
     </div>
 </div>

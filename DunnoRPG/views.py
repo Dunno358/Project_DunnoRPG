@@ -270,6 +270,11 @@ class CharacterDetails(DetailView):
         serializer = CharacterSerializer(chosen)
         
         skills = models.Skills.objects.all().filter(owner=chosen.owner,character=serializer.data['name']).values()
+        skillsMagical = []
+        skillsMelee = []
+        skillsRange = []
+        skillsAgility = []
+        skillsOther = []
         race = models.Races.objects.all().filter(name=serializer.data['race']).values()[0]
         mods = models.Mods.objects.all().filter(owner=chosen.owner,character=serializer.data['name']).values()
 
@@ -279,6 +284,16 @@ class CharacterDetails(DetailView):
             skill['original_desc'] = skill_description['desc']
             skill['level_desc'] = skill_description[f"level{skill['level']}"]
             skill['max_uses'] = skill_description[f"useslvl{skill['level']}"]
+            if skill_description['category'].lower() == 'magical': 
+                skillsMagical.append(skill)
+            elif skill_description['category'].lower() == 'melee': 
+                skillsMelee.append(skill)
+            elif skill_description['category'].lower() == 'range': 
+                skillsRange.append(skill)
+            elif skill_description['category'].lower() == 'agility': 
+                skillsAgility.append(skill)
+            else: 
+                skillsOther.append(skill)
 
         types = ['Helmet','Torso','Boots','Gloves','Amulet','Other']
 
@@ -300,6 +315,11 @@ class CharacterDetails(DetailView):
         context['chosen_character'] = [serializer.data] 
         context['mods'] = mods
         context['skills'] = skills
+        context['skillsMagical'] = skillsMagical
+        context['skillsMelee'] = skillsMelee
+        context['skillsRange'] = skillsRange
+        context['skillsAgility'] = skillsAgility
+        context['skillsOther'] = skillsOther
         context['race_desc'] = race['desc']
         
         context['eq_weapons'] = eq_weapons_qs
