@@ -1149,6 +1149,7 @@ class CityView(ListView):
             weaponry_twohand=[]
             potions = []
             other = []
+            animals = []
             
             for item in items:
                 item = models.Items.objects.filter(name=item).first()
@@ -1165,6 +1166,8 @@ class CityView(ListView):
                             potions.append(item.name)
                         else:
                             other.append(item.name)
+                    elif item.type == 'Animal':
+                        animals.append(item.name)
                     else:
                         if item.type in armor_types:
                             armor.append(item.name)
@@ -1179,6 +1182,7 @@ class CityView(ListView):
             context['armor'] = armor
             context['amulets'] = amulets
             context['potions'] = potions
+            context['animals'] = animals
             context['other'] = other
             context['city'] = city
             if self.request.user.is_superuser:
