@@ -1166,7 +1166,7 @@ class CityView(ListView):
                             potions.append(item.name)
                         else:
                             other.append(item.name)
-                    elif item.type == 'Animal':
+                    elif item.type == 'Animal' or item.type.lower() == 'animal-armor':
                         animals.append(item.name)
                     else:
                         if item.type in armor_types:
