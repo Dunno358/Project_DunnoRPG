@@ -94,7 +94,7 @@
             </form>
         </div>
 
-        <div name='head' class='row mt-2'><hr />
+        <form name='head' class='row mt-2'><hr />
             <div class='col'><p><span class="text-white-50">Helmet: </span>
                 {% if helmet != None %}
                     <span class='text-info fa fa-exchange-alt' onclick='show_or_hideById("helmet-swap")'></span> 
@@ -109,7 +109,13 @@
                         </span>
                     {% endif %}]</b></span>
                     
-                    ({{ helmet.durability }}/{{ helmet.name|getMaxDurability }})   
+                    (
+                    {% if user.is_superuser %}
+                        <input type='number' min="0" id='helmet-dur-gm' class='c-gold text-center bg-dark border-0' style='width: 5vw' value='{{ helmet.durability }}'>
+                    {% else %}
+                        {{ helmet.durability }} 
+                    {% endif %}  
+                    / {{ helmet.name|getMaxDurability }} )
                     <a href='move_eq-{{ helmet.id }}' class='fa fa-arrow-right text-success text-decoration-none'>EQ</a>
                     
                     <div id='helmet-swap' class='d-none'> 
@@ -141,9 +147,9 @@
                       
                 {% endif %}
             </p></div>
-        </div>
+        </form>
 
-        <div name='torso' class='row mt-2'><hr />
+        <form name='torso' class='row mt-2'><hr />
             <div class='col'><p><span class="text-white-50">Torso: </span> 
 
                 {% if torso != None %}
@@ -159,7 +165,13 @@
                             </span>
                         {% endif %}]</b></span>
                         
-                    ({{ torso.durability }}/{{ torso.name|getMaxDurability }})</a>   
+                        (
+                            {% if user.is_superuser %}
+                                <input type='number' min="0" id='torso-dur-gm' class='c-gold text-center bg-dark border-0' style='width: 5vw' value='{{ torso.durability }}'>
+                            {% else %}
+                                {{ torso.durability }} 
+                            {% endif %}  
+                            / {{ torso.name|getMaxDurability }} ) 
                     <a href='move_eq-{{ torso.id }}' class='fa fa-arrow-right text-success text-decoration-none'>EQ</a>
 
                     <div id='torso-swap' class='d-none'> 
@@ -191,9 +203,9 @@
 
                 {% endif %}
             </p></div>
-        </div>
+        </form>
 
-        <div name='hands' class='row mt-2'><hr />
+        <form name='hands' class='row mt-2'><hr />
             <div name='hand-left' class='row'><p name="LeftHand">
                 <span class="text-white-50">LeftHand: </span>
                     {% if leftItem != None %}
@@ -219,7 +231,15 @@
                             {% endif %}]
                         </span>
                         
-                        <span class='c-gold' id='s_dur'>({{ leftItem.durability }}/{{ leftItem.name|getMaxDurability }})</span>   
+                        <span class='c-gold' id='s_dur'>
+                            (
+                            {% if user.is_superuser %}
+                                <input type='number' min="0" id='leftItem-dur-gm' class='c-gold text-center bg-dark border-0' style='width: 5vw' value='{{ leftItem.durability }}'>
+                            {% else %}
+                                {{ leftItem.durability }} 
+                            {% endif %}  
+                            / {{ leftItem.name|getMaxDurability }} ) 
+                        </span>   
                         <a class='text-danger h6' href='/dunnorpg/makerequest/{{ value.id }};CharItems;CharItems;{{ leftItem.id }};0;durability;downgrade-1;character_detail'>-1</a>
                         <a href='move_eq-{{ leftItem.id }}' class='fa fa-arrow-right text-success text-decoration-none'>EQ</a>
 
@@ -283,7 +303,15 @@
                         {% endif %}]
                     </span>
 
-                <span class='c-gold' id='s_dur'>({{ rightItem.durability }}/{{ rightItem.name|getMaxDurability }})</span>   
+                <span class='c-gold' id='s_dur'>
+                    (
+                    {% if user.is_superuser %}
+                        <input type='number' min="0" id='rightItem-dur-gm' class='c-gold text-center bg-dark border-0' style='width: 5vw' value='{{ rightItem.durability }}'>
+                    {% else %}
+                        {{ rightItem.durability }} 
+                    {% endif %}  
+                    / {{ rightItem.name|getMaxDurability }} ) 
+                </span>   
                 <a class='text-danger h6' href='/dunnorpg/makerequest/{{ value.id }};CharItems;CharItems;{{ rightItem.id }};0;durability;downgrade-1;character_detail'>-1</a>
                 <a href='move_eq-{{ rightItem.id }}' class='fa fa-arrow-right text-success text-decoration-none'>EQ</a>
 
@@ -326,9 +354,9 @@
                 {% endif %}
                     </p>
             </div>
-        </div>
+        </form>
 
-        <div name='side' class='row mt-2'><hr />
+        <form name='side' class='row mt-2'><hr />
             <div class='col'><p><span class="text-white-50">Side: </span>
 
             {% if sideItem != None %}
@@ -346,7 +374,15 @@
                     {% endif %}]
                 </span>
 
-                <span class='c-gold' id='s_dur'>({{ sideItem.durability }}/{{ sideItem.name|getMaxDurability }})</span>   
+                <span class='c-gold' id='s_dur'>
+                    (
+                    {% if user.is_superuser %}
+                        <input type='number' min="0" id='sideItem-dur-gm' class='c-gold text-center bg-dark border-0' style='width: 5vw' value='{{ sideItem.durability }}'>
+                    {% else %}
+                        {{ sideItem.durability }} 
+                    {% endif %}  
+                    / {{ sideItem.name|getMaxDurability }} ) 
+                </span>   
                 <a class='text-danger h6' href='/dunnorpg/makerequest/{{ value.id }};CharItems;CharItems;{{ sideItem.id }};0;durability;downgrade-1;character_detail'>-1</a>
                 <a href='move_eq-{{ sideItem.id }}' class='fa fa-arrow-right text-success text-decoration-none'>EQ</a>
 
@@ -381,9 +417,9 @@
 
             </p></div>
             
-        </div>
+        </form>
 
-        <div name='boots' class='row mt-2'><hr />
+        <form name='boots' class='row mt-2'><hr />
             <div class='col'><p><span class="text-white-50">Boots: </span> 
 
                 {% if boots != None %}
@@ -399,7 +435,13 @@
                             </span>
                         {% endif %}]</b></span>
                         
-                    ({{ boots.durability }}/{{ boots.name|getMaxDurability }}) 
+                        (
+                        {% if user.is_superuser %}
+                            <input type='number' min="0" id='boots-dur-gm' class='c-gold text-center bg-dark border-0' style='width: 5vw' value='{{ boots.durability }}'>
+                        {% else %}
+                            {{ boots.durability }} 
+                        {% endif %}  
+                            / {{ boots.name|getMaxDurability }} ) 
                     <a href='move_eq-{{ boots.id }}' class='fa fa-arrow-right text-success text-decoration-none'>EQ</a>
 
                     <div id='boots-swap' class='d-none'> 
@@ -432,9 +474,9 @@
 
                 {% endif %}
             </p></div>
-        </div>
+        </form>
 
-        <div name='gloves' class='row mt-2'><hr />
+        <form name='gloves' class='row mt-2'><hr />
             <div class='col'><p><span class="text-white-50">Gloves: </span> 
 
                 {% if gloves != None %}
@@ -450,7 +492,13 @@
                             </span>
                         {% endif %}]</b></span>
                         
-                    ({{ gloves.durability }}/{{ gloves.name|getMaxDurability }})
+                        (
+                        {% if user.is_superuser %}
+                            <input type='number' min="0" id='gloves-dur-gm' class='c-gold text-center bg-dark border-0' style='width: 5vw' value='{{ gloves.durability }}'>
+                        {% else %}
+                            {{ gloves.durability }} 
+                        {% endif %}  
+                            / {{ gloves.name|getMaxDurability }} ) 
                     <a href='move_eq-{{ gloves.id }}' class='fa fa-arrow-right text-success text-decoration-none'>EQ</a>
 
                     <div id='gloves-swap' class='d-none'> 
@@ -482,9 +530,9 @@
 
                 {% endif %}
             </p></div>
-        </div>
+        </form>
 
-        <div name='amulet' class='row mt-2'><hr />
+        <form name='amulet' class='row mt-2'><hr />
             <p class='col'><span class="text-white-50">Amulet: </span> 
 
                 {% if amulet != None %}
@@ -530,7 +578,7 @@
 
                 {% endif %}
             </p>
-        </div>
+        </form>
 
         <div class='row'><hr />
             <p class='col' title='{{ race_desc }}'><span class="text-white-50">Race:</span> {{ value.race }} ({{ value.size }})</p>
@@ -722,9 +770,20 @@
 document.title = document.getElementById('char-name').innerHTML + " | DunnoRPG"
 document.getElementById('tb-characters').classList.remove('btn-outline-warning')
 document.getElementById('tb-characters').classList.add('btn-outline-primary')
+function catchErrorForValueChanges(id){
+    try{
+        trackValueChanges(id)
+    }
+    catch(TypeError){
+        console.log('Cannot track changes for '+id+'. Ignore if you are not GM.')
+    }
+     
+}
 
 trackValueChanges('hp-val')
 trackValueChanges('coins')
+durs = ['helmet-dur-gm','torso-dur-gm','leftItem-dur-gm','rightItem-dur-gm','sideItem-dur-gm','boots-dur-gm','gloves-dur-gm']
+durs.forEach(catchErrorForValueChanges)
 
 function showSkill(instance){
     if(instance.innerHTML == "Check skill"){
