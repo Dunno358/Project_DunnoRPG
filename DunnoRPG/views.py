@@ -580,7 +580,12 @@ def log_as_guest(request):
 def del_eq_item(request, **kwargs):
     itemDesc = get_object_or_404(models.Items, id=kwargs['obj_id'])
     char = get_object_or_404(models.Character, id=kwargs['char_id'])
-    models.Eq.objects.filter(name=itemDesc.name, character=char.name).first().delete()
+    item = models.Eq.objects.filter(name=itemDesc.name, character=char.name).first()
+    if item.amount == 1:
+        item.delete()
+    else:
+        item.amount -= 1
+        item.save()
     return redirect(f"/dunnorpg/items/ch{kwargs['char_id']}")
 def char_wear_item(request, **kwargs):
     char = get_object_or_404(models.Character, id=kwargs['char_id'])
