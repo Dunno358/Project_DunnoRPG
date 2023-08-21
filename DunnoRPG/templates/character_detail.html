@@ -94,7 +94,7 @@
             </form>
         </div>
 
-        <form name='head' class='row mt-2'><hr />
+        <form name='head' method='post' action='changedur-{{ helmet.id }}' class='row mt-2'><hr />
             <div class='col'><p><span class="text-white-50">Helmet: </span>
                 {% if helmet != None %}
                     <span class='text-info fa fa-exchange-alt' onclick='show_or_hideById("helmet-swap")'></span> 
@@ -111,7 +111,8 @@
                     
                     (
                     {% if user.is_superuser %}
-                        <input type='number' min="0" id='helmet-dur-gm' class='c-gold text-center bg-dark border-0' style='width: 5vw' value='{{ helmet.durability }}'>
+                        {% csrf_token %}
+                        <input type='number' min="0" id='helmet-dur-gm' class='c-gold text-center bg-dark border-0' style='width: 5vw' value='{{ helmet.durability }}' name='dur'>
                     {% else %}
                         {{ helmet.durability }} 
                     {% endif %}  
@@ -149,7 +150,7 @@
             </p></div>
         </form>
 
-        <form name='torso' class='row mt-2'><hr />
+        <form name='torso' method='post' action='changedur-{{ torso.id }}' class='row mt-2'><hr />
             <div class='col'><p><span class="text-white-50">Torso: </span> 
 
                 {% if torso != None %}
@@ -356,7 +357,7 @@
             </div>
         </form>
 
-        <form name='side' class='row mt-2'><hr />
+        <form name='side' method='post' action='changedur-{{ sideItem.id }}' class='row mt-2'><hr />
             <div class='col'><p><span class="text-white-50">Side: </span>
 
             {% if sideItem != None %}
@@ -419,7 +420,7 @@
             
         </form>
 
-        <form name='boots' class='row mt-2'><hr />
+        <form name='boots' method='post' action='changedur-{{ boots.id }}' class='row mt-2'><hr />
             <div class='col'><p><span class="text-white-50">Boots: </span> 
 
                 {% if boots != None %}
@@ -476,7 +477,7 @@
             </p></div>
         </form>
 
-        <form name='gloves' class='row mt-2'><hr />
+        <form name='gloves' method='post' action='changedur-{{ gloves.id }}' class='row mt-2'><hr />
             <div class='col'><p><span class="text-white-50">Gloves: </span> 
 
                 {% if gloves != None %}

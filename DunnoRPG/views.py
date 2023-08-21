@@ -587,6 +587,13 @@ def del_eq_item(request, **kwargs):
         item.amount -= 1
         item.save()
     return redirect(f"/dunnorpg/items/ch{kwargs['char_id']}")
+def change_item_durability(request,**kwargs):
+    if request.method == 'POST':
+        char = get_object_or_404(models.Character, id=kwargs['char_id'])
+        item = get_object_or_404(models.CharItems, id=kwargs['item_id'])
+        item.durability = int(request.POST['dur'])
+        item.save()
+        return redirect('character_detail', char.id)
 def char_wear_item(request, **kwargs):
     char = get_object_or_404(models.Character, id=kwargs['char_id'])
     place = kwargs['place'] #hand or position
