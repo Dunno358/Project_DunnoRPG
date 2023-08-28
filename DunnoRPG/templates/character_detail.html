@@ -87,14 +87,16 @@
             <p class='col'>
                 <span class="text-white-50">Armor:</span> 
                 <span id='armor'>{{ value.name|getArmor }}</span>; <span id='armor-weight'>{{ value.name|getArmorWeight }}</span>kg (-<span id='armor-mod'></span> ZRE)</p>
-            <form class='col' onsubmit="makeChangeToRequest('hp-val','Character','hp')">
+            <form class='col' method="post" action="change-health">
+                {% csrf_token %}
                 <span class="text-white-50">Health:</span> 
-                <input type='number' min="1" max="25" id='hp-val' class='c-gold text-center bg-dark border-0' style='width: 6vw' value='{{ value.HP }}'>/{{ value.fullHP }}
+                <input type='number' min="1" max="25" id='hp-val' class='c-gold text-center bg-dark border-0' style='width: 6vw' value='{{ value.HP }}' name="hp">/{{ value.fullHP }}
                 <button type='submit' class='btn btn-sm btn-success ms-3 rounded text-black'>Change</button>
             </form>
         </div>
 
         <form name='head' method='post' action='changedur-{{ helmet.id }}' class='row mt-2'><hr />
+            {% csrf_token %}
             <div class='col'><p><span class="text-white-50">Helmet: </span>
                 {% if helmet != None %}
                     <span class='text-info fa fa-exchange-alt' onclick='show_or_hideById("helmet-swap")'></span> 
@@ -111,7 +113,6 @@
                     
                     (
                     {% if user.is_superuser %}
-                        {% csrf_token %}
                         <input type='number' min="0" id='helmet-dur-gm' class='c-gold text-center bg-dark border-0' style='width: 5vw' value='{{ helmet.durability }}' name='dur'>
                     {% else %}
                         {{ helmet.durability }} 
@@ -151,6 +152,7 @@
         </form>
 
         <form name='torso' method='post' action='changedur-{{ torso.id }}' class='row mt-2'><hr />
+            {% csrf_token %}
             <div class='col'><p><span class="text-white-50">Torso: </span> 
 
                 {% if torso != None %}
@@ -168,7 +170,7 @@
                         
                         (
                             {% if user.is_superuser %}
-                                <input type='number' min="0" id='torso-dur-gm' class='c-gold text-center bg-dark border-0' style='width: 5vw' value='{{ torso.durability }}'>
+                                <input type='number' min="0" id='torso-dur-gm' class='c-gold text-center bg-dark border-0' style='width: 5vw' value='{{ torso.durability }}' name="dur">
                             {% else %}
                                 {{ torso.durability }} 
                             {% endif %}  
@@ -207,6 +209,7 @@
         </form>
 
         <form name='hands' class='row mt-2'><hr />
+            {% csrf_token %}
             <div name='hand-left' class='row'><p name="LeftHand">
                 <span class="text-white-50">LeftHand: </span>
                     {% if leftItem != None %}
@@ -235,7 +238,7 @@
                         <span class='c-gold' id='s_dur'>
                             (
                             {% if user.is_superuser %}
-                                <input type='number' min="0" id='leftItem-dur-gm' class='c-gold text-center bg-dark border-0' style='width: 5vw' value='{{ leftItem.durability }}'>
+                                <input type='number' min="0" id='leftItem-dur-gm' class='c-gold text-center bg-dark border-0' style='width: 5vw' value='{{ leftItem.durability }}'  name="dur">
                             {% else %}
                                 {{ leftItem.durability }} 
                             {% endif %}  
@@ -307,7 +310,7 @@
                 <span class='c-gold' id='s_dur'>
                     (
                     {% if user.is_superuser %}
-                        <input type='number' min="0" id='rightItem-dur-gm' class='c-gold text-center bg-dark border-0' style='width: 5vw' value='{{ rightItem.durability }}'>
+                        <input type='number' min="0" id='rightItem-dur-gm' class='c-gold text-center bg-dark border-0' style='width: 5vw' value='{{ rightItem.durability }}' name="dur">
                     {% else %}
                         {{ rightItem.durability }} 
                     {% endif %}  
@@ -358,6 +361,7 @@
         </form>
 
         <form name='side' method='post' action='changedur-{{ sideItem.id }}' class='row mt-2'><hr />
+            {% csrf_token %}
             <div class='col'><p><span class="text-white-50">Side: </span>
 
             {% if sideItem != None %}
@@ -378,7 +382,7 @@
                 <span class='c-gold' id='s_dur'>
                     (
                     {% if user.is_superuser %}
-                        <input type='number' min="0" id='sideItem-dur-gm' class='c-gold text-center bg-dark border-0' style='width: 5vw' value='{{ sideItem.durability }}'>
+                        <input type='number' min="0" id='sideItem-dur-gm' class='c-gold text-center bg-dark border-0' style='width: 5vw' value='{{ sideItem.durability }}' name="dur">
                     {% else %}
                         {{ sideItem.durability }} 
                     {% endif %}  
@@ -421,6 +425,7 @@
         </form>
 
         <form name='boots' method='post' action='changedur-{{ boots.id }}' class='row mt-2'><hr />
+            {% csrf_token %}
             <div class='col'><p><span class="text-white-50">Boots: </span> 
 
                 {% if boots != None %}
@@ -438,7 +443,7 @@
                         
                         (
                         {% if user.is_superuser %}
-                            <input type='number' min="0" id='boots-dur-gm' class='c-gold text-center bg-dark border-0' style='width: 5vw' value='{{ boots.durability }}'>
+                            <input type='number' min="0" id='boots-dur-gm' class='c-gold text-center bg-dark border-0' style='width: 5vw' value='{{ boots.durability }}' name="dur">
                         {% else %}
                             {{ boots.durability }} 
                         {% endif %}  
@@ -478,6 +483,7 @@
         </form>
 
         <form name='gloves' method='post' action='changedur-{{ gloves.id }}' class='row mt-2'><hr />
+            {% csrf_token %}
             <div class='col'><p><span class="text-white-50">Gloves: </span> 
 
                 {% if gloves != None %}
@@ -495,7 +501,7 @@
                         
                         (
                         {% if user.is_superuser %}
-                            <input type='number' min="0" id='gloves-dur-gm' class='c-gold text-center bg-dark border-0' style='width: 5vw' value='{{ gloves.durability }}'>
+                            <input type='number' min="0" id='gloves-dur-gm' class='c-gold text-center bg-dark border-0' style='width: 5vw' value='{{ gloves.durability }}' name="dur">
                         {% else %}
                             {{ gloves.durability }} 
                         {% endif %}  
@@ -583,9 +589,10 @@
 
         <div class='row'><hr />
             <p class='col' title='{{ race_desc }}'><span class="text-white-50">Race:</span> {{ value.race }} ({{ value.size }})</p>
-                    <form onsubmit="makeChangeToRequest('coins','Character','coins')">
+                    <form method="post" action="change-coins">
+                        {% csrf_token %}
                         <span class="text-white-50">Coins: <!-- Not working as for now -->
-                            <input type='number' min="0" id='coins' class='c-gold text-center bg-dark border-0' style='width: 8vw' value='{{ value.coins }}'>
+                            <input type='number' min="0" id='coins' class='c-gold text-center bg-dark border-0' style='width: 8vw' value='{{ value.coins }}' name="coins-amount">
                         </span>
                     </form>
             </p>
