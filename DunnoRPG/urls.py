@@ -9,6 +9,8 @@ urlpatterns = [
     
     path('character_detail/<int:id>/', views.CharacterDetails.as_view(), name='character_detail'),
     path('character_detail/<int:char_id>/changedur-<int:item_id>', views.change_item_durability, name='change_item_durability'),
+    path('character_detail/<int:char_id>/change-coins', views.change_coins, name='change_coins'),
+    path('character_detail/<int:char_id>/change-health', views.change_health, name='change_health'),
     path('character_detail/<int:char_id>/use-skill/<int:skill_id>', views.char_use_skill, name='use_skill'),
     path('character_detail/<int:char_id>/move_eq-<int:item_id>', views.MoveItemToEq.as_view(), name='move_item_to_eq'),
     path('character_detail/<int:char_id>/<int:item_id>;<str:place>', views.char_wear_item, name='wear_item'),

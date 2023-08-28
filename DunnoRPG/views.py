@@ -594,6 +594,24 @@ def change_item_durability(request,**kwargs):
         item.durability = int(request.POST['dur'])
         item.save()
         return redirect('character_detail', char.id)
+def change_coins(request, **kwargs):
+    if request.method == 'POST':
+        char = get_object_or_404(models.Character, id=kwargs['char_id'])
+        if request.user.is_superuser:
+            char.coins = request.POST['coins-amount']
+            char.save()
+        else:
+            messages.error(request,"Only GM can change coins, go and ask your GM to do so.")
+        return redirect('character_detail', char.id)  
+def change_health(request, **kwargs):  
+    if request.method == 'POST':
+        char = get_object_or_404(models.Character, id=kwargs['char_id'])
+        if request.user.is_superuser:
+            char.HP = request.POST['hp']
+            char.save()
+        else:
+            messages.error(request,"Only GM can change health, go and ask your GM to do so.")
+        return redirect('character_detail', char.id) 
 def char_wear_item(request, **kwargs):
     char = get_object_or_404(models.Character, id=kwargs['char_id'])
     place = kwargs['place'] #hand or position
