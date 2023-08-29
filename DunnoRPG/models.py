@@ -36,6 +36,7 @@ class Character(models.Model):
     weaponBonus = models.IntegerField(null=True)
     preferredWeapons = models.TextField(null=True)
     unlikedWeapons = models.TextField(null=True)
+    extra_capacity = models.IntegerField(default=0)
     
 
     def __str__(self):
