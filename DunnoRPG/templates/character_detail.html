@@ -208,7 +208,7 @@
             </p></div>
         </form>
 
-        <form name='hands' class='row mt-2'><hr />
+        <div name='hands' class='row mt-2'><hr />
             {% csrf_token %}
             <div name='hand-left' class='row'><p name="LeftHand">
                 <span class="text-white-50">LeftHand: </span>
@@ -358,7 +358,7 @@
                 {% endif %}
                     </p>
             </div>
-        </form>
+        </div>
 
         <form name='side' method='post' action='changedur-{{ sideItem.id }}' class='row mt-2'><hr />
             {% csrf_token %}
