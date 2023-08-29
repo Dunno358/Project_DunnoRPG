@@ -904,27 +904,17 @@ class changeItemFoundState(APIView):
 class makeRequest(APIView):
     def get(self, request, **kwargs):
         try:
-            if request.user.is_superuser:
-                val = kwargs['title'].split('-')[1]
-                char = get_object_or_404(models.Character, id=kwargs['char_id'])
-                if kwargs['field'] == 'hp':
-                    char.HP = val
-                elif kwargs['field'] == 'coins':
-                    char.coins = val
-                char.save()
-                messages.success(request,'GM: Handled successfully!')
-            else:
-                models.Requests.objects.create(
-                        from_user = request.user,
-                        char_id = kwargs['char_id'],
-                        objects_model = kwargs['objects_model'],
-                        object1_id = kwargs['object1_id'],
-                        object2_id = kwargs['object2_id'],
-                        model = kwargs['model'],
-                        field = kwargs['field'],
-                        title = kwargs['title']            
-                )
-                messages.success(request,'Request created successfully!')
+            models.Requests.objects.create(
+                    from_user = request.user,
+                    char_id = kwargs['char_id'],
+                    objects_model = kwargs['objects_model'],
+                    object1_id = kwargs['object1_id'],
+                    object2_id = kwargs['object2_id'],
+                    model = kwargs['model'],
+                    field = kwargs['field'],
+                    title = kwargs['title']            
+            )
+            messages.success(request,'Request created successfully!')
         except:
             messages.error(request, 'Request creation failed!')
         if kwargs['char_id'] == 0:
