@@ -4,7 +4,8 @@
                 <a id='tb-info' class="col m-1 btn btn-dark btn-outline-warning" href="{% url 'info' %}">Info</a>
                 <a id='tb-items' class="col m-1 btn btn-dark btn-outline-warning" href="{% url 'items' 0 %}">Items</a>
 
-                <a id='tb-gm' class="col m-1 btn btn-dark btn-outline-warning" href="{% url 'gm_panel' %}">GM</a>
+                <a id='tb-city' class="col m-1 btn btn-dark btn-outline-warning" href="{% url 'city_view' %}">City</a>
+                {% if user.is_superuser %}<a id='tb-gm' class="col m-1 btn btn-dark btn-outline-warning" href="{% url 'gm_panel' %}">GM</a>{% endif %}
                 <a id='tb-characters' class="col m-1 btn btn-dark btn-outline-warning" href="{% url 'home' %}">Characters</a>
                 <a id='tb-skills' class="col m-1 btn btn-dark btn-outline-warning" href="{% url 'skills' %}">Skills</a>
         </div>
