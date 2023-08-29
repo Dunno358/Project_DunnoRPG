@@ -302,6 +302,7 @@ class CharacterDetails(DetailView):
         eq_gloves_qs = models.Eq.objects.filter(character=chosen.name, type='Gloves').order_by('name')
         eq_boots_qs = models.Eq.objects.filter(character=chosen.name, type='Boots').order_by('name')
         eq_amulets_qs = models.Eq.objects.filter(character=chosen.name, type='Amulet').order_by('name')
+        eq_mounts_qs = models.Eq.objects.filter(character=chosen.name, type='Animal').order_by('name')
         eq_weapons_qs = models.Eq.objects.filter(character=chosen.name).exclude(type__in=types).order_by('name')
         
         context['helmet'] = models.CharItems.objects.filter(character=serializer.data['name'], position='Helmet').first()
@@ -309,6 +310,7 @@ class CharacterDetails(DetailView):
         context['gloves'] = models.CharItems.objects.filter(character=serializer.data['name'], position='Gloves').first()
         context['boots'] = models.CharItems.objects.filter(character=serializer.data['name'], position='Boots').first()
         context['amulet'] = models.CharItems.objects.filter(character=serializer.data['name'], position='Amulet').first()
+        context['mount'] = models.CharItems.objects.filter(character=serializer.data['name'], position='Mount').first()
         context['leftItem'] = models.CharItems.objects.filter(character=serializer.data['name'], hand='Left').first()
         context['rightItem'] = models.CharItems.objects.filter(character=serializer.data['name'], hand='Right').first()
         context['sideItem'] = models.CharItems.objects.filter(character=serializer.data['name'], hand='Side').first()
@@ -328,6 +330,7 @@ class CharacterDetails(DetailView):
         context['eq_gloves'] = eq_gloves_qs
         context['eq_boots'] = eq_boots_qs
         context['eq_amulets'] = eq_amulets_qs
+        context['eq_mounts'] = eq_mounts_qs
 
         return context 
     
@@ -343,12 +346,16 @@ class MoveItemToEq(APIView):
         for obj in eq:
             eq_weight += obj.weight
             
+        if item_desc.type == 'Animal':
+            char.extra_capacity = 0
+            char.save()
+            
         if char.SIŁ > 0:
-            max_weight = char.SIŁ*5
+            max_weight = char.SIŁ*5+char.extra_capacity
         elif char.SIŁ < 0:
-            max_weight = 3+(char.SIŁ*0.5)
+            max_weight = 3+(char.SIŁ*0.5)+char.extra_capacity
         else:
-            max_weight = 3            
+            max_weight = 3+char.extra_capacity           
 
         if eq_weight+item_desc.weight <= max_weight:
             models.Eq.objects.create(
@@ -618,6 +625,10 @@ def char_wear_item(request, **kwargs):
     item_id = kwargs['item_id']
     item_eq_obj = models.Eq.objects.get(character=char.name,id=item_id)
     item = models.Items.objects.get(name=item_eq_obj.name)
+    
+    if item.type == 'Animal':
+        char.extra_capacity = item.diceBonus
+        char.save()
                                 
     if item.dualHanded==True and place != 'Side':
         if place == 'Right':
@@ -710,11 +721,11 @@ def char_swap_item(request, **kwargs):
                 return redirect('character_detail', char.id)
 
     if char.SIŁ > 0:
-        max_weight = char.SIŁ*5
+        max_weight = char.SIŁ*5+char.extra_capacity
     elif char.SIŁ <0:
-        max_weight = 3+(char.SIŁ*0.5)
+        max_weight = 3+(char.SIŁ*0.5)+char.extra_capacity
     else:
-        max_weight = 3
+        max_weight = 3+char.extra_capacity
                                         
     current_weight = 0
     for item in models.Eq.objects.filter(character=char.name):
@@ -738,6 +749,9 @@ def char_swap_item(request, **kwargs):
         for effect in it1D.skillEffects.split(';'):
             effect = effect.split("-")
             models.Effects.objects.filter(character=char.name, name=effect[0]).first().delete()
+    
+    if it2D.type == 'Animal':
+        char.extra_capacity = it2D.diceBonus
     
     it1.name = it2.name
     it1.durability = it2.durability
@@ -797,6 +811,7 @@ class ItemsView(ListView):
         else:
             self.singlehand = []
             self.twohand = []
+            self.animals = []
             self.armor_dict = {'helmet': [], 'torso': [], 'boots': [], 'gloves': [], 'amulets': [], 'other': []}
             
             for item in models.Eq.objects.filter(character=self.character.name):
@@ -816,8 +831,10 @@ class ItemsView(ListView):
                         if item_obj.type.lower() == item_type:
                             self.armor_dict[item_type].append(item_obj.__dict__ | {'dur': item.durability, 'max_dur': item_obj.maxDurability})
                 else:
-                    if item_obj.dualHanded == False:
-                        self.singlehand.append(item_obj.__dict__ | {'dur': item.durability, 'max_dur': item_obj.maxDurability} )
+                    if item_obj.type == 'Animal':
+                        self.animals.append(item_obj.__dict__ | {'dur': item.durability, 'max_dur': item_obj.maxDurability})
+                    elif item_obj.dualHanded == False:
+                        self.singlehand.append(item_obj.__dict__ | {'dur': item.durability, 'max_dur': item_obj.maxDurability})
                     else:
                         self.twohand.append(item_obj.__dict__ | {'dur': item.durability, 'max_dur': item_obj.maxDurability})
         return queryset
@@ -831,10 +848,12 @@ class ItemsView(ListView):
         if self.character == None:
             if self.request.user.is_superuser:
                 context['items_singlehand'] = models.Items.objects.filter(dualHanded=False).order_by('rarity').exclude(type__in=types)
-                context['items_twohand'] = models.Items.objects.filter(dualHanded=True).order_by('rarity')    
+                context['items_twohand'] = models.Items.objects.filter(dualHanded=True).order_by('rarity')   
+                context['animals'] =  models.Items.objects.filter(type='Animal').order_by('rarity')
             else:
                 context['items_singlehand'] = models.Items.objects.filter(dualHanded=False, found=True).order_by('rarity').exclude(type__in=types)
                 context['items_twohand'] = models.Items.objects.filter(dualHanded=True, found=True) .order_by('rarity')
+                context['animals'] =  models.Items.objects.filter(type='Animal', found=True).order_by('rarity')
             
             for x in range(len(names)):
                 if self.request.user.is_superuser:
@@ -848,16 +867,17 @@ class ItemsView(ListView):
                 items_weight += item.weight
             
             if self.character.SIŁ > 0:
-                max_weight = self.character.SIŁ*5
+                max_weight = self.character.SIŁ*5+self.character.extra_capacity
             elif self.character.SIŁ < 0:
-                max_weight = 3+(self.character.SIŁ*0.5)
+                max_weight = 3+(self.character.SIŁ*0.5)+self.character.extra_capacity
             else:
-                max_weight = 3
+                max_weight = 3+self.character.extra_capacity
             
             context['current_weight'] = items_weight
             context['max_weight'] = max_weight
             context['items_singlehand'] = self.singlehand
             context['items_twohand'] = self.twohand
+            context['animals'] = self.animals
             context['items_helmet'] = self.armor_dict['helmet']
             context['items_torso'] = self.armor_dict['torso']
             context['items_gloves'] = self.armor_dict['gloves']
@@ -963,11 +983,11 @@ class RequestHandling(APIView):
                                     itemDesc = models.Items.objects.get(id=rq_object.object1_id)
 
                                     if char.SIŁ > 0:
-                                        max_weight = char.SIŁ*5
+                                        max_weight = char.SIŁ*5+char.extra_capacity
                                     elif char.SIŁ <0:
-                                        max_weight = 3+(char.SIŁ*0.5)
+                                        max_weight = 3+(char.SIŁ*0.5)+char.extra_capacity
                                     else:
-                                        max_weight = 3
+                                        max_weight = 3+char.extra_capacity
                                         
                                     current_weight = 0
                                     for item in models.Eq.objects.filter(character=char.name):
@@ -1014,11 +1034,11 @@ class RequestHandling(APIView):
                                 itemDesc = models.Items.objects.get(id=rq.object1_id)
                                 
                                 if char.SIŁ > 0:
-                                    max_weight = char.SIŁ*5
+                                    max_weight = char.SIŁ*5+char.extra_capacity
                                 elif char.SIŁ <0:
-                                    max_weight = 3+(char.SIŁ*0.5)
+                                    max_weight = 3+(char.SIŁ*0.5)+char.extra_capacity
                                 else:
-                                    max_weight = 3
+                                    max_weight = 3+char.extra_capacity
                                     
                                 current_weight = 0
                                 for item in models.Eq.objects.filter(character=char.name):
@@ -1085,11 +1105,11 @@ class GMPanel(FormView):
         
         if not override:
             if character.SIŁ > 0:
-                max_weight = character.SIŁ*5
+                max_weight = character.SIŁ*5+character.extra_capacity
             elif character.SIŁ < 0:
-                max_weight = 3 + (character.SIŁ*0.5)
+                max_weight = 3 + (character.SIŁ*0.5)+character.extra_capacity
             else:
-                max_weight = 3
+                max_weight = 3+character.extra_capacity
                 
             current_weight = 0
             for obj in models.Eq.objects.filter(character=character.name):
@@ -1217,11 +1237,11 @@ class BuyItem(APIView):
         character = get_object_or_404(models.Character, id=kwargs['character_id'])
 
         if character.SIŁ > 0:
-            max_weight = character.SIŁ*5
+            max_weight = character.SIŁ*5+character.extra_capacity
         elif character.SIŁ < 0:
-            max_weight = 3+(character.SIŁ*0.5)
+            max_weight = 3+(character.SIŁ*0.5)+character.extra_capacity
         else:
-            max_weight = 3 
+            max_weight = 3 +character.extra_capacity
         current_weight = 0
         for obj in models.Eq.objects.filter(character=character.name):
             current_weight += obj.weight
@@ -1244,7 +1264,7 @@ class BuyItem(APIView):
         else:
             messages.error(request, f'Not enough space for item! {current_weight}/{max_weight}kg taken.')
 
-        return redirect('/dunnorpg/info/city')
+        return redirect('/dunnorpg/city')
 
 class healCharacter(APIView):
     def get(self,request,**kwargs):
@@ -1264,7 +1284,7 @@ class healCharacter(APIView):
                 messages.success(request, f'{character.name} has been healed succesfully!')
         else:
             messages.error(request, f"Value you given doesn't fit {character.name} health points!")
-        return redirect('/dunnorpg/info/city')
+        return redirect('/dunnorpg/city')
 
 class SignUp(CreateView):
     form_class = UserCreationForm
