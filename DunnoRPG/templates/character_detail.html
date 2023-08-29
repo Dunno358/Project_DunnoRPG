@@ -587,6 +587,65 @@
             </p>
         </form>
 
+        {% if eq_mounts or mount != None  %}
+        <form name='mount' method='post' action='changedur-{{ mount.id }}' class='row mt-2'><hr />
+            {% csrf_token %}
+            <div class='col'><p><span class="text-white-50">Mount: </span> 
+
+                {% if mount != None %}
+                    <span class='text-info fa fa-exchange-alt' onclick='show_or_hideById("mount-swap")'></span> 
+
+                    <a class='{{ mount.name|getItemRarity }} fw-bold' href='/dunnorpg/items/{{ mount.name|getDescId }}'>
+                        {{ mount.name }}</a>
+    
+                        <span class='{{ mount.name|getItemRarity }}'><b>[ {{ mount.name|getItemArmor }}; {{ mount.name|getItemBonus }}kg
+                        {% if mount.name|getSkill %};
+                            <span onclick="showSkill(this)" class='fw-normal' title="{{ mount.name|getSkill }}">
+                                {{ mount.name|getSkill }}
+                            </span>
+                        {% endif %}]</b></span>
+                        
+                        (
+                        {% if user.is_superuser %}
+                            <input type='number' min="0" id='mount-dur-gm' class='c-gold text-center bg-dark border-0' style='width: 5vw' value='{{ mount.durability }}' name="dur">
+                        {% else %}
+                            {{ mount.durability }} 
+                        {% endif %}  
+                            / {{ mount.name|getMaxDurability }} ) 
+                    <a href='move_eq-{{ mount.id }}' class='fa fa-arrow-right text-success text-decoration-none'>EQ</a>
+
+                    <div id='mount-swap' class='d-none'> 
+                        <select class='w-50 ms-2 text-center border border-warning bg-dark text-white-50 rounded'>
+                            {% for item in eq_mounts %}
+                                <option id='{{ item.id }}' name={{ item.durability }} value='{{ item.name }}'>
+                                    {{ item.name }} 
+                                    ({{ item.durability }}/{{ item.name|getMaxDurability }})
+                                </option>
+                            {% endfor %}
+                        </select>
+                        <a onclick="swapItem('{{ mount.id }}', 'mount-swap')" class='btn btn-sm btn-success'>OK</a>
+                    </div>
+
+                {% else %}
+                <span class='text-info fa fa-plus' onclick='show_or_hideById("mount-add")'></span> 
+
+                <div id='mount-add' class='d-none'> 
+                    <select class='w-50 ms-2 text-center border border-warning bg-dark text-white-50 rounded'>
+                        {% for item in eq_mounts %}
+                            <option id='{{ item.id }}' value='{{ item.name }}'>
+                                {{ item.name }} 
+                                ({{ item.durability }}/{{ item.name|getMaxDurability }})
+                            </option>
+                        {% endfor %}
+                    </select>
+                    <a onclick="wearItem('mount', 'mount-add')" class='btn btn-sm btn-success'>OK</a>
+                </div> 
+
+                {% endif %}
+            </p></div>
+        </form>      
+        {% endif %}
+
         <div class='row'><hr />
             <p class='col' title='{{ race_desc }}'><span class="text-white-50">Race:</span> {{ value.race }} ({{ value.size }})</p>
                     <form method="post" action="change-coins">
