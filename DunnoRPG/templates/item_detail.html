@@ -52,6 +52,8 @@
                 <h2>Armor: {{ item.armor }}</h2>
             {% elif item.type == 'Other' %}
                 <h2>Usable or valuable item</h2>
+            {% elif item.type == 'Animal' %}
+                <h2>PŻ: {{ item.maxDurability }} | Armor: {{ item.armor }}</h2>
             {% else %}
                 <h2>1K{% if item.diceBonus >= 0 %}+{% endif %}{{ item.diceBonus }}, {{ item.AP }}AP</h2>
             {% endif %}
@@ -96,7 +98,11 @@
             <h5>Price: {{ item.price }}</h5>
         </div>
         <div class='col bg-dark p-2 border border-warning rounded ms-2 me-2'>
+            {% if item.type == 'Animal' %}
+            <h5>Extra capacity: +{{ item.diceBonus }}kg</h5>
+            {% else %}
             <h5>Weight: {{ item.weight }}kg</h5>
+            {% endif %}
         </div>
     </div>
 
