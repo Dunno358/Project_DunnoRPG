@@ -665,7 +665,11 @@
             {% for effect in value|getCharacterEffects %}
             <li onclick="show_or_hideById(this.attributes['name'].value)" name='ef{{ effect.id }}' class='fw-bold fst-italic'>
                 {{ effect.name }} (+{{ effect.bonus }}) 
-                {% if effect.time != 100 %}| Time left: {{ effect.time }}{% else %}| Item{% endif %}
+                {% if effect.time == 100 %}| Item
+                {% elif effect.time == 105 %}| Natural
+                {% elif effect.time == 110 %}| Class
+                {% else %}| Time left: {{ effect.time }}
+                {% endif %}
             </li>
             <p id='ef{{ effect.id }}' class='d-none'>{{ effect.name|getEffectDesc }}</p>
             {% endfor %}
