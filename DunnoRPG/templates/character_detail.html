@@ -670,6 +670,10 @@
                 {% elif effect.time == 110 %}| Class
                 {% else %}| Time left: {{ effect.time }}
                 {% endif %}
+
+                {% if user.is_superuser %}
+                <a href="/admin/DunnoRPG/effects/{{ effect.id }}/change/" class="ms-2 fa fa-link" target="_blank"></a>
+                {% endif %}
             </li>
             <p id='ef{{ effect.id }}' class='d-none'>{{ effect.name|getEffectDesc }}</p>
             {% endfor %}
