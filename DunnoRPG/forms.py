@@ -179,11 +179,10 @@ class AddEffectForm(forms.ModelForm):
     bonus = forms.IntegerField(label='Bonus',widget=forms.NumberInput(attrs={
         'class': 'text-center bg-dark c-gold rounded border border-info m-1 w-50',
         'value': 0,
-        'min': 0
     }))  
 
     time = forms.IntegerField(label='Time',widget=forms.NumberInput(attrs={
-        'class': 'text-center bg-dark c-gold rounded border border-info m-1 w-25',
+        'class': 'text-center bg-dark c-gold rounded border border-info m-1 w-50',
         'value': 1,
         'min': 1
     }))  
