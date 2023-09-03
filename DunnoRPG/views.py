@@ -592,6 +592,7 @@ def del_eq_item(request, **kwargs):
         item.delete()
     else:
         item.amount -= 1
+        item.weight -= itemDesc.weight
         item.save()
     return redirect(f"/dunnorpg/items/ch{kwargs['char_id']}")
 def change_item_durability(request,**kwargs):
