@@ -4,26 +4,11 @@
 {% block content %}
 {% include 'top_bar.html' %}
 
-<script>
-    document.getElementById('tb-items').classList.remove('btn-outline-warning')
-    document.getElementById('tb-items').classList.add('btn-outline-primary')
-
-    function showDesc(){
-        document.getElementById('desc-btn').classList.add('d-none')
-        document.getElementById('item_desc').classList.remove('d-none')
-    }
-
-    function hideDesc(instance){
-        document.getElementById('item_desc').classList.add('d-none')
-        document.getElementById('desc-btn').classList.remove('d-none')
-    }
-</script>
-
 <div class='container mt-3'>
 
     <div class='row text-border-black'>
         <div class='col text-center c-gold fst-italic'>
-            <h1>{{ item.name }}</h1>
+            <h1 id="item-name">{{ item.name }}</h1>
         </div>
     </div>
 
@@ -107,5 +92,21 @@
     </div>
 
 </div>
+
+<script>
+    window.title = document.getElementById("item-name").innerHTML + " | DunnoRPG"
+    document.getElementById('tb-items').classList.remove('btn-outline-warning')
+    document.getElementById('tb-items').classList.add('btn-outline-primary')
+
+    function showDesc(){
+        document.getElementById('desc-btn').classList.add('d-none')
+        document.getElementById('item_desc').classList.remove('d-none')
+    }
+
+    function hideDesc(instance){
+        document.getElementById('item_desc').classList.add('d-none')
+        document.getElementById('desc-btn').classList.remove('d-none')
+    }
+</script>
 
 {% endblock content %}
