@@ -42,11 +42,11 @@
         <div id='smith-items' class='container text-center c-gold rounded border border-primary bg-dark d-none'>
             {% for item in weaponry_singlehand %}
                 <div class='row bg-gray rounded m-2 border border-primary'>
-                    <a class='col text-center {{ item|getItemRarity }} h5 m-1' id='{{ item|getDescId }}'
+                    <a class='col text-center {{ item|getItemRarity }} wrap h5 m-1' id='{{ item|getDescId }}'
                     href='/dunnorpg/items/{{ item|getDescId }}'>
                         {{ item }}
                     </a>
-                    <span class='col-4 c-gold h5 m-1 border-start border-white'>
+                    <span class='col-3 c-gold h5 m-1 border-start border-white'>
                         Cost: {{ item|getItemPrice:True }}
                     </span>
                     <a class='col-2 text-center btn btn-sm btn-success' onclick="buyItem('{{ item }}','{{ item|getDescId }}')">
@@ -57,11 +57,11 @@
             <hr>
             {% for item in weaponry_twohand %}
                 <div class='row bg-gray rounded m-2 border border-primary'>
-                    <a class='col text-center {{ item|getItemRarity }} h5 m-1' id='{{ item|getDescId }}'
+                    <a class='col text-center {{ item|getItemRarity }} wrap h5 m-1' id='{{ item|getDescId }}'
                     href='/dunnorpg/items/{{ item|getDescId }}'>
                         {{ item }}
                     </a>
-                    <span class='col-4 c-gold h5 m-1 border-start border-white'>
+                    <span class='col-3 c-gold h5 m-1 border-start border-white'>
                         Cost: {{ item|getItemPrice:True }}
                     </span>
                     <a class='col-2 text-center btn btn-sm btn-success' onclick="buyItem('{{ item }}','{{ item|getDescId }}')">
@@ -77,11 +77,11 @@
         <div id='armorer-items' class='container text-center c-gold rounded border border-primary bg-dark d-none'>
             {% for item in armor %}
                 <div class='row bg-gray rounded m-2 border border-primary'>
-                    <a class='col text-center {{ item|getItemRarity }} h5 m-1' id='{{ item|getDescId }}'
+                    <a class='col text-center {{ item|getItemRarity }} wrap h5 m-1' id='{{ item|getDescId }}'
                     href='/dunnorpg/items/{{ item|getDescId }}'>
                         {{ item }}
-                    </a>
-                    <span class='col-4 c-gold h5 m-1 border-start border-white'>
+                    </a> 
+                    <span class='col-3 c-gold h5 m-1 border-start border-white'>
                         Cost: {{ item|getItemPrice:True }}
                     </span>
                     <a class='col-2 text-center btn btn-sm btn-success' onclick="buyItem('{{ item }}','{{ item|getDescId }}')">
@@ -97,11 +97,11 @@
         <div id='strange-items' class='container text-center c-gold rounded border border-primary bg-dark d-none'>
             {% for item in amulets %}
                 <div class='row bg-gray rounded m-2 border border-primary'>
-                    <a class='col text-center {{ item|getItemRarity }} h5 m-1' id='{{ item|getDescId }}'
+                    <a class='col text-center {{ item|getItemRarity }} wrap h5 m-1' id='{{ item|getDescId }}'
                     href='/dunnorpg/items/{{ item|getDescId }}'>
                         {{ item }}
                     </a>
-                    <span class='col-4 c-gold h5 m-1 border-start border-white'>
+                    <span class='col-3 c-gold h5 m-1 border-start border-white'>
                         Cost: {{ item|getItemPrice:True }}
                     </span>
                     <a class='col-2 text-center btn btn-sm btn-success' onclick="buyItem('{{ item }}','{{ item|getDescId }}')">
@@ -117,11 +117,11 @@
         <div id='potions' class='container text-center c-gold rounded border border-primary bg-dark d-none'>
             {% for item in potions %}
                 <div class='row bg-gray rounded m-2 border border-primary'>
-                    <a class='col text-center {{ item|getItemRarity }} h5 m-1' id='{{ item|getDescId }}'
+                    <a class='col text-center {{ item|getItemRarity }} wrap h5 m-1' id='{{ item|getDescId }}'
                     href='/dunnorpg/items/{{ item|getDescId }}'>
                         {{ item }}
                     </a>
-                    <span class='col-4 c-gold h5 m-1 border-start border-white'>
+                    <span class='col-3 c-gold h5 m-1 border-start border-white'>
                         Cost: {{ item|getItemPrice:True }}
                     </span>
                     <a class='col-2 text-center btn btn-sm btn-success' onclick="buyItem('{{ item }}','{{ item|getDescId }}')">
@@ -137,11 +137,11 @@
         <div id='merchant' class='container text-center c-gold rounded border border-primary bg-dark d-none'>
             {% for item in other %}
                 <div class='row bg-gray rounded m-2 border border-primary'>
-                    <a class='col text-center {{ item|getItemRarity }} h5 m-1' id='{{ item|getDescId }}'
+                    <a class='col text-center {{ item|getItemRarity }} wrap h5 m-1' id='{{ item|getDescId }}'
                     href='/dunnorpg/items/{{ item|getDescId }}'>
                         {{ item }}
                     </a>
-                    <span class='col-4 c-gold h5 m-1 border-start border-white'>
+                    <span class='col-3 c-gold h5 m-1 border-start border-white'>
                         Cost: {{ item|getItemPrice:True }}
                     </span>
                     <a class='col-2 text-center btn btn-sm btn-success' onclick="buyItem('{{ item }}','{{ item|getDescId }}')">
@@ -157,11 +157,11 @@
         <div id='animals' class='container text-center c-gold rounded border border-primary bg-dark d-none'>
             {% for item in animals %}
                 <div class='row bg-gray rounded m-2 border border-primary'>
-                    <a class='col text-center {{ item|getItemRarity }} h5 m-1' id='{{ item|getDescId }}'
+                    <a class='col text-center {{ item|getItemRarity }} wrap h5 m-1' id='{{ item|getDescId }}'
                     href='/dunnorpg/items/{{ item|getDescId }}'>
                         {{ item }}
                     </a>
-                    <span class='col-4 c-gold h5 m-1 border-start border-white'>
+                    <span class='col-3 c-gold h5 m-1 border-start border-white'>
                         Cost: {{ item|getItemPrice:True }}
                     </span>
                     <a class='col-2 text-center btn btn-sm btn-success' onclick="buyItem('{{ item }}','{{ item|getDescId }}')">
