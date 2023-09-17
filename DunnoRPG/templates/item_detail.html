@@ -15,7 +15,15 @@
     <div class='row mt-2 text-border-black'>
         <div class='col text-center c-gold fst-italic'>
             <h2>
-                Type: {{ item.type }}
+                Type: 
+                {% if item.weight < 4 %}
+                    Light
+                {% elif item.weight < 7 %}
+                    Medium
+                {% else %}
+                    Heavy
+                {% endif %}
+                {{ item.type }}
             </h2>
         </div>
     </div>
