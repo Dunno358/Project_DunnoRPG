@@ -900,6 +900,23 @@ class ItemDetailView(DetailView):
         context = super().get_context_data(**kwargs)
         item = self.get_object()
 
+        types = {
+            "Helmet": [1.5, 2.5],
+            "Torso": [4,7],
+            "Boots": [0.5, 1.1],
+            "Gloves": [1, 2]
+        }
+
+        for type in types:
+            if item.type == type:
+                if item.weight < types[type][0]:
+                    weight_type = "Light"
+                elif item.weight < types[type][1]:
+                    weight_type = "Medium"
+                else:
+                    weight_type = "Heavy"
+
+        context['weight_type'] = weight_type
         context['item'] = item
 
         return context

@@ -15,25 +15,7 @@
     <div class='row mt-2 text-border-black'>
         <div class='col text-center c-gold fst-italic'>
             <h2>
-                Type: 
-                {% if item.type == 'Torso' %}
-                    {% if item.weight < 4 %}
-                        Light
-                    {% elif item.weight < 7 %}
-                        Medium
-                    {% else %}
-                        Heavy
-                    {% endif %}    
-                {% elif item.type == 'Helmet' %}
-                    {% if item.weight < 1.5 %}
-                        Light
-                    {% elif item.weight < 2.5 %}
-                        Medium
-                    {% else %}
-                        Heavy
-                    {% endif %}   
-                {% endif %}
-                {{ item.type }}
+                Type: {{weight_type}} {{ item.type }}
             </h2>
         </div>
     </div>
