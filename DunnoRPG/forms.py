@@ -125,10 +125,18 @@ class CharacterSkillsForm(forms.ModelForm):
         ]
         
 class AddEqItemForm(forms.ModelForm):
-    
+    try:
+        all_characters = Character.objects.all().order_by('name')
+    except:
+        all_characters = []
+
     characters = []
-    for character in Character.objects.all().order_by('name'):
-        characters.append((character.id, character.name))
+    try:
+        for character in all_characters:
+            characters.append((character.id, character.name))
+    except:
+        pass
+    
     character = forms.ChoiceField(choices=characters,label='',widget=forms.Select(attrs={
         'class': 'text-center bg-dark rounded border border-warning c-gold p-1 m-1'
     }))
@@ -163,8 +171,11 @@ class AddEqItemForm(forms.ModelForm):
 
 class AddEffectForm(forms.ModelForm):
     characters = []
-    for character in Character.objects.all().order_by('name'):
-        characters.append((character.id, character.name))
+    try:
+        for character in Character.objects.all().order_by('name'):
+            characters.append((character.id, character.name))
+    except:
+        pass
     character = forms.ChoiceField(choices=characters,label='',widget=forms.Select(attrs={
         'class': 'text-center bg-dark rounded border border-warning c-gold p-1 m-1'
     }))
