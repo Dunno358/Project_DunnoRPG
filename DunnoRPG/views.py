@@ -907,6 +907,7 @@ class ItemDetailView(DetailView):
             "Gloves": [1, 2]
         }
 
+        weight_type = ''
         for type in types:
             if item.type == type:
                 if item.weight < types[type][0]:
@@ -916,7 +917,8 @@ class ItemDetailView(DetailView):
                 else:
                     weight_type = "Heavy"
 
-        context['weight_type'] = weight_type
+        if weight_type != '':
+            context['weight_type'] = weight_type
         context['item'] = item
 
         return context
