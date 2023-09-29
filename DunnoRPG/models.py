@@ -38,6 +38,7 @@ class Character(models.Model):
     unlikedWeapons = models.TextField(null=True)
     extra_capacity = models.IntegerField(default=0)
     notes = models.TextField(null=True)
+    model_url = models.CharField(max_length=255, blank=True)
     
 
     def __str__(self):
