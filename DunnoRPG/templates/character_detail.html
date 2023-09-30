@@ -72,7 +72,14 @@
 
     <div name='Equipment' class="row text-center ms-3 mt-1 card-body c-gold border border-warning bg-dark rounded">
         <p name='{{ value.id }}' class="text-center fw-bold">
-            <span id='char-name' name='{{ value.id }}'>{{ value.name }}</span>
+            {% if value.model_url %}
+                <a id='char-name' name='{{ value.id }}' href="{{ value.model_url }}" class="c-gold" target="_blank">
+                    {{ value.name }}
+                </a>
+            {% else %}
+                <span id='char-name' name='{{ value.id }}'>{{ value.name }}</span>
+            {% endif %}
+
             {% if value.chosen_class %}| 
             <a 
             href='https://docs.google.com/document/d/1A-AM1SF78bhQ0blRxf06kb7VQ9WMYVeSN4VhOn3j53g/edit?usp=sharing'
