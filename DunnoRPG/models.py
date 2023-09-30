@@ -37,8 +37,8 @@ class Character(models.Model):
     preferredWeapons = models.TextField(null=True)
     unlikedWeapons = models.TextField(null=True)
     extra_capacity = models.IntegerField(default=0)
-    notes = models.TextField(null=True)
-    model_url = models.CharField(max_length=255, blank=True)
+    notes = models.TextField(blank=True, null=True)
+    model_url = models.CharField(max_length=255, blank=True, null=True)
     
 
     def __str__(self):
