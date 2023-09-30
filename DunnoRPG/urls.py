@@ -50,7 +50,9 @@ urlpatterns = [
     path('makerequest/<int:char_id>;<str:model>;<str:objects_model>;<int:object1_id>;<int:object2_id>;<str:field>;<str:title>;<str:to_reverse>', views.makeRequest.as_view(), name='make_request'),
     path('gmpanel/rq<int:rq_id>-<int:status>-<int:all>', views.RequestHandling.as_view(), name='handling_request'),
     
-    path('info/effects/', views.InfoEffects.as_view(), name='info_effects')
+    path('info/effects/', views.InfoEffects.as_view(), name='info_effects'),
+    
+    path('update_field/<int:id>', views.update_field, name='update_field')
 ]
 
 urlpatterns = format_suffix_patterns(urlpatterns)

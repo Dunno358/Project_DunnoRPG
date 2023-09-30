@@ -666,26 +666,50 @@
 
     </div>    
     
-        <div name='Effects' class="row d-none position-absolute rounded container col card-body c-gold border border-warning bg-dark mt-4">
-            <p class="text-center fw-bold">Effects: </p>
-            <ul>
-            {% for effect in value|getCharacterEffects %}
-            <li onclick="show_or_hideById(this.attributes['name'].value)" name='ef{{ effect.id }}' class='fw-bold fst-italic'>
-                {{ effect.name }} (+{{ effect.bonus }}) 
-                {% if effect.time == 100 %}| Item
-                {% elif effect.time == 105 %}| Natural
-                {% elif effect.time == 110 %}| Class
-                {% else %}| Time left: {{ effect.time }}
-                {% endif %}
-
-                {% if user.is_superuser %}
-                <a href="/admin/DunnoRPG/effects/{{ effect.id }}/change/" class="ms-2 fa fa-link" target="_blank"></a>
-                {% endif %}
-            </li>
-            <p id='ef{{ effect.id }}' class='d-none'>{{ effect.name|getEffectDesc }}</p>
-            {% endfor %}
-            </ul>
+    <form id="notes-block" class="d-none position-fixed mt-2 border border-warning bg-gray rounded" 
+    style="width: 75%; left: 13%; height: 55%;" method="post" action="/dunnorpg/update_field/{{ value.id }}?model=Character">
+        {% csrf_token %}
+        <div class="row">
+            <div class="col"></div>
+            <button class="col-2 bg-danger border-0 rounded m-1 text-white" type="button"
+            onclick="this.parentNode.parentNode.classList.add('d-none')">X</button>
         </div>
+        <div class="row text-center c-gold">
+            <input type="hidden" name="id" value="{{ value.id }}">
+            <input type="hidden" name="model" value="Character">
+            <h5 class="fw-bold col text-center">Notatki:</h5>
+        </div>    
+        <div class="row">
+            <textarea value="test" class="card-body m-2 rounded" name="notes-text"
+            style="height: 35vh; background-color: #dbc78a;">{{ value.notes }}</textarea>
+        </div>
+        <div class="row ms-3 me-3">
+            <button type="submit" class="col bg-success border-0 rounded fst-italic">
+                Zapisz
+            </button>
+        </div>
+    </form>
+
+    <div name='Effects' class="row d-none position-absolute rounded container col card-body c-gold border border-warning bg-dark mt-4">
+        <p class="text-center fw-bold">Effects: </p>
+        <ul>
+        {% for effect in value|getCharacterEffects %}
+        <li onclick="show_or_hideById(this.attributes['name'].value)" name='ef{{ effect.id }}' class='fw-bold fst-italic'>
+            {{ effect.name }} (+{{ effect.bonus }}) 
+            {% if effect.time == 100 %}| Item
+            {% elif effect.time == 105 %}| Natural
+            {% elif effect.time == 110 %}| Class
+            {% else %}| Time left: {{ effect.time }}
+            {% endif %}
+
+            {% if user.is_superuser %}
+            <a href="/admin/DunnoRPG/effects/{{ effect.id }}/change/" class="ms-2 fa fa-link" target="_blank"></a>
+            {% endif %}
+        </li>
+        <p id='ef{{ effect.id }}' class='d-none'>{{ effect.name|getEffectDesc }}</p>
+        {% endfor %}
+        </ul>
+    </div>
     
 
     <div name='Skills' style='' class="row position-absolute d-none rounded container col card-body c-gold border border-warning bg-dark">
@@ -833,10 +857,12 @@
         <div onclick='show_result_at_window("Dice")' class='col m-1 btn btn-dark btn-outline-warning border border-warning rounded'>
             <span class='fas fa-dice-d20'> Dice</span>
         </div>
-
         <a href='/dunnorpg/items/ch{{ value.id }}' name='eq-link' class='col m-1 btn btn-dark btn-outline-warning border border-warning rounded'>
             <span class='fas fa-scroll'> Equipment</span>
         </a>
+        <div onclick='document.getElementById("notes-block").classList.remove("d-none")' class='col m-1 btn btn-dark btn-outline-warning border border-warning rounded'>
+            <span class='fas fa-pencil-alt'> Notes</span>
+        </div>
     
 </div>
 

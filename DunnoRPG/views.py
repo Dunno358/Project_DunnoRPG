@@ -705,6 +705,18 @@ def reset_skills(request,mode):
                 skill.save()
     return redirect('gm_panel')
 
+def update_field(request, **kwargs):
+    text = request.POST.get('notes-text')
+    field_id = request.POST.get('id')
+    model = request.POST.get('model')
+    
+    if model == "Character":
+        obj = get_object_or_404(models.Character, id=field_id)
+        obj.notes = text
+        obj.save()
+    
+    return redirect('character_detail', field_id)
+
 def char_swap_item(request, **kwargs):
     char = get_object_or_404(models.Character, id=kwargs['char_id'])
     it1 = get_object_or_404(models.CharItems, id=kwargs['it1_id'])
