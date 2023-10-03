@@ -206,6 +206,16 @@ def getEffectsBonus(character_name, action):
     return bonus
 
 @register.filter
+def getAmuletAttackBonus(charName):
+    try:
+        amulet = models.Items.objects.filter(
+            name=models.CharItems.objects.filter(character=charName, position='Amulet').first().name
+            ).first()
+        return amulet.diceBonus
+    except:
+        return 0
+
+@register.filter
 def getArmor(charName):
     helmet = models.CharItems.objects.filter(character=charName, position='Helmet').first()
     torso = models.CharItems.objects.filter(character=charName, position='Torso').first()

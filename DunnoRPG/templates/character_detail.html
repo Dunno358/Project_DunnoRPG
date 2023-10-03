@@ -59,6 +59,7 @@
         <p id='effects-parry'>{{ value.name|getEffectsBonus:"parry" }}</p>
         <p id='effects-dodge'>{{ value.name|getEffectsBonus:"dodge" }}</p>
         <p id='weapon-weight-mod'>0</p>
+        <p id='amulet-attack-mod'>{{ value.name|getAmuletAttackBonus }}</p>
     </div>
 
     <div name='Stats' class="row card-body d-none text-center mt-4 c-gold border border-warning bg-dark rounded position-fixed">
@@ -1098,6 +1099,7 @@ function show_result_at_window(action){
         attack_effect_bonus = parseInt(document.getElementById('effects-attack').innerHTML)
         sil = parseInt(document.getElementById('stat-SIŁ').innerHTML)
         sil_mod = parseInt(document.getElementById('stat-SIŁ-mod').innerHTML) 
+        amulet_bonus = parseInt(document.getElementById('amulet-attack-mod').innerHTML) 
 
 
         if(document.getElementById('l_bonus').innerHTML != 'Empty')
@@ -1108,7 +1110,7 @@ function show_result_at_window(action){
                 sil=0
                 sil_mod=0
             }
-            l_bonus = parseInt(document.getElementById('l_bonus').innerHTML)
+            l_bonus = parseInt(document.getElementById('l_bonus').innerHTML)+amulet_bonus
 
             if(leftWeapon.getAttribute("name") == 'shield')
             { //shield-left-hand-attack
@@ -1134,7 +1136,7 @@ function show_result_at_window(action){
         if(document.getElementById('r_bonus').innerHTML != 'Empty' && document.getElementById('r_bonus').innerHTML != '')
         {
             rightWeapon = document.getElementById('r_weapon')
-            r_bonus = parseInt(document.getElementById('r_bonus').innerHTML)
+            r_bonus = parseInt(document.getElementById('r_bonus').innerHTML)+amulet_bonus
             r_type = rightWeapon.getAttribute('name')
             if(['Pistol','Musket','Crossbow','Bow'].includes(r_type)){
                 sil=0
