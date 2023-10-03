@@ -211,7 +211,8 @@ def getArmor(charName):
     torso = models.CharItems.objects.filter(character=charName, position='Torso').first()
     boots = models.CharItems.objects.filter(character=charName, position='Boots').first()
     gloves = models.CharItems.objects.filter(character=charName, position='Gloves').first()
-    items = [helmet,torso,boots,gloves]
+    amulets = models.CharItems.objects.filter(character=charName, position='Amulet').first()
+    items = [helmet,torso,boots,gloves,amulets]
     
     armor = 0
     
@@ -229,7 +230,8 @@ def getArmorWeight(charName):
     torso = models.CharItems.objects.filter(character=charName, position='Torso').first()
     boots = models.CharItems.objects.filter(character=charName, position='Boots').first()
     gloves = models.CharItems.objects.filter(character=charName, position='Gloves').first()
-    items = [helmet,torso,boots,gloves]  
+    amulets = models.CharItems.objects.filter(character=charName, position='Amulet').first()
+    items = [helmet,torso,boots,gloves,amulets]  
     
     weight = 0
     
