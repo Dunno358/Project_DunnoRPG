@@ -27,6 +27,7 @@ urlpatterns = [
     
     path('character_add_skills/<int:char_id>/up/<str:stat>', views.UpgradeCharacterStats.as_view(), name='stat-upgrade'),
     path('character_add_skills/<int:char_id>/down/<str:stat>', views.DowngradeCharacterStats.as_view(), name='stat-downgrade'),
+    path('character_add_skills/<int:char_id>/change_owner', views.char_change_owner, name='char_change_owner'),
 
     path('char-delete/<int:char_id>', views.DeleteCharacter.as_view(), name='delete_character'),
     

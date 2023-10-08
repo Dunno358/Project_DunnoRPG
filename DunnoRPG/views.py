@@ -1,4 +1,4 @@
-from typing import Any, Dict
+from django.contrib.auth.models import User
 from django.contrib import messages
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.forms import UserCreationForm
@@ -150,12 +150,17 @@ class CharacterSkills(ListView, FormView):
         if magical_skills_points < 0:
             magical_skills_points = 0
 
+        users = []
+        for user in User.objects.values():
+            users.append(user)
+
         context['character'] = chosen_character
         context['character_id'] = id
         context['character_stats'] = character_stats
         context['skills_count'] = skills_points
         context['skills_count_magical'] = magical_skills_points
         context['form'] = CharacterSkillsForm()
+        context['users'] = users
 
         return context            
     def form_valid(self, form):
@@ -716,6 +721,30 @@ def update_field(request, **kwargs):
         obj.save()
     
     return redirect('character_detail', field_id)
+
+def char_change_owner(request, **kwargs):
+    new_owner = request.POST['new_owner']
+    char = get_object_or_404(models.Character, id=request.POST['chosen_character_id'])
+    
+    for item in models.CharItems.objects.filter(owner=char.owner, character=char.name):
+        item.owner = new_owner
+        item.save()
+    for effect in models.Effects.objects.filter(owner=char.owner, character=char.name):
+        effect.owner = new_owner
+        effect.save()    
+    for eq in models.Eq.objects.filter(owner=char.owner, character=char.name):
+        eq.owner = new_owner
+        eq.save()  
+    for mod in models.Mods.objects.filter(owner=char.owner, character=char.name):
+        mod.owner = new_owner
+        mod.save() 
+    for skill in models.Skills.objects.filter(owner=char.owner, character=char.name):
+        skill.owner = new_owner
+        skill.save() 
+    
+    char.owner = new_owner
+    char.save()
+    return redirect('character_add_skills', char.id)
 
 def char_swap_item(request, **kwargs):
     char = get_object_or_404(models.Character, id=kwargs['char_id'])

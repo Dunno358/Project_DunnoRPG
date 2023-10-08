@@ -3,7 +3,34 @@
  {% include 'top_bar.html' %}
  {% include 'dunnorpg/messages.html' %}
  
+<form method="post" action="change_owner" id='choose-new-owner' class='d-none position-fixed container-fluid'>
+    {% csrf_token %}
+    <div class='row bg-dark c-gold rounded border border-warning mt-5 ms-5 me-5'>
+      <div class='col text-center'>
+        <select class='bg-dark text-primary h4 m-3 border border-warning rounded text-center' 
+        name="new_owner" id="new_owner_select">
+            {% for user in users %}
+                <option value='{{ user.username }}' class='h4'>{{ user.username }}</option>
+            {% endfor %}
+        </select>
+        <p id='Character' class='c-gold h5'>{{ character }}</p>
+        <input type="hidden" name="chosen_character_id" value="{{ character_id }}">
+        <a onclick='this.parentNode.parentNode.parentNode.classList.add("d-none")' id='confirm-abort' class='btn btn-danger m-3'>Close</a>
+        <button type="submit" id='confirm-success' class='btn btn-success m-3'>Change</button>
+      </div>
+    </div>
+</form>
+
 <div class='container'>
+    {% if user.is_superuser %}
+        <div class="row">
+            <div class="col text-end">
+                <button class="m-2 btn btn-primary" onclick="changeOwnerScreen('{{ character }}')">
+                    Change owner
+                </button>
+            </div>
+        </div>
+    {% endif %}
     <div class='row'>
         <div class='col c-gold fst-italic txt-shadow'>
             {% if skills_count_magical >= 0 %}
@@ -99,6 +126,11 @@
 
  <script>
     document.title = "[E] " + document.getElementById("char-name").innerHTML + " | DunnoRPG"
+
+    function changeOwnerScreen(character){
+        document.getElementById("Character").innerHTML = character
+        document.getElementById("choose-new-owner").classList.remove("d-none")
+    }
  </script>
  
  {% endblock content %}
