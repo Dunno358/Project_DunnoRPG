@@ -161,7 +161,10 @@ def getMod(character,stat_for_mod):
             stats = models.Items.objects.all().filter(name=item.name).first().skillStats.split(';')
             for stat in stats:
                 if stat[:-2].lower() == stat_for_mod.lower():
-                    value += int(stat[-1])
+                    if stat[-2] == "+":
+                        value += int(stat[-1])
+                    elif stat[-2] == "-":
+                        value -= int(stat[-1])
         except:
             pass
     if value>=0:
