@@ -232,7 +232,7 @@
                             [ <span id='l_block'>{{ leftItem.name|getItemBlock }}</span>
                             ; <span id='l-weight'>{{ leftItem.name|getItemWeight }}</span>kg
                             {% else %}
-                            [ 1K<span id='l_dmg'>{{ leftItem.name|getItemBonus }}</span>, <span id='l_ap'>{{ leftItem.name|getItemAP }}</span>
+                            [ 1K<span id='l_dmg'>{{ leftItem.name|getItemBonus }}</span>, <span id='l_ap'>{{ leftItem.name|getItemAP:value.id }}</span>
                             AP; <span id='l-weight'>{{ leftItem.name|getItemWeight }}</span>kg
                             {% endif %}
 
@@ -304,7 +304,7 @@
                             [ <span id='r_block'>{{ rightItem.name|getItemBlock }}</span>
                             ; <span id='r-weight'>{{ rightItem.name|getItemWeight }}</span>kg
                         {% else %}
-                            [ 1K<span id='r_dmg'>{{ rightItem.name|getItemBonus }}</span>, <span id='r_ap'>{{ rightItem.name|getItemAP }}</span>
+                            [ 1K<span id='r_dmg'>{{ rightItem.name|getItemBonus }}</span>, <span id='r_ap'>{{ rightItem.name|getItemAP:value.id }}</span>
                             AP; <span id='r-weight'>{{ rightItem.name|getItemWeight }}</span>kg
                         {% endif %}
 
@@ -341,7 +341,7 @@
 
                 {% else %}
 
-                    {% if leftItem.name|isDualHanded %}
+                    {% if leftItem.name|isDualHanded and value.chosen_class.lower != 'barbarzyńca: droga rosomaka' %}
                         <span id='r_weapon' class='c-gold'>Above weapon is two-handed</span>
                         <span id='r_bonus'></span>
                         <span id='r_dmg'></span>

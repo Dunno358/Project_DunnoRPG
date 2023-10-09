@@ -33,8 +33,14 @@ def getItemStatByName(itemName):
         pass
     
 @register.filter
-def getItemAP(itemName):
-    return get_object_or_404(models.Items, name=itemName).AP
+def getItemAP(itemName, charId=0):
+    print(charId)
+    item = get_object_or_404(models.Items, name=itemName)
+    if charId != 0:
+        char = get_object_or_404(models.Character, id=charId)
+        if item.dualHanded and char.chosen_class.lower()=='barbarzyńca: droga rosomaka':
+            return item.AP//2
+    return item.AP
 
 @register.filter
 def getItemArmor(itemName):
