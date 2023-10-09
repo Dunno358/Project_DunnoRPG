@@ -636,7 +636,7 @@ def char_wear_item(request, **kwargs):
         char.extra_capacity = item.diceBonus
         char.save()
                                 
-    if item.dualHanded==True and place != 'Side':
+    if item.dualHanded==True and place != 'Side' and char.chosen_class.lower() != 'barbarzyńca: droga rosomaka':
         if place == 'Right':
             messages.error(request, 'Dual-Handed weapons can only be added to left hand!')
             return redirect('character_detail', char.id)
