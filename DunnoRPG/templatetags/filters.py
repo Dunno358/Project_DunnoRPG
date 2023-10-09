@@ -242,10 +242,6 @@ def getArmor(charName):
         except:
             pass
     
-    if char.chosen_class.lower() == 'barbarzyńca: droga niedźwiedzia':
-        armor -= 5
-        
-    if armor<0: armor=0
     return armor
 
 @register.filter
