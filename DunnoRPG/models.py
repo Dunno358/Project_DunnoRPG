@@ -39,6 +39,7 @@ class Character(models.Model):
     extra_capacity = models.IntegerField(default=0)
     notes = models.TextField(blank=True, null=True)
     model_url = models.CharField(max_length=255, blank=True, null=True)
+    hidden = models.BooleanField(default=False)
     
 
     def __str__(self):
