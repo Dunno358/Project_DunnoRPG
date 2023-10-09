@@ -18,28 +18,30 @@
   <div class="container card-body">
     <div class="row">
         {% for character in characters %}
-        <div class="col m-4 p-3 border border-warning bg-gray c-gold rounded text-center">
-          <dl>
-            {% if user.is_superuser %}
-              <dt>Owner:</dt>
-                <dd>{{ character.owner }}</dd>
-              <dt>Character:</dt>
-                <dd>{{ character.name }}</dd>
-            {% else %}
-            <dt>Character:</dt>
-              <dd>{{ character.name }}</dd>
-            <dt>Race:</dt>
-              <dd>{{ character.race }}</dd>
-            {% endif %}
-          </dl>
-            <div name='char_card_btns'>
-              <a onclick="charDeleteConfirmation('Usunąć {{ character.name }}?',{{ character.id }})" class="btn btn-sm btn-dark btn-outline-danger m-1">Delete</a>
-              <a class="btn btn-sm btn-dark btn-outline-primary m-1" href="{% url 'character_add_skills' character.id %}">Edit</a>
-              <div class='container'>
-                <a class="btn btn-dark btn-outline-warning m-1" href="{% url 'character_detail' character.id %}">Choose</a>
-              </div>
-            </div>
-        </div>
+          {% if not character.hidden %}
+            <div class="col m-4 p-3 border border-warning bg-gray c-gold rounded text-center">
+              <dl>
+                {% if user.is_superuser %}
+                  <dt>Owner:</dt>
+                    <dd>{{ character.owner }}</dd>
+                  <dt>Character:</dt>
+                    <dd>{{ character.name }}</dd>
+                {% else %}
+                <dt>Character:</dt>
+                  <dd>{{ character.name }}</dd>
+                <dt>Race:</dt>
+                  <dd>{{ character.race }}</dd>
+                {% endif %}
+              </dl>
+                <div name='char_card_btns'>
+                  <a onclick="charDeleteConfirmation('Usunąć {{ character.name }}?',{{ character.id }})" class="btn btn-sm btn-dark btn-outline-danger m-1">Delete</a>
+                  <a class="btn btn-sm btn-dark btn-outline-primary m-1" href="{% url 'character_add_skills' character.id %}">Edit</a>
+                  <div class='container'>
+                    <a class="btn btn-dark btn-outline-warning m-1" href="{% url 'character_detail' character.id %}">Choose</a>
+                  </div>
+                </div>
+            </div>        
+          {% endif %}
         {% endfor %}
         {% if characters_count > 0 %}
           <div class="col mt-5 m-3 text-center">
