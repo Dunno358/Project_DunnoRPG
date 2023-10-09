@@ -226,6 +226,7 @@ def getAmuletAttackBonus(charName):
 
 @register.filter
 def getArmor(charName):
+    char = get_object_or_404(models.Character, name=charName)
     helmet = models.CharItems.objects.filter(character=charName, position='Helmet').first()
     torso = models.CharItems.objects.filter(character=charName, position='Torso').first()
     boots = models.CharItems.objects.filter(character=charName, position='Boots').first()
@@ -240,7 +241,11 @@ def getArmor(charName):
             armor += models.Items.objects.filter(name=item.name).first().armor
         except:
             pass
+    
+    if char.chosen_class.lower() == 'barbarzyńca: droga niedźwiedzia':
+        armor -= 5
         
+    if armor<0: armor=0
     return armor
 
 @register.filter
