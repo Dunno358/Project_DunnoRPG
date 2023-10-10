@@ -635,8 +635,13 @@ def char_wear_item(request, **kwargs):
     if item.type == 'Animal':
         char.extra_capacity = item.diceBonus
         char.save()
+     
+    wolverin_barbarian = 'barbarzyńca: droga rosomaka'
+    paladin = 'paladyn: przysięga miecza'
+    
+    allowed_classes = [wolverin_barbarian, paladin]
                                 
-    if item.dualHanded==True and place != 'Side' and char.chosen_class.lower() != 'barbarzyńca: droga rosomaka':
+    if item.dualHanded==True and place != 'Side' and char.chosen_class.lower() not in allowed_classes:
         if place == 'Right':
             messages.error(request, 'Dual-Handed weapons can only be added to left hand!')
             return redirect('character_detail', char.id)
