@@ -1063,18 +1063,36 @@ function show_result_at_window(action){
 
     else if (action == 'Accuraccy')
     {
+        count_armor = false
+        special_classes = ["kusznik", "strzelec wyborowy", "rewolwerowiec", "łucznik"]
+        try{
+            char_class = document.getElementById("char-class").innerHTML
+            if(special_classes.includes(char_class.trim().toLowerCase())){
+                count_armor = true
+            }
+        }catch{
+            count_armor = false
+        }
         window_action_additional.innerHTML = ''
         window_action_additional.onclick = ''
         cel_effect_bonus = parseInt(document.getElementById('effects-accuraccy').innerHTML)
         cel = parseInt(document.getElementById('stat-CEL').innerHTML)
         cel_mod = parseInt(document.getElementById('stat-CEL-mod').innerHTML)
+        armor_mod = parseInt(document.getElementById('armor-mod').innerHTML) 
         weight_mod = document.getElementById('weapon-weight-mod').innerHTML
         cel_mods = cel+cel_mod+cel_effect_bonus-weight_mod
+        if(count_armor){
+            cel_mods -= armor_mod
+        }
 
         dice_result = getDiceWMods(window_action,cel_mods,getResult=true,text=action)
 
         details = 'CEL'+'('+cel+')'+ ' + '+'MODS'+'('+(cel_mod+cel_effect_bonus)+')'+' - WEAPON WEIGHT('+weight_mod+')'
+        if(count_armor){
+            details += ' & ARMOR'+'('+(-armor_mod)+')'
+        }
         window_action.onclick = function() {change_result(details,window_action,cel_mods, dice_result)}
+        console.log(count_armor)
     }
     
     else if (action == 'Dodge')
