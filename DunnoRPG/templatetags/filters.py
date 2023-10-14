@@ -246,6 +246,7 @@ def getArmor(charName):
 
 @register.filter
 def getArmorWeight(charName):
+    char = get_object_or_404(models.Character, name=charName)
     helmet = models.CharItems.objects.filter(character=charName, position='Helmet').first()
     torso = models.CharItems.objects.filter(character=charName, position='Torso').first()
     boots = models.CharItems.objects.filter(character=charName, position='Boots').first()
@@ -254,10 +255,45 @@ def getArmorWeight(charName):
     items = [helmet,torso,boots,gloves,amulets]  
     
     weight = 0
-    
+
+    types = {
+    "Helmet": [1.5, 2.5],
+    "Torso": [4,7],
+    "Boots": [0.5, 1.1],
+    "Gloves": [1, 2]
+    }
+
+    ignore_classes = {
+        "paladyn: przysięga niewzruszonego": {"light": "full", "medium": "full", "heavy": "half"},
+        "paladyn: przysięga obrońcy uciśnionych": {"light": "half", "medium": "half", "heavy": "half"},
+        "paladyn: przysięga miecza": {"light": "half", "medium": "half", "heavy": "half"},
+        "upadły paladyn: przysięga niewzruszonego": {"light": "5x", "medium": "5x", "heavy": "5x"},
+        "upadły paladyn: przysięga obrońcy uciśnionych": {"light": "2x", "medium": "2x", "heavy": "2x"},
+    }
+
     for item in items:
         try:
-            weight += models.Items.objects.filter(name=item.name).first().weight
+            item_desc = models.Items.objects.filter(name=item.name).first()
+
+            type = types[f"{item_desc.type}"]
+            if item_desc.weight < type[0]:
+                wg_type = "light"
+            elif item_desc.weight < type[1]:
+                wg_type = "medium"
+            else:
+                wg_type = "heavy"
+
+            char_class = char.chosen_class.lower()
+            if char_class in ignore_classes:
+                bonus = ignore_classes[char_class][wg_type]
+                if bonus == "full":
+                    weight += 0
+                elif bonus == "half":
+                    weight += item_desc.weight//2
+                else:
+                    weight += item_desc.weight * int(bonus[0])
+            else:
+                weight += item_desc.weight
         except:
             pass
         
