@@ -398,8 +398,8 @@
                 </span>   
                 <a class='text-danger h6' href='/dunnorpg/makerequest/{{ value.id }};CharItems;CharItems;{{ sideItem.id }};0;durability;downgrade-1;character_detail'>-1</a>
                 <a href='move_eq-{{ sideItem.id }}' class='fa fa-arrow-right text-success text-decoration-none'>EQ</a>
-                <a class="btn bg-transparent border-0 text-primary fw-bold" href="">L</a>
-                <a class="btn bg-transparent border-0 text-primary fw-bold" href="">R</a>
+                <a class="btn bg-transparent border-0 text-primary fw-bold" href="swap_side/left">L</a>
+                <a class="btn bg-transparent border-0 text-primary fw-bold" href="swap_side/right">R</a>
 
                 <div id='side-swap' class='d-none'> 
                     <select class='w-50 ms-2 text-center border border-warning bg-dark text-white-50 rounded'>
@@ -895,6 +895,10 @@ trackValueChanges('hp-val')
 trackValueChanges('coins')
 durs = ['helmet-dur-gm','torso-dur-gm','leftItem-dur-gm','rightItem-dur-gm','sideItem-dur-gm','boots-dur-gm','gloves-dur-gm']
 durs.forEach(catchErrorForValueChanges)
+
+function swap_side_to_hand(hand){
+    console.log(hand)
+}
 
 function showSkill(instance){
     if(instance.innerHTML == "Check skill"){

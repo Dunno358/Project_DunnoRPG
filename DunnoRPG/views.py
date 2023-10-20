@@ -600,6 +600,64 @@ def del_eq_item(request, **kwargs):
         item.weight -= itemDesc.weight
         item.save()
     return redirect(f"/dunnorpg/items/ch{kwargs['char_id']}")
+def swap_side_to_hand(request, **kwargs):
+    char = get_object_or_404(models.Character, id=kwargs['char_id'])
+    sideItem = get_object_or_404(models.CharItems, character=char.name, hand="Side")
+    sideItemDesc = get_object_or_404(models.Items, name=sideItem.name)
+    left = False
+
+    if kwargs['hand'] == 'left':
+        try:
+            to_swap = get_object_or_404(models.CharItems, character=char.name, hand="Left")
+        except:
+            messages.error(request, "Nothing to swap with!")
+            return redirect('character_detail', char.id)
+        left = True
+    else:
+        try:
+            to_swap = get_object_or_404(models.CharItems, character=char.name, hand="Right")
+        except:
+            messages.error(request, "Nothing to swap with!")
+            return redirect('character_detail', char.id)
+
+    to_swap_desc = get_object_or_404(models.Items, name=to_swap.name)
+    to_swap.hand = "Side"
+
+    try:
+        rightItem = get_object_or_404(models.CharItems, hand="Right", character=char.name)
+        rightItemDesc = get_object_or_404(models.Items, name=rightItem.name)
+        right = True
+    except:
+        right = False
+
+    if left:
+        if sideItemDesc.dualHanded and right:
+            rightItem = get_object_or_404(models.CharItems, hand="Right", character=char.name)
+            rightItemDesc = get_object_or_404(models.Items, name=rightItem.name)
+
+            models.Eq.objects.create(
+                owner = char.owner,
+                character = char.name,
+                name = rightItem.name,
+                type = rightItemDesc.type,
+                weight = rightItemDesc.weight,
+                durability = rightItem.durability,
+                amount = 1
+            )
+            rightItem.delete()
+
+        sideItem.hand = "Left"
+        to_swap.save()
+        sideItem.save()
+    else:
+        if not sideItemDesc.dualHanded:
+            sideItem.hand="Right"
+            to_swap.save()
+            sideItem.save()
+        else:
+            messages.error(request, "Dual-handed weapons cannot be added to right hand!")
+
+    return redirect('character_detail', char.id)
 def change_item_durability(request,**kwargs):
     if request.method == 'POST':
         char = get_object_or_404(models.Character, id=kwargs['char_id'])
