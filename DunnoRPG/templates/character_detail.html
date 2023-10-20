@@ -98,7 +98,7 @@
             <form class='col' method="post" action="change-health">
                 {% csrf_token %}
                 <span class="text-white-50">Health:</span> 
-                <input type='number' min="1" max="25" id='hp-val' class='c-gold text-center bg-dark border-0' style='width: 6vw' value='{{ value.HP }}' name="hp">/{{ value.fullHP }}
+                <input type='number' min="0" max="25" id='hp-val' class='c-gold text-center bg-dark border-0' style='width: 6vw' value='{{ value.HP }}' name="hp">/{{ value.fullHP }}
                 <button type='submit' class='btn btn-sm btn-success ms-3 rounded text-black'>Change</button>
             </form>
         </div>
@@ -895,10 +895,6 @@ trackValueChanges('hp-val')
 trackValueChanges('coins')
 durs = ['helmet-dur-gm','torso-dur-gm','leftItem-dur-gm','rightItem-dur-gm','sideItem-dur-gm','boots-dur-gm','gloves-dur-gm']
 durs.forEach(catchErrorForValueChanges)
-
-function swap_side_to_hand(hand){
-    console.log(hand)
-}
 
 function showSkill(instance){
     if(instance.innerHTML == "Check skill"){
