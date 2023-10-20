@@ -15,7 +15,7 @@ class CharacterCreation{
             'Leśne Elfy (Athel Loren)': { int: '-1', sil: '+0', zre: '+2', char: '-2', cel: '+1', p: 10 },
             'Niziołek': { int: '+0', sil: '-2', zre: '+3', char: '-1', cel: '+0', p: 10 },
             'Gnom': { int: '+0', sil: '-2', zre: '+2', char: '+0', cel: '+0', p: 10 },
-            'Półork': { int: '-2', sil: '+2', zre: '+2', char: '-2', cel: '+0', p: 10 },
+            'Półork': { int: '-2', sil: '+2', zre: '+1', char: '-2', cel: '+1', p: 10 },
             'Półelf': { int: '+0', sil: '-1', zre: '+1', char: '-1', cel: '+1', p: 10 },
             'Ogr': { int: '-2', sil: '+4', zre: '-2', char: '+0', cel: '+0', p: 10 },
             'Satyr': { int: '0', sil: '+1', zre: '+1', char: '-2', cel: '+1', p: 10 },
