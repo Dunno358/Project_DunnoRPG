@@ -608,7 +608,7 @@
                     <a class='{{ mount.name|getItemRarity }} fw-bold' href='/dunnorpg/items/{{ mount.name|getDescId }}'>
                         {{ mount.name }}</a>
     
-                        <span class='{{ mount.name|getItemRarity }}'><b>[ {{ mount.name|getItemArmor }}; {{ mount.name|getItemBonus }}kg
+                        <span class='{{ mount.name|getItemRarity }}'><b>[ <span id="mount_armor_default">{{ mount.name|getItemArmor }}</span>; {{ mount.name|getItemBonus }}kg
                         {% if mount.name|getSkill %};
                             <span onclick="showSkill(this)" class='fw-normal' title="{{ mount.name|getSkill }}">
                                 {{ mount.name|getSkill }}
@@ -654,6 +654,64 @@
                 {% endif %}
             </p></div>
         </form>      
+
+        <form name='mount-armor' method='post' action='changedur-{{ mount_armor.id }}' class='row mt-2'><hr />
+            {% csrf_token %}
+            <div class='col'><p><span class="text-white-50">Armor: </span> 
+
+                {% if mount_armor != None %}
+                    <span class='text-info fa fa-exchange-alt' onclick='show_or_hideById("mount_armor-swap")'></span> 
+
+                    <a class='{{ mount_armor.name|getItemRarity }} fw-bold' href='/dunnorpg/items/{{ mount_armor.name|getDescId }}'>
+                        {{ mount_armor.name }}</a>
+    
+                        <span class='{{ mount_armor.name|getItemRarity }}'><b>
+                        [ <span id="mount_armor_value">{{ mount_armor.name|getItemArmor }}</span>; {{ mount_armor.name|getItemWeight }}kg
+                        {% if mount_armor.name|getSkill %};
+                            <span onclick="showSkill(this)" class='fw-normal' title="{{ mount_armor.name|getSkill }}">
+                                {{ mount_armor.name|getSkill }}
+                            </span>
+                        {% endif %}]</b></span>
+                        
+                        (
+                        {% if user.is_superuser %}
+                            <input type='number' min="0" id='mount_armor-dur-gm' class='c-gold text-center bg-dark border-0' style='width: 5vw' value='{{ mount_armor.durability }}' name="dur">
+                        {% else %}
+                            {{ mount_armor.durability }} 
+                        {% endif %}  
+                            / {{ mount_armor.name|getMaxDurability }} ) 
+                    <a href='move_eq-{{ mount_armor.id }}' class='fa fa-arrow-right text-success text-decoration-none'>EQ</a>
+
+                    <div id='mount_armor-swap' class='d-none'> 
+                        <select class='w-50 ms-2 text-center border border-warning bg-dark text-white-50 rounded'>
+                            {% for item in eq_mounts_armor %}
+                                <option id='{{ item.id }}' name={{ item.durability }} value='{{ item.name }}'>
+                                    {{ item.name }} 
+                                    ({{ item.durability }}/{{ item.name|getMaxDurability }})
+                                </option>
+                            {% endfor %}
+                        </select>
+                        <a onclick="swapItem('{{ mount_armor.id }}', 'mount_armor-swap')" class='btn btn-sm btn-success'>OK</a>
+                    </div>
+
+                {% else %}
+                <span class='text-info fa fa-plus' onclick='show_or_hideById("mount_armor-add")'></span> 
+
+                <div id='mount_armor-add' class='d-none'> 
+                    <select class='w-50 ms-2 text-center border border-warning bg-dark text-white-50 rounded'>
+                        {% for item in eq_mounts_armor %}
+                            <option id='{{ item.id }}' value='{{ item.name }}'>
+                                {{ item.name }} 
+                                ({{ item.durability }}/{{ item.name|getMaxDurability }})
+                            </option>
+                        {% endfor %}
+                    </select>
+                    <a onclick="wearItem('Mount_armor', 'mount_armor-add')" class='btn btn-sm btn-success'>OK</a>
+                </div> 
+
+                {% endif %}
+            </p></div>
+        </form>  
         {% endif %}
 
         <div class='row'><hr />
@@ -968,6 +1026,18 @@ function getArmorMod(){
     document.getElementById('armor-mod').innerHTML = mod
 }
 getArmorMod()
+
+function calculateMountArmor(){
+    try{
+        default_armor = document.getElementById("mount_armor_default").innerHTML
+        try{
+            let mount_armor = document.getElementById("mount_armor_value").innerHTML
+            document.getElementById("mount_armor_default").innerHTML = parseInt(default_armor)+parseInt(mount_armor)
+        }catch{}
+    }
+    catch{}
+}
+calculateMountArmor()
 
 function getRandomInt(min=1,max) {
     min = Math.ceil(min);

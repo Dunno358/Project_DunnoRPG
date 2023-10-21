@@ -128,7 +128,8 @@ def isShield(itemName):
 @register.filter
 def isArmor(itemName):
     try:
-        if models.Items.objects.all().filter(name=itemName).values()[0]['type'].lower() in ['helmet','armor','torso','boots','gloves','amulet']:
+        armor = ['helmet','armor','torso','boots','gloves','amulet', 'mount armor']
+        if models.Items.objects.all().filter(name=itemName).values()[0]['type'].lower() in armor:
             return True
         else:
             return False

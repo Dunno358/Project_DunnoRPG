@@ -308,6 +308,7 @@ class CharacterDetails(DetailView):
         eq_boots_qs = models.Eq.objects.filter(character=chosen.name, type='Boots').order_by('name')
         eq_amulets_qs = models.Eq.objects.filter(character=chosen.name, type='Amulet').order_by('name')
         eq_mounts_qs = models.Eq.objects.filter(character=chosen.name, type='Animal').order_by('name')
+        eq_mounts_armor_qs = models.Eq.objects.filter(character=chosen.name, type='Mount Armor').order_by('name')
         eq_weapons_qs = models.Eq.objects.filter(character=chosen.name).exclude(type__in=types).order_by('name')
         
         context['helmet'] = models.CharItems.objects.filter(character=serializer.data['name'], position='Helmet').first()
@@ -316,6 +317,7 @@ class CharacterDetails(DetailView):
         context['boots'] = models.CharItems.objects.filter(character=serializer.data['name'], position='Boots').first()
         context['amulet'] = models.CharItems.objects.filter(character=serializer.data['name'], position='Amulet').first()
         context['mount'] = models.CharItems.objects.filter(character=serializer.data['name'], position='Mount').first()
+        context['mount_armor'] = models.CharItems.objects.filter(character=serializer.data['name'], position='Mount_armor').first()
         context['leftItem'] = models.CharItems.objects.filter(character=serializer.data['name'], hand='Left').first()
         context['rightItem'] = models.CharItems.objects.filter(character=serializer.data['name'], hand='Right').first()
         context['sideItem'] = models.CharItems.objects.filter(character=serializer.data['name'], hand='Side').first()
@@ -336,6 +338,7 @@ class CharacterDetails(DetailView):
         context['eq_boots'] = eq_boots_qs
         context['eq_amulets'] = eq_amulets_qs
         context['eq_mounts'] = eq_mounts_qs
+        context['eq_mounts_armor'] = eq_mounts_armor_qs
 
         return context 
     
@@ -955,10 +958,12 @@ class ItemsView(ListView):
                 context['items_singlehand'] = models.Items.objects.filter(dualHanded=False).order_by('rarity').exclude(type__in=types)
                 context['items_twohand'] = models.Items.objects.filter(dualHanded=True).order_by('rarity')   
                 context['animals'] =  models.Items.objects.filter(type='Animal').order_by('rarity')
+                context['animals'] |=  models.Items.objects.filter(type='Mount Armor').order_by('rarity')
             else:
                 context['items_singlehand'] = models.Items.objects.filter(dualHanded=False, found=True).order_by('rarity').exclude(type__in=types)
                 context['items_twohand'] = models.Items.objects.filter(dualHanded=True, found=True) .order_by('rarity')
                 context['animals'] =  models.Items.objects.filter(type='Animal', found=True).order_by('rarity')
+                context['animals'] |=  models.Items.objects.filter(type='Mount Armor', found=True).order_by('rarity')
             
             for x in range(len(names)):
                 if self.request.user.is_superuser:
@@ -1328,9 +1333,9 @@ class CityView(ListView):
                     elif item.type == 'Other':
                         if item.name.split(' ')[0] in ['Eliksir','Mikstura']:
                             potions.append(item.name)
-                        else:
+                        else:   
                             other.append(item.name)
-                    elif item.type == 'Animal' or item.type.lower() == 'animal-armor':
+                    elif item.type == 'Animal' or item.type.lower() == 'mount armor':
                         animals.append(item.name)
                     else:
                         if item.type in armor_types:
