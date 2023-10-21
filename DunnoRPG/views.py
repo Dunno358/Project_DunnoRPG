@@ -366,14 +366,15 @@ class MoveItemToEq(APIView):
             max_weight = 3+char.extra_capacity           
 
         if eq_weight+item_desc.weight <= max_weight:
-            models.Eq.objects.create(
-                owner = item.owner,
-                character = item.character,
-                name = item.name,
-                type = item_desc.type,
-                weight = item_desc.weight,
-                durability = item.durability
-            )
+            if item_desc.type != "Mount Armor":
+                models.Eq.objects.create(
+                    owner = item.owner,
+                    character = item.character,
+                    name = item.name,
+                    type = item_desc.type,
+                    weight = item_desc.weight,
+                    durability = item.durability
+                )
 
             if item_desc.skillEffects != None:
                 for effect in item_desc.skillEffects.split(';'):
@@ -753,7 +754,8 @@ def char_wear_item(request, **kwargs):
                 curr_effect.time = 100
                 curr_effect.save()
 
-    item_eq_obj.delete()
+    if item.type != "Mount Armor":
+        item_eq_obj.delete()
     return redirect('character_detail', char.id)
 def char_use_skill(request, **kwargs):
     char = get_object_or_404(models.Character, id=kwargs['char_id'])
@@ -843,15 +845,15 @@ def char_swap_item(request, **kwargs):
         messages.error(request, f'Not enough space in equipment for {it1D.name}, {(it1D.weight-it2D.weight+current_weight)-max_weight}kg too heavy :(')
         return redirect('character_detail', char.id)
 
-    
-    models.Eq.objects.create(
-        owner=char.owner,
-        character=char.name,
-        name=it1.name,
-        type=it1D.type,
-        weight=it1D.weight,
-        durability=it1.durability
-    )
+    if it1D.type != "Mount Armor":
+        models.Eq.objects.create(
+            owner=char.owner,
+            character=char.name,
+            name=it1.name,
+            type=it1D.type,
+            weight=it1D.weight,
+            durability=it1.durability
+        )
 
     if it1D.skillEffects != None:
         for effect in it1D.skillEffects.split(';'):
@@ -877,7 +879,8 @@ def char_swap_item(request, **kwargs):
                 time = effect[2]
             )    
     
-    it2.delete()
+    if it2D.type != "Mount Armor":
+        it2.delete()
     
     return redirect('character_detail', char.id)
 @user_passes_test(lambda u: u.is_superuser)
