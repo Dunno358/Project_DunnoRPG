@@ -126,7 +126,7 @@ class CharacterSkillsForm(forms.ModelForm):
         
 class AddEqItemForm(forms.ModelForm):
     try:
-        all_characters = Character.objects.all().order_by('name')
+        all_characters = Character.objects.filter(hidden=False).order_by('name')
     except:
         all_characters = []
 
@@ -172,7 +172,7 @@ class AddEqItemForm(forms.ModelForm):
 class AddEffectForm(forms.ModelForm):
     characters = []
     try:
-        for character in Character.objects.all().order_by('name'):
+        for character in Character.objects.filter(hidden=False).order_by('name'):
             characters.append((character.id, character.name))
     except:
         pass
