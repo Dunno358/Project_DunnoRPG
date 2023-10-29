@@ -156,7 +156,41 @@ def isPreffereOrUnliked(character, itemName):
     else:
         return "Empty"
 
+@register.filter
+def rightItemNotAllowed(character):
+    char = get_object_or_404(models.Character, name=character)
+    skills = models.Skills.objects.filter(character=char.name)
 
+    try:
+        leftItem = models.CharItems.objects.filter(character=char.name, hand="Left").first()
+        leftItemDesc = get_object_or_404(models.Items, name=leftItem.name)
+    except:
+        return False
+
+    allowing_skills = {
+        "wojskowe przeszkolenie": ["spear", "halberd", "glaive"]
+    }
+
+    allowing_classes = [
+        "Paladyn: Przysięga Miecza",
+        "Barbarzyńca: Droga Rosomaka"
+        ""
+    ]
+
+    if char.chosen_class in allowing_classes:
+        return False
+
+    for skill in skills:
+        if skill.skill.lower() in allowing_skills.keys():
+            print(leftItemDesc.type.lower(), allowing_skills[skill.skill.lower()])
+            if leftItemDesc.type.lower() not in allowing_skills[skill.skill.lower()]:
+                return True
+            return False
+    
+    if not leftItemDesc.dualHanded:
+        return False
+    
+    return True
 
 
 #CHARACTER-GET

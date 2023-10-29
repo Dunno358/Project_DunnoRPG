@@ -689,6 +689,7 @@ def change_health(request, **kwargs):
         return redirect('character_detail', char.id) 
 def char_wear_item(request, **kwargs):
     char = get_object_or_404(models.Character, id=kwargs['char_id'])
+    char_skills = models.Skills.objects.filter(character=char.name)
     place = kwargs['place'] #hand or position
     item_id = kwargs['item_id']
     item_eq_obj = models.Eq.objects.get(character=char.name,id=item_id)
@@ -710,6 +711,17 @@ def char_wear_item(request, **kwargs):
         elif models.CharItems.objects.filter(character=char.name, hand='Right').first() not in [None,'']:
             messages.error(request, 'Right hand must be empty for that!')
             return redirect('character_detail', char.id)
+    else:
+        if place == "Right":
+            leftItem = models.CharItems.objects.filter(character=char.name, hand="Left").first()
+            leftItemDesc = get_object_or_404(models.Items, name=leftItem.name)
+            if leftItemDesc.dualHanded:
+                allowed_types = ["shield"]
+                if item.type.lower() not in allowed_types:
+                    messages.error(request, 'You can only add shield to this type of weapon!')
+                    return redirect('character_detail', char.id)
+
+        
             
     charItObj = models.CharItems.objects.filter(hand=place.capitalize(), character=char.name).first()  
     if charItObj == None: 
@@ -820,6 +832,17 @@ def char_swap_item(request, **kwargs):
     it1D = get_object_or_404(models.Items, name=it1.name)
     it2 = get_object_or_404(models.Eq, id=kwargs['it2_id'])
     it2D = get_object_or_404(models.Items, name=it2.name)
+
+    if it1D.type.lower() == "shield" and it1.hand.lower() == "right":
+        allow_class = ["barbarzyńca: droga rosomaka"]
+        try:
+            leftItem = models.CharItems.objects.filter(character=char.name, hand="Left").first()
+            leftItemDesc = get_object_or_404(models.Items, name=leftItem.name)     
+            if leftItemDesc.dualHanded and char.chosen_class.lower() not in allow_class:
+                messages.error(request, 'Only shield is avaible as additional weapon in this case!')
+                return redirect('character_detail', char.id)                       
+        except:
+            pass
     
     if it2D.dualHanded and it1.hand.lower() != 'side':
         if it1.hand.lower() == 'right':
