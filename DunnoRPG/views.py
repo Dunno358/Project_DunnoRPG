@@ -1271,11 +1271,18 @@ class GMPanel(FormView):
                 current_weight += obj.weight
                 
             item_weight = item.weight * form_data.amount
-            if current_weight + item.weight > max_weight:
+            if current_weight + item_weight > max_weight:
                 messages.error(self.request, 'Not enough space.')
                 return redirect('gm_panel')
         
-        form_data.save()
+        try:
+            existing_item = get_object_or_404(models.Eq, name=item.name, character=character.name, durability=form_data.durability)
+            existing_item.amount += form_data.amount
+            existing_item.weight += item_weight
+            existing_item.save()
+        except:
+            form_data.save()
+
         messages.success(self.request, f"{item.name} added to {character.name}.")
         return super().form_valid(form)
     
