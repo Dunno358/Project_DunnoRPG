@@ -10,7 +10,7 @@ admin.site.register(models.Character)
 admin.site.register(models.Mods)
 
 class EqAdmin(admin.ModelAdmin):
-    list_display = ("character", "name", "weight", "durability", "price")
+    list_display = ("character", "name", "weight", "durability", "amount")
     def get_queryset(self, request):
         qs = super().get_queryset(request)
         return qs.order_by('character')  
