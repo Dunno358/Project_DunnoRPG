@@ -712,7 +712,7 @@ def char_wear_item(request, **kwargs):
             messages.error(request, 'Right hand must be empty for that!')
             return redirect('character_detail', char.id)
     else:
-        if place == "Right":
+        if place == "Right" and char.chosen_class.lower() not in allowed_classes:
             leftItem = models.CharItems.objects.filter(character=char.name, hand="Left").first()
             leftItemDesc = get_object_or_404(models.Items, name=leftItem.name)
             if leftItemDesc.dualHanded:
