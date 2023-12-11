@@ -860,9 +860,26 @@ def char_swap_item(request, **kwargs):
     else:
         max_weight = 3+char.extra_capacity
                                         
-    current_weight = 0
-    for item in models.Eq.objects.filter(character=char.name):
-        current_weight += item.weight        
+        current_weight = 0
+        for item in models.Eq.objects.filter(character=char.name):
+            if "strzała" in item.name.lower():
+                try:
+                    if models.CharItems.objects.filter(character=char.name, hand="Side").first().name=="Kolczan":
+                        pass
+                    else:
+                        current_weight += item.weight 
+                except:
+                    current_weight += item.weight 
+            elif "pocisk" in item.name.lower():
+                try:
+                    if models.CharItems.objects.filter(character=char.name, hand="Side").first().name=="Pas na amunicje":
+                        pass
+                    else:
+                        current_weight += item.weight 
+                except:
+                    current_weight += item.weight 
+            else:
+                current_weight += item.weight       
 
     if it1D.weight-it2D.weight+current_weight > max_weight:
         messages.error(request, f'Not enough space in equipment for {it1D.name}, {(it1D.weight-it2D.weight+current_weight)-max_weight}kg too heavy :(')
@@ -1000,7 +1017,24 @@ class ItemsView(ListView):
             
             items_weight = 0
             for item in models.Eq.objects.filter(character=self.character.name):
-                items_weight += item.weight
+                if "strzała" in item.name.lower():
+                    try:
+                        if models.CharItems.objects.filter(character=self.character.name, hand="Side").first().name=="Kolczan":
+                            pass
+                        else:
+                            items_weight += item.weight 
+                    except:
+                        items_weight += item.weight 
+                elif "pocisk" in item.name.lower():
+                    try:
+                        if models.CharItems.objects.filter(character=self.character.name, hand="Side").first().name=="Pas na amunicje":
+                            pass
+                        else:
+                            items_weight += item.weight 
+                    except:
+                        items_weight += item.weight 
+                else:
+                    items_weight += item.weight 
             
             if self.character.SIŁ > 0:
                 max_weight = self.character.SIŁ*5+self.character.extra_capacity
@@ -1146,7 +1180,24 @@ class RequestHandling(APIView):
                                         
                                     current_weight = 0
                                     for item in models.Eq.objects.filter(character=char.name):
-                                        current_weight += item.weight
+                                        if "strzała" in item.name.lower():
+                                            try:
+                                                if models.CharItems.objects.filter(character=char.name, hand="Side").first().name=="Kolczan":
+                                                    pass
+                                                else:
+                                                    current_weight += item.weight 
+                                            except:
+                                                current_weight += item.weight 
+                                        elif "pocisk" in item.name.lower():
+                                            try:
+                                                if models.CharItems.objects.filter(character=char.name, hand="Side").first().name=="Pas na amunicje":
+                                                    pass
+                                                else:
+                                                    current_weight += item.weight 
+                                            except:
+                                                current_weight += item.weight 
+                                        else:
+                                            current_weight += item.weight 
 
                                     if current_weight+itemDesc.weight <= max_weight:
                                         models.Eq.objects.create(
@@ -1197,7 +1248,24 @@ class RequestHandling(APIView):
                                     
                                 current_weight = 0
                                 for item in models.Eq.objects.filter(character=char.name):
-                                    current_weight += item.weight
+                                    if "strzała" in item.name.lower():
+                                        try:
+                                            if models.CharItems.objects.filter(character=char.name, hand="Side").first().name=="Kolczan":
+                                                pass
+                                            else:
+                                                current_weight += item.weight 
+                                        except:
+                                            current_weight += item.weight 
+                                    elif "pocisk" in item.name.lower():
+                                        try:
+                                            if models.CharItems.objects.filter(character=char.name, hand="Side").first().name=="Pas na amunicje":
+                                                pass
+                                            else:
+                                                current_weight += item.weight 
+                                        except:
+                                            current_weight += item.weight 
+                                    else:
+                                        current_weight += item.weight 
 
                                 if current_weight+itemDesc.weight <= max_weight:
                                     models.Eq.objects.create(
@@ -1267,8 +1335,25 @@ class GMPanel(FormView):
                 max_weight = 3+character.extra_capacity
                 
             current_weight = 0
-            for obj in models.Eq.objects.filter(character=character.name):
-                current_weight += obj.weight
+            for item in models.Eq.objects.filter(character=character.name):
+                if "strzała" in item.name.lower():
+                    try:
+                        if models.CharItems.objects.filter(character=character.name, hand="Side").first().name=="Kolczan":
+                            pass
+                        else:
+                            current_weight += item.weight 
+                    except:
+                        current_weight += item.weight 
+                elif "pocisk" in item.name.lower():
+                    try:
+                        if models.CharItems.objects.filter(character=character.name, hand="Side").first().name=="Pas na amunicje":
+                            pass
+                        else:
+                            current_weight += item.weight 
+                    except:
+                        current_weight += item.weight 
+                else:
+                    current_weight += item.weight 
                 
             item_weight = item.weight * form_data.amount
             if current_weight + item_weight > max_weight:
@@ -1404,9 +1489,27 @@ class BuyItem(APIView):
             max_weight = 3+(character.SIŁ*0.5)+character.extra_capacity
         else:
             max_weight = 3 +character.extra_capacity
+            
         current_weight = 0
-        for obj in models.Eq.objects.filter(character=character.name):
-            current_weight += obj.weight
+        for item in models.Eq.objects.filter(character=character.name):
+            if "strzała" in item.name.lower():
+                try:
+                    if models.CharItems.objects.filter(character=character.name, hand="Side").first().name=="Kolczan":
+                        pass
+                    else:
+                        current_weight += item.weight 
+                except:
+                    current_weight += item.weight 
+            elif "pocisk" in item.name.lower():
+                try:
+                    if models.CharItems.objects.filter(character=character.name, hand="Side").first().name=="Pas na amunicje":
+                        pass
+                    else:
+                        current_weight += item.weight 
+                except:
+                    current_weight += item.weight 
+            else:
+                current_weight += item.weight  
 
         if current_weight+item.weight <= max_weight:
             if character.coins >= item.price*2:
