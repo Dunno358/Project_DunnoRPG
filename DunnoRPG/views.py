@@ -1464,6 +1464,9 @@ class CityView(ListView):
                             else:
                                 weaponry_siglehand.append(item.name)            
             
+            x5packets = []
+            x10packets = ["Strzała","Pocisk do broni prochowej"]
+            
             context['weaponry_singlehand'] = weaponry_siglehand
             context['weaponry_twohand'] = weaponry_twohand
             context['armor'] = armor
@@ -1472,6 +1475,8 @@ class CityView(ListView):
             context['animals'] = animals
             context['other'] = other
             context['city'] = city
+            context['x5packets'] = x5packets
+            context['x10packets'] = x10packets
             if self.request.user.is_superuser:
                 context['characters'] = models.Character.objects.all()
             else:
@@ -1482,6 +1487,7 @@ class BuyItem(APIView):
     def get(self,request,**kwargs):
         item = get_object_or_404(models.Items, id=kwargs['item_id'])
         character = get_object_or_404(models.Character, id=kwargs['character_id'])
+        item_amount = kwargs['amount']
 
         if character.SIŁ > 0:
             max_weight = character.SIŁ*5+character.extra_capacity
@@ -1511,18 +1517,26 @@ class BuyItem(APIView):
             else:
                 current_weight += eq_item.weight  
 
-        if current_weight+item.weight <= max_weight:
+        if current_weight+item.weight*item_amount <= max_weight:
             if character.coins >= item.price*2:
                 character.coins -= item.price*2
                 character.save()
-                models.Eq.objects.create(
-                    owner = character.owner,
-                    character = character.name,
-                    name = item.name,
-                    type = item.type,
-                    weight = item.weight,
-                    durability = item.maxDurability
-                )
+                
+                try:
+                    existing_item = get_object_or_404(models.Eq, name=item.name, character=character.name)
+                    existing_item.amount += item_amount
+                    existing_item.weight += item.weight*item_amount
+                    existing_item.save()                    
+                except:
+                    models.Eq.objects.create(
+                        owner = character.owner,
+                        character = character.name,
+                        name = item.name,
+                        type = item.type,
+                        weight = item.weight*item_amount,
+                        durability = item.maxDurability,
+                        amount = item_amount
+                    )
                 messages.success(request,f'Added {item.name} to {character.name} equipment.')
             else:
                 messages.error(request, f'Not enough money. {character.name} has {character.coins} coins and {item.price*2} are needed.')

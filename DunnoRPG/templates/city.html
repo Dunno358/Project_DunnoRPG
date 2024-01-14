@@ -44,12 +44,12 @@
                 <div class='row bg-gray rounded m-2 border border-primary'>
                     <a class='col text-center {{ item|getItemRarity }} wrap h5 m-1' id='{{ item|getDescId }}'
                     href='/dunnorpg/items/{{ item|getDescId }}'>
-                        {{ item }}
+                        {{ item }} {% if item in x5packets %}x5{% endif %} {% if item in x10packets %}x10{% endif %}
                     </a>
                     <span class='col-3 c-gold h5 m-1 border-start border-white'>
                         Cost: {{ item|getItemPrice:True }}
                     </span>
-                    <a class='col-2 text-center btn btn-sm btn-success' onclick="buyItem('{{ item }}','{{ item|getDescId }}')">
+                    <a class='col-2 text-center btn btn-sm btn-success' onclick="buyItem('{{ item }} {% if item in x5packets %}x5{% endif %} {% if item in x10packets %}x10{% endif %}','{{ item|getDescId }}')">
                         Buy
                     </a>
                 </div>
@@ -59,12 +59,12 @@
                 <div class='row bg-gray rounded m-2 border border-primary'>
                     <a class='col text-center {{ item|getItemRarity }} wrap h5 m-1' id='{{ item|getDescId }}'
                     href='/dunnorpg/items/{{ item|getDescId }}'>
-                        {{ item }}
+                        {{ item }} {% if item in x5packets %}x5{% endif %} {% if item in x10packets %}x10{% endif %}
                     </a>
                     <span class='col-3 c-gold h5 m-1 border-start border-white'>
                         Cost: {{ item|getItemPrice:True }}
                     </span>
-                    <a class='col-2 text-center btn btn-sm btn-success' onclick="buyItem('{{ item }}','{{ item|getDescId }}')">
+                    <a class='col-2 text-center btn btn-sm btn-success' onclick="buyItem('{{ item }} {% if item in x5packets %}x5{% endif %} {% if item in x10packets %}x10{% endif %}','{{ item|getDescId }}')">
                         Buy
                     </a>
                 </div>
@@ -79,12 +79,12 @@
                 <div class='row bg-gray rounded m-2 border border-primary'>
                     <a class='col text-center {{ item|getItemRarity }} wrap h5 m-1' id='{{ item|getDescId }}'
                     href='/dunnorpg/items/{{ item|getDescId }}'>
-                        {{ item }}
+                        {{ item }} {% if item in x5packets %}x5{% endif %} {% if item in x10packets %}x10{% endif %}
                     </a> 
                     <span class='col-3 c-gold h5 m-1 border-start border-white'>
                         Cost: {{ item|getItemPrice:True }}
                     </span>
-                    <a class='col-2 text-center btn btn-sm btn-success' onclick="buyItem('{{ item }}','{{ item|getDescId }}')">
+                    <a class='col-2 text-center btn btn-sm btn-success' onclick="buyItem('{{ item }} {% if item in x5packets %}x5{% endif %} {% if item in x10packets %}x10{% endif %}','{{ item|getDescId }}')">
                         Buy
                     </a>
                 </div>
@@ -99,12 +99,12 @@
                 <div class='row bg-gray rounded m-2 border border-primary'>
                     <a class='col text-center {{ item|getItemRarity }} wrap h5 m-1' id='{{ item|getDescId }}'
                     href='/dunnorpg/items/{{ item|getDescId }}'>
-                        {{ item }}
+                        {{ item }} {% if item in x5packets %}x5{% endif %} {% if item in x10packets %}x10{% endif %}
                     </a>
                     <span class='col-3 c-gold h5 m-1 border-start border-white'>
                         Cost: {{ item|getItemPrice:True }}
                     </span>
-                    <a class='col-2 text-center btn btn-sm btn-success' onclick="buyItem('{{ item }}','{{ item|getDescId }}')">
+                    <a class='col-2 text-center btn btn-sm btn-success' onclick="buyItem('{{ item }} {% if item in x5packets %}x5{% endif %} {% if item in x10packets %}x10{% endif %}','{{ item|getDescId }}')">
                         Buy
                     </a>
                 </div>
@@ -119,12 +119,12 @@
                 <div class='row bg-gray rounded m-2 border border-primary'>
                     <a class='col text-center {{ item|getItemRarity }} wrap h5 m-1' id='{{ item|getDescId }}'
                     href='/dunnorpg/items/{{ item|getDescId }}'>
-                        {{ item }}
+                        {{ item }} {% if item in x5packets %}x5{% endif %} {% if item in x10packets %}x10{% endif %}
                     </a>
                     <span class='col-3 c-gold h5 m-1 border-start border-white'>
                         Cost: {{ item|getItemPrice:True }}
                     </span>
-                    <a class='col-2 text-center btn btn-sm btn-success' onclick="buyItem('{{ item }}','{{ item|getDescId }}')">
+                    <a class='col-2 text-center btn btn-sm btn-success' onclick="buyItem('{{ item }} {% if item in x5packets %}x5{% endif %} {% if item in x10packets %}x10{% endif %}','{{ item|getDescId }}')">
                         Buy
                     </a>
                 </div>
@@ -139,12 +139,12 @@
                 <div class='row bg-gray rounded m-2 border border-primary'>
                     <a class='col text-center {{ item|getItemRarity }} wrap h5 m-1' id='{{ item|getDescId }}'
                     href='/dunnorpg/items/{{ item|getDescId }}'>
-                        {{ item }}
+                        {{ item }} {% if item in x5packets %}x5{% endif %} {% if item in x10packets %}x10{% endif %}
                     </a>
                     <span class='col-3 c-gold h5 m-1 border-start border-white'>
                         Cost: {{ item|getItemPrice:True }}
                     </span>
-                    <a class='col-2 text-center btn btn-sm btn-success' onclick="buyItem('{{ item }}','{{ item|getDescId }}')">
+                    <a class='col-2 text-center btn btn-sm btn-success' onclick="buyItem('{{ item }} {% if item in x5packets %}x5{% endif %} {% if item in x10packets %}x10{% endif %}','{{ item|getDescId }}')">
                         Buy
                     </a>
                 </div>
@@ -159,12 +159,12 @@
                 <div class='row bg-gray rounded m-2 border border-primary'>
                     <a class='col text-center {{ item|getItemRarity }} wrap h5 m-1' id='{{ item|getDescId }}'
                     href='/dunnorpg/items/{{ item|getDescId }}'>
-                        {{ item }}
+                        {{ item }} {% if item in x5packets %}x5{% endif %} {% if item in x10packets %}x10{% endif %}
                     </a>
                     <span class='col-3 c-gold h5 m-1 border-start border-white'>
                         Cost: {{ item|getItemPrice:True }}
                     </span>
-                    <a class='col-2 text-center btn btn-sm btn-success' onclick="buyItem('{{ item }}','{{ item|getDescId }}')">
+                    <a class='col-2 text-center btn btn-sm btn-success' onclick="buyItem('{{ item }} {% if item in x5packets %}x5{% endif %} {% if item in x10packets %}x10{% endif %}','{{ item|getDescId }}')">
                         Buy
                     </a>
                 </div>
@@ -229,10 +229,15 @@
     }
 
     function confirmBuy(){
-        item_id = document.getElementById('Item').getAttribute('name')
-        char_id = document.getElementById('choosing_char_select').value
-
-        window.location.href = "buyitem-"+item_id+"-"+char_id
+        let item = document.getElementById('Item');
+        let item_id = item.getAttribute('name');
+        let char_id = document.getElementById('choosing_char_select').value;
+    
+        let amount = 1;
+        if (item.innerHTML.includes("x10")) { amount = 10; }
+        if (item.innerHTML.includes("x5")) { amount = 5; }
+    
+        window.location.href = "buyitem-" + item_id + "-" + char_id + "-" + amount;
     }
 
     function heal(char_id){
