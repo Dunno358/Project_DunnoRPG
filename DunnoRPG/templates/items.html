@@ -82,6 +82,40 @@
     </div>
 </div>
 
+<div id='sell-item-main' class='d-none position-fixed container bg-dark c-gold rounded border border-warning' style="left: 10%; width: 80%;">
+    <div class='row'>
+        <div class='col text-center'></div>
+        <button class='btn btn-danger col-2' onclick="this.parentNode.parentNode.classList.add('d-none')">X</button>
+      </div>
+
+      <div class='row'>
+        <div class='col text-center'>
+            <h1 id="sell-item-name" class="fw-bold"></h1>
+        </div>
+      </div>
+
+    <div class='row mt-2'>
+      <div class='col text-center'>
+        <h2 id='sell-item-title' class='m-2 mt-0 fst-150'>Co my tu mamy...</h2>
+      </div>
+    </div>
+
+    <div class="row m-2">
+        <div class="col text-center">
+            <input type="checkbox" id="sell-item-negotiate" class="p-5"/> 
+            <span class="h5" >Da radę więcej?</span>
+        </div>
+    </div>
+
+    <div class="row m-2">
+        <div class="col text-center">
+            <button class="btn-lg btn-success fw-bold mt-4">
+                Sprzedaj
+            </button>
+        </div>
+    </div>
+</div>
+
 <div id='search-result' class='container'>
     {% for item in items %}
     <div>
@@ -110,7 +144,8 @@
             </a>
             {% if view.kwargs.char_id != 0 %}
                 <button class='col-2 text-center text-white bg-success p-2 m-1 rounded' disabled
-                onclick="">Sell</button>
+                onclick="sellConfirmation('{{ view.kwargs.char_id }}','{{ item.id }}','{{ item.price }}','{{ item.dur }}','{{ item.max_dur }}','{{ item.name }}')">
+                Sell</button>
             {% endif %}
             {% if user.is_superuser %}
                 <a class='col-3 ms-1 btn btn-success' href='setFound-{{ item.id }}-1-{{ view.kwargs.char_id }}'>
@@ -461,6 +496,33 @@
         document.getElementById('del-confirm-positive').href = chid+'del'+id
         document.getElementById('del-confirm').classList.remove('d-none')
       }
+
+    function sellConfirmation(chid, id, price, dur, maxDur, itemName){
+        let main_block = document.getElementById("sell-item-main")
+        let title = document.getElementById("sell-item-title")
+        let item_name = document.getElementById("sell-item-name")
+
+        let dur_perc = dur/maxDur
+        let calc_price = parseInt(price*dur_perc)
+        let quality = ""
+
+        if(dur_perc>0.90){
+            quality = "dobry"
+        }else if(dur_perc>0.75){
+            quality = "sensowny"
+        }else if(dur_perc>0.50){
+            quality = "średni"
+        }else if(dur_perc>0.25){
+            quality = "kiepski"
+        }else{
+            quality = "tragiczny"
+        }
+
+
+        main_block.classList.remove("d-none")
+        title.innerHTML = `Sprzedawca: Rzućmy okiem... No stan jest ${quality}, proponuję ${calc_price} monet.`
+        item_name.innerHTML = itemName
+    }
 
     function makeAddToEqRequest(){
         chid = document.getElementById('chid').innerHTML

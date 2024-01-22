@@ -990,7 +990,8 @@ class ItemsView(ListView):
                                  'dur': item.durability, 
                                  'amount': item.amount, 
                                  'max_dur': item_obj.maxDurability,
-                                 'type': item_obj.type}
+                                 'type': item_obj.type,
+                                 'price': item_obj.price}
                                 )
                 
                 if item_obj.type.lower() in self.armor_dict.keys():
