@@ -608,9 +608,10 @@ def sell_item(request, **kwargs):
     eqItem = get_object_or_404(models.Eq, id=kwargs['item_id'])
     itemDesc = get_object_or_404(models.Items, name=eqItem.name)
     char = get_object_or_404(models.Character, id=kwargs['char_id'])
+    mod = kwargs["mod"]/10
 
     durability_percent = eqItem.durability/itemDesc.maxDurability
-    price = int(itemDesc.price*float(kwargs['mod'])*durability_percent)
+    price = int(itemDesc.price*mod*durability_percent)
 
     char.coins += price
     char.save()
@@ -983,7 +984,8 @@ class ItemsView(ListView):
             
             for item in models.Eq.objects.filter(character=self.character.name):
                 item_obj = get_object_or_404(models.Items, name=item.name)
-                queryset.append({'id': item_obj.id, 
+                queryset.append({'id': item_obj.id,
+                                 'eq_id': item.id, 
                                  'rarity': item_obj.rarity, 
                                  'found': item_obj.found, 
                                  'name': item.name, 

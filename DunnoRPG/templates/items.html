@@ -82,7 +82,7 @@
     </div>
 </div>
 
-<div id='sell-item-main' class='d-none position-fixed container bg-dark c-gold rounded border border-warning' style="left: 10%; width: 80%;">
+<div id='sell-item-main' class='d-none position-fixed container bg-dark c-gold rounded border border-warning' style="left: 10%; width: 80%; bottom: 20%;">
     <div class='row'>
         <div class='col text-center'></div>
         <button class='btn btn-danger col-2' onclick="this.parentNode.parentNode.classList.add('d-none')">X</button>
@@ -109,7 +109,7 @@
 
     <div class="row m-2">
         <div class="col text-center">
-            <button class="btn-lg btn-success fw-bold mt-4">
+            <button class="btn-lg btn-success fw-bold mt-4" id="sell-btn">
                 Sprzedaj
             </button>
         </div>
@@ -143,8 +143,8 @@
                 </span>
             </a>
             {% if view.kwargs.char_id != 0 %}
-                <button class='col-2 text-center text-white bg-success p-2 m-1 rounded' disabled
-                onclick="sellConfirmation('{{ view.kwargs.char_id }}','{{ item.id }}','{{ item.price }}','{{ item.dur }}','{{ item.max_dur }}','{{ item.name }}')">
+                <button class='col-2 text-center text-white bg-success p-2 m-1 rounded'
+                onclick="sellConfirmation('{{ view.kwargs.char_id }}','{{ item.eq_id }}','{{ item.price }}','{{ item.dur }}','{{ item.max_dur }}','{{ item.name }}')">
                 Sell</button>
             {% endif %}
             {% if user.is_superuser %}
@@ -501,6 +501,7 @@
         let main_block = document.getElementById("sell-item-main")
         let title = document.getElementById("sell-item-title")
         let item_name = document.getElementById("sell-item-name")
+        let sell_btn = document.getElementById("sell-btn")
 
         let dur_perc = dur/maxDur
         let calc_price = parseInt(price*dur_perc)
@@ -522,6 +523,28 @@
         main_block.classList.remove("d-none")
         title.innerHTML = `Sprzedawca: Rzućmy okiem... No stan jest ${quality}, proponuję ${calc_price} monet.`
         item_name.innerHTML = itemName
+
+        sell_btn.setAttribute("onclick", `sellItem(${id})`)
+    }
+
+    function sellItem(item_id){
+        let isNegotiating = document.getElementById("sell-item-negotiate").checked
+        console.log(isNegotiating)
+        let chid = document.getElementById('chid').innerHTML
+
+        let selling_item_mod = 10
+        if(isNegotiating){
+            let dice = Math.floor(Math.random()*20)+1
+
+            if(dice>=15){
+                selling_item_mod = 15
+            }else if(dice>=12){
+                selling_item_mod = 12
+            }
+        }
+
+        window.location.href = "sell"+item_id+";"+chid+";"+selling_item_mod
+
     }
 
     function makeAddToEqRequest(){
