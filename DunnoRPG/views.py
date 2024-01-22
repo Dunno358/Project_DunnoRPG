@@ -608,7 +608,9 @@ def sell_item(request, **kwargs):
     eqItem = get_object_or_404(models.Eq, id=kwargs['item_id'])
     itemDesc = get_object_or_404(models.Items, name=eqItem.name)
     char = get_object_or_404(models.Character, id=kwargs['char_id'])
-    price = itemDesc.price * float(kwargs['mod'])
+
+    durability_percent = eqItem.durability/itemDesc.maxDurability
+    price = int(itemDesc.price*float(kwargs['mod'])*durability_percent)
 
     char.coins += price
     char.save()
