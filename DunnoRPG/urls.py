@@ -34,8 +34,8 @@ urlpatterns = [
     
     path('items/ch<int:char_id>', views.ItemsView.as_view(), name='items'),
     path('items/<int:char_id>del<int:obj_id>', views.del_eq_item, name='del_eq_item'),
+    path('items/<int:item_id>;<int:char_id>;<str:mod>', views.del_eq_item, name='del_eq_item'),
     path('items/<int:id>', views.ItemDetailView.as_view(), name='item_detail'),
-    
     path('items/setFound-<int:id>-<int:state>-<int:char_id>', views.changeItemFoundState.as_view(), name='change_found_state'),
     
     path('guest/', views.log_as_guest, name='log_as_guest'),

@@ -604,6 +604,20 @@ def del_eq_item(request, **kwargs):
         item.weight -= itemDesc.weight
         item.save()
     return redirect(f"/dunnorpg/items/ch{kwargs['char_id']}")
+def sell_item(request, **kwargs):
+    eqItem = get_object_or_404(models.Eq, id=kwargs['item_id'])
+    itemDesc = get_object_or_404(models.Items, name=eqItem.name)
+    char = get_object_or_404(models.Character, id=kwargs['char_id'])
+    price = itemDesc.price * float(kwargs['mod'])
+
+    char.coins += price
+    char.save()
+
+    eqItem.delete()
+
+    messages.success(request, f"Sold {itemDesc.name} for {price} coins! Current: {char.coins} coins.")
+    return redirect(f"/dunnorpg/items/ch{kwargs['char_id']}")
+
 def swap_side_to_hand(request, **kwargs):
     char = get_object_or_404(models.Character, id=kwargs['char_id'])
     sideItem = get_object_or_404(models.CharItems, character=char.name, hand="Side")

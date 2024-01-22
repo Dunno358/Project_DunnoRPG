@@ -108,6 +108,10 @@
                 {% if item.dur %} x{{ item.amount }}{% endif %}
                 </span>
             </a>
+            {% if view.kwargs.char_id != 0 %}
+                <button class='col-2 text-center text-white bg-success p-2 m-1 rounded' disabled
+                onclick="">Sell</button>
+            {% endif %}
             {% if user.is_superuser %}
                 <a class='col-3 ms-1 btn btn-success' href='setFound-{{ item.id }}-1-{{ view.kwargs.char_id }}'>
                     {% if item.found == True %}
