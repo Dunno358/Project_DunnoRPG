@@ -144,7 +144,7 @@
             </a>
             {% if view.kwargs.char_id != 0 %}
                 <button class='col-2 text-center text-white bg-success p-2 m-1 rounded'
-                onclick="sellConfirmation('{{ view.kwargs.char_id }}','{{ item.eq_id }}','{{ item.price }}','{{ item.dur }}','{{ item.max_dur }}','{{ item.name }}')">
+                onclick="sellConfirmation('{{ view.kwargs.char_id }}','{{ item.eq_id }}','{{ item.price }}','{{ item.dur }}','{{ item.max_dur }}','{{ item.name }}', '{{ item.amount }}', '{{ charisma }}')">
                 Sell</button>
             {% endif %}
             {% if user.is_superuser %}
@@ -497,14 +497,14 @@
         document.getElementById('del-confirm').classList.remove('d-none')
       }
 
-    function sellConfirmation(chid, id, price, dur, maxDur, itemName){
+    function sellConfirmation(chid, id, price, dur, maxDur, itemName, amount, charBonus){
         let main_block = document.getElementById("sell-item-main")
         let title = document.getElementById("sell-item-title")
         let item_name = document.getElementById("sell-item-name")
         let sell_btn = document.getElementById("sell-btn")
 
         let dur_perc = dur/maxDur
-        let calc_price = parseInt(price*dur_perc)
+        let calc_price = parseInt(price*dur_perc*amount)
         let quality = ""
 
         if(dur_perc>0.90){
@@ -524,17 +524,17 @@
         title.innerHTML = `Sprzedawca: Rzućmy okiem... No stan jest ${quality}, proponuję ${calc_price} monet.`
         item_name.innerHTML = itemName
 
-        sell_btn.setAttribute("onclick", `sellItem(${id})`)
+        sell_btn.setAttribute("onclick", `sellItem(${id}, ${parseInt(charBonus)})`)
     }
 
-    function sellItem(item_id){
+    function sellItem(item_id, bonus){
         let isNegotiating = document.getElementById("sell-item-negotiate").checked
-        console.log(isNegotiating)
         let chid = document.getElementById('chid').innerHTML
 
         let selling_item_mod = 10
         if(isNegotiating){
             let dice = Math.floor(Math.random()*20)+1
+            dice += bonus
 
             if(dice>=15){
                 selling_item_mod = 15

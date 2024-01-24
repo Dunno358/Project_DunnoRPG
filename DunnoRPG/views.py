@@ -609,9 +609,9 @@ def sell_item(request, **kwargs):
     itemDesc = get_object_or_404(models.Items, name=eqItem.name)
     char = get_object_or_404(models.Character, id=kwargs['char_id'])
     mod = kwargs["mod"]/10
-
+    
     durability_percent = eqItem.durability/itemDesc.maxDurability
-    price = int(itemDesc.price*mod*durability_percent)
+    price = int(itemDesc.price*mod*durability_percent*eqItem.amount)
 
     char.coins += price
     char.save()
@@ -1062,6 +1062,19 @@ class ItemsView(ListView):
             else:
                 max_weight = 3+self.character.extra_capacity
             
+            charisma = self.character.CHAR
+            for mod in models.Mods.objects.filter(character=self.character.name, field="CHAR"):
+                charisma += mod.value
+            for item in models.CharItems.objects.filter(character=self.character.name):
+                desc = get_object_or_404(models.Items, name=item.name)
+                try:
+                   if "CHAR" in desc.skillStats:
+                       for stat in desc.skillStats.split(";"):
+                           if stat.startswith("CHAR"): charisma += int(f"{stat[4]}{stat[5]}")
+                except:
+                    pass
+            
+            context['charisma'] = charisma
             context['current_weight'] = items_weight
             context['max_weight'] = max_weight
             context['items_singlehand'] = self.singlehand
