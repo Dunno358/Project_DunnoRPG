@@ -654,7 +654,7 @@ def give_item(request, **kwargs):
         else:
             current_weight += item.weight 
 
-    if itemDesc.weight * eq_item.amount + current_weight < max_weight:
+    if itemDesc.weight * eq_item.amount + current_weight <= max_weight:
         models.Eq.objects.create(
             owner=to_char.owner,
             character=to_char.name,
