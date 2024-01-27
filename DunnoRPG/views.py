@@ -620,6 +620,56 @@ def sell_item(request, **kwargs):
 
     messages.success(request, f"Sold {itemDesc.name} for {price} coins! Current: {char.coins} coins.")
     return redirect(f"/dunnorpg/items/ch{kwargs['char_id']}")
+def give_item(request, **kwargs):
+    eq_item = get_object_or_404(models.Eq, id=kwargs['item_id'])
+    itemDesc = get_object_or_404(models.Items, name=eq_item.name)
+    from_char = get_object_or_404(models.Character, id=kwargs['from_char'])
+    to_char = get_object_or_404(models.Character, id=kwargs['to_char'])
+
+    if to_char.SIŁ > 0:
+        max_weight = to_char.SIŁ*5+to_char.extra_capacity
+    elif to_char.SIŁ <0:
+        max_weight = 3+(to_char.SIŁ*0.5)+to_char.extra_capacity
+    else:
+        max_weight = 3+to_char.extra_capacity
+                                        
+    current_weight = 0
+    for item in models.Eq.objects.filter(character=to_char.name):
+        if "strzała" in item.name.lower():
+            try:
+                if models.CharItems.objects.filter(character=to_char.name, hand="Side").first().name=="Kolczan":
+                    pass
+                else:
+                    current_weight += item.weight 
+            except:
+                current_weight += item.weight 
+        elif "pocisk" in item.name.lower():
+            try:
+                if models.CharItems.objects.filter(character=to_char.name, hand="Side").first().name=="Pas na amunicje":
+                    pass
+                else:
+                    current_weight += item.weight 
+            except:
+                current_weight += item.weight 
+        else:
+            current_weight += item.weight 
+
+    if itemDesc.weight * eq_item.amount + current_weight < max_weight:
+        models.Eq.objects.create(
+            owner=to_char.owner,
+            character=to_char.name,
+            name=eq_item.name,
+            type=eq_item.type,
+            weight=eq_item.weight,
+            durability=eq_item.durability,
+            amount=eq_item.amount
+        )
+
+        messages.success(request, f"Transferred {eq_item.name} to {to_char.name}.")
+        eq_item.delete()
+    else:
+        messages.error(request, f"Not enough space in {to_char.name} equipment.")
+    return redirect(f"/dunnorpg/items/ch{from_char.id}")
 
 def swap_side_to_hand(request, **kwargs):
     char = get_object_or_404(models.Character, id=kwargs['char_id'])
@@ -1087,6 +1137,8 @@ class ItemsView(ListView):
             context['items_amulets'] = self.armor_dict['amulets']
             context['items_other'] = self.armor_dict['other']
             context['all_items'] = models.Items.objects.filter(found=True).order_by('name')
+            context['player_items'] = models.Eq.objects.filter(character=self.character.name).values()
+            context['characters'] = models.Character.objects.filter(hidden=False).values()
         return context
 
 class ItemDetailView(DetailView):

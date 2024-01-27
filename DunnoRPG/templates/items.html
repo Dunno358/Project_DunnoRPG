@@ -48,10 +48,16 @@
 
 {% if view.kwargs.char_id != 0 %}
 <div class='container mt-2'>
-    <div class='row text-center'>
-        <h1 class='col c-gold' style='-webkit-text-stroke: 1px black;'>
+    <div class='row'>
+        <div class="col-3"></div>
+        <h1 class='col c-gold text-center' style='-webkit-text-stroke: 1px black;'>
             {{ current_weight }}/{{ max_weight }}kg
         </h1>
+        <div class="col-3 text-start">
+            <button class="btn btn-primary p-2" onclick="document.getElementById('give-item-main').classList.remove('d-none')">
+                Transfer
+            </button>
+        </div>
     </div>
 </div>
 
@@ -79,6 +85,46 @@
         <a onclick='this.parentNode.parentNode.parentNode.classList.add("d-none")' class='btn btn-lg btn-outline-danger m-1 mb-5'>Nie</a>
         <a href='' id='del-confirm-positive' class='btn btn-lg btn-outline-success m-1 mb-5'>Tak</a>
       </div>
+    </div>
+</div>
+
+<div id='give-item-main' class='d-none position-fixed container bg-dark c-gold rounded border border-warning' style="left: 10%; width: 80%; top: 45%">
+    <div class='row'>
+        <div class="col-2"></div>
+        <div class='col text-center mt-3 h4'>Przekaż przedmiot</div>
+        <button class='btn btn-danger col-2' onclick="this.parentNode.parentNode.classList.add('d-none')">X</button>
+      </div>
+
+    <div class="row m-2 mt-4">
+        <div class="col text-center">
+            <select id="give-item-id" class="text-center p-1 rounded bg-dark text-warning border border-warning">
+                {% for item in player_items %}
+                    <option value="{{ item.id }}">
+                        {{ item.name }} ({{ item.durability }})
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+    </div>
+
+    <div class="row m-2 mt-4">
+        <div class="col text-center">
+            Do: <select id="give-character-id" class="text-center p-1 rounded bg-dark text-warning border border-warning">
+                {% for character in characters %}
+                    <option value="{{ character.id }}">
+                        {{ character.name }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+    </div>
+
+    <div class="row m-2">
+        <div class="col text-center">
+            <button class="btn-lg btn-primary h4 mt-4" onclick="giveItem()">
+                Przekaż
+            </button>
+        </div>
     </div>
 </div>
 
@@ -545,6 +591,14 @@
 
         window.location.href = "sell"+item_id+";"+chid+";"+selling_item_mod
 
+    }
+
+    function giveItem(){
+        let from_chid = document.getElementById('chid').innerHTML
+        let to_chid = document.getElementById('give-character-id').value
+        let item_id = document.getElementById('give-item-id').value
+
+        window.location.href = "give"+item_id+";"+from_chid+";"+to_chid
     }
 
     function makeAddToEqRequest(){
