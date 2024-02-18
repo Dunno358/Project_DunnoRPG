@@ -605,20 +605,24 @@ def del_eq_item(request, **kwargs):
         item.save()
     return redirect(f"/dunnorpg/items/ch{kwargs['char_id']}")
 def sell_item(request, **kwargs):
-    eqItem = get_object_or_404(models.Eq, id=kwargs['item_id'])
-    itemDesc = get_object_or_404(models.Items, name=eqItem.name)
-    char = get_object_or_404(models.Character, id=kwargs['char_id'])
-    mod = kwargs["mod"]/10
-    
-    durability_percent = eqItem.durability/itemDesc.maxDurability
-    price = int(itemDesc.price*mod*durability_percent*eqItem.amount)
+    try:
+        city = get_object_or_404(models.Cities, visiting=True)
+        eqItem = get_object_or_404(models.Eq, id=kwargs['item_id'])
+        itemDesc = get_object_or_404(models.Items, name=eqItem.name)
+        char = get_object_or_404(models.Character, id=kwargs['char_id'])
+        mod = kwargs["mod"]/10
+        
+        durability_percent = eqItem.durability/itemDesc.maxDurability
+        price = int(itemDesc.price*mod*durability_percent*eqItem.amount)
 
-    char.coins += price
-    char.save()
+        char.coins += price
+        char.save()
 
-    eqItem.delete()
+        eqItem.delete()
 
-    messages.success(request, f"Sold {itemDesc.name} for {price} coins! Current: {char.coins} coins.")
+        messages.success(request, f"Sold {itemDesc.name} for {price} coins! Current: {char.coins} coins.")
+    except:
+        messages.error(request, f"You have to be in city to sell items!")
     return redirect(f"/dunnorpg/items/ch{kwargs['char_id']}")
 def give_item(request, **kwargs):
     eq_item = get_object_or_404(models.Eq, id=kwargs['item_id'])
