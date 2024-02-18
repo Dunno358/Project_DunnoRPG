@@ -22,6 +22,7 @@ from rest_framework.renderers import JSONRenderer, TemplateHTMLRenderer
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from django.contrib.auth.decorators import user_passes_test
+import traceback
 
 from DunnoRPG.serializers import (CharacterSerializer, ItemSerializer,
                                   SkillsDecsSerializer, SkillsSerializer)
@@ -853,12 +854,15 @@ def char_use_skill(request, **kwargs):
     return redirect('character_detail', char.id)
 def reset_skills(request,mode):
     for skill in models.Skills.objects.all():
-        skill_desc = models.Skills_Decs.objects.filter(name=skill.skill).values()
-        skill_max_uses = skill_desc[0][f"useslvl{skill.level}"]
-        if skill_max_uses != None:
-            if (mode == 'normal' and skill.category.lower() != 'magical') or mode == 'all':
-                skill.uses_left = skill_max_uses
-                skill.save()
+        try:
+            skill_desc = models.Skills_Decs.objects.filter(name=skill.skill).values()
+            skill_max_uses = skill_desc[0][f"useslvl{skill.level}"]
+            if skill_max_uses != None:
+                if (mode == 'normal' and skill.category.lower() != 'magical') or mode == 'all':
+                    skill.uses_left = skill_max_uses
+                    skill.save()
+        except:
+            print(f"Cannot reset for: {skill}")
     return redirect('gm_panel')
 
 def update_field(request, **kwargs):
