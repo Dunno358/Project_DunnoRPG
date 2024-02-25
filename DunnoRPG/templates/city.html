@@ -177,8 +177,7 @@
         <div id='medic' class='container text-center c-gold rounded border border-primary bg-dark d-none'>
             {% for char in characters %}
                 <div class='row bg-gray rounded m-2 border border-primary'>
-                    <a class='col text-center c-gold h5 m-1' id='char.id' 
-                    href='/dunnorpg/character_detail/{{ char.id }}'>
+                    <a class='col text-center c-gold h5 m-1' id='char.id'>
                         {{ char.name }}
                     </a>
                     <input type='number' max="{{ char.fullHP }}" min="0" id="{{ char.id }}-heal-val"
