@@ -650,11 +650,25 @@ def give_item(request, **kwargs):
                 current_weight += item.weight 
         elif "pocisk" in item.name.lower():
             try:
-                if models.CharItems.objects.filter(character=to_char.name, hand="Side").first().name=="Pas na amunicje":
+                allowed_items = ["Pas na amunicje","Zmodyfikowana Lustrzana Tarcza"]
+                init_hands = [
+                    models.CharItems.objects.filter(character=to_char.name, hand="Left").first(),
+                    models.CharItems.objects.filter(character=to_char.name, hand="Right").first(),
+                    models.CharItems.objects.filter(character=to_char.name, hand="Side").first()
+                    ]
+                hands = []
+                for hand in init_hands:
+                    try:
+                        hands.append(hand.name)
+                    except:
+                        pass
+                canPassWeight = any(item in allowed_items for item in hands)
+                if canPassWeight:
                     pass
                 else:
                     current_weight += item.weight 
             except:
+                print(traceback.format_exc())
                 current_weight += item.weight 
         else:
             current_weight += item.weight 
@@ -947,11 +961,25 @@ def char_swap_item(request, **kwargs):
                 current_weight += item.weight 
         elif "pocisk" in item.name.lower():
             try:
-                if models.CharItems.objects.filter(character=char.name, hand="Side").first().name=="Pas na amunicje":
+                allowed_items = ["Pas na amunicje","Zmodyfikowana Lustrzana Tarcza"]
+                init_hands = [
+                    models.CharItems.objects.filter(character=char.name, hand="Left").first(),
+                    models.CharItems.objects.filter(character=char.name, hand="Right").first(),
+                    models.CharItems.objects.filter(character=char.name, hand="Side").first()
+                    ]
+                hands = []
+                for hand in init_hands:
+                    try:
+                        hands.append(hand.name)
+                    except:
+                        pass
+                canPassWeight = any(item in allowed_items for item in hands)
+                if canPassWeight:
                     pass
                 else:
                     current_weight += item.weight 
             except:
+                print(traceback.format_exc())
                 current_weight += item.weight 
         else:
             current_weight += item.weight       
@@ -1104,11 +1132,25 @@ class ItemsView(ListView):
                         items_weight += item.weight 
                 elif "pocisk" in item.name.lower():
                     try:
-                        if models.CharItems.objects.filter(character=self.character.name, hand="Side").first().name=="Pas na amunicje":
+                        allowed_items = ["Pas na amunicje","Zmodyfikowana Lustrzana Tarcza"]
+                        init_hands = [
+                            models.CharItems.objects.filter(character=self.character.name, hand="Left").first(),
+                            models.CharItems.objects.filter(character=self.character.name, hand="Right").first(),
+                            models.CharItems.objects.filter(character=self.character.name, hand="Side").first()
+                            ]
+                        hands = []
+                        for hand in init_hands:
+                            try:
+                                hands.append(hand.name)
+                            except:
+                                pass
+                        canPassWeight = any(item in allowed_items for item in hands)
+                        if canPassWeight:
                             pass
                         else:
                             items_weight += item.weight 
                     except:
+                        print(traceback.format_exc())
                         items_weight += item.weight 
                 else:
                     items_weight += item.weight 
@@ -1282,11 +1324,25 @@ class RequestHandling(APIView):
                                                 current_weight += item.weight 
                                         elif "pocisk" in item.name.lower():
                                             try:
-                                                if models.CharItems.objects.filter(character=char.name, hand="Side").first().name=="Pas na amunicje":
+                                                allowed_items = ["Pas na amunicje","Zmodyfikowana Lustrzana Tarcza"]
+                                                init_hands = [
+                                                    models.CharItems.objects.filter(character=char.name, hand="Left").first(),
+                                                    models.CharItems.objects.filter(character=char.name, hand="Right").first(),
+                                                    models.CharItems.objects.filter(character=char.name, hand="Side").first()
+                                                    ]
+                                                hands = []
+                                                for hand in init_hands:
+                                                    try:
+                                                        hands.append(hand.name)
+                                                    except:
+                                                        pass
+                                                canPassWeight = any(item in allowed_items for item in hands)
+                                                if canPassWeight:
                                                     pass
                                                 else:
                                                     current_weight += item.weight 
                                             except:
+                                                print(traceback.format_exc())
                                                 current_weight += item.weight 
                                         else:
                                             current_weight += item.weight 
@@ -1350,11 +1406,25 @@ class RequestHandling(APIView):
                                             current_weight += item.weight 
                                     elif "pocisk" in item.name.lower():
                                         try:
-                                            if models.CharItems.objects.filter(character=char.name, hand="Side").first().name=="Pas na amunicje":
+                                            allowed_items = ["Pas na amunicje","Zmodyfikowana Lustrzana Tarcza"]
+                                            init_hands = [
+                                                models.CharItems.objects.filter(character=char.name, hand="Left").first(),
+                                                models.CharItems.objects.filter(character=char.name, hand="Right").first(),
+                                                models.CharItems.objects.filter(character=char.name, hand="Side").first()
+                                                ]
+                                            hands = []
+                                            for hand in init_hands:
+                                                try:
+                                                    hands.append(hand.name)
+                                                except:
+                                                    pass
+                                            canPassWeight = any(item in allowed_items for item in hands)
+                                            if canPassWeight:
                                                 pass
                                             else:
                                                 current_weight += item.weight 
                                         except:
+                                            print(traceback.format_exc())
                                             current_weight += item.weight 
                                     else:
                                         current_weight += item.weight 
@@ -1438,11 +1508,25 @@ class GMPanel(FormView):
                         current_weight += eq_item.weight 
                 elif "pocisk" in eq_item.name.lower():
                     try:
-                        if models.CharItems.objects.filter(character=character.name, hand="Side").first().name=="Pas na amunicje":
+                        allowed_items = ["Pas na amunicje","Zmodyfikowana Lustrzana Tarcza"]
+                        init_hands = [
+                            models.CharItems.objects.filter(character=self.character.name, hand="Left").first(),
+                            models.CharItems.objects.filter(character=self.character.name, hand="Right").first(),
+                            models.CharItems.objects.filter(character=self.character.name, hand="Side").first()
+                            ]
+                        hands = []
+                        for hand in init_hands:
+                            try:
+                                hands.append(hand.name)
+                            except:
+                                pass
+                        canPassWeight = any(item in allowed_items for item in hands)
+                        if canPassWeight:
                             pass
                         else:
                             current_weight += eq_item.weight 
                     except:
+                        print(traceback.format_exc())
                         current_weight += eq_item.weight 
                 else:
                     current_weight += eq_item.weight 
@@ -1600,11 +1684,25 @@ class BuyItem(APIView):
                     current_weight += eq_item.weight 
             elif "pocisk" in eq_item.name.lower():
                 try:
-                    if models.CharItems.objects.filter(character=character.name, hand="Side").first().name=="Pas na amunicje":
+                    allowed_items = ["Pas na amunicje","Zmodyfikowana Lustrzana Tarcza"]
+                    init_hands = [
+                        models.CharItems.objects.filter(character=self.character.name, hand="Left").first(),
+                        models.CharItems.objects.filter(character=self.character.name, hand="Right").first(),
+                        models.CharItems.objects.filter(character=self.character.name, hand="Side").first()
+                        ]
+                    hands = []
+                    for hand in init_hands:
+                        try:
+                            hands.append(hand.name)
+                        except:
+                            pass
+                    canPassWeight = any(item in allowed_items for item in hands)
+                    if canPassWeight:
                         pass
                     else:
                         current_weight += eq_item.weight 
                 except:
+                    print(traceback.format_exc())
                     current_weight += eq_item.weight 
             else:
                 current_weight += eq_item.weight  
