@@ -59,6 +59,7 @@
         <p id='effects-parry'>{{ value.name|getEffectsBonus:"parry" }}</p>
         <p id='effects-dodge'>{{ value.name|getEffectsBonus:"dodge" }}</p>
         <p id='weapon-weight-mod'>0</p>
+        <p id='shield-weight-mod'>0</p>
         <p id='amulet-attack-mod'>{{ value.name|getAmuletAttackBonus }}</p>
     </div>
 
@@ -225,7 +226,7 @@
                         (<span id='l_bonus'>{{ value.name|isPreffereOrUnliked:leftItem.name }}</span>)
 
                         <a class='{{ leftItem.name|getItemRarity }} fw-bold'  href='/dunnorpg/items/{{ leftItem.name|getDescId }}'>
-                            <span name="{{ leftItem.name|getItemType }}" id='l_weapon'>{{ leftItem.name }}</span>
+                            <span name="{{ leftItem.name|getItemType }}" id='l_weapon' name="{{ leftItem.type }}">{{ leftItem.name }}</span>
                         </a>
                         <span class='fw-bold {{ leftItem.name|getItemRarity }}'>
                             {% if leftItem.name|isShield %}
@@ -297,7 +298,7 @@
                     (<span id='r_bonus'>{{ value.name|isPreffereOrUnliked:rightItem.name }}</span>)
                     
                     <a class='{{ rightItem.name|getItemRarity }} fw-bold'  href='/dunnorpg/items/{{ rightItem.name|getDescId }}'>
-                        <span name="{{ rightItem.name|getItemType }}" id='r_weapon'>{{ rightItem.name }}</span>
+                        <span name="{{ rightItem.name|getItemType }}" id='r_weapon'  name="{{ rightItem.type }}">{{ rightItem.name }}</span>
                     </a>
                     <span class='fw-bold {{ rightItem.name|getItemRarity }}'>
                         {% if rightItem.name|isShield %}
@@ -991,23 +992,38 @@ function wearItem(place, block_id){
 }
 
 function getWeaponMod(){
+    let l_item = document.getElementById('l-weight')
+    let l_item_full = document.getElementById('l_weapon')
+    let l_weight = 0
+    let l_weight_shield = 0   
     try{
-        l_weight = parseFloat(document.getElementById('l-weight').innerHTML)
-    }catch(error){
-        l_weight = 0
-    }
+        if(l_item_full.getAttribute("name").toLowerCase()!="shield"){
+            l_weight = parseFloat(document.getElementById('l-weight').innerHTML)
+        }else{
+            l_weight_shield = parseFloat(document.getElementById('l-weight').innerHTML)
+        }
+    }catch(error){console.log(error)}
 
+    let r_item = document.getElementById('r-weight')
+    let r_item_full = document.getElementById('r_weapon')
+    let r_weight = 0
+    let r_weight_shield = 0
     try{
-        r_weight = parseFloat(document.getElementById('r-weight').innerHTML)
-    }catch(error){
-        r_weight = 0
-    }
+        if(r_item_full.getAttribute("name").toLowerCase()!="shield"){
+            r_weight = parseFloat(document.getElementById('r-weight').innerHTML)
+        }else{
+            r_weight_shield = parseFloat(document.getElementById('r-weight').innerHTML)
+        }
+    }catch(error){console.log(error)}
 
     sil = parseInt(document.getElementById('stat-SIŁ').innerHTML)
     mod = (r_weight+l_weight)-sil
     mod = parseInt(mod/2)
 
+    modShield = parseInt((r_weight_shield+l_weight_shield)/4)
+
     document.getElementById('weapon-weight-mod').innerHTML = mod
+    document.getElementById('shield-weight-mod').innerHTML = modShield
 }
 getWeaponMod()
 
@@ -1173,14 +1189,15 @@ function show_result_at_window(action){
         zre = parseInt(document.getElementById('stat-ZRE').innerHTML)
         zre_mod = parseInt(document.getElementById('stat-ZRE-mod').innerHTML) 
         armor_mod = parseInt(document.getElementById('armor-mod').innerHTML) 
-        dodge_mods = zre+zre_mod+dodge_effect_bonus-armor_mod
+        weight_mod = document.getElementById('shield-weight-mod').innerHTML
+        dodge_mods = zre+zre_mod+dodge_effect_bonus-armor_mod-weight_mod
 
         window_action_additional.innerHTML = ''
         window_action_additional.onclick = ''
 
         dice_result = getDiceWMods(window_action,dodge_mods,getResult=true,text=action)
 
-        details = 'ZRE'+'('+zre+')'+ ' + '+'MODS'+'('+(zre_mod+dodge_effect_bonus)+')'+ ' + '+'ARMOR'+'('+(-armor_mod)+')'
+        details = 'ZRE'+'('+zre+')'+ ' + '+'MODS'+'('+(zre_mod+dodge_effect_bonus)+')'+ ' + '+'ARMOR'+'('+(-armor_mod)+')'+' - SHIELD WEIGHT('+weight_mod+')'
         window_action.onclick = function() {change_result(details,window_action,dodge_mods, dice_result)}
     }
 
