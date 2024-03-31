@@ -98,12 +98,21 @@
     <div class="row m-2 mt-4">
         <div class="col text-center">
             <select id="give-item-id" class="text-center p-1 rounded bg-dark text-warning border border-warning">
+                <option value="0">
+                    Monety ({{ character.coins }})
+                </option>
                 {% for item in player_items %}
                     <option value="{{ item.id }}">
                         {{ item.name }} ({{ item.durability }})
                     </option>
                 {% endfor %}
             </select>
+        </div>
+    </div>
+
+    <div class="row m-2 mt-4">
+        <div class="col text-center">
+            Ilość: <input type="number" id="give-item-amount" value="1" class="text-center p-1 rounded bg-dark text-warning border border-warning" />
         </div>
     </div>
 
@@ -597,8 +606,9 @@
         let from_chid = document.getElementById('chid').innerHTML
         let to_chid = document.getElementById('give-character-id').value
         let item_id = document.getElementById('give-item-id').value
+        let amount = document.getElementById('give-item-amount').value
 
-        window.location.href = "give"+item_id+";"+from_chid+";"+to_chid
+        window.location.href = "give"+item_id+";"+from_chid+";"+to_chid+";"+amount
     }
 
     function makeAddToEqRequest(){

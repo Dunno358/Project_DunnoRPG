@@ -626,68 +626,79 @@ def sell_item(request, **kwargs):
         messages.error(request, f"You have to be in city to sell items!")
     return redirect(f"/dunnorpg/items/ch{kwargs['char_id']}")
 def give_item(request, **kwargs):
-    eq_item = get_object_or_404(models.Eq, id=kwargs['item_id'])
-    itemDesc = get_object_or_404(models.Items, name=eq_item.name)
     from_char = get_object_or_404(models.Character, id=kwargs['from_char'])
     to_char = get_object_or_404(models.Character, id=kwargs['to_char'])
+    given_amount = kwargs['amount']
+    if kwargs["item_id"]!=0:
+        eq_item = get_object_or_404(models.Eq, id=kwargs['item_id'])
+        itemDesc = get_object_or_404(models.Items, name=eq_item.name)
 
-    if to_char.SIŁ > 0:
-        max_weight = to_char.SIŁ*5+to_char.extra_capacity
-    elif to_char.SIŁ <0:
-        max_weight = 3+(to_char.SIŁ*0.5)+to_char.extra_capacity
-    else:
-        max_weight = 3+to_char.extra_capacity
-                                        
-    current_weight = 0
-    for item in models.Eq.objects.filter(character=to_char.name):
-        if "strzała" in item.name.lower():
-            try:
-                if models.CharItems.objects.filter(character=to_char.name, hand="Side").first().name=="Kolczan":
-                    pass
-                else:
-                    current_weight += item.weight 
-            except:
-                current_weight += item.weight 
-        elif "pocisk" in item.name.lower():
-            try:
-                allowed_items = ["Pas na amunicje","Zmodyfikowana Lustrzana Tarcza"]
-                init_hands = [
-                    models.CharItems.objects.filter(character=to_char.name, hand="Left").first(),
-                    models.CharItems.objects.filter(character=to_char.name, hand="Right").first(),
-                    models.CharItems.objects.filter(character=to_char.name, hand="Side").first()
-                    ]
-                hands = []
-                for hand in init_hands:
-                    try:
-                        hands.append(hand.name)
-                    except:
-                        pass
-                canPassWeight = any(item in allowed_items for item in hands)
-                if canPassWeight:
-                    pass
-                else:
-                    current_weight += item.weight 
-            except:
-                print(traceback.format_exc())
-                current_weight += item.weight 
+        if to_char.SIŁ > 0:
+            max_weight = to_char.SIŁ*5+to_char.extra_capacity
+        elif to_char.SIŁ <0:
+            max_weight = 3+(to_char.SIŁ*0.5)+to_char.extra_capacity
         else:
-            current_weight += item.weight 
+            max_weight = 3+to_char.extra_capacity
+                                            
+        current_weight = 0
+        for item in models.Eq.objects.filter(character=to_char.name):
+            if "strzała" in item.name.lower():
+                try:
+                    if models.CharItems.objects.filter(character=to_char.name, hand="Side").first().name=="Kolczan":
+                        pass
+                    else:
+                        current_weight += item.weight 
+                except:
+                    current_weight += item.weight 
+            elif "pocisk" in item.name.lower():
+                try:
+                    allowed_items = ["Pas na amunicje","Zmodyfikowana Lustrzana Tarcza"]
+                    init_hands = [
+                        models.CharItems.objects.filter(character=to_char.name, hand="Left").first(),
+                        models.CharItems.objects.filter(character=to_char.name, hand="Right").first(),
+                        models.CharItems.objects.filter(character=to_char.name, hand="Side").first()
+                        ]
+                    hands = []
+                    for hand in init_hands:
+                        try:
+                            hands.append(hand.name)
+                        except:
+                            pass
+                    canPassWeight = any(item in allowed_items for item in hands)
+                    if canPassWeight:
+                        pass
+                    else:
+                        current_weight += item.weight 
+                except:
+                    print(traceback.format_exc())
+                    current_weight += item.weight 
+            else:
+                current_weight += item.weight 
 
-    if itemDesc.weight * eq_item.amount + current_weight <= max_weight:
-        models.Eq.objects.create(
-            owner=to_char.owner,
-            character=to_char.name,
-            name=eq_item.name,
-            type=eq_item.type,
-            weight=eq_item.weight,
-            durability=eq_item.durability,
-            amount=eq_item.amount
-        )
+        if itemDesc.weight * given_amount + current_weight <= max_weight:
+            models.Eq.objects.create(
+                owner=to_char.owner,
+                character=to_char.name,
+                name=eq_item.name,
+                type=eq_item.type,
+                weight=eq_item.weight,
+                durability=eq_item.durability,
+                amount=given_amount
+            )
 
-        messages.success(request, f"Transferred {eq_item.name} to {to_char.name}.")
-        eq_item.delete()
+            messages.success(request, f"Transferred {eq_item.name} to {to_char.name}.")
+            eq_item.delete()
+        else:
+            messages.error(request, f"Not enough space in {to_char.name} equipment.")
     else:
-        messages.error(request, f"Not enough space in {to_char.name} equipment.")
+        if from_char.coins>=given_amount:
+            from_char.coins -= given_amount
+            from_char.save()
+            to_char.coins += given_amount
+            to_char.save()
+            messages.success(request, f"Transferred {given_amount} coins to {to_char.name}.")
+        else:
+            messages.error(request, f"{from_char.name} is too poor for that.")
     return redirect(f"/dunnorpg/items/ch{from_char.id}")
 
 def swap_side_to_hand(request, **kwargs):
@@ -1189,6 +1200,7 @@ class ItemsView(ListView):
             context['all_items'] = models.Items.objects.filter(found=True).order_by('name')
             context['player_items'] = models.Eq.objects.filter(character=self.character.name).values()
             context['characters'] = models.Character.objects.filter(hidden=False).values()
+            context['character'] = self.character
         return context
 
 class ItemDetailView(DetailView):
