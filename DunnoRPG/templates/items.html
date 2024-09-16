@@ -4,6 +4,25 @@
 {% include 'top_bar.html' %}
 {% include 'dunnorpg/messages.html' %}
 
+<!-- Select2 CSS -->
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+
+<!-- jQuery (required for Select2) -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<!-- Select2 JS -->
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+<script>
+    $(document).ready(function() {
+        $('#selected-eq-add').select2({
+            width: 'resolve',  // Adjust width as per your design
+            placeholder: "Select an item",  // You can set a custom placeholder
+            allowClear: true  // Allows users to clear the selection
+        });
+    });
+</script>
+
 <div name='bar' class='container mt-1'>
     <div class='row bg-gray border border-warning rounded'>
 
@@ -227,7 +246,7 @@
                 <input id='selected-eq-add-dur' type='number' min="0" placeholder='Item durability here :)' class='w-25 bg-dark c-gold m-1 text-center' value='50'/>
                 <a onclick='makeAddToEqRequest()' class='btn btn-success m-1'>Add</a>
             </div>
-        </div>    
+        </div>
     {% endif %}
     
 </div>

@@ -70,8 +70,42 @@ def getMaxDurability(itemName):
         return "?"
 
 @register.filter
-def getItemType(itemName):
-    return get_object_or_404(models.Items, name=itemName).type
+def getItemType(itemName, translate="none"):
+    
+    translations_pl = {
+        "Sword": "Miecz",
+        "Axe": "Topór",
+        "Dagger": "Sztylet",
+        "Wand": "Kostur",
+        "shield": "Tarcza",
+        "Pistol": "Pistolet",
+        "Hammer": "Młot",
+        "SingleHand": "Jednoręczne",
+        "Mace": "Buzdygan",
+        "Spear": "Włócznia",
+        "knuckles": "kastet",
+        "Saber": "Szabla",
+        "Shield": "Tarcza",
+        "Halberd": "Halabarda",
+        "Crossbow": "Kusza",
+        "Staff": "Laska",
+        "Musket": "Muszkiet",
+        "Lute": "Lutnia",
+        "Bow": "Łuk",
+        "Helmet": "Hełm",
+        "Torso": "Napierśnik",
+        "Boots": "Buty",
+        "Gloves": "Karwasze"
+    }
+
+    type = get_object_or_404(models.Items, name=itemName).type
+    if translate=="none":
+        return type
+    elif translate=="pl":
+        try:
+            return translations_pl[type]
+        except:
+            return type
 
 @register.filter
 def getItemRarity(itemName):
