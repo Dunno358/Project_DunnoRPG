@@ -44,7 +44,10 @@ class CharItemsAdmin(admin.ModelAdmin):
         qs = super().get_queryset(request)
         return qs.order_by('character','name')
     def maxDurability(self, obj):
-        return models.Items.objects.filter(name=obj.name).first().maxDurability
+        try:
+            return models.Items.objects.filter(name=obj.name).first().maxDurability
+        except:
+            return "Error"
 admin.site.register(models.CharItems, CharItemsAdmin)
 
 admin.site.register(models.Races)
