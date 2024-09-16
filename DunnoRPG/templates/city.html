@@ -44,7 +44,7 @@
                 <div class='row bg-gray rounded m-2 border border-primary'>
                     <a class='col text-center {{ item|getItemRarity }} wrap h5 m-1' id='{{ item|getDescId }}'
                     href='/dunnorpg/items/{{ item|getDescId }}'>
-                        {{ item }} {% if item in x5packets %}x5{% endif %} {% if item in x10packets %}x10{% endif %}
+                        {{ item }} {% if item in x5packets %}x5{% endif %} {% if item in x10packets %}x10{% endif %} [{{ item|getItemType:"pl" }}]
                     </a>
                     <span class='col-3 c-gold h5 m-1 border-start border-white'>
                         Cost: {{ item|getItemPrice:True }}
@@ -59,7 +59,7 @@
                 <div class='row bg-gray rounded m-2 border border-primary'>
                     <a class='col text-center {{ item|getItemRarity }} wrap h5 m-1' id='{{ item|getDescId }}'
                     href='/dunnorpg/items/{{ item|getDescId }}'>
-                        {{ item }} {% if item in x5packets %}x5{% endif %} {% if item in x10packets %}x10{% endif %}
+                        {{ item }} {% if item in x5packets %}x5{% endif %} {% if item in x10packets %}x10{% endif %} [{{ item|getItemType:"pl" }}]
                     </a>
                     <span class='col-3 c-gold h5 m-1 border-start border-white'>
                         Cost: {{ item|getItemPrice:True }}
@@ -79,7 +79,7 @@
                 <div class='row bg-gray rounded m-2 border border-primary'>
                     <a class='col text-center {{ item|getItemRarity }} wrap h5 m-1' id='{{ item|getDescId }}'
                     href='/dunnorpg/items/{{ item|getDescId }}'>
-                        {{ item }} {% if item in x5packets %}x5{% endif %} {% if item in x10packets %}x10{% endif %}
+                        {{ item }} {% if item in x5packets %}x5{% endif %} {% if item in x10packets %}x10{% endif %} [{{ item|getItemType:"pl" }}]
                     </a> 
                     <span class='col-3 c-gold h5 m-1 border-start border-white'>
                         Cost: {{ item|getItemPrice:True }}
