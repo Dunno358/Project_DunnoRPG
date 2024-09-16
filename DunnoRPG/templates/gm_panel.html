@@ -7,6 +7,26 @@
 
 {% if user.is_superuser %}
 
+<!-- Select2 CSS -->
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+
+<!-- jQuery (required for Select2) -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<!-- Select2 JS -->
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+<script>
+    $(document).ready(function() {
+        // Apply Select2 to all <select> elements inside the form
+        $('select').select2({
+            width: 'resolve',  // Adjust the width according to the container
+            placeholder: 'Select an option',
+            allowClear: true  // Allows clearing the selection
+        });
+    });
+</script>
+
 <div name='Req-Btn' class='container mt-3'>
     <div onclick='showOrHideBlock(this,"requests-block")' class='row bg-dark rounded border border-primary' id='requests-btn'>
         <div class='col text-end mt-3 mb-2'>
