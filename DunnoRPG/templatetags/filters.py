@@ -2,6 +2,7 @@ from django import template
 from DunnoRPG import models
 from django.apps import apps
 from django.shortcuts import get_object_or_404
+import math
 
 register = template.Library()
 
@@ -44,7 +45,14 @@ def getItemAP(itemName, charId=0):
 
 @register.filter
 def getItemArmor(itemName):
-    return get_object_or_404(models.Items, name=itemName).armor
+    normal_armor = get_object_or_404(models.Items, name=itemName).armor
+    item = models.CharItems.objects.filter(name=itemName).first()
+    armor_from_durability = math.ceil(item.durability / 50)
+    if normal_armor != 0:
+        return armor_from_durability
+    else:
+        return normal_armor
+    #return get_object_or_404(models.Items, name=itemName).armor - OLD
 
 @register.filter
 def getItemWeight(itemName):
@@ -310,7 +318,10 @@ def getArmor(charName):
     
     for item in items:
         try:
-            armor += models.Items.objects.filter(name=item.name).first().armor
+            desc_armor = models.Items.objects.filter(name=item.name).first().armor
+            if desc_armor != 0:
+                armor += math.ceil(item.durability / 50)
+            #armor += models.Items.objects.filter(name=item.name).first().armor - OLD
         except:
             pass
     
@@ -328,7 +339,7 @@ def getArmorWeight(charName):
     
     weight = 0
 
-    types = {
+    types = { #first index for light armor, second for medium and above is heavy armor
     "Helmet": [1.5, 2.5],
     "Torso": [4,7],
     "Boots": [0.5, 1.1],
