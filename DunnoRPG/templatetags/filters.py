@@ -78,6 +78,39 @@ def getMaxDurability(itemName):
         return "?"
 
 @register.filter
+def getStaffMagicDmg(itemName, charId):
+    char = get_object_or_404(models.Character, id=charId)
+    item = get_object_or_404(models.Items, name=itemName)
+    int = char.INT
+    rarity = item.rarity
+
+    if item.type=="Wand":
+        dmg = 0
+        dictionary_dmg = {
+            "neutral-low": -7,
+            "neutral-high": -6,
+            "unique": -5,
+            "magical": -4,
+            "uncommon": -3,
+        }
+        dictionary_ap = {
+            "neutral-low": 0,
+            "neutral-high": 1,
+            "unique": 2,
+            "magical": 3,
+            "uncommon": 4,
+        }
+
+        dmg = dictionary_dmg[rarity]+int
+        if dmg > 0:
+            dmg = f"+{dmg}"
+
+        return f"[1K{dmg}, {dictionary_ap[rarity]}AP]"
+
+    #return dmg based on type and character int 
+
+
+@register.filter
 def getItemType(itemName, translate="none"):
     
     translations_pl = {

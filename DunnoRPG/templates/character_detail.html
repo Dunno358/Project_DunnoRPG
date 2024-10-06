@@ -242,6 +242,9 @@
                                     {{ leftItem.name|getSkill }}
                                 </span>
                             {% endif %}]
+
+                            {{ leftItem.name|getStaffMagicDmg:value.id }}
+
                         </span>
                         
                         <span class='c-gold' id='s_dur'>
@@ -314,6 +317,9 @@
                                 {{ rightItem.name|getSkill }}
                             </span>
                         {% endif %}]
+
+                        {{ rightItem.name|getStaffMagicDmg:value.id }}
+
                     </span>
 
                 <span class='c-gold' id='s_dur'>
@@ -386,6 +392,9 @@
                             {{ sideItem.name|getSkill }}
                         </span>
                     {% endif %}]
+
+                    {{ sideItem.name|getStaffMagicDmg:value.id }}
+
                 </span>
 
                 <span class='c-gold' id='s_dur'>
