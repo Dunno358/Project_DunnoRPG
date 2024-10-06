@@ -106,6 +106,8 @@ def getStaffMagicDmg(itemName, charId):
             dmg = f"+{dmg}"
 
         return f"[1K{dmg}, {dictionary_ap[rarity]}AP]"
+    else:
+        return ""
 
     #return dmg based on type and character int 
 
