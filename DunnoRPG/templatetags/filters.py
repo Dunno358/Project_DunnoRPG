@@ -440,6 +440,12 @@ def getCharacterName(char_id):
     except:
         return "No character"
     
+@register.filter
+def getCharacterItems(char_name):
+    items = models.CharItems.objects.filter(character=char_name).values()
+
+    return items
+
 #CHARACTER-IS
 @register.filter
 def isNotEmpty(hand):

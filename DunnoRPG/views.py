@@ -1671,7 +1671,8 @@ class CityView(ListView):
             if self.request.user.is_superuser:
                 context['characters'] = models.Character.objects.all()
             else:
-                context['characters'] = models.Character.objects.filter(owner=self.request.user)
+                context['characters'] = models.Character.objects.filter(owner=self.request.user, hidden=False)
+
 
         return context       
 class BuyItem(APIView):

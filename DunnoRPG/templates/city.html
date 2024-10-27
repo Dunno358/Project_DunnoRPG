@@ -190,6 +190,35 @@
             {% endfor %}
         </div>
 
+        <div class='d-none row text-center c-gold p-2 rounded border border-warning bg-dark mt-1' onclick="showOrHideBlock(this,'fix')">
+            <h2>Naprawa</h2>
+        </div>
+        <div id='fix' class='container text-center c-gold rounded border border-primary bg-dark d-none'>
+            {% for char in characters %}
+                {% for item in char.name|getCharacterItems %}
+                    {% if item.name|getItemType != "Animal" %}
+                        <div class='row bg-gray rounded m-2 border border-primary'>
+                            <a class='col text-center c-gold h5 m-1' id='fix-{{ item.id }}-item'>
+                                [{{ item.character }}] {{ item.name }} ({{ item.durability }}/{{ item.name|getMaxDurability }})
+                                <span class="d-none" id="rarity-{{ item.id }}">{{ item.name|getItemRarity }}</span>
+                            </a>
+                            <input type='number' min="0" id="fix-{{ item.id }}"
+                            class='col-2 c-gold m-1 bg-gray border border-warning rounded'
+                            placeholder='Ile naprawić?'>
+
+                            <input type='text' min="0" id="fix-{{ item.id }}-cost"
+                            class='col-2 c-gold m-1 me-3 bg-gray border border-warning rounded'
+                            value='Cost: 0' disabled>
+
+                            <a class='col-1 text-center btn btn-sm btn-success' onclick="">
+                                Fix
+                            </a>
+                        </div>
+                    {% endif %}
+                {% endfor %}
+            {% endfor %}
+        </div>
+
     </div>
  
     {% if city.magic_school %}
@@ -249,6 +278,32 @@
             window.location.href = window.location.href + char_id + "h" + val
         }
     }
+
+    let rarity_modifier = {
+        "start-item": 0.5,
+        "neutral-low": 0.75,
+        "neutral-high": 1,
+        "unique": 1.25,
+        "magical": 1.5,
+        "uncommon": 1.75
+    }
+    document.addEventListener('input', function(event) {
+        if (event.target && event.target.placeholder === 'Ile naprawić?') {
+            let id = event.target.id.split("-")[1]
+            let rarity = document.getElementById('rarity-'+id).innerHTML
+            let inputValue = parseInt(event.target.value, 10);
+            let costElementId = 'fix-' + event.target.id.split('-')[1] + '-cost';
+            let costElement = document.getElementById(costElementId);
+            
+            if (!isNaN(inputValue) && costElement) {
+                let cost = Math.ceil((inputValue / 10)*rarity_modifier[rarity]);
+                costElement.value = 'Cost: ' + cost;
+                console.log(cost)
+            } else if (costElement) {
+                costElement.value = 'Cost: 0';
+            }
+        }
+    })
 </script>
 
 {% endblock content %}
