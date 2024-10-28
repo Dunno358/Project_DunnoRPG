@@ -210,7 +210,7 @@
                             class='col-2 c-gold m-1 me-3 bg-gray border border-warning rounded'
                             value='Cost: 0' disabled>
 
-                            <a class='col-1 text-center btn btn-sm btn-success' onclick="">
+                            <a class='col-1 text-center btn btn-sm btn-success' onclick="fix('{{ item.id }}')">
                                 Fix
                             </a>
                         </div>
@@ -277,6 +277,11 @@
         else{
             window.location.href = window.location.href + char_id + "h" + val
         }
+    }
+
+    function fix(item_id){
+        fix_by = document.getElementById(`fix-${item_id}`).value
+        cost = document.getElementById(`fix-${item_id}-cost`).value
     }
 
     let rarity_modifier = {
