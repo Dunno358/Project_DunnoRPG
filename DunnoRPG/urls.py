@@ -50,6 +50,7 @@ urlpatterns = [
     path('city/', views.CityView.as_view(), name='city_view'),
     path('city/buyitem-<int:item_id>-<int:character_id>-<int:amount>', views.BuyItem.as_view(), name='buy_item'),
     path('city/<int:char_id>h<int:val>', views.healCharacter.as_view(), name='heal_character'),
+    path('city/fixitem', views.fix_item, name='fix_item'),
     path('makerequest/<int:char_id>;<str:model>;<str:objects_model>;<int:object1_id>;<int:object2_id>;<str:field>;<str:title>;<str:to_reverse>', views.makeRequest.as_view(), name='make_request'),
     path('gmpanel/rq<int:rq_id>-<int:status>-<int:all>', views.RequestHandling.as_view(), name='handling_request'),
     

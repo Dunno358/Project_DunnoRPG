@@ -770,8 +770,8 @@ def change_item_durability(request,**kwargs):
         item.save()
         return redirect('character_detail', char.id)
 def fix_item(request, **kwargs):
-    char = get_object_or_404(models.Character, id=kwargs['char_id'])
-    item = get_object_or_404(models.CharItems, id=kwargs['item_id'])
+    char = get_object_or_404(models.Character, id=request.POST['char_id'])
+    item = get_object_or_404(models.CharItems, id=request.POST['item_id'])
     item.durability += int(request.POST['fix-dur'])
     char.coins -= int(request.POST['cost'])
     messages.success(request, f"Fixed! A beauty it is now and only for {request.POST['cost']} coins!")
