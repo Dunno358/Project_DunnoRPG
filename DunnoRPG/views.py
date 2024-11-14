@@ -8,7 +8,7 @@ from django.db import transaction
 from django.apps import apps
 from django.db.models import Q
 from django.db.models.query import QuerySet
-from django.http import Http404, HttpResponse, HttpResponseRedirect
+from django.http import Http404, HttpResponse, HttpResponseRedirect, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse_lazy
 from django.urls import reverse
@@ -23,6 +23,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from django.contrib.auth.decorators import user_passes_test
 import traceback
+import json
 
 from DunnoRPG.serializers import (CharacterSerializer, ItemSerializer,
                                   SkillsDecsSerializer, SkillsSerializer)
@@ -770,12 +771,27 @@ def change_item_durability(request,**kwargs):
         item.save()
         return redirect('character_detail', char.id)
 def fix_item(request, **kwargs):
-    char = get_object_or_404(models.Character, id=request.POST['char_id'])
-    item = get_object_or_404(models.CharItems, id=request.POST['item_id'])
-    item.durability += int(request.POST['fix-dur'])
-    char.coins -= int(request.POST['cost'])
-    messages.success(request, f"Fixed! A beauty it is now and only for {request.POST['cost']} coins!")
-    return redirect('city')
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            char = get_object_or_404(models.Character, id=data['char_id'])
+            item = get_object_or_404(models.CharItems, id=data['item_id'])
+            
+            # Update item and character
+            item.durability += int(data['fix-dur'])
+            char.coins -= int(data['cost'].replace("Cost: ", ""))
+            
+            # Save changes to the database
+            item.save()
+            char.save()
+
+            # Return a success response
+            return JsonResponse({"message": "Item fixed successfully", "new_durability": item.durability, "remaining_coins": char.coins}, status=200)
+
+        except Exception as e:
+            return JsonResponse({"error": str(e)}, status=400)
+
+    return JsonResponse({"error": "Invalid request method"}, status=405)
 def change_coins(request, **kwargs):
     if request.method == 'POST':
         char = get_object_or_404(models.Character, id=kwargs['char_id'])

@@ -15,6 +15,7 @@
 {% else %}
 
 
+    <meta name="csrf-token" content="{{ csrf_token }}">
     <h1 class='c-gold text-center fst-italic' style='-webkit-text-stroke: 0.5px blue; font-size:300%;' id='city-name'>
         {{ city.city_name }}
     </h1>
@@ -190,7 +191,7 @@
             {% endfor %}
         </div>
 
-        <div class='d-none row text-center c-gold p-2 rounded border border-warning bg-dark mt-1' onclick="showOrHideBlock(this,'fix')">
+        <div class='row text-center c-gold p-2 rounded border border-warning bg-dark mt-1' onclick="showOrHideBlock(this,'fix')">
             <h2>Naprawa</h2>
         </div>
         <div id='fix' class='container text-center c-gold rounded border border-primary bg-dark d-none'>
@@ -198,7 +199,7 @@
                 {% for item in char.name|getCharacterItems %}
                     {% if item.name|getItemType != "Animal" %}
                         <div class='row bg-gray rounded m-2 border border-primary'>
-                            <a class='col text-center c-gold h5 m-1' id='fix-{{ item.id }}-item'>
+                            <a class="col text-center c-gold h5 m-1 {{ item.name|getItemRarity }}" id='fix-{{ item.id }}-item'>
                                 [{{ item.character }}] {{ item.name }} ({{ item.durability }}/{{ item.name|getMaxDurability }})
                                 <span class="d-none" id="rarity-{{ item.id }}">{{ item.name|getItemRarity }}</span>
                             </a>
@@ -210,7 +211,7 @@
                             class='col-2 c-gold m-1 me-3 bg-gray border border-warning rounded'
                             value='Cost: 0' disabled>
 
-                            <a class='col-1 text-center btn btn-sm btn-success' onclick="fix('{{ char.id }}', {{ item.id }}')">
+                            <a class='col-1 text-center btn btn-sm btn-success' onclick="fix('{{ char.id }}', '{{ item.id }}')">
                                 Fix
                             </a>
                         </div>
@@ -282,6 +283,9 @@
     function fix(char_id, item_id){
         fix_by = document.getElementById(`fix-${item_id}`).value
         cost = document.getElementById(`fix-${item_id}-cost`).value
+        url = window.location.href + 'fixitem'
+        token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+        console.log(url)
 
         req_body = {
             "fix-dur": fix_by,
@@ -290,7 +294,14 @@
             "char_id": char_id
         }
 
-        //api call here soon
+        response = fetch(url, {
+            method: "POST",
+            body: JSON.stringify(req_body),
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRFToken": token
+            },
+          })
     }
 
     let rarity_modifier = {
