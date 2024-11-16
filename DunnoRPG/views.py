@@ -24,6 +24,7 @@ from rest_framework.views import APIView
 from django.contrib.auth.decorators import user_passes_test
 import traceback
 import json
+import math
 
 from DunnoRPG.serializers import (CharacterSerializer, ItemSerializer,
                                   SkillsDecsSerializer, SkillsSerializer)
@@ -776,17 +777,24 @@ def fix_item(request, **kwargs):
             data = json.loads(request.body)
             char = get_object_or_404(models.Character, id=data['char_id'])
             item = get_object_or_404(models.CharItems, id=data['item_id'])
+            item_desc = models.Items.objects.get(name=item.name)
             
             # Update item and character
-            item.durability += int(data['fix-dur'])
-            char.coins -= int(data['cost'].replace("Cost: ", ""))
+
+            new_dur = item.durability + int(data['fix-dur'])
+            if new_dur <= item_desc.maxDurability:
+                item.durability = new_dur
+            else:
+                item.durability = item_desc.maxDurability
+            cost = int(data['cost'].replace("Cost: ", ""))
+            char.coins -= cost
             
             # Save changes to the database
             item.save()
             char.save()
 
             # Return a success response
-            return JsonResponse({"message": "Item fixed successfully", "new_durability": item.durability, "remaining_coins": char.coins}, status=200)
+            return JsonResponse({"message": "Item fixed successfully", "new_durability": item.durability, "cost": cost}, status=200)
 
         except Exception as e:
             return JsonResponse({"error": str(e)}, status=400)

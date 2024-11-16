@@ -200,7 +200,7 @@
                     {% if item.name|getItemType != "Animal" %}
                         <div class='row bg-gray rounded m-2 border border-primary'>
                             <a class="col text-center c-gold h5 m-1 {{ item.name|getItemRarity }}" id='fix-{{ item.id }}-item'>
-                                [{{ item.character }}] {{ item.name }} ({{ item.durability }}/{{ item.name|getMaxDurability }})
+                                [{{ item.character }}] {{ item.name }} (<span id="fix-{{ item.id }}-dur">{{ item.durability }}</span>/{{ item.name|getMaxDurability }})
                                 <span class="d-none" id="rarity-{{ item.id }}">{{ item.name|getItemRarity }}</span>
                             </a>
                             <input type='number' min="0" id="fix-{{ item.id }}"
@@ -280,9 +280,10 @@
         }
     }
 
-    function fix(char_id, item_id){
+    async function fix(char_id, item_id){
         fix_by = document.getElementById(`fix-${item_id}`).value
         cost = document.getElementById(`fix-${item_id}-cost`).value
+        item_dur = document.getElementById(`fix-${item_id}-dur`).innerHTML
         url = window.location.href + 'fixitem'
         token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
         console.log(url)
@@ -294,7 +295,7 @@
             "char_id": char_id
         }
 
-        response = fetch(url, {
+        response = await fetch(url, {
             method: "POST",
             body: JSON.stringify(req_body),
             headers: {
@@ -302,6 +303,15 @@
                 "X-CSRFToken": token
             },
           })
+        
+        data = await response.json()
+        fixed = data.new_durability - parseInt(document.getElementById(`fix-${item_id}-dur`).innerHTML)
+
+          console.log(response)
+          if(response.status==200){
+            document.getElementById(`fix-${item_id}-dur`).innerHTML = data.new_durability
+            document.getElementById(`fix-${item_id}-item`).innerHTML += `<span class="unique" style="text-decoration: none"> [Fixed ${fixed} for ${data.cost} coins]</span>`
+          }
     }
 
     let rarity_modifier = {
