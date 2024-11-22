@@ -27,6 +27,7 @@
             name="chosen_character" id="choosing_char_select">
                 {% for char in characters %}
                     <option value='{{ char.id }}' class='h4'>{{ char.name }}</option>
+                    <meta id="{{ char.id }}-char" class="d-none">{{ char.CHAR }}</meta>
                 {% endfor %}
             </select>
             <p id='Item' class='c-gold h5'>Item</p>
@@ -200,7 +201,7 @@
                     {% if item.name|getItemType != "Animal" %}
                         <div class='row bg-gray rounded m-2 border border-primary'>
                             <a class="col text-center c-gold h5 m-1 {{ item.name|getItemRarity }}" id='fix-{{ item.id }}-item'>
-                                [{{ item.character }}] {{ item.name }} (<span id="fix-{{ item.id }}-dur">{{ item.durability }}</span>/{{ item.name|getMaxDurability }})
+                                [<span id="item-{{ item.id }}-owner">{{ item.character }}</span>] {{ item.name }} (<span id="fix-{{ item.id }}-dur">{{ item.durability }}</span>/{{ item.name|getMaxDurability }})
                                 <span class="d-none" id="rarity-{{ item.id }}">{{ item.name|getItemRarity }}</span>
                             </a>
                             <input type='number' min="0" id="fix-{{ item.id }}"
@@ -286,7 +287,9 @@
         item_dur = document.getElementById(`fix-${item_id}-dur`).innerHTML
         url = window.location.href + 'fixitem'
         token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-        console.log(url)
+        let dice = Math.floor(Math.random() * 20) + 1
+        let characterCharisma = document.getElementById(`${char_id}-char`)
+        console.log(characterCharisma)
 
         req_body = {
             "fix-dur": fix_by,
@@ -333,7 +336,6 @@
             if (!isNaN(inputValue) && costElement) {
                 let cost = Math.ceil((inputValue / 10)*rarity_modifier[rarity]);
                 costElement.value = 'Cost: ' + cost;
-                console.log(cost)
             } else if (costElement) {
                 costElement.value = 'Cost: 0';
             }
