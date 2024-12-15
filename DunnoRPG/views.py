@@ -786,7 +786,7 @@ def fix_item(request, **kwargs):
                 item.durability = new_dur
             else:
                 item.durability = item_desc.maxDurability
-            cost = int(data['cost'].replace("Cost: ", ""))
+            cost = int(data['cost'])
             char.coins -= cost
             
             # Save changes to the database
