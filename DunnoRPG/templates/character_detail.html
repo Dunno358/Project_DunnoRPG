@@ -99,7 +99,7 @@
             <form class='col' method="post" action="change-health">
                 {% csrf_token %}
                 <span class="text-white-50">Health:</span> 
-                <input type='number' min="0" max="25" id='hp-val' class='c-gold text-center bg-dark border-0' style='width: 6vw' value='{{ value.HP }}' name="hp">/{{ value.fullHP }}
+                <input type='number' id='hp-val' class='c-gold text-center bg-dark border-0' style='width: 6vw' value='{{ value.HP }}' name="hp">/{{ value.fullHP }}
                 <button type='submit' class='btn btn-sm btn-success ms-3 rounded text-black'>Change</button>
             </form>
         </div>
