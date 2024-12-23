@@ -79,3 +79,5 @@ class CitiesAdmin(admin.ModelAdmin):
         qs = super().get_queryset(request)
         return qs.order_by('-visiting')
 admin.site.register(models.Cities, CitiesAdmin)
+
+admin.site.register(models.Classes)

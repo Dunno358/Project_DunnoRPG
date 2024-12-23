@@ -68,6 +68,19 @@ class Races(models.Model):
     def __str__(self):
         return self.name
 
+class Classes(models.Model):
+    name = models.CharField(max_length=200)
+    armor_weight = models.CharField(max_length=50,blank=True)
+    skills = models.CharField(max_length=255,blank=True)
+    positives = models.TextField(blank=True)
+    negatives = models.TextField(blank=True)
+    desc = models.TextField(blank=True)
+    effects = models.CharField(max_length=255,blank=True)
+    mods = models.CharField(max_length=200,blank=True)
+    hp_mod = models.CharField(max_length=50,blank=True)
+    def __str__(self):
+        return self.name
+
 class Eq(models.Model):
     owner = models.CharField(max_length=100)
     character = models.CharField(max_length=80)
