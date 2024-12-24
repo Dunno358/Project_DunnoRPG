@@ -78,6 +78,8 @@ class Classes(models.Model):
     effects = models.CharField(max_length=255,blank=True)
     mods = models.CharField(max_length=200,blank=True)
     hp_mod = models.CharField(max_length=50,blank=True)
+    allowed_weapons = models.CharField(max_length=255,blank=True)
+    forbidden_skills = models.TextField(blank=True)
     def __str__(self):
         return self.name
 
