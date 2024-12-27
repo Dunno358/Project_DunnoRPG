@@ -5,11 +5,11 @@ class CharacterCreation{
     static pointsToUse = 10
     races(){
         const race = document.getElementById('id_race')
-        const int = document.getElementsByTagName('label')[2]
-        const sil = document.getElementsByTagName('label')[3]
-        const zre = document.getElementsByTagName('label')[4]
-        const char = document.getElementsByTagName('label')[5]
-        const cel = document.getElementsByTagName('label')[6]
+        const int = document.getElementsByTagName('label')[3]
+        const sil = document.getElementsByTagName('label')[4]
+        const zre = document.getElementsByTagName('label')[5]
+        const char = document.getElementsByTagName('label')[6]
+        const cel = document.getElementsByTagName('label')[7]
     
         const raceAttributes = {
             'Leśne Elfy (Athel Loren)': { int: '-1', sil: '+0', zre: '+2', char: '-2', cel: '+1', p: 10 },

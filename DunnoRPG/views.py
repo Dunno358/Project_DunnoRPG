@@ -69,6 +69,18 @@ class charPOST(FormView):
         if valid:
             character.size = chosen_race.size
 
+            char_class = get_object_or_404(models.Classes, name=character.chosen_class)
+            class_skills = char_class.skills.split(";")
+            while "" in class_skills:
+                class_skills.remove("")
+            class_hp_mod = char_class.hp_mod
+            print(class_hp_mod)
+            if class_hp_mod == "":
+                class_hp_mod = 0
+            else:
+                class_hp_mod = int(class_hp_mod)
+            print(class_hp_mod)
+
             character.points_left = chosen_race.points_limit - (character.INT+character.SIŁ+character.ZRE+character.CHAR+character.CEL)
 
             pluses = chosen_race.statPlus.split(';')
@@ -79,7 +91,7 @@ class charPOST(FormView):
             character.CHAR += int(pluses[3])-int(minuses[3])
             character.CEL += int(pluses[4])-int(minuses[4])
 
-            character.fullHP = character.HP
+            character.fullHP = character.HP = character.HP+class_hp_mod
                 
             character.weaponBonus = chosen_race.weaponsBonus
             character.preferredWeapons = chosen_race.weaponsPreffered
@@ -99,6 +111,19 @@ class charPOST(FormView):
                     level=skill_level,
                     desc = models.Skills_Decs.objects.all().filter(name=skill_name).values()[0]['desc']
                     )
+            for skill in class_skills: #second loop as class skills are defined little different
+                skill_name = skill[:-1].strip()
+                skill_level = skill[-1]
+                skills.create(
+                    owner=current_user,
+                    character=character.name,
+                    skill=skill_name,
+                    category=f'{skill_level}free',
+                    level=skill_level,
+                    desc = models.Skills_Decs.objects.all().filter(name=skill_name).values()[0]['desc']
+                    )
+
+            #TODO: The same as Skills but with class Effects and Mods
 
             return redirect(f'character_add_skills/{character.id}')
         else:

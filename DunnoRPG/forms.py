@@ -1,6 +1,6 @@
 from django import forms
 from django.forms import ModelForm
-from DunnoRPG.models import Users, Character, Skills, Skills_Decs, Races, Eq, Items, Effects, Effects_Decs
+from DunnoRPG.models import Users, Character, Skills, Skills_Decs, Races, Eq, Items, Effects, Effects_Decs, Classes
 from django.contrib.auth.forms import UserCreationForm
 
 
@@ -35,6 +35,15 @@ class CharacterForm(forms.ModelForm):
         races.append((race['name'], race['name']))
     races.sort()
     race = forms.ChoiceField(choices=races,widget=forms.Select(attrs={
+        'class': 'text-center border border-warning bg-dark text-white-50 rounded'
+    }))
+
+    query_classes = Classes.objects.all().values()
+    classes = []
+    classes.append(('None','Brak klasy'))
+    for char_class in query_classes:
+        classes.append((char_class['name'], char_class['name']))
+    chosen_class = forms.ChoiceField(choices=classes,widget=forms.Select(attrs={
         'class': 'text-center border border-warning bg-dark text-white-50 rounded'
     }))
 
@@ -86,6 +95,7 @@ class CharacterForm(forms.ModelForm):
             'owner',
             'name',
             'race',
+            'chosen_class',
             'size',
             'HP', 
             'INT',
