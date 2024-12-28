@@ -73,13 +73,20 @@ class charPOST(FormView):
             class_skills = char_class.skills.split(";")
             while "" in class_skills:
                 class_skills.remove("")
+
+            class_effects = char_class.effects.split(";")
+            while "" in class_effects:
+                class_effects.remove("")
+
+            class_mods = char_class.mods.split(";")
+            while "" in class_mods:
+                class_mods.remove("")
+
             class_hp_mod = char_class.hp_mod
-            print(class_hp_mod)
             if class_hp_mod == "":
                 class_hp_mod = 0
             else:
                 class_hp_mod = int(class_hp_mod)
-            print(class_hp_mod)
 
             character.points_left = chosen_race.points_limit - (character.INT+character.SIŁ+character.ZRE+character.CHAR+character.CEL)
 
@@ -100,7 +107,8 @@ class charPOST(FormView):
             character.save()
 
             skills = models.Skills.objects
-            for skill in chosen_race.Skills.split(';'):
+            race_skills = chosen_race.Skills.split(';')
+            for skill in race_skills:
                 skill_name = skill[1:].strip()
                 skill_level = skill[0]
                 skills.create(
@@ -114,16 +122,46 @@ class charPOST(FormView):
             for skill in class_skills: #second loop as class skills are defined little different
                 skill_name = skill[:-1].strip()
                 skill_level = skill[-1]
-                skills.create(
+                if not f"{skill_level}{skill_name}" in race_skills:
+                    skills.create(
+                        owner=current_user,
+                        character=character.name,
+                        skill=skill_name,
+                        category=f'{skill_level}free',
+                        level=skill_level,
+                        desc = models.Skills_Decs.objects.all().filter(name=skill_name).values()[0]['desc']
+                        )
+
+            effects = models.Effects.objects
+            for effect in class_effects:
+                name = effect.split("-")[0]
+                bonus = effect.split("-")[1]
+                if bonus.lower().endswith("m"):
+                    bonus = -int(bonus[:-1])
+                else:
+                    bonus = int(bonus)
+                effects.create(
                     owner=current_user,
                     character=character.name,
-                    skill=skill_name,
-                    category=f'{skill_level}free',
-                    level=skill_level,
-                    desc = models.Skills_Decs.objects.all().filter(name=skill_name).values()[0]['desc']
-                    )
+                    name = name,
+                    bonus = bonus,
+                    time = 110               
+                )
 
-            #TODO: The same as Skills but with class Effects and Mods
+            mods = models.Mods.objects
+            for mod in class_mods:
+                if "+" in mod:
+                    name = mod.split("+")[0]
+                    bonus = int(mod.split("+")[1])
+                elif "-" in mod:
+                    name = mod.split("-")[0]
+                    bonus = -int(mod.split("-")[1])   
+                mods.create(
+                    owner=current_user,
+                    character=character.name,
+                    field = name,
+                    value = bonus,                   
+                )                 
 
             return redirect(f'character_add_skills/{character.id}')
         else:
