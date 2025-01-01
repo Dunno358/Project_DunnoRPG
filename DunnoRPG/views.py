@@ -1353,6 +1353,70 @@ class changeItemFoundState(APIView):
             
         return redirect(f'/dunnorpg/items/ch{char_id}')
 
+class ClassView(DetailView):
+    model = models.Classes
+    template_name = 'class.html'
+
+    def get_object(self,queryset=None):
+        class_id = self.kwargs.get('id')
+        return get_object_or_404(models.Classes, id=class_id)
+    
+    def get_context_data(self,**kwargs):
+        context = super().get_context_data(**kwargs)
+        chosen_class = self.get_object()
+
+        chosen_class.armor_weight = chosen_class.armor_weight.replace("light","Lekki")
+        chosen_class.armor_weight = chosen_class.armor_weight.replace("medium","Średni")
+        chosen_class.armor_weight = chosen_class.armor_weight.replace("heavy","Ciężki")
+        chosen_class.armor_weight = chosen_class.armor_weight.replace("all","Każdy")
+        chosen_class.armor_weight = chosen_class.armor_weight.split(";")
+
+        chosen_class.skills = chosen_class.skills.split(";")
+        for skill in chosen_class.skills:
+            try:
+                index = chosen_class.skills.index(skill)
+                lvl = skill[-1]
+                chosen_class.skills[index] = f"{skill[:-1]}-{lvl}"
+            except:
+                pass
+        
+        chosen_class.effects = chosen_class.effects.split(";")
+        for effect in chosen_class.effects:
+            try:
+                index = chosen_class.effects.index(effect)
+                if effect.lower().endswith("m"):
+                    lvl = effect[-2]
+                    chosen_class.effects[index] = f"{effect[:-3]}(-{lvl})"
+                else:
+                    lvl = effect[-1]
+                    chosen_class.effects[index] = f"{effect[:-2]}(+{lvl})"
+            except:
+                pass
+
+        chosen_class.mods = chosen_class.mods.split(";")
+
+        context['class'] = chosen_class
+
+        return context
+
+class changeItemFoundState(APIView):
+    def get(self, request, *args, **kwargs):
+        if request.user.is_superuser:
+            state = kwargs['state']
+            item_id = kwargs['id']
+            char_id = kwargs['char_id']
+
+            item = get_object_or_404(models.Items, id=item_id)
+
+            try:
+                item.found = bool(state)
+            except:
+                raise Http404('changeItemFoundState at views; cannot state to bool')
+            
+            item.save()
+            
+        return redirect(f'/dunnorpg/items/ch{char_id}')
+
 class makeRequest(APIView):
     def get(self, request, **kwargs):
         try:

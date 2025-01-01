@@ -1,0 +1,75 @@
+{% extends 'master.html' %}
+{% load filters %}
+
+{% block content %}
+{% include 'top_bar.html' %}
+
+<div class='container mt-3'>
+
+    <div class='row text-border-black'>
+        <div class='col text-center c-gold fst-italic'>
+            <h1 id="class-name">{{ class.name }}</h1>
+        </div>
+    </div>
+
+    <div class='row mt-2 text-border-black'>
+        <div class='col text-center c-gold fst-italic'>
+            <h2>
+                Pancerz: {% for type in class.armor_weight %} {{ type }}{% if not forloop.last %}, {% endif %} {% endfor %}
+            </h2>
+        </div>
+    </div>
+
+
+    <div class='row mt-4'>
+        <div class='col bg-opacity-75 text-center c-gold bg-dark border border-warning rounded ms-5 me-5 p-1 pt-2'>
+                <h5>Umiejętności: {% for skill in class.skills %} {{ skill }}{% if not forloop.last %}, {% endif %} {% endfor %}</h5>
+        </div>
+    </div>
+
+    <div class='row'>
+        <div class='col bg-opacity-75 text-center c-gold bg-dark rounded border border-warning border-top-0 ms-5 me-5 p-1 pt-2'>
+            <h5>Efekty: {% for effect in class.effects %} {{ effect }}{% if not forloop.last %}, {% endif %} {% endfor %}</h5>
+        </div>
+    </div>    
+
+    <div class='row'>
+        <div class='col bg-opacity-75 text-center c-gold bg-dark rounded border border-warning border-top-0 ms-5 me-5 p-1 pt-2'>
+            <h5>Modyfikacje: {% for mod in class.mods %} {{ mod }}{% if not forloop.last %}, {% endif %} {% endfor %}</h5>
+        </div>
+    </div>    
+
+    <div class='row mt-5 c-gold text-center'>
+        <div class='col bg-dark p-2 border border-warning rounded ms-3 me-3'>
+            <h5>Plusy: {{ class.positives }}</h5>
+        </div>
+        <div class='col bg-dark p-2 border border-warning rounded ms-2 me-2'>
+            <h5>Minusy: {{ class.negatives }}</h5>
+        </div>
+    </div>
+
+    <div id='class_desc' class='mt-3'>
+        <div class='row'>
+            <div class='col bg-opacity-75 text-center c-gold bg-dark border border-warning rounded ms-5 me-5 p-2 fst-italic'>
+                {{ class.desc }}
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    document.title = document.getElementById("class-name").innerHTML + " | DunnoRPG"
+
+    function showDesc(){
+        document.getElementById('desc-btn').classList.add('d-none')
+        document.getElementById('class_desc').classList.remove('d-none')
+    }
+
+    function hideDesc(instance){
+        document.getElementById('class_desc').classList.add('d-none')
+        document.getElementById('desc-btn').classList.remove('d-none')
+    }
+</script>
+
+{% endblock content %}
