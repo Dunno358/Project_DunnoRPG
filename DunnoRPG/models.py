@@ -71,6 +71,7 @@ class Races(models.Model):
 class Classes(models.Model):
     name = models.CharField(max_length=200)
     armor_weight = models.CharField(max_length=50,blank=True)
+    category = models.CharField(max_length=100,blank=True)
     skills = models.CharField(max_length=255,blank=True)
     positives = models.TextField(blank=True)
     negatives = models.TextField(blank=True)
