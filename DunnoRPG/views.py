@@ -1353,6 +1353,18 @@ class changeItemFoundState(APIView):
             
         return redirect(f'/dunnorpg/items/ch{char_id}')
 
+class ClassesView(ListView):
+    model = models.Classes
+    template_name = 'classes.html'  # Update to the template you use for displaying the list
+    context_object_name = 'classes'  # Context variable to use in the template
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # Extract unique categories from the classes
+        unique_categories = models.Classes.objects.values_list('category', flat=True).distinct()
+        context['unique_categories'] = unique_categories
+        return context
+
 class ClassView(DetailView):
     model = models.Classes
     template_name = 'class.html'

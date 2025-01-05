@@ -1,0 +1,35 @@
+{% extends 'master.html' %}
+
+{% block content %}
+{% include 'top_bar.html' %}
+
+        {% for category in unique_categories %}
+            <div class="container">
+                <div id="top" class="row mt-2 bg-gray p-1 rounded border border-warning">
+                <p class="col h2 m-1 c-gold text-center">{{ category }}</p>
+
+                    <div class='row bg-dark ms-1 me-1 border border-primary rounded'>
+                        {% for class in classes %}
+                            {% if class.category == category %}
+                                <div class='col m-1 h5 border border-warning rounded bg-gray text-center p-2'>
+                                    <a title='{{ class.desc }}' href='{{ class.id }}' class=' c-gold'>{{ class.name }}</a>
+                                </div>                    
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+
+<script>
+    document.getElementById('tb-skills').classList.remove('btn-outline-warning')
+    document.getElementById('tb-skills').classList.add('btn-outline-primary')
+    function show(btn) {
+        let ids = document.getElementById("categories").innerHTML
+        console.log(ids, typeof ids)
+        }
+</script>
+
+{% endblock content %}
+
+
