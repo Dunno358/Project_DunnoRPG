@@ -38,7 +38,7 @@ class CharacterForm(forms.ModelForm):
         'class': 'text-center border border-warning bg-dark text-white-50 rounded'
     }))
 
-    query_classes = Races.objects.all().values()
+    query_classes = Classes.objects.all().values()
     classes = []
     classes.append(('None','Brak klasy'))
     for char_class in query_classes:
