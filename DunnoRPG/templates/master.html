@@ -23,9 +23,15 @@
     <body>
 
         <div class="container-fluid">
-            <div class="row header-bg border-bottom border-warning">
+            <div class="row header-bg">
                 <div class="col text-center p-0">
                     <h1 class="header-context">DunnoRPG</h1>
+                </div>
+            </div>
+
+            <div class="row border-bottom border-warning header-bg">
+                <div class="col text-center p-0">
+                    <h2 class="header-context" style="font-size: 150%">User: {{ user.get_username }}</h5>
                 </div>
             </div>
         </div>
