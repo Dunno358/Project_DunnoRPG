@@ -69,24 +69,28 @@ class charPOST(FormView):
         if valid:
             character.size = chosen_race.size
 
-            char_class = get_object_or_404(models.Classes, name=character.chosen_class)
-            class_skills = char_class.skills.split(";")
-            while "" in class_skills:
-                class_skills.remove("")
+            try:
+                char_class = get_object_or_404(models.Classes, name=character.chosen_class)
+                class_skills = char_class.skills.split(";")
+                while "" in class_skills:
+                    class_skills.remove("")
 
-            class_effects = char_class.effects.split(";")
-            while "" in class_effects:
-                class_effects.remove("")
+                class_effects = char_class.effects.split(";")
+                while "" in class_effects:
+                    class_effects.remove("")
 
-            class_mods = char_class.mods.split(";")
-            while "" in class_mods:
-                class_mods.remove("")
+                class_mods = char_class.mods.split(";")
+                while "" in class_mods:
+                    class_mods.remove("")
 
-            class_hp_mod = char_class.hp_mod
-            if class_hp_mod == "":
+                class_hp_mod = char_class.hp_mod
+                if class_hp_mod == "":
+                    class_hp_mod = 0
+                else:
+                    class_hp_mod = int(class_hp_mod)
+            except:
                 class_hp_mod = 0
-            else:
-                class_hp_mod = int(class_hp_mod)
+                class_skills = class_mods = class_effects = []
 
             character.points_left = chosen_race.points_limit - (character.INT+character.SIŁ+character.ZRE+character.CHAR+character.CEL)
 
@@ -349,6 +353,11 @@ class CharacterDetails(DetailView):
         race = models.Races.objects.all().filter(name=serializer.data['race']).values()[0]
         mods = models.Mods.objects.all().filter(owner=chosen.owner,character=serializer.data['name']).values()
 
+        try:
+            chosen_class = get_object_or_404(models.Classes, name=chosen.chosen_class)
+        except:
+            chosen_class = {}
+
         for skill in skills:
             skill_description = models.Skills_Decs.objects.all().filter(name=skill['skill']).order_by('category').values()[0]
             skill['original_id'] = skill_description['id']
@@ -396,6 +405,8 @@ class CharacterDetails(DetailView):
         context['skillsAgility'] = skillsAgility
         context['skillsOther'] = skillsOther
         context['race_desc'] = race['desc']
+
+        context["class"] = chosen_class
         
         context['eq_weapons'] = eq_weapons_qs
         context['eq_helmets'] = eq_helmets_qs

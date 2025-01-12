@@ -83,12 +83,14 @@
                 <span id='char-name' name='{{ value.id }}'>{{ value.name }}</span>
             {% endif %}
 
-            {% if value.chosen_class %}| 
+            {% if value.chosen_class %}
             <a 
-            href='https://docs.google.com/document/d/1A-AM1SF78bhQ0blRxf06kb7VQ9WMYVeSN4VhOn3j53g/edit?usp=sharing'
-            target='_blank' class='c-gold fst-italic' id='char-class'
+            href='/dunnorpg/info/classes/{{ class.id }}'
+            class='c-gold fst-italic' id='char-class'
             >
-                {{ value.chosen_class }}
+                {% if value.chosen_class != 'None' %}
+                    | {{ value.chosen_class }}
+                {% endif %}
             </a>
             {% endif %}
         </p>
