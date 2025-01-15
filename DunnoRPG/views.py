@@ -113,20 +113,9 @@ class charPOST(FormView):
             skills = models.Skills.objects
             race_skills = chosen_race.Skills.split(';')
             for skill in race_skills:
-                skill_name = skill[1:].strip()
-                skill_level = skill[0]
-                skills.create(
-                    owner=current_user,
-                    character=character.name,
-                    skill=skill_name,
-                    category=f'{skill_level}free',
-                    level=skill_level,
-                    desc = models.Skills_Decs.objects.all().filter(name=skill_name).values()[0]['desc']
-                    )
-            for skill in class_skills: #second loop as class skills are defined little different
-                skill_name = skill[:-1].strip()
-                skill_level = skill[-1]
-                if not f"{skill_level}{skill_name}" in race_skills:
+                try:
+                    skill_name = skill[1:].strip()
+                    skill_level = skill[0]
                     skills.create(
                         owner=current_user,
                         character=character.name,
@@ -135,6 +124,23 @@ class charPOST(FormView):
                         level=skill_level,
                         desc = models.Skills_Decs.objects.all().filter(name=skill_name).values()[0]['desc']
                         )
+                except:
+                    print(f"Skipped {skill} because of {traceback.format_exc()}")
+            for skill in class_skills: #second loop as class skills are defined little different
+                try:
+                    skill_name = skill[:-1].strip()
+                    skill_level = skill[-1]
+                    if not f"{skill_level}{skill_name}" in race_skills:
+                        skills.create(
+                            owner=current_user,
+                            character=character.name,
+                            skill=skill_name,
+                            category=f'{skill_level}free',
+                            level=skill_level,
+                            desc = models.Skills_Decs.objects.all().filter(name=skill_name).values()[0]['desc']
+                            )
+                except:
+                    print(f"Skipped {skill} because of {traceback.format_exc()}")
 
             effects = models.Effects.objects
             for effect in class_effects:
