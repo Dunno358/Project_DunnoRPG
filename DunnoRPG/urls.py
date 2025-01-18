@@ -57,6 +57,9 @@ urlpatterns = [
     path('info/classes/<int:id>', views.ClassView.as_view(), name='class_info'),
     path('info/classes/', views.ClassesView.as_view(), name='classes'),
     
+    path('info/races/<int:id>', views.RaceView.as_view(), name='race_info'),
+    path('info/races/', views.RacesView.as_view(), name='races'),
+
     path('info/effects/', views.InfoEffects.as_view(), name='info_effects'),
     
     path('update_field/<int:id>', views.update_field, name='update_field')

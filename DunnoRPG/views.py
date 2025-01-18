@@ -411,6 +411,7 @@ class CharacterDetails(DetailView):
         context['skillsAgility'] = skillsAgility
         context['skillsOther'] = skillsOther
         context['race_desc'] = race['desc']
+        context['race_id'] = race['id']
 
         context["class"] = chosen_class
         
@@ -1425,6 +1426,75 @@ class ClassView(DetailView):
         chosen_class.mods = chosen_class.mods.split(";")
 
         context['class'] = chosen_class
+
+        return context
+
+class RacesView(ListView):
+    model = models.Races
+    template_name = 'races.html'  # Update to the template you use for displaying the list
+    context_object_name = 'races'  # Context variable to use in the template
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        return context
+
+class RaceView(DetailView):
+    model = models.Races
+    template_name = 'race.html'
+
+    def get_object(self,queryset=None):
+        race_id = self.kwargs.get('id')
+        return get_object_or_404(models.Races, id=race_id)
+    
+    def get_context_data(self,**kwargs):
+        context = super().get_context_data(**kwargs)
+        chosen_race = self.get_object()
+
+        chosen_race.Skills = chosen_race.Skills.split(";")
+        for skill in chosen_race.Skills:
+            try:
+                index = chosen_race.Skills.index(skill)
+                lvl = skill[0]
+                chosen_race.Skills[index] = f"{skill[1:]}-{lvl}"
+            except:
+                pass
+        
+        """ #No effects for races yet
+        chosen_race.effects = chosen_race.effects.split(";")
+        for effect in chosen_race.effects:
+            try:
+                index = chosen_race.effects.index(effect)
+                if effect.lower().endswith("m"):
+                    lvl = effect[-2]
+                    chosen_race.effects[index] = f"{effect[:-3]}(-{lvl})"
+                else:
+                    lvl = effect[-1]
+                    chosen_race.effects[index] = f"{effect[:-2]}(+{lvl})"
+            except:
+                pass
+        """
+
+        chosen_race.statPlus = chosen_race.statPlus.split(";")
+        chosen_race.statPlus = [
+            f"INT(+{chosen_race.statPlus[0]})",
+            f"SIŁ(+{chosen_race.statPlus[1]})",
+            f"ZRE(+{chosen_race.statPlus[2]})",
+            f"CHAR(+{chosen_race.statPlus[3]})",
+            f"CEL(+{chosen_race.statPlus[4]})"
+        ]
+        chosen_race.statMinus = chosen_race.statMinus.split(";")
+        chosen_race.statMinus = [
+            f"INT(-{chosen_race.statMinus[0]})",
+            f"SIŁ(-{chosen_race.statMinus[1]})",
+            f"ZRE(-{chosen_race.statMinus[2]})",
+            f"CHAR(-{chosen_race.statMinus[3]})",
+            f"CEL(-{chosen_race.statMinus[4]})"
+        ]
+
+        chosen_race.weaponsPreffered = chosen_race.weaponsPreffered.split(";")
+        chosen_race.weaponsUnliked = chosen_race.weaponsUnliked.split(";")
+
+        context['race'] = chosen_race
 
         return context
 

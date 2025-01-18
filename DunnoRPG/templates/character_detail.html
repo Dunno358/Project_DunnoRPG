@@ -728,14 +728,13 @@
         {% endif %}
 
         <div class='row'><hr />
-            <p class='col' title='{{ race_desc }}'><span class="text-white-50">Race:</span> {{ value.race }} ({{ value.size }})</p>
+            <a class='col c-gold' href='/dunnorpg/info/races/{{ race_id }}' title='{{ race_desc }}'><span class="text-white-50">Race:</span> {{ value.race }} ({{ value.size }})</a>
                     <form method="post" action="change-coins">
                         {% csrf_token %}
                         <span class="text-white-50">Coins: <!-- Not working as for now -->
                             <input type='number' min="0" id='coins' class='c-gold text-center bg-dark border-0' style='width: 8vw' value='{{ value.coins }}' name="coins-amount">
                         </span>
                     </form>
-            </p>
         </div>
 
     </div>    
