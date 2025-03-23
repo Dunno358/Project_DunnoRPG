@@ -14,7 +14,7 @@
 <div id='Magical' class='row bg-dark d-none ms-1 me-1 border border-primary rounded'>
     {% for skill in magical_skills %}
         <div class='col m-1 border border-warning rounded bg-gray text-center p-2'>
-            <a title='{{ skill.desc }}' href='{{ skill.id }}/' class='h3 c-gold'>{{ skill.name }}</a>
+            <a title='{{ skill.desc }}' href='{{ skill.id }}/' class='h3 c-gold'>[{{ skill.number }}] {{ skill.name }}</a>
         </div>
     {% endfor %}
 </div>

@@ -533,6 +533,9 @@ class Skills(APIView):
         aliigment_skills = list(skills.filter(category='Alligment').values().order_by('name'))
         current_user = request.user
 
+        for x in range(len(magical_skills)):
+            magical_skills[x]["number"] = x+1
+
         other_skills = drinking_skills+charisma_skills+command_skills+horsemanship_skills+aliigment_skills+crafting_skills
         context = {
             'magical_skills': magical_skills,
