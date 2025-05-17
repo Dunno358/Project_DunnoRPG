@@ -1177,64 +1177,52 @@ class ItemsView(ListView):
     ordering = ['name']
     
     def get_queryset(self):
+        queryset = []
         value = self.request.GET.get('search')
         char_id = self.kwargs['char_id']
-        
         if char_id != 0:
             self.character = models.Character.objects.filter(id=char_id).first()
         else:
             self.character = None
 
-        if self.character is None:
+        if self.character == None:
             if value:
                 if self.request.user.is_superuser:
-                    return models.Items.objects.filter(
-                        Q(name__icontains=value) | Q(desc__icontains=value)
-                    ).order_by('rarity')
+                    queryset = models.Items.objects.filter((Q(name__icontains=value) | Q(desc__icontains=value))).order_by('rarity')
                 else:
-                    return models.Items.objects.filter(
-                        Q(name__icontains=value) | Q(desc__icontains=value),
-                        found=True
-                    ).order_by('rarity')
-            else:
-                # Return all or found items if no search
-                return models.Items.objects.filter(found=True).order_by('rarity')
+                    queryset = models.Items.objects.filter((Q(name__icontains=value) | Q(desc__icontains=value)), found=True).order_by('rarity')
         else:
-            # Character exists: we're handling custom logic
             self.singlehand = []
             self.twohand = []
             self.animals = []
             self.armor_dict = {'helmet': [], 'torso': [], 'boots': [], 'gloves': [], 'amulets': [], 'other': []}
             
-            self.custom_queryset = []
             for item in models.Eq.objects.filter(character=self.character.name):
                 item_obj = get_object_or_404(models.Items, name=item.name)
-                self.custom_queryset.append({
-                    'id': item_obj.id,
-                    'eq_id': item.id,
-                    'rarity': item_obj.rarity,
-                    'found': item_obj.found,
-                    'name': item.name,
-                    'dur': item.durability,
-                    'amount': item.amount,
-                    'max_dur': item_obj.maxDurability,
-                    'type': item_obj.type,
-                    'price': item_obj.price
-                })
+                queryset.append({'id': item_obj.id,
+                                 'eq_id': item.id, 
+                                 'rarity': item_obj.rarity, 
+                                 'found': item_obj.found, 
+                                 'name': item.name, 
+                                 'dur': item.durability, 
+                                 'amount': item.amount, 
+                                 'max_dur': item_obj.maxDurability,
+                                 'type': item_obj.type,
+                                 'price': item_obj.price}
+                                )
                 
-                type_key = item_obj.type.lower()
-                enriched = item_obj.__dict__ | {'dur': item.durability, 'max_dur': item_obj.maxDurability}
-                if type_key in self.armor_dict:
-                    self.armor_dict[type_key].append(enriched)
-                elif item_obj.type == 'Animal':
-                    self.animals.append(enriched)
-                elif item_obj.dualHanded:
-                    self.twohand.append(enriched)
+                if item_obj.type.lower() in self.armor_dict.keys():
+                    for item_type in self.armor_dict:
+                        if item_obj.type.lower() == item_type:
+                            self.armor_dict[item_type].append(item_obj.__dict__ | {'dur': item.durability, 'max_dur': item_obj.maxDurability})
                 else:
-                    self.singlehand.append(enriched)
-            
-            # Return an empty queryset just to satisfy ListView
-            return models.Items.objects.none()
+                    if item_obj.type == 'Animal':
+                        self.animals.append(item_obj.__dict__ | {'dur': item.durability, 'max_dur': item_obj.maxDurability})
+                    elif item_obj.dualHanded == False:
+                        self.singlehand.append(item_obj.__dict__ | {'dur': item.durability, 'max_dur': item_obj.maxDurability})
+                    else:
+                        self.twohand.append(item_obj.__dict__ | {'dur': item.durability, 'max_dur': item_obj.maxDurability})
+        return queryset
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
