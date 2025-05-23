@@ -83,6 +83,9 @@
 <div id='meta' class='d-none'>
     <span id='chid'>{{ view.kwargs.char_id }}</span>
 </div>
+<div id='meta_charisma' class='d-none'>
+    <span id='charisma'>{{ charisma }}</span>
+</div>
 {% endif %}
 
 {% if view.kwargs.char_id == 0 %}
@@ -174,7 +177,7 @@
       </div>
     </div>
 
-    <div class="row m-2">
+    <div class="row m-2 d-none">
         <div class="col text-center">
             <input type="checkbox" id="sell-item-negotiate" class="p-5"/> 
             <span class="h5" >Da radę więcej?</span>
@@ -576,9 +579,15 @@
         let title = document.getElementById("sell-item-title")
         let item_name = document.getElementById("sell-item-name")
         let sell_btn = document.getElementById("sell-btn")
+        let charisma = parseInt(document.getElementById("charisma").innerHTML)
+        //console.log(charisma)
 
         let dur_perc = dur/maxDur
-        let calc_price = parseInt(price*dur_perc*amount)
+        let base_price = parseInt(price*dur_perc*amount)
+        let char_bonus = parseInt((base_price/100)*(charisma*4))
+        //console.log(char_bonus)
+        //console.log(base_price,char_bonus,base_price+char_bonus)
+        let calc_price = base_price+char_bonus
         let quality = ""
 
         if(dur_perc>0.90){

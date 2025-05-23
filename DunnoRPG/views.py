@@ -697,19 +697,37 @@ def sell_item(request, **kwargs):
         eqItem = get_object_or_404(models.Eq, id=kwargs['item_id'])
         itemDesc = get_object_or_404(models.Items, name=eqItem.name)
         char = get_object_or_404(models.Character, id=kwargs['char_id'])
-        mod = kwargs["mod"]/10
+        
+        charisma = char.CHAR
+        for mod in models.Mods.objects.filter(character=char.name, field="CHAR"):
+            charisma += mod.value
+        for item in models.CharItems.objects.filter(character=char.name):
+            desc = get_object_or_404(models.Items, name=item.name)
+            try:
+                if "CHAR" in desc.skillStats:
+                    for stat in desc.skillStats.split(";"):
+                        if stat.startswith("CHAR"): charisma += int(f"{stat[4]}{stat[5]}")
+            except:
+                pass
+        #print(f"charisma {charisma}")
         
         durability_percent = eqItem.durability/itemDesc.maxDurability
-        price = int(itemDesc.price*mod*durability_percent*eqItem.amount)
+        #print(f"dur {durability_percent}")
+        base_price = int(itemDesc.price*durability_percent*eqItem.amount)
+        #print(f"totally base {itemDesc.price}")
+        #print(f"base {base_price}")
+        char_bonus = round(((charisma*4)*base_price)/100)
+        #print(f"bonus {char_bonus}")
+        price = int(base_price) + char_bonus #Get 100% of calculated price + [charisma*4]% bonus
 
         char.coins += price
         char.save()
 
         eqItem.delete()
 
-        messages.success(request, f"Sold {itemDesc.name} for {price} coins! Current: {char.coins} coins.")
+        messages.success(request, f"Sprzedano {itemDesc.name} za {price} monet! Obecny majątek: {char.coins} monet.")
     except:
-        messages.error(request, f"You have to be in city to sell items!")
+        messages.error(request, f"Gdzie chcesz to sprzedać? Najpierw zajrzyj z drużyną do jakiegoś miasta!")
     return redirect(f"/dunnorpg/items/ch{kwargs['char_id']}")
 def give_item(request, **kwargs):
     from_char = get_object_or_404(models.Character, id=kwargs['from_char'])
@@ -1984,8 +2002,24 @@ class BuyItem(APIView):
                 current_weight += eq_item.weight  
 
         if current_weight+item.weight*item_amount <= max_weight:
-            if character.coins >= item.price*2:
-                character.coins -= item.price*2
+            price = item.price*2
+            charisma = character.CHAR
+            for mod in models.Mods.objects.filter(character=character.name, field="CHAR"):
+                charisma += mod.value
+            for char_item in models.CharItems.objects.filter(character=character.name):
+                desc = get_object_or_404(models.Items, name=char_item.name)
+                try:
+                    if "CHAR" in desc.skillStats:
+                        for stat in desc.skillStats.split(";"):
+                            if stat.startswith("CHAR"): charisma += int(f"{stat[4]}{stat[5]}")
+                except:
+                    pass
+
+            char_bonus = price * (charisma * 2) // 100
+            price -= char_bonus
+
+            if character.coins >= price:
+                character.coins -= price
                 character.save()
                 
                 try:
@@ -2003,11 +2037,11 @@ class BuyItem(APIView):
                         durability = item.maxDurability,
                         amount = item_amount
                     )
-                messages.success(request,f'Added {item.name} to {character.name} equipment.')
+                messages.success(request,f'[{character.name}] Zakupiono {item.name} za {price} monet.')
             else:
-                messages.error(request, f'Not enough money. {character.name} has {character.coins} coins and {item.price*2} are needed.')
+                messages.error(request, f'Za mało monet. {character.name} ma ich {character.coins}, a potrzeba {price}.')
         else:
-            messages.error(request, f'Not enough space for item! {current_weight}/{max_weight}kg taken.')
+            messages.error(request, f'Za mało miejsca! Nosisz już {current_weight}/{max_weight}kg.')
 
         return redirect('/dunnorpg/city')
 
