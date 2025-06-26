@@ -173,7 +173,7 @@
                     <a class='{{ torso.name|getItemRarity }} fw-bold' href='/dunnorpg/items/{{ torso.name|getDescId }}'>
                         {{ torso.name }}</a>
     
-                        <span class='{{ torso.name|getItemRarity }}'><b>[ {{ torso.name|getItemArmor }}; {{ torso.name|getItemWeight }}kg
+                        <span class='{{ torso.name|getItemRarity }}'><b>[ {{ torso.name|getItemArmor:value.id }}; {{ torso.name|getItemWeight }}kg
                         {% if torso.name|getSkill %};
                             <span onclick="showSkill(this)" class='fw-normal' title="{{ torso.name|getSkill }}">
                                 {{ torso.name|getSkill }}

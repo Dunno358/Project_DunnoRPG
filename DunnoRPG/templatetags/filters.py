@@ -44,10 +44,20 @@ def getItemAP(itemName, charId=0):
     return item.AP
 
 @register.filter
-def getItemArmor(itemName):
+def getItemArmor(itemName, charId=0):
+    char_name = ''
+    if charId != 0:
+        char = get_object_or_404(models.Character, id=charId)
+        char_name = char.name
     normal_armor = get_object_or_404(models.Items, name=itemName).armor
-    item = models.CharItems.objects.filter(name=itemName).first()
+
+    if char_name=='':
+        item = models.CharItems.objects.filter(name=itemName).first()
+    else:
+        item = models.CharItems.objects.filter(name=itemName, character=char_name).first()
+
     armor_from_durability = math.ceil(item.durability / 50)
+    
     if normal_armor != 0:
         return armor_from_durability
     else:
