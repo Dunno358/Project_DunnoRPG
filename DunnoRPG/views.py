@@ -1906,15 +1906,28 @@ class CityView(ListView):
             potions = []
             other = []
             animals = []
+            amounts = {}
             
             for item in items:
-                item = models.Items.objects.filter(name=item).first()
+                item_name = item.split("|")[0]
+
+                amount = 1
+                try:
+                    amount = item.split("|")[1]
+                except:
+                    pass
+
+                if int(amount) == 0:
+                    continue
+
+                item = models.Items.objects.filter(name=item_name).first()
 
                 if item != None:
                     if not item.found:
                         item.found = True
                         item.save()
 
+                    amounts[item.name] = amount
                     if item.type == 'Amulet':
                         amulets.append(item.name)
                     elif item.type == 'Other':
@@ -1946,6 +1959,7 @@ class CityView(ListView):
             context['city'] = city
             context['x5packets'] = x5packets
             context['x10packets'] = x10packets
+            context['amounts'] = amounts
             if self.request.user.is_superuser:
                 context['characters'] = models.Character.objects.all()
             else:
@@ -1957,6 +1971,7 @@ class BuyItem(APIView):
     def get(self,request,**kwargs):
         item = get_object_or_404(models.Items, id=kwargs['item_id'])
         character = get_object_or_404(models.Character, id=kwargs['character_id'])
+        city = get_object_or_404(models.Cities, visiting=True)
         item_amount = kwargs['amount']
 
         if character.SIŁ > 0:
@@ -2037,6 +2052,24 @@ class BuyItem(APIView):
                         durability = item.maxDurability,
                         amount = item_amount
                     )
+
+                city_items = city.items.split(";")
+                for ct_item in city_items:
+                    ct_item_name = ct_item.split("|")[0]
+                    if ct_item_name == item.name:
+                        index = city_items.index(ct_item)
+                        try:
+                            amount = ct_item.split("|")[1]
+                        except:
+                            amount = 1
+
+                        new_amount = int(amount)-int(item_amount)
+                        ct_new_item = f"{ct_item_name}|{new_amount}"
+                        city_items[index] = ct_new_item
+
+                city.items = ';'.join(city_items)
+                city.save()
+
                 messages.success(request,f'[{character.name}] Zakupiono {item.name} za {price} monet.')
             else:
                 messages.error(request, f'Za mało monet. {character.name} ma ich {character.coins}, a potrzeba {price}.')

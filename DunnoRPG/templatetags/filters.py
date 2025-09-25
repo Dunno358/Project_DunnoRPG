@@ -428,6 +428,15 @@ def getArmorWeight(charName):
     return weight 
 
 @register.filter
+def dict_get(d, key):
+    if d is None:
+        return ""
+    try:
+        return d.get(key, "")
+    except AttributeError:
+        return ""
+
+@register.filter
 def getStatFromItems(charName,statToGet):
     items = models.CharItems.objects.filter(character=charName)
     mod = 0
