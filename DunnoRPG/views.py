@@ -2034,6 +2034,28 @@ class BuyItem(APIView):
             price -= char_bonus
 
             if character.coins >= price:
+
+                city_items = city.items.split(";")
+                for ct_item in city_items:
+                    ct_item_name = ct_item.split("|")[0]
+                    if ct_item_name == item.name:
+                        index = city_items.index(ct_item)
+                        try:
+                            amount = ct_item.split("|")[1]
+                        except:
+                            amount = 1
+
+                        if int(amount)==0:
+                            messages.error(request, f'Za późno! Ktoś ci właśnie sprzątnął ostatnią sztukę sprzed nosa...')
+                            return redirect('/dunnorpg/city')
+
+                        new_amount = int(amount)-int(item_amount)
+                        ct_new_item = f"{ct_item_name}|{new_amount}"
+                        city_items[index] = ct_new_item
+
+                city.items = ';'.join(city_items)
+                city.save()
+
                 character.coins -= price
                 character.save()
                 
@@ -2052,23 +2074,6 @@ class BuyItem(APIView):
                         durability = item.maxDurability,
                         amount = item_amount
                     )
-
-                city_items = city.items.split(";")
-                for ct_item in city_items:
-                    ct_item_name = ct_item.split("|")[0]
-                    if ct_item_name == item.name:
-                        index = city_items.index(ct_item)
-                        try:
-                            amount = ct_item.split("|")[1]
-                        except:
-                            amount = 1
-
-                        new_amount = int(amount)-int(item_amount)
-                        ct_new_item = f"{ct_item_name}|{new_amount}"
-                        city_items[index] = ct_new_item
-
-                city.items = ';'.join(city_items)
-                city.save()
 
                 messages.success(request,f'[{character.name}] Zakupiono {item.name} za {price} monet.')
             else:
