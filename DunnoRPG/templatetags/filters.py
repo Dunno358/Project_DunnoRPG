@@ -115,7 +115,7 @@ def getStaffMagicDmg(itemName, charId):
         if dmg > 0:
             dmg = f"+{dmg}"
 
-        return f"[1K{dmg}, {dictionary_ap[rarity]}AP]"
+        return f"[1K{dmg}, {dictionary_ap[rarity]}AP; Zasięg: 10]"
     else:
         return ""
 
@@ -450,6 +450,40 @@ def getStatFromItems(charName,statToGet):
                     mod += int(stat[-2:])
 
     return mod
+
+@register.filter
+def getItemRange(item_name):
+    try:
+        item = models.Items.objects.filter(name=item_name).first()
+        twohanded = item.dualHanded
+        type = item.type.lower()
+        bonus = 0
+
+        ranges = {
+            "pistol": 9,
+            "crossbow": 16,
+            "heavy crossbow": 17,
+            "arbalest": 18,
+            "bow": 14,
+            "longbow": 16,
+            "musket": 18,
+            "Lute": 1,
+            "Shield": 1
+        }
+
+        if type in ranges.keys():
+            return ranges[type]
+        
+        polearms = ["halberd", "spear", "glaive", "trident"]
+        if type in polearms:
+            bonus += 1
+
+        if twohanded:
+            return 2+bonus
+        else:
+            return 1+bonus
+    except:
+        return "?"
 
 @register.filter
 def getCharacterName(char_id):

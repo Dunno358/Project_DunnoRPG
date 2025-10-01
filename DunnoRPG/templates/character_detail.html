@@ -225,6 +225,7 @@
             <div name='hand-left' class='row'><p name="LeftHand">
                 <span class="text-white-50">LeftHand: </span>
                     {% if leftItem != None %}
+                        <span class="d-none" id="l-range">{{ leftItem.name|getItemRange }}</span>
                         <span class='text-info fa fa-exchange-alt' onclick='show_or_hideById("left-swap")'></span> 
                         (<span id='l_bonus'>{{ value.name|isPreffereOrUnliked:leftItem.name }}</span>)
 
@@ -300,6 +301,7 @@
                 <p name="RightHand">
                 <span class="text-white-50">RightHand: </span>
                 {% if rightItem.name != None %}
+                    <span class="d-none" id="r-range">{{ rightItem.name|getItemRange }}</span>
                     <span class='text-info fa fa-exchange-alt' onclick='show_or_hideById("right-swap")'></span> 
                     (<span id='r_bonus'>{{ value.name|isPreffereOrUnliked:rightItem.name }}</span>)
                     
@@ -1167,6 +1169,9 @@ function show_result_at_window(action){
 
     window_url = document.getElementById('window-footer-text')
 
+    const left_range  = document.getElementById('l-range')?.textContent  ?? '?'
+    const right_range = document.getElementById('r-range')?.textContent ?? '?'
+
     if(action=='Dice'){window_url.innerHTML = 'Google Dice'}
     else{window_url.innerHTML = ''}
 
@@ -1249,11 +1254,12 @@ function show_result_at_window(action){
                 sil_mod=0
             }
             l_bonus = parseInt(document.getElementById('l_bonus').innerHTML)+amulet_bonus
+            l_range = `[Zasięg ${left_range}] `
 
             if(leftWeapon.getAttribute("name") == 'shield')
             { //shield-left-hand-attack
                 shield_attack_mods = sil+sil_mod-10+attack_effect_bonus
-                l_shield_dice_result = getDiceWMods(window_action_additional,shield_attack_mods,getResult=true,text='Left hand')
+                l_shield_dice_result = l_range+getDiceWMods(window_action_additional,shield_attack_mods,getResult=true,text='Left hand',d0exception=false ,prefix=l_range)
                 l_shield_details = 'SIŁ'+'('+sil+')'+ ' + ' + 'MODS'+'('+sil_mod+')'+' + '+'BONUS'+'('+l_bonus+')'+' + '+'BASIC(-10)'
                 window_action_additional.onclick = function() {change_result(l_shield_details,window_action_additional,shield_attack_mods, l_shield_dice_result,additional=true)}
             }
@@ -1262,7 +1268,7 @@ function show_result_at_window(action){
                 leftWeaponDmg = parseInt(document.getElementById('l_dmg').innerHTML)
                 leftWeaponAp = parseInt(document.getElementById('l_ap').innerHTML)
                 l_mods = sil+sil_mod+leftWeaponDmg+l_bonus+attack_effect_bonus
-                l_normal_dice_result = getDiceWMods(window_action_additional,l_mods,getResult=true,text='Left hand')
+                l_normal_dice_result = l_range+getDiceWMods(window_action_additional,l_mods,getResult=true,text='Left hand',d0exception=false ,prefix=l_range)
                 l_normal_details = 'SIŁ'+'('+sil+')'+ ' + '+'MODS'+'('+(sil_mod+attack_effect_bonus)+')'+' + '+'WEAPON'+'('+leftWeaponDmg+')'+' + '+'BONUS'+'('+l_bonus+')'+' ; '+'AP'+'('+leftWeaponAp+')'
                 window_action_additional.onclick = function() {change_result(l_normal_details,window_action_additional,l_mods, l_normal_dice_result,additional=true)}
             }
@@ -1276,6 +1282,7 @@ function show_result_at_window(action){
             rightWeapon = document.getElementById('r_weapon')
             r_bonus = parseInt(document.getElementById('r_bonus').innerHTML)+amulet_bonus
             r_type = rightWeapon.getAttribute('name')
+            r_range = `[Zasięg ${right_range}] `
             if(['Pistol','Musket','Crossbow','Bow'].includes(r_type)){
                 sil=0
                 sil_mod=0
@@ -1284,7 +1291,7 @@ function show_result_at_window(action){
             if(rightWeapon.getAttribute("name") == 'shield')
             { //shield-right-hand-attack
                 shield_attack_mods = sil+sil_mod-10+attack_effect_bonus
-                r_shield_dice_result = getDiceWMods(window_action,shield_attack_mods,getResult=true,text='Right hand')
+                r_shield_dice_result = r_range+getDiceWMods(window_action,shield_attack_mods,getResult=true,text='Right hand',d0exception=false ,prefix=r_range)
                 r_shield_details = 'SIŁ'+'('+sil+')'+ ' + ' + 'MODS'+'('+sil_mod+')'+' + '+'BONUS'+'('+r_bonus+')'+' + '+'BASIC(-10)'
                 window_action.onclick = function() {change_result(r_shield_details,window_action,shield_attack_mods, r_shield_dice_result)}
             }
@@ -1293,7 +1300,7 @@ function show_result_at_window(action){
                 rightWeaponDmg = parseInt(document.getElementById('r_dmg').innerHTML)
                 rightWeaponAp = parseInt(document.getElementById('r_ap').innerHTML)
                 r_mods = sil+sil_mod+rightWeaponDmg+r_bonus+attack_effect_bonus
-                r_normal_dice_result = getDiceWMods(window_action,r_mods,getResult=true,text='Right hand')
+                r_normal_dice_result = r_range+getDiceWMods(window_action,r_mods,getResult=true,text='Right hand',d0exception=false ,prefix=r_range)
                 r_normal_details = 'SIŁ'+'('+sil+')'+ ' + '+'MODS'+'('+(sil_mod+attack_effect_bonus)+')'+' + '+'WEAPON'+'('+rightWeaponDmg+')'+' + '+'BONUS'+'('+r_bonus+')'+' ; '+'AP'+'('+rightWeaponAp+')'
                 window_action.onclick = function() {change_result(r_normal_details,window_action,r_mods, r_normal_dice_result)}
             }  
@@ -1360,7 +1367,7 @@ function show_result_at_window(action){
     }
 }
 
-function getDiceWMods(instance,modsPoints,getResult=false,text='Result', d0exception=false){
+function getDiceWMods(instance,modsPoints,getResult=false,text='Result', d0exception=false, prefix=''){
     if (d0exception){
         dice = 0
     }
@@ -1371,7 +1378,7 @@ function getDiceWMods(instance,modsPoints,getResult=false,text='Result', d0excep
     if(result < 1){
         result = 1
     }
-    instance.innerHTML = text + ': ' + result + ' (Dice ' + dice + ')'
+    instance.innerHTML = `${prefix}${text}: ` + result + ' (Dice ' + dice + ')'
     if (getResult){
         return text + ': ' + result + ' (Dice ' + dice + ')'
     }
