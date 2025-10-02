@@ -1902,6 +1902,8 @@ class CityView(ListView):
             torsos = []
             gloves = []
             boots = []
+            singles = {}
+            twohands = {}
             
             armor=[]
             amulets=[]
@@ -1953,10 +1955,25 @@ class CityView(ListView):
                                 boots.append(item.name)
                         else:
                             if item.dualHanded:
-                                weaponry_twohand.append(item.name)
+                                if item.type in twohands.keys():
+                                    twohands[item.type].append(item.name)
+                                else:
+                                    twohands[item.type] = [item.name]
                             else:
-                                weaponry_siglehand.append(item.name)            
+                                if item.type in singles.keys():
+                                    singles[item.type].append(item.name)
+                                else:
+                                    singles[item.type] = [item.name]          
             
+
+            for tw_items in twohands.values():
+                weaponry_twohand += tw_items
+            #weaponry_twohand.append(item.name)
+
+            for sn_items in singles.values():
+                weaponry_siglehand += sn_items
+            #weaponry_siglehand.append(item.name)  
+
             helmets.sort(); torsos.sort(); gloves.sort(); boots.sort()
             armor = helmets+torsos+gloves+boots
 
