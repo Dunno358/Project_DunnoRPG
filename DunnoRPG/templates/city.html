@@ -21,7 +21,7 @@
     </h1>
 
     <div id='char-to-buy' class='d-none position-fixed container-fluid'>
-        <div class='row bg-dark c-gold rounded border border-warning mt-5 ms-5 me-5'>
+        <div class='row bg-dark c-gold rounded border border-warning me-1'>
           <div class='col text-center'>
             <select class='bg-dark text-primary h4 m-3 border border-warning rounded text-center' 
             name="chosen_character" id="choosing_char_select">
@@ -44,11 +44,18 @@
         <div id='smith-items' class='container text-center c-gold rounded border border-primary bg-dark d-none p-0'>
             {% for item in weaponry_singlehand %}
                 <div class='row bg-gray rounded m-1 border border-primary'>
-                    <a class='col text-center {{ item|getItemRarity }} wrap h5 m-1 p-0' id='{{ item|getDescId }}'
+                    <span class='col-3 text-center {{ item|getItemRarity }} wrap h5 p-1 border-end d-flex align-items-center justify-content-center text-wrap text-break'>
+                        {{ item|getItemType:"pl" }}
+                    </span>
+                    <a class='col text-center {{ item|getItemRarity }} wrap h5 m-1 p-0 d-flex align-items-center justify-content-center text-wrap text-break' 
+                    id='{{ item|getDescId }}'
                     href='/dunnorpg/items/{{ item|getDescId }}'>
-                        [{{ item|getItemType:"pl" }}] {{ item }} {% if item in x5packets %}x5{% endif %} {% if item in x10packets %}x10{% endif %} [Ilość: {{ amounts|dict_get:item }}]
+                        {{ item }} {% if item in x5packets %}x5{% endif %} {% if item in x10packets %}x10{% endif %}
                     </a>
-                    <span class='col-3 c-gold h5 m-1 border-start border-white d-flex align-items-center justify-content-center'>
+                    <span class='col-1 text-center {{ item|getItemRarity }} wrap h5 p-1 border-start d-flex align-items-center justify-content-center'>
+                        {{ amounts|dict_get:item }}
+                    </span>
+                    <span class='col-2 c-gold h5 p-1 border-start border-white d-flex align-items-center justify-content-center'>
                         Cost: {{ item|getItemPrice:True }}
                     </span>
                     <a class='col-2 text-center btn btn-sm btn-success d-flex align-items-center justify-content-center' onclick="buyItem('{{ item }} {% if item in x5packets %}x5{% endif %} {% if item in x10packets %}x10{% endif %}','{{ item|getDescId }}')">
@@ -59,11 +66,18 @@
             <hr>
             {% for item in weaponry_twohand %}
                 <div class='row bg-gray rounded m-1 border border-primary'>
-                    <a class='col text-center {{ item|getItemRarity }} wrap h5 m-1 p-0' id='{{ item|getDescId }}'
+                    <span class='col-3 text-center {{ item|getItemRarity }} wrap h5 p-1 border-end d-flex align-items-center justify-content-center text-wrap text-break'>
+                        {{ item|getItemType:"pl" }}
+                    </span>
+                    <a class='col text-center {{ item|getItemRarity }} wrap h5 m-1 p-0 d-flex align-items-center justify-content-center text-wrap text-break' 
+                    id='{{ item|getDescId }}'
                     href='/dunnorpg/items/{{ item|getDescId }}'>
-                        [{{ item|getItemType:"pl" }}] {{ item }} {% if item in x5packets %}x5{% endif %} {% if item in x10packets %}x10{% endif %} [Ilość: {{ amounts|dict_get:item }}]
+                        {{ item }} {% if item in x5packets %}x5{% endif %} {% if item in x10packets %}x10{% endif %}
                     </a>
-                    <span class='col-3 c-gold h5 m-1 border-start border-white d-flex align-items-center justify-content-center'>
+                    <span class='col-1 text-center {{ item|getItemRarity }} wrap h5 p-1 border-start d-flex align-items-center justify-content-center'>
+                        {{ amounts|dict_get:item }}
+                    </span>
+                    <span class='col-2 c-gold h5 p-1 border-start border-white d-flex align-items-center justify-content-center'>
                         Cost: {{ item|getItemPrice:True }}
                     </span>
                     <a class='col-2 text-center btn btn-sm btn-success d-flex align-items-center justify-content-center' onclick="buyItem('{{ item }} {% if item in x5packets %}x5{% endif %} {% if item in x10packets %}x10{% endif %}','{{ item|getDescId }}')">
@@ -79,11 +93,18 @@
         <div id='armorer-items' class='container text-center c-gold rounded border border-primary bg-dark d-none p-0'>
             {% for item in armor %}
                 <div class='row bg-gray rounded m-1 border border-primary'>
-                    <a class='col text-center {{ item|getItemRarity }} wrap h5 m-1 p-0' id='{{ item|getDescId }}'
+                    <span class='col-3 text-center {{ item|getItemRarity }} wrap h5 p-1 border-end d-flex align-items-center justify-content-center text-wrap text-break'>
+                        {{ item|getItemType:"pl" }}
+                    </span>
+                    <a class='col text-center {{ item|getItemRarity }} wrap h5 m-1 p-0 d-flex align-items-center justify-content-center text-wrap text-break' 
+                    id='{{ item|getDescId }}'
                     href='/dunnorpg/items/{{ item|getDescId }}'>
-                        [{{ item|getItemType:"pl" }}] {{ item }} {% if item in x5packets %}x5{% endif %} {% if item in x10packets %}x10{% endif %} [Ilość: {{ amounts|dict_get:item }}]
-                    </a> 
-                    <span class='col-3 c-gold h5 m-1 border-start border-white d-flex align-items-center justify-content-center'>
+                        {{ item }} {% if item in x5packets %}x5{% endif %} {% if item in x10packets %}x10{% endif %}
+                    </a>
+                    <span class='col-1 text-center {{ item|getItemRarity }} wrap h5 p-1 border-start d-flex align-items-center justify-content-center'>
+                        {{ amounts|dict_get:item }}
+                    </span>
+                    <span class='col-2 c-gold h5 p-1 border-start border-white d-flex align-items-center justify-content-center'>
                         Cost: {{ item|getItemPrice:True }}
                     </span>
                     <a class='col-2 text-center btn btn-sm btn-success d-flex align-items-center justify-content-center' onclick="buyItem('{{ item }} {% if item in x5packets %}x5{% endif %} {% if item in x10packets %}x10{% endif %}','{{ item|getDescId }}')">
@@ -103,7 +124,7 @@
                     href='/dunnorpg/items/{{ item|getDescId }}'>
                         {{ item }} {% if item in x5packets %}x5{% endif %} {% if item in x10packets %}x10{% endif %} [Ilość: {{ amounts|dict_get:item }}]
                     </a>
-                    <span class='col-3 c-gold h5 m-1 border-start border-white d-flex align-items-center justify-content-center'>
+                    <span class='col-2 c-gold h5 m-1 border-start border-white d-flex align-items-center justify-content-center'>
                         Cost: {{ item|getItemPrice:True }}
                     </span>
                     <a class='col-2 text-center btn btn-sm btn-success d-flex align-items-center justify-content-center' onclick="buyItem('{{ item }} {% if item in x5packets %}x5{% endif %} {% if item in x10packets %}x10{% endif %}','{{ item|getDescId }}')">
