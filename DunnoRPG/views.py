@@ -1898,6 +1898,10 @@ class CityView(ListView):
             items = city.items.split(';')
             items.sort()
             armor_types = ['Helmet','Torso','Gloves','Boots']
+            helmets = []
+            torsos = []
+            gloves = []
+            boots = []
             
             armor=[]
             amulets=[]
@@ -1939,13 +1943,23 @@ class CityView(ListView):
                         animals.append(item.name)
                     else:
                         if item.type in armor_types:
-                            armor.append(item.name)
+                            if item.type=="Helmet":
+                                helmets.append(item.name)
+                            elif item.type=="Torso":
+                                torsos.append(item.name)
+                            elif item.type=="Gloves":
+                                gloves.append(item.name)
+                            elif item.type=="Boots":
+                                boots.append(item.name)
                         else:
                             if item.dualHanded:
                                 weaponry_twohand.append(item.name)
                             else:
                                 weaponry_siglehand.append(item.name)            
             
+            helmets.sort(); torsos.sort(); gloves.sort(); boots.sort()
+            armor = helmets+torsos+gloves+boots
+
             x5packets = []
             x10packets = ["Strzała","Pocisk do broni prochowej"]
             
