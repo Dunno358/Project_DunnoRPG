@@ -467,14 +467,16 @@ def getItemRange(item_name):
             "bow": 14,
             "longbow": 16,
             "musket": 18,
-            "Lute": 1,
-            "Shield": 1
+            "lute": 1,
+            "shield": 1,
+            "strzelba": 8,
+            "krótka strzelba": 5
         }
 
         if type in ranges.keys():
             return ranges[type]
         
-        polearms = ["halberd", "spear", "glaive", "trident"]
+        polearms = ["halberd", "spear", "glaive", "trident", "broń drzewcowa"]
         if type in polearms:
             bonus += 1
 
