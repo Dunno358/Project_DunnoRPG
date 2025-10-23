@@ -2048,7 +2048,7 @@ class BuyItem(APIView):
                 current_weight += eq_item.weight  
 
         if current_weight+item.weight*item_amount <= max_weight:
-            price = item.price*2
+            price = item.price*2*int(item_amount)
             charisma = character.CHAR
             for mod in models.Mods.objects.filter(character=character.name, field="CHAR"):
                 charisma += mod.value
@@ -2076,8 +2076,8 @@ class BuyItem(APIView):
                         except:
                             amount = 1
 
-                        if int(amount)==0:
-                            messages.error(request, f'Za późno! Ktoś ci właśnie sprzątnął ostatnią sztukę sprzed nosa...')
+                        if int(amount)<=0:
+                            messages.error(request, f'Za późno, wszystkie już wyszły!')
                             return redirect('/dunnorpg/city')
 
                         new_amount = int(amount)-int(item_amount)
@@ -2090,6 +2090,8 @@ class BuyItem(APIView):
                 character.coins -= price
                 character.save()
                 
+                if item.name in ["Strzała","Pocisk do broni prochowej"]:
+                    item_amount = item_amount*10
                 try:
                     existing_item = get_object_or_404(models.Eq, name=item.name, character=character.name)
                     existing_item.amount += item_amount

@@ -31,13 +31,13 @@
                 {% endfor %}
             </select>
             <div class="row">
-                <div class="col"><p id='Item' class='c-gold h5'>Item</p></div>
+                <div class="col"><p id='Item' class='c-gold h5'>Item</p> <span id="Item-additional" class="c-gold"></span></div>
             </div>
             <div class="row">
                 <div class="col-6 text-end"><span class="c-gold h6">Ilość: </span></div>
                 <div class="col-2"><input class="text-center w-100 c-gold bg-dark border border-warning rounded" type="number" value="1" id="Item-amount" /></div>
             </div>
-            <span class="c-gold">(Negocjacje o cene są podejmowane automatycznie)</span>
+            <span class="c-gold">(Targowanie jest podejmowane automatycznie)</span>
             <a onclick='this.parentNode.parentNode.parentNode.classList.add("d-none")' id='confirm-failure' class='btn btn-danger m-3'>Back</a>
             <a onclick="confirmBuy()" id='confirm-success' class='btn btn-success m-3'>Add</a>
           </div>
@@ -422,7 +422,14 @@
     function buyItem(item,item_id){
         document.getElementById('char-to-buy').classList.remove('d-none')
         document.getElementById('Item-amount').value = 1
+        let add_txt = document.getElementById('Item-additional')
+        add_txt.textContent = ''
         
+        let x10packs = ["Strzała", "Pocisk do broni prochowej"]
+        if(x10packs.includes(item)){
+            add_txt.textContent = "(Paczki po 10 sztuk)"
+        }
+
         item_line = document.getElementById('Item')
         item_line.innerHTML = item
         item_line.setAttribute('name', item_id)
@@ -435,8 +442,6 @@
         let char_id = document.getElementById('choosing_char_select').value;
     
         let amount = document.getElementById('Item-amount').value
-        if (item.innerHTML.includes("x10")) { amount = 10; }
-        if (item.innerHTML.includes("x5")) { amount = 5; }
     
         window.location.href = "buyitem-" + item_id + "-" + char_id + "-" + amount;
     }
