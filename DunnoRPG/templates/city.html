@@ -48,7 +48,7 @@
         <div class='row text-center c-gold p-2 rounded border border-warning bg-dark mt-1' onclick="showOrHideBlock(this,'smith-items')" style="width: 100%;">
             <h2>Kowal</h2>
         </div>
-        <div id='smith-items' class='container text-center c-gold rounded border border-primary bg-dark d-none p-0'>
+        <div id='smith-items' class='container text-center c-gold rounded border border-primary bg-dark d-none p-0 m-0' style="width: 97%;">
             {% for item in weaponry_singlehand %}
                 <div class='row bg-gray rounded m-1 border border-primary'>
 
@@ -134,7 +134,7 @@
         <div class='row text-center c-gold p-2 rounded border border-warning bg-dark mt-1' onclick="showOrHideBlock(this,'armorer-items')" style="width: 100%;">
             <h2>Płatnerz</h2>
         </div>
-        <div id='armorer-items' class='container text-center c-gold rounded border border-primary bg-dark d-none p-0'>
+        <div id='armorer-items' class='container text-center c-gold rounded border border-primary bg-dark d-none p-0 m-0' style="width: 97%;">
             {% for item in armor %}
                 <div class='row bg-gray rounded m-1 border border-primary'>
 
@@ -177,7 +177,7 @@
         <div class='row text-center c-gold p-2 rounded border border-warning bg-dark mt-1' onclick="showOrHideBlock(this,'strange-items')" style="width: 100%;">
             <h2>Stoisko z różnymi przedmiotami</h2>
         </div>
-        <div id='strange-items' class='container text-center c-gold rounded border border-primary bg-dark d-none p-0'>
+        <div id='strange-items' class='container text-center c-gold rounded border border-primary bg-dark d-none p-0 m-0' style="width: 97%;">
             {% for item in amulets %}
                 <div class='row bg-gray rounded m-1 border border-primary'>
 
@@ -220,7 +220,7 @@
         <div class='row text-center c-gold p-2 rounded border border-warning bg-dark mt-1' onclick="showOrHideBlock(this,'potions')" style="width: 100%;">
             <h2>Stoisko z eliksirami</h2>
         </div>
-        <div id='potions' class='container text-center c-gold rounded border border-primary bg-dark d-none p-0'>
+        <div id='potions' class='container text-center c-gold rounded border border-primary bg-dark d-none p-0 m-0' style="width: 97%;">
             {% for item in potions %}
                 <div class='row bg-gray rounded m-1 border border-primary'>
 
@@ -262,7 +262,7 @@
         <div class='row text-center c-gold p-2 rounded border border-warning bg-dark mt-1' onclick="showOrHideBlock(this,'merchant')" style="width: 100%;">
             <h2>Kupiec</h2>
         </div>
-        <div id='merchant' class='container text-center c-gold rounded border border-primary bg-dark d-none p-0'>
+        <div id='merchant' class='container text-center c-gold rounded border border-primary bg-dark d-none p-0 m-0' style="width: 97%;">
             {% for item in other %}
                 <div class='row bg-gray rounded m-1 border border-primary'>
 
@@ -304,7 +304,7 @@
         <div class='row text-center c-gold p-2 rounded border border-warning bg-dark mt-1' onclick="showOrHideBlock(this,'animals')" style="width: 100%;">
             <h2>Handlarz zwierząt</h2>
         </div>
-        <div id='animals' class='container text-center c-gold rounded border border-primary bg-dark d-none p-0'>
+        <div id='animals' class='container text-center c-gold rounded border border-primary bg-dark d-none p-0 m-0' style="width: 97%;">
             {% for item in animals %}
                 <div class='row bg-gray rounded m-1 border border-primary'>
 
@@ -346,7 +346,7 @@
         <div class='row text-center c-gold p-2 rounded border border-warning bg-dark mt-1' onclick="showOrHideBlock(this,'medic')" style="width: 100%;">
             <h2>Uzdrowiciel</h2>
         </div>
-        <div id='medic' class='container text-center c-gold rounded border border-primary bg-dark d-none p-0'>
+        <div id='medic' class='container text-center c-gold rounded border border-primary bg-dark d-none p-0 m-0' style="width: 97%;">
             {% for char in characters %}
                 <div class='row bg-gray rounded m-1 border border-primary'>
                     <a class='col text-center c-gold h5 m-1' id='char.id'>
@@ -365,7 +365,7 @@
         <div class='row text-center c-gold p-2 rounded border border-warning bg-dark mt-1' onclick="showOrHideBlock(this,'fix')" style="width: 100%;">
             <h2>Naprawa</h2>
         </div>
-        <div id='fix' class='container text-center c-gold rounded border border-primary bg-dark d-none p-0'>
+        <div id='fix' class='container text-center c-gold rounded border border-primary bg-dark d-none p-0 m-0' style="width: 97%;">
             {% for char in characters %}
                 {% for item in char.name|getCharacterItems %}
                     {% if item.name|getItemType != "Animal" %}
