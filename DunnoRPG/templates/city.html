@@ -30,7 +30,14 @@
                     <option id="{{ char.id }}-char" class="d-none">{{ char.CHAR }}</option>
                 {% endfor %}
             </select>
-            <p id='Item' class='c-gold h5'>Item</p>
+            <div class="row">
+                <div class="col"><p id='Item' class='c-gold h5'>Item</p></div>
+            </div>
+            <div class="row">
+                <div class="col-6 text-end"><span class="c-gold h6">Ilość: </span></div>
+                <div class="col-2"><input class="text-center w-100 c-gold bg-dark border border-warning rounded" type="number" value="1" id="Item-amount" /></div>
+            </div>
+            <span class="c-gold">(Negocjacje o cene są podejmowane automatycznie)</span>
             <a onclick='this.parentNode.parentNode.parentNode.classList.add("d-none")' id='confirm-failure' class='btn btn-danger m-3'>Back</a>
             <a onclick="confirmBuy()" id='confirm-success' class='btn btn-success m-3'>Add</a>
           </div>
@@ -38,163 +45,305 @@
     </div>
 
     <div class='container mt-3 p-0'>
-        <div class='row text-center c-gold p-2 rounded border border-warning bg-dark mt-1' onclick="showOrHideBlock(this,'smith-items')">
+        <div class='row text-center c-gold p-2 rounded border border-warning bg-dark mt-1' onclick="showOrHideBlock(this,'smith-items')" style="width: 103%;">
             <h2>Kowal</h2>
         </div>
         <div id='smith-items' class='container text-center c-gold rounded border border-primary bg-dark d-none p-0'>
             {% for item in weaponry_singlehand %}
                 <div class='row bg-gray rounded m-1 border border-primary'>
-                    <span class='col-3 text-center {{ item|getItemRarity }} wrap h5 p-1 border-end d-flex align-items-center justify-content-center text-wrap text-break'>
-                        {{ item|getItemType:"pl" }}
-                    </span>
-                    <a class='col text-center {{ item|getItemRarity }} wrap h5 m-1 p-0 d-flex align-items-center justify-content-center text-wrap text-break' 
-                    id='{{ item|getDescId }}'
-                    href='/dunnorpg/items/{{ item|getDescId }}'>
-                        {{ item }} {% if item in x5packets %}x5{% endif %} {% if item in x10packets %}x10{% endif %}
-                    </a>
-                    <span class='col-1 text-center {{ item|getItemRarity }} wrap h5 p-1 border-start d-flex align-items-center justify-content-center'>
-                        {{ amounts|dict_get:item }}
-                    </span>
-                    <span class='col-2 c-gold h5 p-1 border-start border-white d-flex align-items-center justify-content-center'>
-                        Cost: {{ item|getItemPrice:True }}
-                    </span>
-                    <a class='col-2 text-center btn btn-sm btn-success d-flex align-items-center justify-content-center' onclick="buyItem('{{ item }} {% if item in x5packets %}x5{% endif %} {% if item in x10packets %}x10{% endif %}','{{ item|getDescId }}')">
-                        Buy
-                    </a>
+
+                    <div class="col-9 border-end">
+                        <div class="row-10" style="text-align: left;">
+                            <div class="col pt-1">
+                            <b class="{{ item|getItemRarity }}">{{ item|getItemType:"pl" }} |</b> 
+                            <a id='{{ item|getDescId }}' href='/dunnorpg/items/{{ item|getDescId }}'>
+                                <b class="{{ item|getItemRarity }}">{{ item }}</b>
+                            </a>
+                            </div>
+                        </div>
+                        <div class="row-10">
+                            <div class="col p-2" style="text-align: left;">
+                                <i class="neutral-high">{{ item|getItemDesc }}</i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-3 p-0">
+                        <div class="row-3 border-bottom pt-1 pb-1 h6 mb-0"><span class="neutral-high">Cena:</span> {{ item|getItemPrice:True }} monet/y</div>
+                        <div class="row-3 border-bottom pt-1 pb-1">
+                            <div class="col"><span class="h6">{{ item|getItemStatByName }}</span></div>
+                        </div>
+                        <div class="row-3 border-bottom pt-1 pb-1 h6 mb-0"><span class="neutral-high">Ilość:</span> {{ amounts|dict_get:item }}</div>
+                        <div class="row-3" style="height: 4vh;">
+                            <div class="col h-100">
+                                <button class="w-100 h-100 text-center btn btn-sm btn-success d-flex align-items-center justify-content-center rounded-0" 
+                                onclick="buyItem('{{ item }}','{{ item|getDescId }}')">
+                                    Zakup
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
                 </div>
             {% endfor %}
-            <hr>
+            <div class="row">
+                <div class="col"><hr></div>
+                <div class="col-3"><b>Dwuręczne</b></div>
+                <div class="col"><hr></div>
+            </div>
             {% for item in weaponry_twohand %}
                 <div class='row bg-gray rounded m-1 border border-primary'>
-                    <span class='col-3 text-center {{ item|getItemRarity }} wrap h5 p-1 border-end d-flex align-items-center justify-content-center text-wrap text-break'>
-                        {{ item|getItemType:"pl" }}
-                    </span>
-                    <a class='col text-center {{ item|getItemRarity }} wrap h5 m-1 p-0 d-flex align-items-center justify-content-center text-wrap text-break' 
-                    id='{{ item|getDescId }}'
-                    href='/dunnorpg/items/{{ item|getDescId }}'>
-                        {{ item }} {% if item in x5packets %}x5{% endif %} {% if item in x10packets %}x10{% endif %}
-                    </a>
-                    <span class='col-1 text-center {{ item|getItemRarity }} wrap h5 p-1 border-start d-flex align-items-center justify-content-center'>
-                        {{ amounts|dict_get:item }}
-                    </span>
-                    <span class='col-2 c-gold h5 p-1 border-start border-white d-flex align-items-center justify-content-center'>
-                        Cost: {{ item|getItemPrice:True }}
-                    </span>
-                    <a class='col-2 text-center btn btn-sm btn-success d-flex align-items-center justify-content-center' onclick="buyItem('{{ item }} {% if item in x5packets %}x5{% endif %} {% if item in x10packets %}x10{% endif %}','{{ item|getDescId }}')">
-                        Buy
-                    </a>
+
+                    <div class="col-9 border-end">
+                        <div class="row-10" style="text-align: left;">
+                            <div class="col pt-1">
+                            <b class="{{ item|getItemRarity }}">{{ item|getItemType:"pl" }} |</b> 
+                            <a id='{{ item|getDescId }}' href='/dunnorpg/items/{{ item|getDescId }}'>
+                                <b class="{{ item|getItemRarity }}">{{ item }}</b>
+                            </a>
+                            </div>
+                        </div>
+                        <div class="row-10">
+                            <div class="col p-2" style="text-align: left;">
+                                <i class="neutral-high">{{ item|getItemDesc }}</i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-3 p-0">
+                        <div class="row-3 border-bottom pt-1 pb-1 h6 mb-0"><span class="neutral-high">Cena:</span> {{ item|getItemPrice:True }} monet/y</div>
+                        <div class="row-3 border-bottom pt-1 pb-1">
+                            <div class="col"><span class="h6">{{ item|getItemStatByName }}</span></div>
+                        </div>
+                        <div class="row-3 border-bottom pt-1 pb-1 h6 mb-0"><span class="neutral-high">Ilość:</span> {{ amounts|dict_get:item }}</div>
+                        <div class="row-3" style="height: 5.2vh;">
+                            <div class="col h-100">
+                                <button class="w-100 h-100 text-center btn btn-sm btn-success d-flex align-items-center justify-content-center rounded-0" 
+                                onclick="buyItem('{{ item }}','{{ item|getDescId }}')">
+                                    Zakup
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
                 </div>
             {% endfor %}
         </div>
 
-        <div class='row text-center c-gold p-2 rounded border border-warning bg-dark mt-1' onclick="showOrHideBlock(this,'armorer-items')">
+
+        <div class='row text-center c-gold p-2 rounded border border-warning bg-dark mt-1' onclick="showOrHideBlock(this,'armorer-items')" style="width: 103%;">
             <h2>Płatnerz</h2>
         </div>
         <div id='armorer-items' class='container text-center c-gold rounded border border-primary bg-dark d-none p-0'>
             {% for item in armor %}
                 <div class='row bg-gray rounded m-1 border border-primary'>
-                    <span class='col-3 text-center {{ item|getItemRarity }} wrap h5 p-1 border-end d-flex align-items-center justify-content-center text-wrap text-break'>
-                        {{ item|getItemType:"pl" }}
-                    </span>
-                    <a class='col text-center {{ item|getItemRarity }} wrap h5 m-1 p-0 d-flex align-items-center justify-content-center text-wrap text-break' 
-                    id='{{ item|getDescId }}'
-                    href='/dunnorpg/items/{{ item|getDescId }}'>
-                        {{ item }} {% if item in x5packets %}x5{% endif %} {% if item in x10packets %}x10{% endif %}
-                    </a>
-                    <span class='col-1 text-center {{ item|getItemRarity }} wrap h5 p-1 border-start d-flex align-items-center justify-content-center'>
-                        {{ amounts|dict_get:item }}
-                    </span>
-                    <span class='col-2 c-gold h5 p-1 border-start border-white d-flex align-items-center justify-content-center'>
-                        Cost: {{ item|getItemPrice:True }}
-                    </span>
-                    <a class='col-2 text-center btn btn-sm btn-success d-flex align-items-center justify-content-center' onclick="buyItem('{{ item }} {% if item in x5packets %}x5{% endif %} {% if item in x10packets %}x10{% endif %}','{{ item|getDescId }}')">
-                        Buy
-                    </a>
+
+                    <div class="col-9 border-end">
+                        <div class="row-10" style="text-align: left;">
+                            <div class="col pt-1">
+                            <b class="{{ item|getItemRarity }}">({{ item|getArmorWeightType }}) {{ item|getItemType:"pl" }} |</b> 
+                            <a id='{{ item|getDescId }}' href='/dunnorpg/items/{{ item|getDescId }}'>
+                                <b class="{{ item|getItemRarity }}">{{ item }}</b>
+                            </a>
+                            </div>
+                        </div>
+                        <div class="row-10">
+                            <div class="col p-2" style="text-align: left;">
+                                <i class="neutral-high">{{ item|getItemDesc }}</i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-3 p-0">
+                        <div class="row-3 border-bottom pt-1 pb-1 h6 mb-0"><span class="neutral-high">Cena:</span> {{ item|getItemPrice:True }} monet/y</div>
+                        <div class="row-3 border-bottom pt-1 pb-1">
+                            <div class="col"><span class="h6">Pancerz: {{ item|getItemArmor }}</span></div>
+                        </div>
+                        <div class="row-3 border-bottom pt-1 pb-1 h6 mb-0"><span class="neutral-high">Ilość:</span> {{ amounts|dict_get:item }}</div>
+                        <div class="row-3" style="height: 4vh;">
+                            <div class="col h-100">
+                                <button class="w-100 h-100 text-center btn btn-sm btn-success d-flex align-items-center justify-content-center rounded-0" 
+                                onclick="buyItem('{{ item }}','{{ item|getDescId }}')">
+                                    Zakup
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
                 </div>
             {% endfor %}
         </div>
 
-        <div class='row text-center c-gold p-2 rounded border border-warning bg-dark mt-1' onclick="showOrHideBlock(this,'strange-items')">
+        <div class='row text-center c-gold p-2 rounded border border-warning bg-dark mt-1' onclick="showOrHideBlock(this,'strange-items')" style="width: 103%;">
             <h2>Stoisko z różnymi przedmiotami</h2>
         </div>
         <div id='strange-items' class='container text-center c-gold rounded border border-primary bg-dark d-none p-0'>
             {% for item in amulets %}
                 <div class='row bg-gray rounded m-1 border border-primary'>
-                    <a class='col text-center {{ item|getItemRarity }} wrap h5 m-1 p-0' id='{{ item|getDescId }}'
-                    href='/dunnorpg/items/{{ item|getDescId }}'>
-                        {{ item }} {% if item in x5packets %}x5{% endif %} {% if item in x10packets %}x10{% endif %} [Ilość: {{ amounts|dict_get:item }}]
-                    </a>
-                    <span class='col-2 c-gold h5 m-1 border-start border-white d-flex align-items-center justify-content-center'>
-                        Cost: {{ item|getItemPrice:True }}
-                    </span>
-                    <a class='col-2 text-center btn btn-sm btn-success d-flex align-items-center justify-content-center' onclick="buyItem('{{ item }} {% if item in x5packets %}x5{% endif %} {% if item in x10packets %}x10{% endif %}','{{ item|getDescId }}')">
-                        Buy
-                    </a>
+
+                    <div class="col-9 border-end">
+                        <div class="row-10" style="text-align: left;">
+                            <div class="col pt-1">
+                            <b class="{{ item|getItemRarity }}">{{ item|getItemType:"pl" }} |</b> 
+                            <a id='{{ item|getDescId }}' href='/dunnorpg/items/{{ item|getDescId }}'>
+                                <b class="{{ item|getItemRarity }}">{{ item }}</b>
+                            </a>
+                            </div>
+                        </div>
+                        <div class="row-10">
+                            <div class="col p-2" style="text-align: left;">
+                                <i class="neutral-high">{{ item|getItemDesc }}</i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-3 p-0">
+                        <div class="row-3 border-bottom pt-1 pb-1 h6 mb-0"><span class="neutral-high">Cena:</span> {{ item|getItemPrice:True }} monet/y</div>
+                        <div class="row-3 border-bottom pt-1 pb-1">
+                            <div class="col"><span class="h6">Amulet</span></div>
+                        </div>
+                        <div class="row-3 border-bottom pt-1 pb-1 h6 mb-0"><span class="neutral-high">Ilość:</span> {{ amounts|dict_get:item }}</div>
+                        <div class="row-3" style="height: 5.2vh;">
+                            <div class="col h-100">
+                                <button class="w-100 h-100 text-center btn btn-sm btn-success d-flex align-items-center justify-content-center rounded-0" 
+                                onclick="buyItem('{{ item }}','{{ item|getDescId }}')">
+                                    Zakup
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
                 </div>
             {% endfor %}
         </div>
 
-        <div class='row text-center c-gold p-2 rounded border border-warning bg-dark mt-1' onclick="showOrHideBlock(this,'potions')">
+        <div class='row text-center c-gold p-2 rounded border border-warning bg-dark mt-1' onclick="showOrHideBlock(this,'potions')" style="width: 103%;">
             <h2>Stoisko z eliksirami</h2>
         </div>
         <div id='potions' class='container text-center c-gold rounded border border-primary bg-dark d-none p-0'>
             {% for item in potions %}
                 <div class='row bg-gray rounded m-1 border border-primary'>
-                    <a class='col text-center {{ item|getItemRarity }} wrap h5 m-1 p-0' id='{{ item|getDescId }}'
-                    href='/dunnorpg/items/{{ item|getDescId }}'>
-                        {{ item }} {% if item in x5packets %}x5{% endif %} {% if item in x10packets %}x10{% endif %} [Ilość: {{ amounts|dict_get:item }}]
-                    </a>
-                    <span class='col-3 c-gold h5 m-1 border-start border-white d-flex align-items-center justify-content-center'>
-                        Cost: {{ item|getItemPrice:True }}
-                    </span>
-                    <a class='col-2 text-center btn btn-sm btn-success d-flex align-items-center justify-content-center' onclick="buyItem('{{ item }} {% if item in x5packets %}x5{% endif %} {% if item in x10packets %}x10{% endif %}','{{ item|getDescId }}')">
-                        Buy
-                    </a>
+
+                    <div class="col-9 border-end">
+                        <div class="row-10" style="text-align: left;">
+                            <div class="col pt-1">
+                            <a id='{{ item|getDescId }}' href='/dunnorpg/items/{{ item|getDescId }}'>
+                                <b class="{{ item|getItemRarity }}">{{ item }}</b>
+                            </a>
+                            </div>
+                        </div>
+                        <div class="row-10">
+                            <div class="col p-2" style="text-align: left;">
+                                <i class="neutral-high">{{ item|getItemDesc }}</i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-3 p-0">
+                        <div class="row-3 border-bottom pt-1 pb-1 h6 mb-0"><span class="neutral-high">Cena:</span> {{ item|getItemPrice:True }} monet/y</div>
+                        <div class="row-3 border-bottom pt-1 pb-1">
+                            <div class="col"><span class="h6">Eliksir</span></div>
+                        </div>
+                        <div class="row-3 border-bottom pt-1 pb-1 h6 mb-0"><span class="neutral-high">Ilość:</span> {{ amounts|dict_get:item }}</div>
+                        <div class="row-3" style="height: 5.2vh;">
+                            <div class="col h-100">
+                                <button class="w-100 h-100 text-center btn btn-sm btn-success d-flex align-items-center justify-content-center rounded-0" 
+                                onclick="buyItem('{{ item }}','{{ item|getDescId }}')">
+                                    Zakup
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
                 </div>
             {% endfor %}
         </div>
 
-        <div class='row text-center c-gold p-2 rounded border border-warning bg-dark mt-1' onclick="showOrHideBlock(this,'merchant')">
+        <div class='row text-center c-gold p-2 rounded border border-warning bg-dark mt-1' onclick="showOrHideBlock(this,'merchant')" style="width: 103%;">
             <h2>Kupiec</h2>
         </div>
         <div id='merchant' class='container text-center c-gold rounded border border-primary bg-dark d-none p-0'>
             {% for item in other %}
                 <div class='row bg-gray rounded m-1 border border-primary'>
-                    <a class='col text-center {{ item|getItemRarity }} wrap h5 m-1 p-0' id='{{ item|getDescId }}'
-                    href='/dunnorpg/items/{{ item|getDescId }}'>
-                        {{ item }} {% if item in x5packets %}x5{% endif %} {% if item in x10packets %}x10{% endif %} [Ilość: {{ amounts|dict_get:item }}]
-                    </a>
-                    <span class='col-3 c-gold h5 m-1 border-start border-white d-flex align-items-center justify-content-center'>
-                        Cost: {{ item|getItemPrice:True }}
-                    </span>
-                    <a class='col-2 text-center btn btn-sm btn-success d-flex align-items-center justify-content-center' onclick="buyItem('{{ item }} {% if item in x5packets %}x5{% endif %} {% if item in x10packets %}x10{% endif %}','{{ item|getDescId }}')">
-                        Buy
-                    </a>
+
+                    <div class="col-9 border-end">
+                        <div class="row-10" style="text-align: left;">
+                            <div class="col pt-1">
+                            <a id='{{ item|getDescId }}' href='/dunnorpg/items/{{ item|getDescId }}'>
+                                <b class="{{ item|getItemRarity }}">{{ item }}</b>
+                            </a>
+                            </div>
+                        </div>
+                        <div class="row-10">
+                            <div class="col p-2" style="text-align: left;">
+                                <i class="neutral-high">{{ item|getItemDesc }}</i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-3 p-0">
+                        <div class="row-3 border-bottom pt-1 pb-1 h6 mb-0"><span class="neutral-high">Cena:</span> {{ item|getItemPrice:True }} monet/y</div>
+                        <div class="row-3 border-bottom pt-1 pb-1">
+                            <div class="col"><span class="h6">Inne</span></div>
+                        </div>
+                        <div class="row-3 border-bottom pt-1 pb-1 h6 mb-0"><span class="neutral-high">Ilość:</span> {{ amounts|dict_get:item }}</div>
+                        <div class="row-3" style="height: 5.2vh;">
+                            <div class="col h-100">
+                                <button class="w-100 h-100 text-center btn btn-sm btn-success d-flex align-items-center justify-content-center rounded-0" 
+                                onclick="buyItem('{{ item }}','{{ item|getDescId }}')">
+                                    Zakup
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
                 </div>
             {% endfor %}
         </div>
 
-        <div class='row text-center c-gold p-2 rounded border border-warning bg-dark mt-1' onclick="showOrHideBlock(this,'animals')">
+        <div class='row text-center c-gold p-2 rounded border border-warning bg-dark mt-1' onclick="showOrHideBlock(this,'animals')" style="width: 103%;">
             <h2>Handlarz zwierząt</h2>
         </div>
         <div id='animals' class='container text-center c-gold rounded border border-primary bg-dark d-none p-0'>
             {% for item in animals %}
                 <div class='row bg-gray rounded m-1 border border-primary'>
-                    <a class='col text-center {{ item|getItemRarity }} wrap h5 m-1 p-0' id='{{ item|getDescId }}'
-                    href='/dunnorpg/items/{{ item|getDescId }}'>
-                        {{ item }} {% if item in x5packets %}x5{% endif %} {% if item in x10packets %}x10{% endif %} [Ilość: {{ amounts|dict_get:item }}]
-                    </a>
-                    <span class='col-3 c-gold h5 m-1 border-start border-white d-flex align-items-center justify-content-center'>
-                        Cost: {{ item|getItemPrice:True }}
-                    </span>
-                    <a class='col-2 text-center btn btn-sm btn-success d-flex align-items-center justify-content-center' onclick="buyItem('{{ item }} {% if item in x5packets %}x5{% endif %} {% if item in x10packets %}x10{% endif %}','{{ item|getDescId }}')">
-                        Buy
-                    </a>
+
+                    <div class="col-9 border-end">
+                        <div class="row-10" style="text-align: left;">
+                            <div class="col pt-1">
+                            <a id='{{ item|getDescId }}' href='/dunnorpg/items/{{ item|getDescId }}'>
+                                <b class="{{ item|getItemRarity }}">{{ item }}</b>
+                            </a>
+                            </div>
+                        </div>
+                        <div class="row-10">
+                            <div class="col p-2" style="text-align: left;">
+                                <i class="neutral-high">{{ item|getItemDesc }}</i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-3 p-0">
+                        <div class="row-3 border-bottom pt-1 pb-1 h6 mb-0"><span class="neutral-high">Cena:</span> {{ item|getItemPrice:True }} monet/y</div>
+                        <div class="row-3 border-bottom pt-1 pb-1">
+                            <div class="col"><span class="h6">Animal</span></div>
+                        </div>
+                        <div class="row-3 border-bottom pt-1 pb-1 h6 mb-0"><span class="neutral-high">Ilość:</span> {{ amounts|dict_get:item }}</div>
+                        <div class="row-3" style="height: 5.2vh;">
+                            <div class="col h-100">
+                                <button class="w-100 h-100 text-center btn btn-sm btn-success d-flex align-items-center justify-content-center rounded-0" 
+                                onclick="buyItem('{{ item }}','{{ item|getDescId }}')">
+                                    Zakup
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
                 </div>
             {% endfor %}
         </div>
 
-        <div class='row text-center c-gold p-2 rounded border border-warning bg-dark mt-1' onclick="showOrHideBlock(this,'medic')">
+        <div class='row text-center c-gold p-2 rounded border border-warning bg-dark mt-1' onclick="showOrHideBlock(this,'medic')" style="width: 103%;">
             <h2>Uzdrowiciel</h2>
         </div>
         <div id='medic' class='container text-center c-gold rounded border border-primary bg-dark d-none p-0'>
@@ -213,7 +362,7 @@
             {% endfor %}
         </div>
 
-        <div class='row text-center c-gold p-2 rounded border border-warning bg-dark mt-1' onclick="showOrHideBlock(this,'fix')">
+        <div class='row text-center c-gold p-2 rounded border border-warning bg-dark mt-1' onclick="showOrHideBlock(this,'fix')" style="width: 103%;">
             <h2>Naprawa</h2>
         </div>
         <div id='fix' class='container text-center c-gold rounded border border-primary bg-dark d-none p-0'>
@@ -272,6 +421,7 @@
 
     function buyItem(item,item_id){
         document.getElementById('char-to-buy').classList.remove('d-none')
+        document.getElementById('Item-amount').value = 1
         
         item_line = document.getElementById('Item')
         item_line.innerHTML = item
@@ -284,7 +434,7 @@
         let item_id = item.getAttribute('name');
         let char_id = document.getElementById('choosing_char_select').value;
     
-        let amount = 1;
+        let amount = document.getElementById('Item-amount').value
         if (item.innerHTML.includes("x10")) { amount = 10; }
         if (item.innerHTML.includes("x5")) { amount = 5; }
     

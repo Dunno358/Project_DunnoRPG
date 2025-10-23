@@ -56,7 +56,10 @@ def getItemArmor(itemName, charId=0):
     else:
         item = models.CharItems.objects.filter(name=itemName, character=char_name).first()
 
-    armor_from_durability = math.ceil(item.durability / 50)
+    try:
+        armor_from_durability = math.ceil(item.durability / 50)
+    except:
+        armor_from_durability = normal_armor
     
     if normal_armor != 0:
         return armor_from_durability
@@ -67,6 +70,28 @@ def getItemArmor(itemName, charId=0):
 @register.filter
 def getItemWeight(itemName):
     return get_object_or_404(models.Items, name=itemName).weight
+
+@register.filter
+def getArmorWeightType(itemName):
+    types = { #first index for light armor, second for medium and above is heavy armor
+    "Helmet": [1.5, 2.5],
+    "Torso": [4,7],
+    "Boots": [0.5, 1.1],
+    "Gloves": [1, 2]
+    }
+
+    item = get_object_or_404(models.Items, name=itemName)
+    weight = item.weight
+    type = item.type
+
+    if weight < types[type][0]:
+        weightType = "Lekkie"
+    elif weight < types[type][1]:
+        weightType = "Średnie"
+    else:
+        weightType = "Ciężkie"
+
+    return weightType
 
 @register.filter
 def getItemBonus(itemName):
@@ -191,7 +216,16 @@ def getDescId(itemName):
     except:
         return ''
    
-
+@register.filter
+def getItemDesc(itemName):
+    try:
+        limit = 80
+        full_desc = models.Items.objects.filter(name=itemName).values()[0]['desc']
+        if len(full_desc)>limit:
+            return full_desc[:limit]+"..."
+        return full_desc
+    except:
+        return ''
 
    
 #ITEM-IS
