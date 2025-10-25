@@ -2081,6 +2081,9 @@ class BuyItem(APIView):
                             return redirect('/dunnorpg/city')
 
                         new_amount = int(amount)-int(item_amount)
+                        if new_amount<0:
+                            item_amount+=new_amount
+                            new_amount = int(amount)-int(item_amount) #should be 0
                         ct_new_item = f"{ct_item_name}|{new_amount}"
                         city_items[index] = ct_new_item
 
