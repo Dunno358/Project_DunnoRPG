@@ -210,16 +210,17 @@ def getSkill(itemName):
         return False
 
 @register.filter
-def getSkillOrDesc(itemName):
+def getSkillAndDesc(itemName):
     try:
         limit = 80
-        output = models.Items.objects.filter(name=itemName).get().skill
-        if not output or output=="":
-            output = models.Items.objects.filter(name=itemName).get().desc
+        row = models.Items.objects.filter(name=itemName).get()
+        skill = row.skill
+        desc = row.desc
+        full = f"{skill} | {desc}"
 
-        if len(output)>limit:
-            return output[:limit]+"..."
-        return output
+        if len(full)>limit:
+            return full[:limit]+"..."
+        return full
 
     except Exception as e:
         print(e)
