@@ -216,7 +216,11 @@ def getSkillAndDesc(itemName):
         row = models.Items.objects.filter(name=itemName).get()
         skill = row.skill
         desc = row.desc
-        full = f"{skill} | {desc}"
+
+        if not skill or skill == "":
+            full = desc
+        else:
+            full = f"{skill} | {desc}"
 
         if len(full)>limit:
             return full[:limit]+"..."
