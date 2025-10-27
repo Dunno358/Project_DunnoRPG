@@ -525,7 +525,8 @@ def getItemRange(item_name):
             "lute": 1,
             "shield": 1,
             "strzelba": 8,
-            "krótka strzelba": 5
+            "krótka strzelba": 5,
+            "wand": 15
         }
 
         if type in ranges.keys():
