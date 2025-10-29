@@ -5,6 +5,10 @@
 {% include 'dunnorpg/messages.html' %}
 <!-- TODO: Add checking if class armor allows for item when putting on or changing item of armor -->
 
+<style>
+    hr   {opacity: 1;}
+</style>
+
 <div id='pop-window' class='d-none position-fixed container-fluid mt-5'>
     <div class='row bg-dark c-gold rounded border border-warning mt-5 ms-5 me-5'>
 
@@ -51,7 +55,7 @@
     </div>
 </div>
 
-<div class="container-fluid row">
+<div class="row container-fluid m-0 p-0">
     {% for value in chosen_character %}
 
     <div class='d-none'>
@@ -64,7 +68,7 @@
         <p id='amulet-attack-mod'>{{ value.name|getAmuletAttackBonus }}</p>
     </div>
 
-    <div name='Stats' class="row card-body d-none text-center mt-4 c-gold border border-warning bg-dark rounded position-fixed">
+    <div name='Stats' class="row card-body d-none text-center mt-4 c-gold border border-warning bg-dark rounded position-fixed m-0 p-0">
         <h3>Stats</h3>
         <p name='stat'><span class="text-white-50">INT:</span> <span id='stat-INT'>{{ value.INT }}</span> (<span id='stat-INT-mod'>{{ value|getMod:"INT" }}</span>)</p>
         <p name='stat'><span class="text-white-50">SIŁ:</span> <span id='stat-SIŁ'>{{ value.SIŁ }}</span> (<span id='stat-SIŁ-mod'>{{ value|getMod:"SIŁ" }}</span>)</p>
@@ -73,8 +77,8 @@
         <p name='stat'><span class="text-white-50">CEL:</span> <span id='stat-CEL'>{{ value.CEL }}</span> (<span id='stat-CEL-mod'>{{ value|getMod:"CEL" }}</span>)</p>
     </div>
 
-    <div name='Equipment' class="row text-center ms-3 mt-1 card-body c-gold border border-warning bg-dark rounded">
-        <p name='{{ value.id }}' class="text-center fw-bold">
+    <div name='Equipment' class="row text-center m-0 p-0 card-body c-gold border border-warning bg-dark rounded">
+        <p name='{{ value.id }}' class="text-center fw-bold mt-2">
             {% if value.model_url %}
                 <a id='char-name' name='{{ value.id }}' href="{{ value.model_url }}" class="c-gold" target="_blank">
                     {{ value.name }}
@@ -107,33 +111,56 @@
             </form>
         </div>
 
-        <form name='head' method='post' action='changedur-{{ helmet.id }}' class='row mt-2'><hr />
-            {% csrf_token %}
-            <div class='col'><p><span class="text-white-50">Helmet: </span>
-                {% if helmet != None %}
-                    <span class='text-info fa fa-exchange-alt' onclick='show_or_hideById("helmet-swap")'></span> 
+        {% if helmet %}
+            <form name='head' method='post' action='changedur-{{ helmet.id }}' class='row mt-2 border border-warning rounded bg-gray m-0 p-0'>
+                {% csrf_token %}
+                <div class="row c-gold me-0 pe-0">
+                    <div class="col h6 text-start p-2 ps-3 pb-0">
+                        <span class="text-white-50">Wytrzymałość:</span> {{ helmet.durability }}/{{ helmet.name|getMaxDurability }}
+                    </div>
+                    <div class="col h6 text-end p-2 pb-0">
+                        Głowa - {{ helmet.name|getArmorWeightType }}
+                    </div>
+                </div>
 
-                    <a class='{{ helmet.name|getItemRarity }} fw-bold' href='/dunnorpg/items/{{ helmet.name|getDescId }}'>
-                    {{ helmet.name }}</a>
+                <div class="row me-0 pe-0">
+                    <div class="col text-center">
+                        <a href='/dunnorpg/items/{{ helmet.name|getDescId }}' class="{{ helmet.name|getItemRarity }} h4">
+                            {{ helmet.name }}
+                        </a>
+                    </div>
+                </div>
 
-                    <span class='{{ helmet.name|getItemRarity }}'><b>[ {{ helmet.name|getItemArmor }}; {{ helmet.name|getItemWeight }}kg
-                    {% if helmet.name|getSkill %};
-                        <span onclick="showSkill(this)" class='fw-normal' title="{{ helmet.name|getSkill }}">
+                <hr class="mb-0 mt-1">
+                {% if helmet.name|getSkill %}
+                    <div class="row me-0 pe-0">
+                        <div class="col text-justified {{ helmet.name|getItemRarity }} p-0 ps-1 pt-1">
                             {{ helmet.name|getSkill }}
-                        </span>
-                    {% endif %}]</b></span>
-                    
-                    (
-                    {% if user.is_superuser %}
-                        <input type='number' min="0" id='helmet-dur-gm' class='c-gold text-center bg-dark border-0' style='width: 5vw' value='{{ helmet.durability }}' name='dur'>
-                    {% else %}
-                        {{ helmet.durability }} 
-                    {% endif %}  
-                    / {{ helmet.name|getMaxDurability }} )
-                    <a href='move_eq-{{ helmet.id }}' class='fa fa-arrow-right text-success text-decoration-none'>EQ</a>
-                    
-                    <div id='helmet-swap' class='d-none'> 
-                        <select class='w-50 ms-2 text-center border border-warning bg-dark text-white-50 rounded'>
+                        </div>
+                    </div>
+                    <hr class="mb-0 mt-1">
+                {% endif %}
+
+                <div claSS="row ps-0 ms-1 me-0 pe-0">
+
+                    <div class="col-3 border-end border-warning p-3 h6 mb-0 d-flex align-items-center justify-content-center">
+                        <span class="text-white-50">Pancerz:</span> <span class="c-gold ms-1">{{ helmet.name|getItemArmor }}</span>
+                    </div>                
+                    <div class="col-3 border-end border-warning p-3 h6 mb-0 d-flex align-items-center justify-content-center">
+                        <span class="text-white-50">Waga:</span> <span class="c-gold ms-1">{{ helmet.name|getItemWeight }}kg</span>
+                    </div>                
+                    <div class="col-3 border-end border-warning h6 mb-0 d-flex align-items-center justify-content-center">
+                        <a class="btn btn-info p-3 pt-2 pb-2 text-light" onclick='show_or_hideById("helmet-swap")'>Zmień</a>
+                    </div>                  
+                    <div class="col-3 h6 mb-0 d-flex align-items-center justify-content-center">
+                        <a class="btn btn-danger p-3 pt-2 pb-2 text-light" href='move_eq-{{ helmet.id }}'>Odłóż</a>
+                    </div>
+
+                </div>
+
+                <div id='helmet-swap' class='d-none row text-end m-0 p-0 mt-2 mb-2'>
+                    <div class="col-8">
+                        <select class='w-100 p-2 ms-2 text-center border border-warning bg-dark text-white-50 rounded'>
                             {% for item in eq_helmets %}
                                 <option id='{{ item.id }}' name={{ item.durability }} value='{{ item.name }}'>
                                     {{ item.name }} 
@@ -141,14 +168,41 @@
                                 </option>
                             {% endfor %}
                         </select>
-                        <a onclick="swapItem('{{ helmet.id }}', 'helmet-swap')" class='btn btn-sm btn-success'>OK</a>
                     </div>
+                    <div class="col text-start">
+                        <a onclick="swapItem('{{ helmet.id }}', 'helmet-swap')" class='btn w-75 btn-success'>Zamień</a>
+                    </div>
+                </div>
 
-                {% else %}
-                    <span class='text-info fa fa-plus' onclick='show_or_hideById("helmet-add")'></span> 
+            </form>
+        {% else %}
+            <div name='head' class='row mt-2 border border-warning rounded bg-gray m-0 p-0'>
+                <div class="row c-gold me-0 pe-0">
+                    <div class="col h6 text-start p-2 pb-0 ms-1">
+                        Głowa - Brak
+                    </div>
+                </div>
 
-                    <div id='helmet-add' class='d-none'> 
-                        <select class='w-50 ms-2 text-center border border-warning bg-dark text-white-50 rounded'>
+                <div class="row me-0 pe-0">
+                    <div class="col text-center">
+                        <a href='' class="c-gold h4">
+                            Brak hełmu
+                        </a>
+                    </div>
+                </div>
+
+                <hr class="mb-0 mt-1">
+
+                <div claSS="row ps-0 ms-1 me-0 pe-0">
+
+                    <div class="col border-end border-warning mb-0 d-flex align-items-center justify-content-center">
+                        <a class="text-light h5 btn btn-info m-2 w-75" onclick='show_or_hideById("helmet-add")'>Załóż</a>
+                    </div>                
+                </div>
+
+                <div id='helmet-add' class='d-none row text-end m-0 p-0 mt-2 mb-2'>
+                    <div class="col-8">
+                        <select class='w-100 p-2 ms-2 text-center border border-warning bg-dark text-white-50 rounded'>
                             {% for item in eq_helmets %}
                                 <option id='{{ item.id }}' value='{{ item.name }}'>
                                     {{ item.name }} 
@@ -156,41 +210,68 @@
                                 </option>
                             {% endfor %}
                         </select>
-                        <a onclick="wearItem('Helmet', 'helmet-add')" class='btn btn-sm btn-success'>OK</a>
-                    </div>     
-                      
+                    </div>
+                    <div class="col text-start">
+                        <a onclick="wearItem('Helmet', 'helmet-add')" class='btn w-75 btn-success'>OK</a>
+                    </div>
+                </div> 
+
+            </div>
+                
+        {% endif %}
+
+        <hr class="bg-light mt-4">
+
+        {% if torso %}
+            <form name='head' method='post' action='changedur-{{ torso.id }}' class='row mt-2 border border-warning rounded bg-gray m-0 p-0'>
+                {% csrf_token %}
+                <div class="row c-gold me-0 pe-0">
+                    <div class="col h6 text-start p-2 ps-3 pb-0">
+                        <span class="text-white-50">Wytrzymałość:</span> {{ torso.durability }}/{{ torso.name|getMaxDurability }}
+                    </div>
+                    <div class="col h6 text-end p-2 pb-0">
+                        Tors - {{ torso.name|getArmorWeightType }}
+                    </div>
+                </div>
+
+                <div class="row me-0 pe-0">
+                    <div class="col text-center">
+                        <a href='/dunnorpg/items/{{ torso.name|getDescId }}' class="{{ torso.name|getItemRarity }} h4">
+                            {{ torso.name }}
+                        </a>
+                    </div>
+                </div>
+
+                <hr class="mb-0 mt-1">
+                {% if torso.name|getSkill %}
+                    <div class="row me-0 pe-0">
+                        <div class="col text-justified {{ torso.name|getItemRarity }} p-0 ps-1 pt-1">
+                            {{ torso.name|getSkill }}
+                        </div>
+                    </div>
+                    <hr class="mb-0 mt-1">
                 {% endif %}
-            </p></div>
-        </form>
 
-        <form name='torso' method='post' action='changedur-{{ torso.id }}' class='row mt-2'><hr />
-            {% csrf_token %}
-            <div class='col'><p><span class="text-white-50">Torso: </span> 
+                <div claSS="row ps-0 ms-1 me-0 pe-0">
 
-                {% if torso != None %}
-                    <span class='text-info fa fa-exchange-alt' onclick='show_or_hideById("torso-swap")'></span> 
+                    <div class="col-3 border-end border-warning p-3 h6 mb-0 d-flex align-items-center justify-content-center">
+                        <span class="text-white-50">Pancerz:</span> <span class="c-gold ms-1">{{ torso.name|getItemArmor }}</span>
+                    </div>                
+                    <div class="col-3 border-end border-warning p-3 h6 mb-0 d-flex align-items-center justify-content-center">
+                        <span class="text-white-50">Waga:</span> <span class="c-gold ms-1">{{ torso.name|getItemWeight }}kg</span>
+                    </div>                
+                    <div class="col-3 border-end border-warning h6 mb-0 d-flex align-items-center justify-content-center">
+                        <a class="btn btn-info p-3 pt-2 pb-2 text-light" onclick='show_or_hideById("torso-swap")'>Zmień</a>
+                    </div>                  
+                    <div class="col-3 h6 mb-0 d-flex align-items-center justify-content-center">
+                        <a class="btn btn-danger p-3 pt-2 pb-2 text-light" href='move_eq-{{ torso.id }}'>Odłóż</a>
+                    </div>
 
-                    <a class='{{ torso.name|getItemRarity }} fw-bold' href='/dunnorpg/items/{{ torso.name|getDescId }}'>
-                        {{ torso.name }}</a>
-    
-                        <span class='{{ torso.name|getItemRarity }}'><b>[ {{ torso.name|getItemArmor:value.id }}; {{ torso.name|getItemWeight }}kg
-                        {% if torso.name|getSkill %};
-                            <span onclick="showSkill(this)" class='fw-normal' title="{{ torso.name|getSkill }}">
-                                {{ torso.name|getSkill }}
-                            </span>
-                        {% endif %}]</b></span>
-                        
-                        (
-                            {% if user.is_superuser %}
-                                <input type='number' min="0" id='torso-dur-gm' class='c-gold text-center bg-dark border-0' style='width: 5vw' value='{{ torso.durability }}' name="dur">
-                            {% else %}
-                                {{ torso.durability }} 
-                            {% endif %}  
-                            / {{ torso.name|getMaxDurability }} ) 
-                    <a href='move_eq-{{ torso.id }}' class='fa fa-arrow-right text-success text-decoration-none'>EQ</a>
+                </div>
 
-                    <div id='torso-swap' class='d-none'> 
-                        <select class='w-50 ms-2 text-center border border-warning bg-dark text-white-50 rounded'>
+                <div id='torso-swap' class='d-none row text-end m-0 p-0 mt-2 mb-2'>
+                    <div class="col-8">
+                        <select class='w-100 p-2 ms-2 text-center border border-warning bg-dark text-white-50 rounded'>
                             {% for item in eq_torsos %}
                                 <option id='{{ item.id }}' name={{ item.durability }} value='{{ item.name }}'>
                                     {{ item.name }} 
@@ -198,27 +279,57 @@
                                 </option>
                             {% endfor %}
                         </select>
-                        <a onclick="swapItem('{{ torso.id }}', 'torso-swap')" class='btn btn-sm btn-success'>OK</a>
-                    </div> 
+                    </div>
+                    <div class="col text-start">
+                        <a onclick="swapItem('{{ torso.id }}', 'torso-swap')" class='btn w-75 btn-success'>Zamień</a>
+                    </div>
+                </div>
 
-                {% else %}              
-                <span class='text-info fa fa-plus' onclick='show_or_hideById("torso-add")'></span> 
+            </form>
+        {% else %}
+            <div name='head' class='row mt-2 border border-warning rounded bg-gray m-0 p-0'>
+                <div class="row c-gold me-0 pe-0">
+                    <div class="col h6 text-start p-2 pb-0 ms-1">
+                        Tors - Brak
+                    </div>
+                </div>
 
-                <div id='torso-add' class='d-none'> 
-                    <select class='w-50 ms-2 text-center border border-warning bg-dark text-white-50 rounded'>
-                        {% for item in eq_torsos %}
-                            <option id='{{ item.id }}' value='{{ item.name }}'>
-                                {{ item.name }} 
-                                ({{ item.durability }}/{{ item.name|getMaxDurability }})
-                            </option>
-                        {% endfor %}
-                    </select>
-                    <a onclick="wearItem('Torso', 'torso-add')" class='btn btn-sm btn-success'>OK</a>
+                <div class="row me-0 pe-0">
+                    <div class="col text-center">
+                        <a href='' class="c-gold h4">
+                            Brak napierśnika
+                        </a>
+                    </div>
+                </div>
+
+                <hr class="mb-0 mt-1">
+
+                <div claSS="row ps-0 ms-1 me-0 pe-0">
+
+                    <div class="col border-end border-warning mb-0 d-flex align-items-center justify-content-center">
+                        <a class="text-light h5 btn btn-info m-2 w-75" onclick='show_or_hideById("torso-add")'>Załóż</a>
+                    </div>                
+                </div>
+
+                <div id='torso-add' class='d-none row text-end m-0 p-0 mt-2 mb-2'>
+                    <div class="col-8">
+                        <select class='w-100 p-2 ms-2 text-center border border-warning bg-dark text-white-50 rounded'>
+                            {% for item in eq_torsos %}
+                                <option id='{{ item.id }}' value='{{ item.name }}'>
+                                    {{ item.name }} 
+                                    ({{ item.durability }}/{{ item.name|getMaxDurability }})
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col text-start">
+                        <a onclick="wearItem('Torso', 'torso-add')" class='btn w-75 btn-success'>OK</a>
+                    </div>
                 </div> 
 
-                {% endif %}
-            </p></div>
-        </form>
+            </div>
+                
+        {% endif %}
 
         <div name='hands' class='row mt-2'><hr />
             {% csrf_token %}
@@ -449,34 +560,58 @@
             
         </form>
 
-        <form name='boots' method='post' action='changedur-{{ boots.id }}' class='row mt-2'><hr />
-            {% csrf_token %}
-            <div class='col'><p><span class="text-white-50">Boots: </span> 
+        <hr class="bg-light mt-4">
 
-                {% if boots != None %}
-                    <span class='text-info fa fa-exchange-alt' onclick='show_or_hideById("boots-swap")'></span> 
+        {% if boots %}
+            <form name='head' method='post' action='changedur-{{ boots.id }}' class='row mt-2 border border-warning rounded bg-gray m-0 p-0'>
+                {% csrf_token %}
+                <div class="row c-gold me-0 pe-0">
+                    <div class="col h6 text-start p-2 ps-3 pb-0">
+                        <span class="text-white-50">Wytrzymałość:</span> {{ boots.durability }}/{{ boots.name|getMaxDurability }}
+                    </div>
+                    <div class="col h6 text-end p-2 pb-0">
+                        Nogi - {{ boots.name|getArmorWeightType }}
+                    </div>
+                </div>
 
-                    <a class='{{ boots.name|getItemRarity }} fw-bold' href='/dunnorpg/items/{{ boots.name|getDescId }}'>
-                        {{ boots.name }}</a>
-    
-                        <span class='{{ boots.name|getItemRarity }}'><b>[ {{ boots.name|getItemArmor }}; {{ boots.name|getItemWeight }}kg
-                        {% if boots.name|getSkill %};
-                            <span onclick="showSkill(this)" class='fw-normal' title="{{ boots.name|getSkill }}">
-                                {{ boots.name|getSkill }}
-                            </span>
-                        {% endif %}]</b></span>
-                        
-                        (
-                        {% if user.is_superuser %}
-                            <input type='number' min="0" id='boots-dur-gm' class='c-gold text-center bg-dark border-0' style='width: 5vw' value='{{ boots.durability }}' name="dur">
-                        {% else %}
-                            {{ boots.durability }} 
-                        {% endif %}  
-                            / {{ boots.name|getMaxDurability }} ) 
-                    <a href='move_eq-{{ boots.id }}' class='fa fa-arrow-right text-success text-decoration-none'>EQ</a>
+                <div class="row me-0 pe-0">
+                    <div class="col text-center">
+                        <a href='/dunnorpg/items/{{ boots.name|getDescId }}' class="{{ boots.name|getItemRarity }} h4">
+                            {{ boots.name }}
+                        </a>
+                    </div>
+                </div>
 
-                    <div id='boots-swap' class='d-none'> 
-                        <select class='w-50 ms-2 text-center border border-warning bg-dark text-white-50 rounded'>
+                <hr class="mb-0 mt-1">
+                {% if boots.name|getSkill %}
+                    <div class="row me-0 pe-0">
+                        <div class="col text-justified {{ boots.name|getItemRarity }} p-0 ps-1 pt-1">
+                            {{ boots.name|getSkill }}
+                        </div>
+                    </div>
+                    <hr class="mb-0 mt-1">
+                {% endif %}
+
+                <div claSS="row ps-0 ms-1 me-0 pe-0">
+
+                    <div class="col-3 border-end border-warning p-3 h6 mb-0 d-flex align-items-center justify-content-center">
+                        <span class="text-white-50">Pancerz:</span> <span class="c-gold ms-1">{{ boots.name|getItemArmor }}</span>
+                    </div>                
+                    <div class="col-3 border-end border-warning p-3 h6 mb-0 d-flex align-items-center justify-content-center">
+                        <span class="text-white-50">Waga:</span> <span class="c-gold ms-1">{{ boots.name|getItemWeight }}kg</span>
+                    </div>                
+                    <div class="col-3 border-end border-warning h6 mb-0 d-flex align-items-center justify-content-center">
+                        <a class="btn btn-info p-3 pt-2 pb-2 text-light" onclick='show_or_hideById("boots-swap")'>Zmień</a>
+                    </div>                  
+                    <div class="col-3 h6 mb-0 d-flex align-items-center justify-content-center">
+                        <a class="btn btn-danger p-3 pt-2 pb-2 text-light" href='move_eq-{{ boots.id }}'>Odłóż</a>
+                    </div>
+
+                </div>
+
+                <div id='boots-swap' class='d-none row text-end m-0 p-0 mt-2 mb-2'>
+                    <div class="col-8">
+                        <select class='w-100 p-2 ms-2 text-center border border-warning bg-dark text-white-50 rounded'>
                             {% for item in eq_boots %}
                                 <option id='{{ item.id }}' name={{ item.durability }} value='{{ item.name }}'>
                                     {{ item.name }} 
@@ -484,57 +619,110 @@
                                 </option>
                             {% endfor %}
                         </select>
-                        <a onclick="swapItem('{{ boots.id }}', 'boots-swap')" class='btn btn-sm btn-success'>OK</a>
-                    </div>  
+                    </div>
+                    <div class="col text-start">
+                        <a onclick="swapItem('{{ boots.id }}', 'boots-swap')" class='btn w-75 btn-success'>Zamień</a>
+                    </div>
+                </div>
 
-                {% else %}
+            </form>
+        {% else %}
+            <div name='head' class='row mt-2 border border-warning rounded bg-gray m-0 p-0'>
+                <div class="row c-gold me-0 pe-0">
+                    <div class="col h6 text-start p-2 pb-0 ms-1">
+                        Nogi - Brak
+                    </div>
+                </div>
 
-                <span class='text-info fa fa-plus' onclick='show_or_hideById("boots-add")'></span>   
+                <div class="row me-0 pe-0">
+                    <div class="col text-center">
+                        <a href='' class="c-gold h4">
+                            Brak butów
+                        </a>
+                    </div>
+                </div>
 
-                <div id='boots-add' class='d-none'> 
-                    <select class='w-50 ms-2 text-center border border-warning bg-dark text-white-50 rounded'>
-                        {% for item in eq_boots %}
-                            <option id='{{ item.id }}' value='{{ item.name }}'>
-                                {{ item.name }} 
-                                ({{ item.durability }}/{{ item.name|getMaxDurability }})
-                            </option>
-                        {% endfor %}
-                    </select>
-                    <a onclick="wearItem('Boots', 'boots-add')" class='btn btn-sm btn-success'>OK</a>
+                <hr class="mb-0 mt-1">
+
+                <div claSS="row ps-0 ms-1 me-0 pe-0">
+
+                    <div class="col border-end border-warning mb-0 d-flex align-items-center justify-content-center">
+                        <a class="text-light h5 btn btn-info m-2 w-75" onclick='show_or_hideById("boots-add")'>Załóż</a>
+                    </div>                
+                </div>
+
+                <div id='boots-add' class='d-none row text-end m-0 p-0 mt-2 mb-2'>
+                    <div class="col-8">
+                        <select class='w-100 p-2 ms-2 text-center border border-warning bg-dark text-white-50 rounded'>
+                            {% for item in eq_boots %}
+                                <option id='{{ item.id }}' value='{{ item.name }}'>
+                                    {{ item.name }} 
+                                    ({{ item.durability }}/{{ item.name|getMaxDurability }})
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col text-start">
+                        <a onclick="wearItem('Boots', 'boots-add')" class='btn w-75 btn-success'>OK</a>
+                    </div>
                 </div> 
 
+            </div>
+                
+        {% endif %}
+
+        <hr class="bg-light mt-4">
+
+        {% if gloves %}
+            <form name='head' method='post' action='changedur-{{ gloves.id }}' class='row mt-2 border border-warning rounded bg-gray m-0 p-0'>
+                {% csrf_token %}
+                <div class="row c-gold me-0 pe-0">
+                    <div class="col h6 text-start p-2 ps-3 pb-0">
+                        <span class="text-white-50">Wytrzymałość:</span> {{ gloves.durability }}/{{ gloves.name|getMaxDurability }}
+                    </div>
+                    <div class="col h6 text-end p-2 pb-0">
+                        Ręce - {{ gloves.name|getArmorWeightType }}
+                    </div>
+                </div>
+
+                <div class="row me-0 pe-0">
+                    <div class="col text-center">
+                        <a href='/dunnorpg/items/{{ gloves.name|getDescId }}' class="{{ gloves.name|getItemRarity }} h4">
+                            {{ gloves.name }}
+                        </a>
+                    </div>
+                </div>
+
+                <hr class="mb-0 mt-1">
+                {% if gloves.name|getSkill %}
+                    <div class="row me-0 pe-0">
+                        <div class="col text-justified {{ gloves.name|getItemRarity }} p-0 ps-1 pt-1">
+                            {{ gloves.name|getSkill }}
+                        </div>
+                    </div>
+                    <hr class="mb-0 mt-1">
                 {% endif %}
-            </p></div>
-        </form>
 
-        <form name='gloves' method='post' action='changedur-{{ gloves.id }}' class='row mt-2'><hr />
-            {% csrf_token %}
-            <div class='col'><p><span class="text-white-50">Gloves: </span> 
+                <div claSS="row ps-0 ms-1 me-0 pe-0">
 
-                {% if gloves != None %}
-                    <span class='text-info fa fa-exchange-alt' onclick='show_or_hideById("gloves-swap")'></span> 
+                    <div class="col-3 border-end border-warning p-3 h6 mb-0 d-flex align-items-center justify-content-center">
+                        <span class="text-white-50">Pancerz:</span> <span class="c-gold ms-1">{{ gloves.name|getItemArmor }}</span>
+                    </div>                
+                    <div class="col-3 border-end border-warning p-3 h6 mb-0 d-flex align-items-center justify-content-center">
+                        <span class="text-white-50">Waga:</span> <span class="c-gold ms-1">{{ gloves.name|getItemWeight }}kg</span>
+                    </div>                
+                    <div class="col-3 border-end border-warning h6 mb-0 d-flex align-items-center justify-content-center">
+                        <a class="btn btn-info p-3 pt-2 pb-2 text-light" onclick='show_or_hideById("gloves-swap")'>Zmień</a>
+                    </div>                  
+                    <div class="col-3 h6 mb-0 d-flex align-items-center justify-content-center">
+                        <a class="btn btn-danger p-3 pt-2 pb-2 text-light" href='move_eq-{{ gloves.id }}'>Odłóż</a>
+                    </div>
 
-                    <a class='{{ gloves.name|getItemRarity }} fw-bold' href='/dunnorpg/items/{{ gloves.name|getDescId }}'>
-                        {{ gloves.name }}</a>
-    
-                        <span class='{{ gloves.name|getItemRarity }}'><b>[ {{ gloves.name|getItemArmor }}; {{ gloves.name|getItemWeight }}kg
-                        {% if gloves.name|getSkill %};
-                            <span onclick="showSkill(this)" class='fw-normal' title="{{ gloves.name|getSkill }}">
-                                {{ gloves.name|getSkill }}
-                            </span>
-                        {% endif %}]</b></span>
-                        
-                        (
-                        {% if user.is_superuser %}
-                            <input type='number' min="0" id='gloves-dur-gm' class='c-gold text-center bg-dark border-0' style='width: 5vw' value='{{ gloves.durability }}' name="dur">
-                        {% else %}
-                            {{ gloves.durability }} 
-                        {% endif %}  
-                            / {{ gloves.name|getMaxDurability }} ) 
-                    <a href='move_eq-{{ gloves.id }}' class='fa fa-arrow-right text-success text-decoration-none'>EQ</a>
+                </div>
 
-                    <div id='gloves-swap' class='d-none'> 
-                        <select class='w-50 ms-2 text-center border border-warning bg-dark text-white-50 rounded'>
+                <div id='gloves-swap' class='d-none row text-end m-0 p-0 mt-2 mb-2'>
+                    <div class="col-8">
+                        <select class='w-100 p-2 ms-2 text-center border border-warning bg-dark text-white-50 rounded'>
                             {% for item in eq_gloves %}
                                 <option id='{{ item.id }}' name={{ item.durability }} value='{{ item.name }}'>
                                     {{ item.name }} 
@@ -542,48 +730,110 @@
                                 </option>
                             {% endfor %}
                         </select>
-                        <a onclick="swapItem('{{ gloves.id }}', 'gloves-swap')" class='btn btn-sm btn-success'>OK</a>
                     </div>
+                    <div class="col text-start">
+                        <a onclick="swapItem('{{ gloves.id }}', 'gloves-swap')" class='btn w-75 btn-success'>Zamień</a>
+                    </div>
+                </div>
 
-                {% else %}
-                <span class='text-info fa fa-plus' onclick='show_or_hideById("gloves-add")'></span> 
+            </form>
+        {% else %}
+            <div name='head' class='row mt-2 border border-warning rounded bg-gray m-0 p-0'>
+                <div class="row c-gold me-0 pe-0">
+                    <div class="col h6 text-start p-2 pb-0 ms-1">
+                        Ręce - Brak
+                    </div>
+                </div>
 
-                <div id='gloves-add' class='d-none'> 
-                    <select class='w-50 ms-2 text-center border border-warning bg-dark text-white-50 rounded'>
-                        {% for item in eq_gloves %}
-                            <option id='{{ item.id }}' value='{{ item.name }}'>
-                                {{ item.name }} 
-                                ({{ item.durability }}/{{ item.name|getMaxDurability }})
-                            </option>
-                        {% endfor %}
-                    </select>
-                    <a onclick="wearItem('Gloves', 'gloves-add')" class='btn btn-sm btn-success'>OK</a>
+                <div class="row me-0 pe-0">
+                    <div class="col text-center">
+                        <a href='' class="c-gold h4">
+                            Brak rękawic
+                        </a>
+                    </div>
+                </div>
+
+                <hr class="mb-0 mt-1">
+
+                <div claSS="row ps-0 ms-1 me-0 pe-0">
+
+                    <div class="col border-end border-warning mb-0 d-flex align-items-center justify-content-center">
+                        <a class="text-light h5 btn btn-info m-2 w-75" onclick='show_or_hideById("gloves-add")'>Załóż</a>
+                    </div>                
+                </div>
+
+                <div id='gloves-add' class='d-none row text-end m-0 p-0 mt-2 mb-2'>
+                    <div class="col-8">
+                        <select class='w-100 p-2 ms-2 text-center border border-warning bg-dark text-white-50 rounded'>
+                            {% for item in eq_gloves %}
+                                <option id='{{ item.id }}' value='{{ item.name }}'>
+                                    {{ item.name }} 
+                                    ({{ item.durability }}/{{ item.name|getMaxDurability }})
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col text-start">
+                        <a onclick="wearItem('Gloves', 'gloves-add')" class='btn w-75 btn-success'>OK</a>
+                    </div>
                 </div> 
 
+            </div>
+                
+        {% endif %}
+
+        <hr class="bg-light mt-4">
+
+        {% if amulet %}
+            <form name='head' method='post' action='changedur-{{ amulet.id }}' class='row mt-2 border border-warning rounded bg-gray m-0 p-0'>
+                {% csrf_token %}
+                <div class="row c-gold me-0 pe-0">
+                    <div class="col h6 text-start p-2 ps-3 pb-0">
+                        <span class="text-white-50">Wytrzymałość:</span> {{ amulet.durability }}/{{ amulet.name|getMaxDurability }}
+                    </div>
+                    <div class="col h6 text-end p-2 pb-0">
+                        Akcesoria - {{ amulet.name|getArmorWeightType }}
+                    </div>
+                </div>
+
+                <div class="row me-0 pe-0">
+                    <div class="col text-center">
+                        <a href='/dunnorpg/items/{{ amulet.name|getDescId }}' class="{{ amulet.name|getItemRarity }} h4">
+                            {{ amulet.name }}
+                        </a>
+                    </div>
+                </div>
+
+                <hr class="mb-0 mt-1">
+                {% if amulet.name|getSkill %}
+                    <div class="row me-0 pe-0">
+                        <div class="col text-justified {{ amulet.name|getItemRarity }} p-0 ps-1 pt-1">
+                            {{ amulet.name|getSkill }}
+                        </div>
+                    </div>
+                    <hr class="mb-0 mt-1">
                 {% endif %}
-            </p></div>
-        </form>
 
-        <form name='amulet' class='row mt-2'><hr />
-            <p class='col'><span class="text-white-50">Amulet: </span> 
+                <div claSS="row ps-0 ms-1 me-0 pe-0">
 
-                {% if amulet != None %}
-                    <span class='text-info fa fa-exchange-alt' onclick='show_or_hideById("amulet-swap")'></span> 
+                    <div class="col-3 border-end border-warning p-3 h6 mb-0 d-flex align-items-center justify-content-center">
+                        <span class="text-white-50">Pancerz:</span> <span class="c-gold ms-1">{{ amulet.name|getItemArmor }}</span>
+                    </div>                
+                    <div class="col-3 border-end border-warning p-3 h6 mb-0 d-flex align-items-center justify-content-center">
+                        <span class="text-white-50">Waga:</span> <span class="c-gold ms-1">{{ amulet.name|getItemWeight }}kg</span>
+                    </div>                
+                    <div class="col-3 border-end border-warning h6 mb-0 d-flex align-items-center justify-content-center">
+                        <a class="btn btn-info p-3 pt-2 pb-2 text-light" onclick='show_or_hideById("amulet-swap")'>Zmień</a>
+                    </div>                  
+                    <div class="col-3 h6 mb-0 d-flex align-items-center justify-content-center">
+                        <a class="btn btn-danger p-3 pt-2 pb-2 text-light" href='move_eq-{{ amulet.id }}'>Odłóż</a>
+                    </div>
 
-                    <a class='{{ amulet.name|getItemRarity }} fw-bold' href='/dunnorpg/items/{{ amulet.name|getDescId }}'>
-                    {{ amulet.name }}</a>  
-                    <b class="{{ amulet.name|getItemRarity }}">
-                        [ {{ amulet.name|getItemWeight }}kg
-                        {% if amulet.name|getSkill %};
-                            <span onlick='showSkill(this)' class="fw-normal" title="{{ amulet.name|getSkill }}">
-                                {{ amulet.name|getSkill }}
-                            </span>
-                        {% endif %}]
-                    </b>
-                    <a href='move_eq-{{ amulet.id }}' class='fa fa-arrow-right text-success text-decoration-none'>EQ</a>
+                </div>
 
-                    <div id='amulet-swap' class='d-none'> 
-                        <select class='w-50 ms-2 text-center border border-warning bg-dark text-white-50 rounded'>
+                <div id='amulet-swap' class='d-none row text-end m-0 p-0 mt-2 mb-2'>
+                    <div class="col-8">
+                        <select class='w-100 p-2 ms-2 text-center border border-warning bg-dark text-white-50 rounded'>
                             {% for item in eq_amulets %}
                                 <option id='{{ item.id }}' name={{ item.durability }} value='{{ item.name }}'>
                                     {{ item.name }} 
@@ -591,26 +841,57 @@
                                 </option>
                             {% endfor %}
                         </select>
-                        <a onclick="swapItem('{{ amulet.id }}', 'amulet-swap')" class='btn btn-sm btn-success'>OK</a>
                     </div>
+                    <div class="col text-start">
+                        <a onclick="swapItem('{{ amulet.id }}', 'amulet-swap')" class='btn w-75 btn-success'>Zamień</a>
+                    </div>
+                </div>
 
-                {% else %}
-                <span class='text-info fa fa-plus' onclick='show_or_hideById("amulet-add")'></span>  
+            </form>
+        {% else %}
+            <div name='head' class='row mt-2 border border-warning rounded bg-gray m-0 p-0'>
+                <div class="row c-gold me-0 pe-0">
+                    <div class="col h6 text-start p-2 pb-0 ms-1">
+                        Akcesoria - Brak
+                    </div>
+                </div>
 
-                <div id='amulet-add' class='d-none'> 
-                    <select class='w-50 ms-2 text-center border border-warning bg-dark text-white-50 rounded'>
-                        {% for item in eq_amulets %}
-                            <option id='{{ item.id }}' value='{{ item.name }}'>{{ item.name }} 
-                                ({{ item.durability }}/{{ item.name|getMaxDurability }})
-                            </option>
-                        {% endfor %}
-                    </select>
-                    <a onclick="wearItem('Amulet', 'amulet-add')" class='btn btn-sm btn-success'>OK</a>
+                <div class="row me-0 pe-0">
+                    <div class="col text-center">
+                        <a href='' class="c-gold h4">
+                            Brak amuletu
+                        </a>
+                    </div>
+                </div>
+
+                <hr class="mb-0 mt-1">
+
+                <div claSS="row ps-0 ms-1 me-0 pe-0">
+
+                    <div class="col border-end border-warning mb-0 d-flex align-items-center justify-content-center">
+                        <a class="text-light h5 btn btn-info m-2 w-75" onclick='show_or_hideById("amulet-add")'>Załóż</a>
+                    </div>                
+                </div>
+
+                <div id='amulet-add' class='d-none row text-end m-0 p-0 mt-2 mb-2'>
+                    <div class="col-8">
+                        <select class='w-100 p-2 ms-2 text-center border border-warning bg-dark text-white-50 rounded'>
+                            {% for item in eq_amulets %}
+                                <option id='{{ item.id }}' value='{{ item.name }}'>
+                                    {{ item.name }} 
+                                    ({{ item.durability }}/{{ item.name|getMaxDurability }})
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col text-start">
+                        <a onclick="wearItem('Amulet', 'amulet-add')" class='btn w-75 btn-success'>OK</a>
+                    </div>
                 </div> 
 
-                {% endif %}
-            </p>
-        </form>
+            </div>
+                
+        {% endif %}
 
         {% if eq_mounts or mount != None  %}
         <form name='mount' method='post' action='changedur-{{ mount.id }}' class='row mt-2'><hr />
@@ -765,7 +1046,7 @@
         </div>
     </form>
 
-    <div name='Effects' class="row d-none position-absolute rounded container col card-body c-gold border border-warning bg-dark mt-4">
+    <div name='Effects' class="row d-none m-0 p-0 position-absolute rounded container col card-body c-gold border border-warning bg-dark mt-4">
         <p class="text-center fw-bold">Effects: </p>
         <ul>
         {% for effect in value|getCharacterEffects %}
@@ -787,7 +1068,7 @@
     </div>
     
 
-    <div name='Skills' style='' class="row position-absolute d-none rounded container col card-body c-gold border border-warning bg-dark">
+    <div name='Skills' style='' class="row m-0 p-0 position-absolute d-none rounded container col card-body c-gold border border-warning bg-dark">
         <p class="text-center fw-bold">Skills: </p>
         <ul class=''>
 
@@ -1009,7 +1290,7 @@ function makeChangeToRequest(field_id, model, field){
 
 function swapItem(id1, block_id){
     chid = document.getElementById('char-name').getAttribute('name')
-    id2 = document.getElementById(block_id).children[0]
+    id2 = document.getElementById(block_id).children[0].children[0]
     id2 = id2.options[id2.selectedIndex].id
     url = window.location.href
     url = url+id1+'-'+id2
@@ -1018,7 +1299,7 @@ function swapItem(id1, block_id){
 
 function wearItem(place, block_id){
     chid = document.getElementById('char-name').getAttribute('name')
-    it1 = document.getElementById(block_id).children[0]
+    it1 = document.getElementById(block_id).children[0].children[0]
     it1 = it1.options[it1.selectedIndex].id
     url = window.location.href+it1+';'+place
     window.location.replace(url)

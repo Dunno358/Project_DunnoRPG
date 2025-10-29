@@ -77,9 +77,11 @@ def getArmorWeightType(itemName):
     "Helmet": [1.5, 2.5],
     "Torso": [4,7],
     "Boots": [0.5, 1.1],
-    "Gloves": [1, 2]
+    "Gloves": [1, 2],
+    "Amulet": [1, 2]
     }
 
+    weightType = ""
     item = get_object_or_404(models.Items, name=itemName)
     weight = item.weight
     type = item.type
