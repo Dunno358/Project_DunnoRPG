@@ -405,6 +405,13 @@ def getAmuletAttackBonus(charName):
         return amulet.diceBonus
     except:
         return 0
+    
+@register.filter
+def getDurabilityPercent(itemName, currentDurability):
+    maxDur = getMaxDurability(itemName)
+    raw_perc = float(currentDurability)/float(maxDur)
+    perc = format(raw_perc, '.0%')
+    return f"({perc})"
 
 @register.filter
 def getArmor(charName):

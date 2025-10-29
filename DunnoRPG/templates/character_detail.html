@@ -126,7 +126,7 @@
                 <div class="row me-0 pe-0">
                     <div class="col text-center">
                         <a href='/dunnorpg/items/{{ helmet.name|getDescId }}' class="{{ helmet.name|getItemRarity }} h4">
-                            {{ helmet.name }}
+                            {{ helmet.name }} {{ helmet.name|getDurabilityPercent:helmet.durability }}
                         </a>
                     </div>
                 </div>
@@ -237,7 +237,7 @@
                 <div class="row me-0 pe-0">
                     <div class="col text-center">
                         <a href='/dunnorpg/items/{{ torso.name|getDescId }}' class="{{ torso.name|getItemRarity }} h4">
-                            {{ torso.name }}
+                            {{ torso.name }} {{ torso.name|getDurabilityPercent:torso.durability }}
                         </a>
                     </div>
                 </div>
@@ -491,74 +491,121 @@
             </div>
         </div>
 
-        <form name='side' method='post' action='changedur-{{ sideItem.id }}' class='row mt-2'><hr />
-            {% csrf_token %}
-            <div class='col'><p><span class="text-white-50">Side: </span>
+        <hr class="bg-light mt-4">
 
-            {% if sideItem != None %}
-                <span class='text-info fa fa-exchange-alt' onclick='show_or_hideById("side-swap")'></span> 
-
-                <a class='{{ sideItem.name|getItemRarity }} fw-bold'  href='/dunnorpg/items/{{ sideItem.name|getDescId }}'>
-                    {{ sideItem.name }}
-                </a>
-                <span class='{{ sideItem.name|getItemRarity }} fw-bold'>
-                    [ {{ sideItem.name|getItemStatByName }}; {{ sideItem.name|getItemWeight }}kg
-                    {% if sideItem.name|getSkill %};
-                        <span onclick='showSkill(this)' class='fw-normal' title="{{ sideItem.name|getSkill }}">
-                            {{ sideItem.name|getSkill }}
-                        </span>
-                    {% endif %}]
-
-                    {{ sideItem.name|getStaffMagicDmg:value.id }}
-
-                </span>
-
-                <span class='c-gold' id='s_dur'>
-                    (
-                    {% if user.is_superuser %}
-                        <input type='number' min="0" id='sideItem-dur-gm' class='c-gold text-center bg-dark border-0' style='width: 5vw' value='{{ sideItem.durability }}' name="dur">
-                    {% else %}
-                        {{ sideItem.durability }} 
-                    {% endif %}  
-                    / {{ sideItem.name|getMaxDurability }} ) 
-                </span>   
-                <a class='text-danger h6' href='/dunnorpg/makerequest/{{ value.id }};CharItems;CharItems;{{ sideItem.id }};0;durability;downgrade-1;character_detail'>-1</a>
-                <a href='move_eq-{{ sideItem.id }}' class='fa fa-arrow-right text-success text-decoration-none'>EQ</a>
-                <a class="btn bg-transparent border-0 text-primary fw-bold" href="swap_side/left">L</a>
-                <a class="btn bg-transparent border-0 text-primary fw-bold" href="swap_side/right">R</a>
-
-                <div id='side-swap' class='d-none'> 
-                    <select class='w-50 ms-2 text-center border border-warning bg-dark text-white-50 rounded'>
-                        {% for item in eq_weapons %}
-                            <option id='{{ item.id }}' name={{ item.durability }} value='{{ item.name }}'>
-                                {{ item.name }} 
-                                ({{ item.durability }}/{{ item.name|getMaxDurability }})
-                            </option>
-                        {% endfor %}
-                    </select>
-                    <a onclick="swapItem('{{ sideItem.id }}', 'side-swap')" class='btn btn-sm btn-success'>OK</a>
+        {% if sideItem %}
+            <form name='head' method='post' action='changedur-{{ sideItem.id }}' class='row mt-2 border border-warning rounded bg-gray m-0 p-0'>
+                {% csrf_token %}
+                <div class="row c-gold me-0 pe-0">
+                    <div class="col h6 text-start p-2 ps-3 pb-0">
+                        <span class="text-white-50">Wytrzymałość:</span> {{ sideItem.durability }}/{{ sideItem.name|getMaxDurability }}
+                    </div>
+                    <div class="col h6 text-end p-2 pb-0">
+                        Miejsce przy pasie
+                    </div>
                 </div>
 
-            {% else %}
+                <div class="row me-0 pe-0">
+                    <div class="col text-center">
+                        <a href='/dunnorpg/items/{{ sideItem.name|getDescId }}' class="{{ sideItem.name|getItemRarity }} h4">
+                            {{ sideItem.name }} {{ sideItem.name|getDurabilityPercent:sideItem.durability }}
+                        </a>
+                    </div>
+                </div>
 
-            <span class='text-info fa fa-plus' onclick='show_or_hideById("side-add")'></span> 
-               
-            <div id='side-add' class='d-none'> 
-                <select class='w-50 ms-2 text-center border border-warning bg-dark text-white-50 rounded'>
-                    {% for item in eq_weapons %}
-                        <option id='{{ item.id }}' value='{{ item.name }}'>
-                            {{ item.name }} 
-                            ({{ item.durability }}/{{ item.name|getMaxDurability }})
-                        </option>
-                    {% endfor %}
-                </select>
-                <a onclick="wearItem('Side', 'side-add')" class='btn btn-sm btn-success'>OK</a>
-            </div> 
-            {% endif %}
+                <hr class="mb-0 mt-1">
+                {% if sideItem.name|getSkill %}
+                    <div class="row me-0 pe-0">
+                        <div class="col text-justified {{ sideItem.name|getItemRarity }} p-0 ps-1 pt-1">
+                            {{ sideItem.name|getSkill }}
+                        </div>
+                    </div>
+                    <hr class="mb-0 mt-1">
+                {% endif %}
 
-            </p></div>
-            
-        </form>
+                <div class="row ps-0 ms-1 me-0 pe-0">
+
+                    <div class="col-3 border-end border-warning p-1 h6 mb-0 d-flex align-items-center justify-content-center">
+                        <span class="c-gold ms-1">{{ sideItem.name|getItemStatByName }}</span>
+                    </div>                
+                    <div class="col-3 border-end border-warning p-3 h6 mb-0 d-flex align-items-center justify-content-center">
+                        <span class="text-white-50">Waga:</span> <span class="c-gold ms-1">{{ sideItem.name|getItemWeight }}kg</span>
+                    </div>                
+                    <div class="col-3 border-end border-warning h6 mb-0 d-flex align-items-center justify-content-center">
+                        <a class="btn btn-info p-3 pt-2 pb-2 text-light" onclick='show_or_hideById("sideItem-swap")'>Zmień</a>
+                    </div>                  
+                    <div class="col-3 h6 mb-0 d-flex align-items-center justify-content-center">
+                        <a class="btn btn-danger p-3 pt-2 pb-2 text-light" href='move_eq-{{ sideItem.id }}'>Odłóż</a>
+                    </div>
+
+                </div>
+
+                <div class="row ps-0 ms-1 me-0 pe-0 border-top border-warning">
+                    <a class="col btn btn-primary pt-1 p-0 m-1 ms-0 text-light" href="swap_side/left"><b>Do lewej ręki</b></a>
+                    <a class="col btn btn-primary pt-1 p-0 m-1 ms-0 text-light" href="swap_side/right"><b>Do prawej ręki</b></a>               
+                </div>
+
+                <div id='sideItem-swap' class='d-none row text-end m-0 p-0 mt-2 mb-2'>
+                    <div class="col-8">
+                        <select class='w-100 p-2 ms-2 text-center border border-warning bg-dark text-white-50 rounded'>
+                            {% for item in eq_weapons %}
+                                <option id='{{ item.id }}' name={{ item.durability }} value='{{ item.name }}'>
+                                    {{ item.name }} 
+                                    ({{ item.durability }}/{{ item.name|getMaxDurability }})
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col text-start">
+                        <a onclick="swapItem('{{ sideItem.id }}', 'sideItem-swap')" class='btn w-75 btn-success'>Zamień</a>
+                    </div>
+                </div>
+
+            </form>
+        {% else %}
+            <div name='head' class='row mt-2 border border-warning rounded bg-gray m-0 p-0'>
+                <div class="row c-gold me-0 pe-0">
+                    <div class="col h6 text-start p-2 pb-0 ms-1">
+                        Miejsce przy pasie - Pusto
+                    </div>
+                </div>
+
+                <div class="row me-0 pe-0">
+                    <div class="col text-center">
+                        <a href='' class="c-gold h4">
+                            Brak przedmiotu
+                        </a>
+                    </div>
+                </div>
+
+                <hr class="mb-0 mt-1">
+
+                <div claSS="row ps-0 ms-1 me-0 pe-0">
+
+                    <div class="col border-end border-warning mb-0 d-flex align-items-center justify-content-center">
+                        <a class="text-light h5 btn btn-info m-2 w-75" onclick='show_or_hideById("sideItem-add")'>Załóż</a>
+                    </div>                
+                </div>
+
+                <div id='sideItem-add' class='d-none row text-end m-0 p-0 mt-2 mb-2'>
+                    <div class="col-8">
+                        <select class='w-100 p-2 ms-2 text-center border border-warning bg-dark text-white-50 rounded'>
+                            {% for item in eq_weapons %}
+                                <option id='{{ item.id }}' value='{{ item.name }}'>
+                                    {{ item.name }} 
+                                    ({{ item.durability }}/{{ item.name|getMaxDurability }})
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col text-start">
+                        <a onclick="wearItem('Side', 'sideItem-add')" class='btn w-75 btn-success'>OK</a>
+                    </div>
+                </div> 
+
+            </div>
+                
+        {% endif %}
 
         <hr class="bg-light mt-4">
 
@@ -577,7 +624,7 @@
                 <div class="row me-0 pe-0">
                     <div class="col text-center">
                         <a href='/dunnorpg/items/{{ boots.name|getDescId }}' class="{{ boots.name|getItemRarity }} h4">
-                            {{ boots.name }}
+                            {{ boots.name }} {{ boots.name|getDurabilityPercent:boots.durability }}
                         </a>
                     </div>
                 </div>
@@ -688,7 +735,7 @@
                 <div class="row me-0 pe-0">
                     <div class="col text-center">
                         <a href='/dunnorpg/items/{{ gloves.name|getDescId }}' class="{{ gloves.name|getItemRarity }} h4">
-                            {{ gloves.name }}
+                            {{ gloves.name }} {{ gloves.name|getDurabilityPercent:gloves.durability }}
                         </a>
                     </div>
                 </div>

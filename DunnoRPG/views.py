@@ -818,14 +818,14 @@ def swap_side_to_hand(request, **kwargs):
         try:
             to_swap = get_object_or_404(models.CharItems, character=char.name, hand="Left")
         except:
-            messages.error(request, "Nothing to swap with!")
+            messages.error(request, "Nothing to swap with!") #TODO: Instead of message error we are to create new item at char_items
             return redirect('character_detail', char.id)
         left = True
     else:
         try:
             to_swap = get_object_or_404(models.CharItems, character=char.name, hand="Right")
         except:
-            messages.error(request, "Nothing to swap with!")
+            messages.error(request, "Nothing to swap with!") #TODO: Instead of message error we are to create new item at char_items
             return redirect('character_detail', char.id)
 
     to_swap_desc = get_object_or_404(models.Items, name=to_swap.name)
