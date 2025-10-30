@@ -111,6 +111,14 @@
             </form>
         </div>
 
+        <div class="row mt-3 mb-3 m-0 p-0 text-danger">
+            <div class="col-5 p-0 m-0"><hr class="bg-danger mt-4"></div>
+            <div class="col-2 p-0 m-0">
+                <h3 class="mt-2 textdanger">Głowa</h3>
+            </div>
+            <div class="col-5 p-0 m-0"><hr class="bg-danger mt-4"></div>
+        </div>
+
         {% if helmet %}
             <form name='head' method='post' action='changedur-{{ helmet.id }}' class='row mt-2 border border-warning rounded bg-gray m-0 p-0'>
                 {% csrf_token %}
@@ -131,7 +139,6 @@
                     </div>
                 </div>
 
-                <hr class="mb-0 mt-1">
                 {% if helmet.name|getSkill %}
                     <div class="row me-0 pe-0">
                         <div class="col text-justified {{ helmet.name|getItemRarity }} p-0 ps-1 pt-1">
@@ -220,7 +227,13 @@
                 
         {% endif %}
 
-        <hr class="bg-light mt-4">
+        <div class="row mt-3 mb-3 m-0 p-0 text-danger">
+            <div class="col-5 p-0 m-0"><hr class="bg-danger mt-4"></div>
+            <div class="col-2 p-0 m-0">
+                <h3 class="mt-2 textdanger">Tors</h3>
+            </div>
+            <div class="col-5 p-0 m-0"><hr class="bg-danger mt-4"></div>
+        </div>
 
         {% if torso %}
             <form name='head' method='post' action='changedur-{{ torso.id }}' class='row mt-2 border border-warning rounded bg-gray m-0 p-0'>
@@ -331,8 +344,15 @@
                 
         {% endif %}
 
-        <div name='hands' class='row mt-2'><hr />
+        <div name='hands' class='row mt-2 m-0 p-0'>
             {% csrf_token %}
+            <div class="row mt-3 mb-3 m-0 p-0 text-danger">
+                <div class="col-4 p-0 m-0"><hr class="bg-danger mt-4"></div>
+                <div class="col-4 p-0 m-0">
+                    <h3 class="mt-2 textdanger">Lewa ręka</h3>
+                </div>
+                <div class="col-4 p-0 m-0"><hr class="bg-danger mt-4"></div>
+            </div>
             <div name='hand-left' class='row'><p name="LeftHand">
                 <span class="text-white-50">LeftHand: </span>
                     {% if leftItem != None %}
@@ -408,7 +428,14 @@
 
             <div class='col'></div>
 
-            <div name='hand-right' class='row text-center'><hr />
+            <div class="row mt-3 mb-3 m-0 p-0 text-danger">
+                <div class="col-4 p-0 m-0"><hr class="bg-danger mt-4"></div>
+                <div class="col-4 p-0 m-0">
+                    <h3 class="mt-2 textdanger">Prawa ręka</h3>
+                </div>
+                <div class="col-4 p-0 m-0"><hr class="bg-danger mt-4"></div>
+            </div>
+            <div name='hand-right' class='row text-center'>
                 <p name="RightHand">
                 <span class="text-white-50">RightHand: </span>
                 {% if rightItem.name != None %}
@@ -491,7 +518,13 @@
             </div>
         </div>
 
-        <hr class="bg-light mt-4">
+        <div class="row mt-3 mb-3 m-0 p-0 text-danger">
+            <div class="col p-0 m-0"><hr class="bg-danger mt-4"></div>
+            <div class="col-6 p-0 m-0">
+                <h3 class="mt-2 textdanger">Miejsce przy pasie</h3>
+            </div>
+            <div class="col p-0 m-0"><hr class="bg-danger mt-4"></div>
+        </div>
 
         {% if sideItem %}
             <form name='head' method='post' action='changedur-{{ sideItem.id }}' class='row mt-2 border border-warning rounded bg-gray m-0 p-0'>
@@ -607,7 +640,13 @@
                 
         {% endif %}
 
-        <hr class="bg-light mt-4">
+        <div class="row mt-3 mb-3 m-0 p-0 text-danger">
+            <div class="col p-0 m-0"><hr class="bg-danger mt-4"></div>
+            <div class="col-2 p-0 m-0">
+                <h3 class="mt-2 textdanger">Nogi</h3>
+            </div>
+            <div class="col p-0 m-0"><hr class="bg-danger mt-4"></div>
+        </div>
 
         {% if boots %}
             <form name='head' method='post' action='changedur-{{ boots.id }}' class='row mt-2 border border-warning rounded bg-gray m-0 p-0'>
@@ -718,7 +757,13 @@
                 
         {% endif %}
 
-        <hr class="bg-light mt-4">
+        <div class="row mt-3 mb-3 m-0 p-0 text-danger">
+            <div class="col p-0 m-0"><hr class="bg-danger mt-4"></div>
+            <div class="col-2 p-0 m-0">
+                <h3 class="mt-2 textdanger">Ręce</h3>
+            </div>
+            <div class="col p-0 m-0"><hr class="bg-danger mt-4"></div>
+        </div>
 
         {% if gloves %}
             <form name='head' method='post' action='changedur-{{ gloves.id }}' class='row mt-2 border border-warning rounded bg-gray m-0 p-0'>
@@ -829,7 +874,13 @@
                 
         {% endif %}
 
-        <hr class="bg-light mt-4">
+        <div class="row mt-3 mb-3 m-0 p-0 text-danger">
+            <div class="col p-0 m-0"><hr class="bg-danger mt-4"></div>
+            <div class="col-3 p-0 m-0">
+                <h3 class="mt-2 textdanger">Akcesoria</h3>
+            </div>
+            <div class="col p-0 m-0"><hr class="bg-danger mt-4"></div>
+        </div>
 
         {% if amulet %}
             <form name='head' method='post' action='changedur-{{ amulet.id }}' class='row mt-2 border border-warning rounded bg-gray m-0 p-0'>
@@ -941,6 +992,15 @@
         {% endif %}
 
         {% if eq_mounts or mount != None  %}
+
+        <div class="row mt-3 mb-3 m-0 p-0 text-danger">
+            <div class="col p-0 m-0"><hr class="bg-danger mt-4"></div>
+            <div class="col-5 p-0 m-0">
+                <h3 class="mt-2 textdanger">Wierzchowiec</h3>
+            </div>
+            <div class="col p-0 m-0"><hr class="bg-danger mt-4"></div>
+        </div>
+
         <form name='mount' method='post' action='changedur-{{ mount.id }}' class='row mt-2'><hr />
             {% csrf_token %}
             <div class='col'><p><span class="text-white-50">Mount: </span> 
