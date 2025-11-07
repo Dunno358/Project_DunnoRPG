@@ -29,7 +29,7 @@ def getItemStatByName(itemName):
             else:
                 return f"1K{item['diceBonus']}, {item['AP']}AP"
         else:
-            return item['block']
+            return f"Blok: {item['block']}"
     except:
         pass
     
@@ -290,15 +290,44 @@ def isPreffereOrUnliked(character, itemName):
             character_unliked = models.Character.objects.all().filter(name=character).values()[0]['unlikedWeapons'].split(';')
             
             if weapon_type in charater_preffered:
-                return f"+{character_bonus}"
+                return f"(+{character_bonus})"
             elif weapon_type in character_unliked:
-                return -int(character_bonus)
+                return f"({-int(character_bonus)})"
             else:
-                return "+0"
+                return ""
         except:
-            return "+0"
+            return ""
     else:
-        return "Empty"
+        return ""
+
+
+@register.filter
+def handNotAllowed(character, hand): #To be extended of handling classes, skills and exceptions
+    char = get_object_or_404(models.Character, name=character)
+    skills = models.Skills.objects.filter(character=char.name)
+    chosen_hand = hand.capitalize()
+    if hand.lower()=='left':
+        try:
+            rightItem = models.CharItems.objects.filter(character=char.name, hand="Right").first()
+            rightItemDesc = get_object_or_404(models.Items, name=rightItem.name)
+        except:
+            return False
+        
+        if rightItemDesc.dualHanded:
+            return True
+        return False    
+    elif hand.lower()=='right':
+        try:
+            leftItem = models.CharItems.objects.filter(character=char.name, hand="Left").first()
+            leftItemDesc = get_object_or_404(models.Items, name=leftItem.name)
+        except:
+            return False
+        
+        if leftItemDesc.dualHanded:
+            return True
+        return False   
+        
+
 
 @register.filter
 def rightItemNotAllowed(character):

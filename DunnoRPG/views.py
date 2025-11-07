@@ -356,6 +356,12 @@ class CharacterDetails(DetailView):
         skillsRange = []
         skillsAgility = []
         skillsOther = []
+
+        eq_items = models.Eq.objects.all().filter(character=chosen.name)
+        ammo = []
+        for item in eq_items:
+            if "pocisk" in item.name.lower() or "strzała" in item.name.lower() or "bełt" in item.name.lower():
+                ammo.append(item)
         race = models.Races.objects.all().filter(name=serializer.data['race']).values()[0]
         mods = models.Mods.objects.all().filter(owner=chosen.owner,character=serializer.data['name']).values()
 
@@ -404,6 +410,7 @@ class CharacterDetails(DetailView):
         context['sideItem'] = models.CharItems.objects.filter(character=serializer.data['name'], hand='Side').first()
         context['chosen_character'] = [serializer.data] 
         context['mods'] = mods
+        context['ammo'] = ammo
         context['skills'] = skills
         context['skillsMagical'] = skillsMagical
         context['skillsMelee'] = skillsMelee
@@ -426,6 +433,8 @@ class CharacterDetails(DetailView):
 
         return context 
     
+#TODO: Add view for taking durability from item (-1 for attack) and ammo
+
 class MoveItemToEq(APIView):
     def get(self, request, *args, **kwargs):
         item = get_object_or_404(models.CharItems, id=kwargs['item_id'])

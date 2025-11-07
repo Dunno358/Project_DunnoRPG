@@ -39,6 +39,149 @@
     </div>
 </div>
 
+<div id="result-div" class="d-none h5 position-fixed bg-dark c-gold container-fluid m-0 p-0 border border-primary" style="top: 20vh;">
+    <div class='row m-0 p-2'>
+        <div class="col text-center h2">
+            <span id="result-div-row1"></title>
+        </div>
+    </div>
+
+    <div class='row m-0'>
+        <div class="col text-center h5 p-0 m-0">
+            <span id="result-div-row2"></title>
+        </div>
+    </div>
+
+    <hr class="text-primary" />
+
+    <div class='row m-0 p-4'>
+        <div class="col text-end">
+            <span id="result-div-row3-col1">Obrażenia: </title>
+        </div>
+        <div class="col text-start">
+            <span id="result-div-row3-col2"></title>
+        </div>
+    </div>
+
+    <div class='row m-0'>
+        <div class="col text-center h5 p-0 m-2">
+            <button class="w-50 btn btn-success" onclick="show_or_hideById('result-div')">OK</button>
+        </div>
+    </div>
+
+</div>
+
+<div id='dice-input' class='d-none h5 position-fixed bg-dark c-gold container-fluid m-0 p-0 border border-primary' style="top: 15vh;">
+
+    <div class='row m-0 p-2'>
+        <div class="col text-center h2">
+            <span id="dice-input-title">Wykonaj atak</title>
+        </div>
+    </div>
+
+    <div class='row m-0'>
+        <div class="col text-center h5 p-0 m-0">
+            <span id="dice-input-subtitle"></title>
+        </div>
+    </div>
+
+    <hr class="text-primary" />
+
+    <div class='row m-0 p-2'>
+        <div class="col">
+            Mnożnik obrażeń:
+        </div>
+        <div class="col">
+            <input type="number" value="1" step="0.1" class="w-75 text-center border border-warning bg-gray c-gold rounded p-1 ms-4" id="dmg-multiplier"/>
+        </div>
+    </div>
+
+    <div class='row m-0 p-2'>
+        <div class="col">
+            Cel ataku:
+        </div>
+        <div class="col ">
+            <select class="w-75 text-center border border-warning bg-gray c-gold rounded p-1 ms-4" id="body-target">
+                <option value='torso'>Torso</option>
+                <option value='head'>Głowa</option>
+                <option value='hands'>Ręce</option>
+                <option value='boots'>Nogi</option>
+            </select>
+        </div>
+    </div>
+
+    <div class='row m-0 p-2'>
+        <div class="col">
+            Wynik na kości (celność):
+        </div>
+        <div class="col ">
+            <input type="number" min="0" value="10" class="w-75 text-center border border-warning bg-gray c-gold rounded p-1 ms-4" id="dice-cel"/>
+        </div>
+    </div>
+
+    <div class='row m-0 p-2'>
+        <div class="col">
+            Wynik na kości (obrażenia):
+        </div>
+        <div class="col ">
+            <input type="number" min="0" value="10" class="w-75 text-center border border-warning bg-gray c-gold rounded p-1 ms-4" id="dice-dmg"/>
+        </div>
+    </div>
+
+    <div class='row m-0 p-2'>
+        <div class="col">
+            Dodatkowy bonus (celność):
+        </div>
+        <div class="col">
+            <input type="number" value="0" class="w-75 text-center border border-warning bg-gray c-gold rounded p-1 ms-4" id="dice-bonus-cel"/>
+        </div>
+    </div>
+
+    <div class='row m-0 p-2'>
+        <div class="col">
+            Dodatkowy bonus (obrażenia):
+        </div>
+        <div class="col">
+            <input type="number" value="0" class="w-75 text-center border border-warning bg-gray c-gold rounded p-1 ms-4" id="dice-bonus"/>
+        </div>
+    </div>
+
+    <div id="ammo-row">
+        <div class='row m-0 p-2'>
+            <div class="col-4">
+                Amunicja:
+            </div>
+            <div class="col">
+                <select class="w-100 text-center border border-warning bg-gray c-gold rounded p-1 ms-1" id="chosen-ammo">
+                    {% for item in ammo %}
+                        <option value='item.id'>{{ item.name }} x{{ item.amount }}</option>
+                    {% endfor %}
+                    <option value='not-needed'>Nie wymaga</option>
+                </select>
+            </div>
+        </div>
+
+        <div class='row m-0 p-2'>
+            <div class="col">
+                Ilość amunicji:
+            </div>
+            <div class="col">
+                <input type="number" value="1" class="w-75 text-center border border-warning bg-gray c-gold rounded p-1 ms-4" id="ammo-count"/>
+            </div>
+        </div>
+    </div>
+
+    <div class='row m-0 p-2'>
+        <div class="col text-center">
+            <button class="btn btn-danger w-100 font-weight-bold" onclick="show_or_hideById('dice-input')">Wróć</button>
+        </div>
+        <div class="col text-center">
+            <button class="btn btn-primary w-100" onclick="console.log('Dalej')" id="attack-confirm-btn">Dalej</button>
+        </div>
+    </div>
+
+</div>
+
 <div class="container-fluid">        
     <div class="header-bg bg-dark border-top border-bottom border-primary mt-1 row">
         <button id='Stats'  onclick="show_or_hideByName(this)" class='col m-1 btn btn-dark btn-outline-warning border border-warning rounded'>
@@ -50,7 +193,7 @@
         <button id='Skills' onclick="show_or_hideByName(this)" class='col m-1 btn btn-dark btn-outline-warning border border-warning rounded'>
             Skills</button>
         
-        <button id='Effects' onclick="show_or_hideByName(this)" class='col m-1 btn btn-dark border {% if chosen_character.0|getCharacterEffectsCount > 0 %}btn-outline-danger border-danger{% else %}border-warning btn-outline-warning{% endif %} rounded'>
+        <button id='Effects' onclick="show_or_hideByName(this)" class='col m-1 btn btn-dark borderborder-warning btn-outline-warning rounded'>
             Effects</button>
     </div>
 </div>
@@ -148,7 +291,7 @@
                     <hr class="mb-0 mt-1">
                 {% endif %}
 
-                <div claSS="row ps-0 ms-1 me-0 pe-0">
+                <div class="row ps-0 ms-1 me-0 pe-0">
 
                     <div class="col-3 border-end border-warning p-3 h6 mb-0 d-flex align-items-center justify-content-center">
                         <span class="text-white-50">Pancerz:</span> <span class="c-gold ms-1">{{ helmet.name|getItemArmor }}</span>
@@ -200,7 +343,7 @@
 
                 <hr class="mb-0 mt-1">
 
-                <div claSS="row ps-0 ms-1 me-0 pe-0">
+                <div class="row ps-0 ms-1 me-0 pe-0">
 
                     <div class="col border-end border-warning mb-0 d-flex align-items-center justify-content-center">
                         <a class="text-light h5 btn btn-info m-2 w-75" onclick='show_or_hideById("helmet-add")'>Załóż</a>
@@ -265,7 +408,7 @@
                     <hr class="mb-0 mt-1">
                 {% endif %}
 
-                <div claSS="row ps-0 ms-1 me-0 pe-0">
+                <div class="row ps-0 ms-1 me-0 pe-0">
 
                     <div class="col-3 border-end border-warning p-3 h6 mb-0 d-flex align-items-center justify-content-center">
                         <span class="text-white-50">Pancerz:</span> <span class="c-gold ms-1">{{ torso.name|getItemArmor }}</span>
@@ -317,7 +460,7 @@
 
                 <hr class="mb-0 mt-1">
 
-                <div claSS="row ps-0 ms-1 me-0 pe-0">
+                <div class="row ps-0 ms-1 me-0 pe-0">
 
                     <div class="col border-end border-warning mb-0 d-flex align-items-center justify-content-center">
                         <a class="text-light h5 btn btn-info m-2 w-75" onclick='show_or_hideById("torso-add")'>Załóż</a>
@@ -344,179 +487,308 @@
                 
         {% endif %}
 
-        <div name='hands' class='row mt-2 m-0 p-0'>
-            {% csrf_token %}
-            <div class="row mt-3 mb-3 m-0 p-0 text-danger">
-                <div class="col-4 p-0 m-0"><hr class="bg-danger mt-4"></div>
-                <div class="col-4 p-0 m-0">
-                    <h3 class="mt-2 textdanger">Lewa ręka</h3>
-                </div>
-                <div class="col-4 p-0 m-0"><hr class="bg-danger mt-4"></div>
+        <div class="row mt-3 mb-3 m-0 p-0 text-danger">
+            <div class="col-4 p-0 m-0"><hr class="bg-danger mt-4"></div>
+            <div class="col-4 p-0 m-0">
+                <h3 class="mt-2 textdanger">Lewa ręka</h3>
             </div>
-            <div name='hand-left' class='row'><p name="LeftHand">
-                <span class="text-white-50">LeftHand: </span>
-                    {% if leftItem != None %}
-                        <span class="d-none" id="l-range">{{ leftItem.name|getItemRange }}</span>
-                        <span class='text-info fa fa-exchange-alt' onclick='show_or_hideById("left-swap")'></span> 
-                        (<span id='l_bonus'>{{ value.name|isPreffereOrUnliked:leftItem.name }}</span>)
-
-                        <a class='{{ leftItem.name|getItemRarity }} fw-bold'  href='/dunnorpg/items/{{ leftItem.name|getDescId }}'>
-                            <span name="{{ leftItem.name|getItemType }}" id='l_weapon' name="{{ leftItem.type }}">{{ leftItem.name }}</span>
-                        </a>
-                        <span class='fw-bold {{ leftItem.name|getItemRarity }}'>
-                            {% if leftItem.name|isShield %}
-                            [ <span id='l_block'>{{ leftItem.name|getItemBlock }}</span>
-                            ; <span id='l-weight'>{{ leftItem.name|getItemWeight }}</span>kg
-                            {% else %}
-                            [ 1K<span id='l_dmg'>{{ leftItem.name|getItemBonus }}</span>, <span id='l_ap'>{{ leftItem.name|getItemAP:value.id }}</span>
-                            AP; <span id='l-weight'>{{ leftItem.name|getItemWeight }}</span>kg
-                            {% endif %}
-
-                            {% if leftItem.name|getSkill %};
-                                <span onclick="showSkill(this)" class='fw-normal' title="{{ leftItem.name|getSkill }}">
-                                    {{ leftItem.name|getSkill }}
-                                </span>
-                            {% endif %}]
-
-                            {{ leftItem.name|getStaffMagicDmg:value.id }}
-
-                        </span>
-                        
-                        <span class='c-gold' id='s_dur'>
-                            (
-                            {% if user.is_superuser %}
-                                <input type='number' min="0" id='leftItem-dur-gm' class='c-gold text-center bg-dark border-0' style='width: 5vw' value='{{ leftItem.durability }}'  name="dur">
-                            {% else %}
-                                {{ leftItem.durability }} 
-                            {% endif %}  
-                            / {{ leftItem.name|getMaxDurability }} ) 
-                        </span>   
-                        <a class='text-danger h6' href='/dunnorpg/makerequest/{{ value.id }};CharItems;CharItems;{{ leftItem.id }};0;durability;downgrade-1;character_detail'>-1</a>
-                        <a href='move_eq-{{ leftItem.id }}' class='fa fa-arrow-right text-success text-decoration-none'>EQ</a>
-
-                        <div id='left-swap' class='d-none'> 
-                            <select class='w-50 ms-2 text-center border border-warning bg-dark text-white-50 rounded'>
-                                {% for item in eq_weapons %}
-                                    <option id='{{ item.id }}' name={{ item.durability }} value='{{ item.name }}'>
-                                        {{ item.name }} 
-                                        ({{ item.durability }}/{{ item.name|getMaxDurability }})
-                                    </option>
-                                {% endfor %}
-                            </select>
-                            <a onclick="swapItem('{{ leftItem.id }}', 'left-swap')" class='btn btn-sm btn-success'>OK</a>
-                        </div>
-
-                    {% else %}
-                        (<span id='l_bonus'>Empty</span>)
-                        <span class='text-info fa fa-plus' onclick='show_or_hideById("left-add")'></span>    
-
-                        <div id='left-add' class='d-none'> 
-                            <select class='w-50 ms-2 text-center border border-warning bg-dark text-white-50 rounded'>
-                                {% for item in eq_weapons %}
-                                    <option id='{{ item.id }}' value='{{ item.name }}'>
-                                        {{ item.name }} 
-                                        ({{ item.durability }}/{{ item.name|getMaxDurability }})
-                                    </option>
-                                {% endfor %}
-                            </select>
-                            <a onclick="wearItem('Left', 'left-add')" class='btn btn-sm btn-success'>OK</a>
-                        </div> 
-                        
-                    {% endif %}
-                    </p>
-            </div>
-
-            <div class='col'></div>
-
-            <div class="row mt-3 mb-3 m-0 p-0 text-danger">
-                <div class="col-4 p-0 m-0"><hr class="bg-danger mt-4"></div>
-                <div class="col-4 p-0 m-0">
-                    <h3 class="mt-2 textdanger">Prawa ręka</h3>
-                </div>
-                <div class="col-4 p-0 m-0"><hr class="bg-danger mt-4"></div>
-            </div>
-            <div name='hand-right' class='row text-center'>
-                <p name="RightHand">
-                <span class="text-white-50">RightHand: </span>
-                {% if rightItem.name != None %}
-                    <span class="d-none" id="r-range">{{ rightItem.name|getItemRange }}</span>
-                    <span class='text-info fa fa-exchange-alt' onclick='show_or_hideById("right-swap")'></span> 
-                    (<span id='r_bonus'>{{ value.name|isPreffereOrUnliked:rightItem.name }}</span>)
-                    
-                    <a class='{{ rightItem.name|getItemRarity }} fw-bold'  href='/dunnorpg/items/{{ rightItem.name|getDescId }}'>
-                        <span name="{{ rightItem.name|getItemType }}" id='r_weapon'  name="{{ rightItem.type }}">{{ rightItem.name }}</span>
-                    </a>
-                    <span class='fw-bold {{ rightItem.name|getItemRarity }}'>
-                        {% if rightItem.name|isShield %}
-                            [ <span id='r_block'>{{ rightItem.name|getItemBlock }}</span>
-                            ; <span id='r-weight'>{{ rightItem.name|getItemWeight }}</span>kg
-                        {% else %}
-                            [ 1K<span id='r_dmg'>{{ rightItem.name|getItemBonus }}</span>, <span id='r_ap'>{{ rightItem.name|getItemAP:value.id }}</span>
-                            AP; <span id='r-weight'>{{ rightItem.name|getItemWeight }}</span>kg
-                        {% endif %}
-
-                        {% if rightItem.name|getSkill %};
-                            <span onclick="showSkill(this)" class='fw-normal' title="{{ rightItem.name|getSkill }}">
-                                {{ rightItem.name|getSkill }}
-                            </span>
-                        {% endif %}]
-
-                        {{ rightItem.name|getStaffMagicDmg:value.id }}
-
-                    </span>
-
-                <span class='c-gold' id='s_dur'>
-                    (
-                    {% if user.is_superuser %}
-                        <input type='number' min="0" id='rightItem-dur-gm' class='c-gold text-center bg-dark border-0' style='width: 5vw' value='{{ rightItem.durability }}' name="dur">
-                    {% else %}
-                        {{ rightItem.durability }} 
-                    {% endif %}  
-                    / {{ rightItem.name|getMaxDurability }} ) 
-                </span>   
-                <a class='text-danger h6' href='/dunnorpg/makerequest/{{ value.id }};CharItems;CharItems;{{ rightItem.id }};0;durability;downgrade-1;character_detail'>-1</a>
-                <a href='move_eq-{{ rightItem.id }}' class='fa fa-arrow-right text-success text-decoration-none'>EQ</a>
-
-                <div id='right-swap' class='d-none'> 
-                    <select class='w-50 ms-2 text-center border border-warning bg-dark text-white-50 rounded'>
-                        {% for item in eq_weapons %}
-                            <option id='{{ item.id }}' name={{ item.durability }} value='{{ item.name }}'>
-                                {{ item.name }} 
-                                ({{ item.durability }}/{{ item.name|getMaxDurability }})
-                            </option>
-                        {% endfor %}
-                    </select>
-                    <a onclick="swapItem('{{ rightItem.id }}', 'right-swap')" class='btn btn-sm btn-success'>OK</a>
-                </div>
-
-                {% else %}
-
-                    {% if value.name|rightItemNotAllowed %}
-                        <span id='r_weapon' class='c-gold'>Above weapon is two-handed</span>
-                        <span id='r_bonus'></span>
-                        <span id='r_dmg'></span>
-                        <span id='r_ap'></span>
-                    {% else %}
-                        (<span id='r_bonus'>Empty</span>) 
-                        <span class='text-info fa fa-plus' onclick='show_or_hideById("right-add")'></span>   
-
-                        <div id='right-add' class='d-none'> 
-                            <select class='w-50 ms-2 text-center border border-warning bg-dark text-white-50 rounded'>
-                                {% for item in eq_weapons %}
-                                    <option id='{{ item.id }}' value='{{ item.name }}'>
-                                        {{ item.name }} 
-                                        ({{ item.durability }}/{{ item.name|getMaxDurability }})
-                                    </option>
-                                {% endfor %}
-                            </select>
-                            <a onclick="wearItem('Right', 'right-add')" class='btn btn-sm btn-success'>OK</a>
-                        </div> 
-
-                    {% endif %}
-                {% endif %}
-                    </p>
-            </div>
+            <div class="col-4 p-0 m-0"><hr class="bg-danger mt-4"></div>
         </div>
+
+
+        <span id="l-name">{{ leftItem.name }}</span>
+        {% if value.name|handNotAllowed:'left' %}
+            <div name='head' class='row mt-2 border border-warning rounded bg-gray m-0 p-0'>
+                <div class="row c-gold me-0 pe-0">
+                    <div class="col h6 text-start p-2 pb-0 ms-1">
+                        Lewa ręka - Zajęta
+                    </div>
+                </div>
+
+                <div class="row me-0 pe-0">
+                    <div class="col text-center">
+                        <a href='' class="c-gold h4">
+                            Ręka niedostępna
+                        </a>
+                    </div>
+                </div>
+
+                <hr class="mb-0 mt-1">
+            </div>
+        {% elif leftItem %}
+
+            <form name='head' method='post' action='changedur-{{ leftItem.id }}' class='row mt-2 border border-warning rounded bg-gray m-0 p-0'>
+                {% csrf_token %}
+
+                <!-- call it some meta for weapon -->
+                <span class="d-none" id="l-range">{{ leftItem.name|getItemRange }}</span>
+                <span class="d-none" id="l-staff-dmg">{{ leftItem.name|getStaffMagicDmg:value.id }}</span>
+                <span class="d-none" id="l-dualhanded">{{ leftItem.name|isDualHanded }}</span>
+
+                <div class="row c-gold me-0 pe-0">
+                    <div class="col h6 text-start p-2 ps-3 pb-0">
+                        <span class="text-white-50">Wytrzymałość:</span> {{ leftItem.durability }}/{{ leftItem.name|getMaxDurability }}
+                    </div>
+                    <div class="col h6 text-end p-2 pb-0">
+                        Lewa ręka - <span id="l-type">{{ leftItem.name|getItemType:'pl' }}</span>
+                    </div>
+                </div>
+
+                <div class="row me-0 pe-0">
+                    <div class="col text-center">
+                        <a href='/dunnorpg/items/{{ leftItem.name|getDescId }}' class="{{ leftItem.name|getItemRarity }} h4">
+                            {{ leftItem.name }} <span id="l-dur-perc">{{ leftItem.name|getDurabilityPercent:leftItem.durability }}</span>
+                        </a>
+                    </div>
+                </div>
+
+                <hr class="mb-0 mt-1">
+                {% if leftItem.name|getSkill %}
+                    <div class="row me-0 pe-0">
+                        <div class="col text-justified {{ leftItem.name|getItemRarity }} p-0 ps-1 pt-1">
+                            {{ leftItem.name|getSkill }}
+                        </div>
+                    </div>
+                    <hr class="mb-0 mt-1">
+                {% endif %}
+
+                <div class="row ps-0 ms-1 me-0 pe-0">
+
+                    <div class="col-3 border-end border-warning p-1 h6 mb-0 d-flex align-items-center justify-content-center">
+                        <span class="c-gold ms-1">
+                            <span id="l_stats">{{ leftItem.name|getItemStatByName }}</span> <span id='l_bonus'>{{ value.name|isPreffereOrUnliked:leftItem.name }}</span>
+                        </span>
+                    </div>                
+                    <div class="col-3 border-end border-warning p-3 h6 mb-0 d-flex align-items-center justify-content-center">
+                        <span class="text-white-50">Waga:</span> <span class="c-gold ms-1" id="l-weight">{{ leftItem.name|getItemWeight }}kg</span>
+                    </div>                
+                    <div class="col-3 border-end border-warning h6 mb-0 d-flex align-items-center justify-content-center">
+                        <a class="btn btn-info p-3 pt-2 pb-2 text-light" onclick='show_or_hideById("leftItem-swap")'>Zmień</a>
+                    </div>                  
+                    <div class="col-3 h6 mb-0 d-flex align-items-center justify-content-center">
+                        <a class="btn btn-danger p-3 pt-2 pb-2 text-light" href='move_eq-{{ leftItem.id }}'>Odłóż</a>
+                    </div>
+
+                </div>
+
+                <a class="row ps-0 ms-0 me-0 pe-0 border-0 border-top border-warning btn btn-success rounded-0"
+                onclick='gatherAttackInfo("left", {{ leftItem.id }})'
+                >
+                    <span class="h4">Wykonaj atak</span>
+                </a>
+
+                <div id='leftItem-swap' class='d-none row text-end m-0 p-0 mt-2 mb-2'>
+                    <div class="col-8">
+                        <select class='w-100 p-2 ms-2 text-center border border-warning bg-dark text-white-50 rounded'>
+                            {% for item in eq_weapons %}
+                                <option id='{{ item.id }}' name={{ item.durability }} value='{{ item.name }}'>
+                                    {{ item.name }} 
+                                    ({{ item.durability }}/{{ item.name|getMaxDurability }})
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col text-start">
+                        <a onclick="swapItem('{{ leftItem.id }}', 'leftItem-swap')" class='btn w-75 btn-success'>Zamień</a>
+                    </div>
+                </div>
+
+            </form>
+        {% else %}
+            <div name='head' class='row mt-2 border border-warning rounded bg-gray m-0 p-0'>
+                <div class="row c-gold me-0 pe-0">
+                    <div class="col h6 text-start p-2 pb-0 ms-1">
+                        Lewa ręka - Pusto
+                    </div>
+                </div>
+
+                <div class="row me-0 pe-0">
+                    <div class="col text-center">
+                        <a href='' class="c-gold h4">
+                            Brak broni
+                        </a>
+                    </div>
+                </div>
+
+                <hr class="mb-0 mt-1">
+
+                <div class="row ps-0 ms-1 me-0 pe-0">
+
+                    <div class="col border-end border-warning mb-0 d-flex align-items-center justify-content-center">
+                        <a class="text-light h5 btn btn-info m-2 w-75" onclick='show_or_hideById("leftItem-add")'>Załóż</a>
+                    </div>                
+                </div>
+
+                <div id='leftItem-add' class='d-none row text-end m-0 p-0 mt-2 mb-2'>
+                    <div class="col-8">
+                        <select class='w-100 p-2 ms-2 text-center border border-warning bg-dark text-white-50 rounded'>
+                            {% for item in eq_weapons %}
+                                <option id='{{ item.id }}' value='{{ item.name }}'>
+                                    {{ item.name }} 
+                                    ({{ item.durability }}/{{ item.name|getMaxDurability }})
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col text-start">
+                        <a onclick="wearItem('Left', 'leftItem-add')" class='btn w-75 btn-success'>OK</a>
+                    </div>
+                </div> 
+
+            </div>
+                
+        {% endif %}
+
+        <div class="row mt-3 mb-3 m-0 p-0 text-danger">
+            <div class="col-4 p-0 m-0"><hr class="bg-danger mt-4"></div>
+            <div class="col-4 p-0 m-0">
+                <h3 class="mt-2 textdanger">Prawa ręka</h3>
+            </div>
+            <div class="col-4 p-0 m-0"><hr class="bg-danger mt-4"></div>
+        </div>
+
+        <span id="r-name">{{ rightItem.name }}</span>
+        {% if value.name|handNotAllowed:'right' %}
+            <div name='head' class='row mt-2 border border-warning rounded bg-gray m-0 p-0'>
+                <div class="row c-gold me-0 pe-0">
+                    <div class="col h6 text-start p-2 pb-0 ms-1">
+                        Prawa ręka - Zajęta
+                    </div>
+                </div>
+
+                <div class="row me-0 pe-0">
+                    <div class="col text-center">
+                        <a href='' class="c-gold h4">
+                            Ręka niedostępna
+                        </a>
+                    </div>
+                </div>
+
+                <hr class="mb-0 mt-1">
+            </div>
+        {% elif rightItem %}
+
+            <form name='head' method='post' action='changedur-{{ rightItem.id }}' class='row mt-2 border border-warning rounded bg-gray m-0 p-0'>
+                {% csrf_token %}
+
+                <!-- call it some meta for weapon -->
+                <span class="d-none" id="r-range">{{ rightItem.name|getItemRange }}</span>
+                <span class="d-none" id="r-staff-dmg">{{ rightItem.name|getStaffMagicDmg:value.id }}</span>
+                <span class="d-none" id="r-dualhanded">{{ rightItem.name|isDualHanded }}</span>
+
+                <div class="row c-gold me-0 pe-0">
+                    <div class="col h6 text-start p-2 ps-3 pb-0">
+                        <span class="text-white-50">Wytrzymałość:</span> {{ rightItem.durability }}/{{ rightItem.name|getMaxDurability }}
+                    </div>
+                    <div class="col h6 text-end p-2 pb-0">
+                        Prawa ręka - <span id="r-type">{{ rightItem.name|getItemType:'pl' }}</span>
+                    </div>
+                </div>
+
+                <div class="row me-0 pe-0">
+                    <div class="col text-center">
+                        <a href='/dunnorpg/items/{{ rightItem.name|getDescId }}' class="{{ rightItem.name|getItemRarity }} h4">
+                            {{ rightItem.name }} <span id="r-dur-perc">{{ rightItem.name|getDurabilityPercent:rightItem.durability }}</span>
+                        </a>
+                    </div>
+                </div>
+
+                <hr class="mb-0 mt-1">
+                {% if rightItem.name|getSkill %}
+                    <div class="row me-0 pe-0">
+                        <div class="col text-justified {{ rightItem.name|getItemRarity }} p-0 ps-1 pt-1">
+                            {{ rightItem.name|getSkill }}
+                        </div>
+                    </div>
+                    <hr class="mb-0 mt-1">
+                {% endif %}
+
+                <div class="row ps-0 ms-1 me-0 pe-0">
+
+                    <div class="col-3 border-end border-warning p-1 h6 mb-0 d-flex align-items-center justify-content-center">
+                        <span class="c-gold ms-1">
+                            <span id="r_stats">{{ rightItem.name|getItemStatByName }}</span> <span id='r_bonus'>{{ value.name|isPreffereOrUnliked:rightItem.name }}</span>
+                        </span>
+                    </div>                
+                    <div class="col-3 border-end border-warning p-3 h6 mb-0 d-flex align-items-center justify-content-center">
+                        <span class="text-white-50">Waga:</span> <span class="c-gold ms-1" id="r-weight">{{ rightItem.name|getItemWeight }}kg</span>
+                    </div>                
+                    <div class="col-3 border-end border-warning h6 mb-0 d-flex align-items-center justify-content-center">
+                        <a class="btn btn-info p-3 pt-2 pb-2 text-light" onclick='show_or_hideById("rightItem-swap")'>Zmień</a>
+                    </div>                  
+                    <div class="col-3 h6 mb-0 d-flex align-items-center justify-content-center">
+                        <a class="btn btn-danger p-3 pt-2 pb-2 text-light" href='move_eq-{{ rightItem.id }}'>Odłóż</a>
+                    </div>
+
+                </div>
+
+                <a class="row ps-0 ms-0 me-0 pe-0 border-0 border-top border-warning btn btn-success rounded-0"
+                onclick='gatherAttackInfo("right", {{ rightItem.id }})'
+                >
+                    <span class="h4">Wykonaj atak</span>
+                </a>
+
+                <div id='rightItem-swap' class='d-none row text-end m-0 p-0 mt-2 mb-2'>
+                    <div class="col-8">
+                        <select class='w-100 p-2 ms-2 text-center border border-warning bg-dark text-white-50 rounded'>
+                            {% for item in eq_weapons %}
+                                <option id='{{ item.id }}' name={{ item.durability }} value='{{ item.name }}'>
+                                    {{ item.name }} 
+                                    ({{ item.durability }}/{{ item.name|getMaxDurability }})
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col text-start">
+                        <a onclick="swapItem('{{ rightItem.id }}', 'rightItem-swap')" class='btn w-75 btn-success'>Zamień</a>
+                    </div>
+                </div>
+
+            </form>
+        {% else %}
+            <div name='head' class='row mt-2 border border-warning rounded bg-gray m-0 p-0'>
+                <div class="row c-gold me-0 pe-0">
+                    <div class="col h6 text-start p-2 pb-0 ms-1">
+                        Prawa ręka - Pusto
+                    </div>
+                </div>
+
+                <div class="row me-0 pe-0">
+                    <div class="col text-center">
+                        <a href='' class="c-gold h4">
+                            Brak broni
+                        </a>
+                    </div>
+                </div>
+
+                <hr class="mb-0 mt-1">
+
+                <div class="row ps-0 ms-1 me-0 pe-0">
+
+                    <div class="col border-end border-warning mb-0 d-flex align-items-center justify-content-center">
+                        <a class="text-light h5 btn btn-info m-2 w-75" onclick='show_or_hideById("rightItem-add")'>Załóż</a>
+                    </div>                
+                </div>
+
+                <div id='rightItem-add' class='d-none row text-end m-0 p-0 mt-2 mb-2'>
+                    <div class="col-8">
+                        <select class='w-100 p-2 ms-2 text-center border border-warning bg-dark text-white-50 rounded'>
+                            {% for item in eq_weapons %}
+                                <option id='{{ item.id }}' value='{{ item.name }}'>
+                                    {{ item.name }} 
+                                    ({{ item.durability }}/{{ item.name|getMaxDurability }})
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col text-start">
+                        <a onclick="wearItem('Left', 'rightItem-add')" class='btn w-75 btn-success'>OK</a>
+                    </div>
+                </div> 
+
+            </div>
+                
+        {% endif %}
 
         <div class="row mt-3 mb-3 m-0 p-0 text-danger">
             <div class="col p-0 m-0"><hr class="bg-danger mt-4"></div>
@@ -613,7 +885,7 @@
 
                 <hr class="mb-0 mt-1">
 
-                <div claSS="row ps-0 ms-1 me-0 pe-0">
+                <div class="row ps-0 ms-1 me-0 pe-0">
 
                     <div class="col border-end border-warning mb-0 d-flex align-items-center justify-content-center">
                         <a class="text-light h5 btn btn-info m-2 w-75" onclick='show_or_hideById("sideItem-add")'>Załóż</a>
@@ -678,7 +950,7 @@
                     <hr class="mb-0 mt-1">
                 {% endif %}
 
-                <div claSS="row ps-0 ms-1 me-0 pe-0">
+                <div class="row ps-0 ms-1 me-0 pe-0">
 
                     <div class="col-3 border-end border-warning p-3 h6 mb-0 d-flex align-items-center justify-content-center">
                         <span class="text-white-50">Pancerz:</span> <span class="c-gold ms-1">{{ boots.name|getItemArmor }}</span>
@@ -730,7 +1002,7 @@
 
                 <hr class="mb-0 mt-1">
 
-                <div claSS="row ps-0 ms-1 me-0 pe-0">
+                <div class="row ps-0 ms-1 me-0 pe-0">
 
                     <div class="col border-end border-warning mb-0 d-flex align-items-center justify-content-center">
                         <a class="text-light h5 btn btn-info m-2 w-75" onclick='show_or_hideById("boots-add")'>Załóż</a>
@@ -795,7 +1067,7 @@
                     <hr class="mb-0 mt-1">
                 {% endif %}
 
-                <div claSS="row ps-0 ms-1 me-0 pe-0">
+                <div class="row ps-0 ms-1 me-0 pe-0">
 
                     <div class="col-3 border-end border-warning p-3 h6 mb-0 d-flex align-items-center justify-content-center">
                         <span class="text-white-50">Pancerz:</span> <span class="c-gold ms-1">{{ gloves.name|getItemArmor }}</span>
@@ -847,7 +1119,7 @@
 
                 <hr class="mb-0 mt-1">
 
-                <div claSS="row ps-0 ms-1 me-0 pe-0">
+                <div class="row ps-0 ms-1 me-0 pe-0">
 
                     <div class="col border-end border-warning mb-0 d-flex align-items-center justify-content-center">
                         <a class="text-light h5 btn btn-info m-2 w-75" onclick='show_or_hideById("gloves-add")'>Załóż</a>
@@ -912,7 +1184,7 @@
                     <hr class="mb-0 mt-1">
                 {% endif %}
 
-                <div claSS="row ps-0 ms-1 me-0 pe-0">
+                <div class="row ps-0 ms-1 me-0 pe-0">
 
                     <div class="col-3 border-end border-warning p-3 h6 mb-0 d-flex align-items-center justify-content-center">
                         <span class="text-white-50">Pancerz:</span> <span class="c-gold ms-1">{{ amulet.name|getItemArmor }}</span>
@@ -964,7 +1236,7 @@
 
                 <hr class="mb-0 mt-1">
 
-                <div claSS="row ps-0 ms-1 me-0 pe-0">
+                <div class="row ps-0 ms-1 me-0 pe-0">
 
                     <div class="col border-end border-warning mb-0 d-flex align-items-center justify-content-center">
                         <a class="text-light h5 btn btn-info m-2 w-75" onclick='show_or_hideById("amulet-add")'>Załóż</a>
@@ -1448,6 +1720,198 @@ function getWeaponMod(){
 }
 getWeaponMod()
 
+function isHit(hand, dualHanded=false){
+    let dice = parseInt(document.getElementById('dice-cel').value)
+
+    accurs = {
+        "Pistolet": 8,
+        "Muszkiet": 7,
+        "Kostur": 6,
+        "Tarcza": 6,
+        "Kusza": 6,
+        "Łuk": 6
+    }
+
+    if(hand=='left'){
+        itemName = document.getElementById('l-name').textContent
+        itemType = document.getElementById('l-type').textContent
+    }else if(hand=='right'){
+        itemName = document.getElementById('r-name').textContent
+        itemName = document.getElementById('r-type').textContent
+    }
+
+    let neededAcc = 6
+    neededAcc = accurs[itemName]
+    if(!neededAcc){
+        if(dualHanded){
+            neededAcc=8
+        }else{
+            neededAcc=6
+        }
+    }
+
+    let body_target = document.getElementById('body-target').value
+    let multipliers = {
+        'head': 2, "torso": 1, "hands": 1.5, "boots": 1.5
+    }
+    neededAcc = neededAcc*multipliers[body_target]
+    
+    count_armor = false
+    special_classes = ["kusznik", "strzelec wyborowy", "rewolwerowiec", "łucznik"]
+    try{
+        char_class = document.getElementById("char-class").innerHTML
+        if(special_classes.includes(char_class.trim().toLowerCase())){
+            count_armor = true
+        }
+    }catch{
+        count_armor = false
+    }
+
+    cel_effect_bonus = parseInt(document.getElementById('effects-accuraccy').innerHTML)
+    cel = parseInt(document.getElementById('stat-CEL').innerHTML)
+    cel_mod = parseInt(document.getElementById('stat-CEL-mod').innerHTML)
+    armor_mod = parseInt(document.getElementById('armor-mod').innerHTML) 
+    weight_mod = parseInt(document.getElementById('weapon-weight-mod').innerHTML)
+    additional_bonus = parseInt(document.getElementById('dice-bonus-cel').value)
+
+    cel_mods = additional_bonus+cel+cel_mod+cel_effect_bonus-weight_mod
+
+    if(count_armor){
+        cel_mods -= armor_mod
+    }
+
+    dice_result = dice+cel_mods
+
+    if(dice_result >= neededAcc){
+        return [true, dice_result, neededAcc]
+    }else{
+        return [false, dice_result, neededAcc]
+    }
+
+}
+
+function showAttackResult(hand, dualHanded=false){
+    let itName = ""
+    let itType = ""
+    let stats = ""
+    let bonus = ""
+    let dur = 100
+    let staffDmg = ""
+    let itRange = document.getElementById("dice-input-subtitle").textContent.split(' ')[1]
+    let multiplier = parseFloat(document.getElementById('dmg-multiplier').value)
+    let div = document.getElementById('result-div')
+    let txt1 = document.getElementById('result-div-row1')
+    let txt2 = document.getElementById('result-div-row2')
+    let txt3 = document.getElementById('result-div-row3-col2')
+    let body_target = document.getElementById('body-target').value
+
+    if(body_target=='head' && multiplier<1.5){
+        multiplier=1.5
+    }
+
+    let hit = isHit(hand, dualHanded)
+
+    if(hand=='left'){
+        dur = parseFloat(parseInt(document.getElementById('l-dur-perc').textContent.replace('%)','').slice(1))/100)
+        itName = document.getElementById('l-name').textContent
+        itType = document.getElementById('l-type').textContent
+        stats = document.getElementById('l_stats').textContent
+        bonus = document.getElementById('l_bonus').textContent
+        staffDmg = document.getElementById('l-staff-dmg').textContent.split(";")[0].slice(1)
+    }else{
+        dur = parseFloat(parseInt(document.getElementById('r-dur-perc').textContent.replace('%)','').slice(1))/100)
+        itName = document.getElementById('r-name').textContent
+        itType = document.getElementById('r-type').textContent
+        stats = document.getElementById('r_stats').textContent
+        bonus = document.getElementById('r_bonus').textContent
+        staffDmg = document.getElementById('r-staff-dmg').textContent.split(";")[0].slice(1)
+    }
+
+    console.log(dur)
+    if(bonus==''){
+        bonus = 0
+    }else{
+        bonus = parseInt(bonus.slice(1,-1))
+    }
+
+    let weapon_dmg = 0
+    let weapon_ap = 0
+    if(itType!='Tarcza'){
+        let weapon_dmg = parseInt(stats.split(', ')[0].replace('1K',''))
+        let weapon_ap = Math.round(parseInt(stats.split(', ')[1].replace('AP',''))*multiplier*dur)
+    }
+    if(itType=='Kostur'){
+        weapon_dmg = parseInt(staffDmg.split(', ')[0].replace('1K',''))
+        weapon_ap = Math.round(parseInt(staffDmg.split(', ')[1].replace('AP',''))*multiplier)
+    }
+
+    if(hit[0]){
+        txt1.classList.remove("text-danger")
+        txt1.classList.add("unique")
+        txt1.textContent = `Trafiony (Wynik: ${hit[1]}/${hit[2]})`
+    }else{
+        txt1.classList.add("text-danger")
+        txt1.classList.remove("unique")
+        txt1.textContent = `Chybiony (Wynik: ${hit[1]}/${hit[2]})`
+    }
+
+    let dice = parseInt(document.getElementById('dice-dmg').value)
+    let dice_bonus = parseInt(document.getElementById('dice-bonus').value)
+    let attack_effect_bonus = parseInt(document.getElementById('effects-attack').textContent)
+    let sil = parseInt(document.getElementById('stat-SIŁ').textContent)
+    let sil_mod = parseInt(document.getElementById('stat-SIŁ-mod').textContent) 
+    let amulet_bonus = parseInt(document.getElementById('amulet-attack-mod').textContent)
+
+    if(itRange>3){
+        sil=0
+        sil_mod=0
+    }
+
+    let result = Math.round((attack_effect_bonus+sil+sil_mod+amulet_bonus+dice+dice_bonus+bonus+weapon_dmg)*multiplier*dur)
+    txt3.textContent = `${result} + ${weapon_ap} AP`
+
+    txt2.textContent = `${itName} - ${itType}`
+    div.classList.remove("d-none")
+}
+
+function gatherAttackInfo(hand, item_id){
+    let div = document.getElementById('dice-input')
+    let title = document.getElementById('dice-input-title')
+    let subtitle = document.getElementById('dice-input-subtitle')
+    let btn = document.getElementById('attack-confirm-btn')
+    let dualHanded = ""
+    let itemName = ""
+    let itemType = ""
+    let itemRange = ""
+
+    if(hand=='left'){
+        itemName = document.getElementById('l-name').textContent
+        itemType = document.getElementById('l-type').textContent
+        dualHanded = document.getElementById('l-dualhanded').textContent
+        itemRange = document.getElementById('l-range').textContent
+    }else if(hand=='right'){
+        itemName = document.getElementById('r-name').textContent
+        itemName = document.getElementById('r-type').textContent
+        itemRange = document.getElementById('r-range').textContent
+    }
+
+    if(itemRange<4){
+        document.getElementById('ammo-row').classList.add('d-none')
+    }else{
+        document.getElementById('ammo-row').classList.remove('d-none')
+    }
+
+    subtitle.textContent = `Zasięg: ${itemRange} hex`
+    title.textContent = `Wykonaj atak - ${itemName}`
+
+    btn.onclick = function(){
+        div.classList.add("d-none")
+        showAttackResult(hand, dualHanded)
+    }
+
+    div.classList.remove("d-none")
+}
+
 function getArmorMod(){
     armor_weight = parseInt(document.getElementById('armor-weight').innerHTML)
     mod = armor_weight/4
@@ -1499,8 +1963,13 @@ function show_block(instance){
         }
     };
 
-function show_or_hideByName(instance, changeColor=false){
+function show_or_hideByName(instance, changeColor=false, directId=false){
+
     let element = document.getElementsByName(instance.id)[0]
+    if(directId){
+        element = document.getElementById(instance)
+    }
+    
     if (element.classList.contains('d-none')){
         element.classList.remove('d-none')
 
