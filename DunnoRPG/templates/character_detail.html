@@ -1834,12 +1834,8 @@ function showAttackResult(hand, dualHanded=false){
         bonus = parseInt(bonus.slice(1,-1))
     }
 
-    let weapon_dmg = 0
-    let weapon_ap = 0
-    if(itType!='Tarcza'){
-        let weapon_dmg = parseInt(stats.split(', ')[0].replace('1K',''))
-        let weapon_ap = Math.round(parseInt(stats.split(', ')[1].replace('AP',''))*multiplier*dur)
-    }
+    let weapon_dmg = parseInt(stats.split(', ')[0].replace('1K',''))
+    let weapon_ap = Math.round(parseInt(stats.split(', ')[1].replace('AP',''))*multiplier*dur)
     if(itType=='Kostur'){
         weapon_dmg = parseInt(staffDmg.split(', ')[0].replace('1K',''))
         weapon_ap = Math.round(parseInt(staffDmg.split(', ')[1].replace('AP',''))*multiplier)
