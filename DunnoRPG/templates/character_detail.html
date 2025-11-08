@@ -71,7 +71,7 @@
 
 </div>
 
-<div id='dice-input' class='d-none h5 position-fixed bg-dark c-gold container-fluid m-0 p-0 border border-primary' style="top: 1vh;">
+<div id='dice-input' class='d-none h5 position-fixed bg-dark c-gold container-fluid m-0 p-0 border border-primary' style="top: 0vh; overflow: auto;">
 
     <div class='row m-0 p-2'>
         <div class="col text-center h2">
@@ -80,8 +80,14 @@
     </div>
 
     <div class='row m-0'>
+        <div class="col text-center h2">
+            <button class="btn btn-danger w-100 font-weight-bold" onclick="show_or_hideById('dice-input')">Wróć</button>
+        </div>
         <div class="col text-center h5 p-0 m-0">
             <span id="dice-input-subtitle"></title>
+        </div>
+        <div class="col text-center h2">
+            <button class="btn btn-primary w-100" id="attack-confirm-btn">Dalej</button>
         </div>
     </div>
 
@@ -171,7 +177,7 @@
         </div>
     </div>
 
-    <div class='row m-0 p-2'>
+    <div class='row m-0 p-2 mb-5'>
         <div class="col">
             Zniszczalność:
         </div>
@@ -182,16 +188,6 @@
             </select>
         </div>
     </div>
-
-    <div class='row m-0 p-2'>
-        <div class="col text-center">
-            <button class="btn btn-danger w-100 font-weight-bold" onclick="show_or_hideById('dice-input')">Wróć</button>
-        </div>
-        <div class="col text-center">
-            <button class="btn btn-primary w-100" id="attack-confirm-btn">Dalej</button>
-        </div>
-    </div>
-
 </div>
 
 <div class="container-fluid">        
@@ -2055,7 +2051,7 @@ function gatherAttackInfo(hand, item_id){
         itemRange = document.getElementById('l-range').textContent
     }else if(hand=='right'){
         itemName = document.getElementById('r-name').textContent
-        itemName = document.getElementById('r-type').textContent
+        itemType = document.getElementById('r-type').textContent
         itemRange = document.getElementById('r-range').textContent
     }
 
@@ -2065,8 +2061,8 @@ function gatherAttackInfo(hand, item_id){
         document.getElementById('ammo-row').classList.remove('d-none')
     }
 
-    subtitle.textContent = `Zasięg: ${itemRange} hex`
-    title.textContent = `Wykonaj atak - ${itemName}`
+    subtitle.textContent = `Zasięg: ${itemRange}`
+    title.textContent = `${itemName}`
 
     btn.onclick = function(){
         div.classList.add("d-none")
