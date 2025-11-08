@@ -431,9 +431,27 @@ class CharacterDetails(DetailView):
         context['eq_mounts'] = eq_mounts_qs
         context['eq_mounts_armor'] = eq_mounts_armor_qs
 
+        print(context['eq_mounts'])
+
         return context 
     
-#TODO: Add view for taking durability from item (-1 for attack) and ammo
+class TakeItemDurFromAttack(APIView):
+    def get(self, request, *args, **kwargs):
+        item = get_object_or_404(models.CharItems, id=kwargs['item_id'])
+        if item.durability >=0:
+            item.durability-=1
+        item.save()
+        return Response("OK")
+
+class TakeAmmoFromAttack(APIView):
+    def get(self, request, *args, **kwargs):
+        item = get_object_or_404(models.Eq, id=kwargs['item_id'])
+        item.amount-=int(kwargs['item_amount'])
+        if item.amount > 0:
+            item.save()
+        else:
+            item.delete()
+        return Response("OK")
 
 class MoveItemToEq(APIView):
     def get(self, request, *args, **kwargs):

@@ -565,7 +565,7 @@ def getItemRange(item_name):
             "strzelba": 8,
             "krótka strzelba": 5,
             "wand": 15,
-            'Flamethrower': 5
+            'flamethrower': 5
         }
 
         if type in ranges.keys():

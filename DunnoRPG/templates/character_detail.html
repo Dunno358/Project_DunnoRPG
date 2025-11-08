@@ -65,13 +65,13 @@
 
     <div class='row m-0'>
         <div class="col text-center h5 p-0 m-2">
-            <button class="w-50 btn btn-success" onclick="show_or_hideById('result-div')">OK</button>
+            <button class="w-50 btn btn-success" onclick="window.location.reload()">OK</button>
         </div>
     </div>
 
 </div>
 
-<div id='dice-input' class='d-none h5 position-fixed bg-dark c-gold container-fluid m-0 p-0 border border-primary' style="top: 3vh;">
+<div id='dice-input' class='d-none h5 position-fixed bg-dark c-gold container-fluid m-0 p-0 border border-primary' style="top: 1vh;">
 
     <div class='row m-0 p-2'>
         <div class="col text-center h2">
@@ -154,7 +154,7 @@
             <div class="col">
                 <select class="w-100 text-center border border-warning bg-gray c-gold rounded p-1 ms-1" id="chosen-ammo">
                     {% for item in ammo %}
-                        <option value='item.id'>{{ item.name }} x{{ item.amount }}</option>
+                        <option value='{{ item.id }}'>{{ item.name }} x{{ item.amount }}</option>
                     {% endfor %}
                     <option value='not-needed'>Nie wymaga</option>
                 </select>
@@ -172,11 +172,23 @@
     </div>
 
     <div class='row m-0 p-2'>
+        <div class="col">
+            Zniszczalność:
+        </div>
+        <div class="col">
+            <select class="w-100 text-center border border-warning bg-gray c-gold rounded p-1 ms-1" id="is-destructible">
+                <option value='destructible'>Zniszczalne</option>
+                <option value='undestructible'>Niezniszczalne</option>
+            </select>
+        </div>
+    </div>
+
+    <div class='row m-0 p-2'>
         <div class="col text-center">
             <button class="btn btn-danger w-100 font-weight-bold" onclick="show_or_hideById('dice-input')">Wróć</button>
         </div>
         <div class="col text-center">
-            <button class="btn btn-primary w-100" onclick="console.log('Dalej')" id="attack-confirm-btn">Dalej</button>
+            <button class="btn btn-primary w-100" id="attack-confirm-btn">Dalej</button>
         </div>
     </div>
 
@@ -221,26 +233,32 @@
     </div>
 
     <div name='Equipment' class="row text-center m-0 p-0 card-body c-gold border border-warning bg-dark rounded">
-        <p name='{{ value.id }}' class="text-center fw-bold mt-2">
-            {% if value.model_url %}
-                <a id='char-name' name='{{ value.id }}' href="{{ value.model_url }}" class="c-gold" target="_blank">
-                    {{ value.name }}
-                </a>
-            {% else %}
-                <span id='char-name' name='{{ value.id }}'>{{ value.name }}</span>
-            {% endif %}
-
-            {% if value.chosen_class %}
-            <a 
-            href='/dunnorpg/info/classes/{{ class.id }}'
-            class='c-gold fst-italic' id='char-class'
-            >
-                {% if value.chosen_class != 'None' %}
-                    | {{ value.chosen_class }}
+        <div class="row mt-2 m-0 p-0">
+            <div class="col">
+                {% if value.model_url %}
+                    <a id='char-name' name='{{ value.id }}' href="{{ value.model_url }}" class="c-gold h2" target="_blank">
+                        {{ value.name }}
+                    </a>
+                {% else %}
+                    <span id='char-name' name='{{ value.id }}' class="h1">{{ value.name }}</span>
                 {% endif %}
-            </a>
+            </div>
+        </div>
+
+        <div class="row m-0 p-0">
+            <div class="col p-0 m-0 h5">
+            {% if value.chosen_class %}
+                jako <a 
+                href='/dunnorpg/info/classes/{{ class.id }}'
+                class='c-gold fst-italic' id='char-class'
+                >
+                    {% if value.chosen_class != 'None' %}
+                        {{ value.chosen_class }}
+                    {% endif %}
+                </a>
             {% endif %}
-        </p>
+            </div>
+        </div>
 
         <div class='row'>
             <p class='col'>
@@ -1263,44 +1281,64 @@
                 
         {% endif %}
 
-        {% if eq_mounts or mount != None  %}
-
-        <div class="row mt-3 mb-3 m-0 p-0 text-danger">
-            <div class="col p-0 m-0"><hr class="bg-danger mt-4"></div>
-            <div class="col-5 p-0 m-0">
-                <h3 class="mt-2 textdanger">Wierzchowiec</h3>
+        {% if mount %}
+            <div class="row mt-3 mb-3 m-0 p-0 text-danger">
+                <div class="col p-0 m-0"><hr class="bg-danger mt-4"></div>
+                <div class="col-5 p-0 m-0">
+                    <h3 class="mt-2 textdanger">Wierzchowiec</h3>
+                </div>
+                <div class="col p-0 m-0"><hr class="bg-danger mt-4"></div>
             </div>
-            <div class="col p-0 m-0"><hr class="bg-danger mt-4"></div>
-        </div>
 
-        <form name='mount' method='post' action='changedur-{{ mount.id }}' class='row mt-2'><hr />
-            {% csrf_token %}
-            <div class='col'><p><span class="text-white-50">Mount: </span> 
+            <form name='head' method='post' action='changedur-{{ mount.id }}' class='row mt-2 border border-warning rounded bg-gray m-0 p-0'>
+                {% csrf_token %}
+                <div class="row c-gold me-0 pe-0">
+                    <div class="col h6 text-start p-2 ps-3 pb-0">
+                        <span class="text-white-50">Punkty życia:</span> {{ mount.durability }}/{{ mount.name|getMaxDurability }}
+                    </div>
+                    <div class="col h6 text-end p-2 pb-0">
+                        Wierzchowiec
+                    </div>
+                </div>
 
-                {% if mount != None %}
-                    <span class='text-info fa fa-exchange-alt' onclick='show_or_hideById("mount-swap")'></span> 
+                <div class="row me-0 pe-0">
+                    <div class="col text-center">
+                        <a href='/dunnorpg/items/{{ mount.name|getDescId }}' class="{{ mount.name|getItemRarity }} h4">
+                            {{ mount.name }}
+                        </a>
+                    </div>
+                </div>
 
-                    <a class='{{ mount.name|getItemRarity }} fw-bold' href='/dunnorpg/items/{{ mount.name|getDescId }}'>
-                        {{ mount.name }}</a>
-    
-                        <span class='{{ mount.name|getItemRarity }}'><b>[ <span id="mount_armor_default">{{ mount.name|getItemArmor }}</span>; {{ mount.name|getItemBonus }}kg
-                        {% if mount.name|getSkill %};
-                            <span onclick="showSkill(this)" class='fw-normal' title="{{ mount.name|getSkill }}">
-                                {{ mount.name|getSkill }}
-                            </span>
-                        {% endif %}]</b></span>
-                        
-                        (
-                        {% if user.is_superuser %}
-                            <input type='number' min="0" id='mount-dur-gm' class='c-gold text-center bg-dark border-0' style='width: 5vw' value='{{ mount.durability }}' name="dur">
-                        {% else %}
-                            {{ mount.durability }} 
-                        {% endif %}  
-                            / {{ mount.name|getMaxDurability }} ) 
-                    <a href='move_eq-{{ mount.id }}' class='fa fa-arrow-right text-success text-decoration-none'>EQ</a>
+                <hr class="mb-0 mt-1">
+                {% if mount.name|getSkill %}
+                    <div class="row me-0 pe-0">
+                        <div class="col text-justified {{ mount.name|getItemRarity }} p-0 ps-1 pt-1">
+                            {{ mount.name|getSkill }}
+                        </div>
+                    </div>
+                    <hr class="mb-0 mt-1">
+                {% endif %}
 
-                    <div id='mount-swap' class='d-none'> 
-                        <select class='w-50 ms-2 text-center border border-warning bg-dark text-white-50 rounded'>
+                <div class="row ps-0 ms-1 me-0 pe-0">
+
+                    <div class="col-3 border-end border-warning p-3 h6 mb-0 d-flex align-items-center justify-content-center">
+                        <span class="text-white-50">Juki:</span> <span class="c-gold ms-1">{{ mount.name|getItemBonus }}kg</span>
+                    </div>                
+                    <div class="col-3 border-end border-warning p-3 h6 mb-0 d-flex align-items-center justify-content-center">
+                        <span class="text-white-50">Pancerz:</span> <span id='mount_armor_default' class="c-gold ms-1">{{ mount.name|getItemArmor }}</span>
+                    </div>                
+                    <div class="col-3 border-end border-warning h6 mb-0 d-flex align-items-center justify-content-center">
+                        <a class="btn btn-info p-3 pt-2 pb-2 text-light" onclick='show_or_hideById("mount-swap")'>Zmień</a>
+                    </div>                  
+                    <div class="col-3 h6 mb-0 d-flex align-items-center justify-content-center">
+                        <a class="btn btn-danger p-3 pt-2 pb-2 text-light" href='move_eq-{{ mount.id }}'>Odłóż</a>
+                    </div>
+
+                </div>
+
+                <div id='mount-swap' class='d-none row text-end m-0 p-0 mt-2 mb-2'>
+                    <div class="col-8">
+                        <select class='w-100 p-2 ms-2 text-center border border-warning bg-dark text-white-50 rounded'>
                             {% for item in eq_mounts %}
                                 <option id='{{ item.id }}' name={{ item.durability }} value='{{ item.name }}'>
                                     {{ item.name }} 
@@ -1308,57 +1346,116 @@
                                 </option>
                             {% endfor %}
                         </select>
-                        <a onclick="swapItem('{{ mount.id }}', 'mount-swap')" class='btn btn-sm btn-success'>OK</a>
                     </div>
+                    <div class="col text-start">
+                        <a onclick="swapItem('{{ mount.id }}', 'mount-swap')" class='btn w-75 btn-success'>Zamień</a>
+                    </div>
+                </div>
 
-                {% else %}
-                <span class='text-info fa fa-plus' onclick='show_or_hideById("mount-add")'></span> 
+            </form>
+        {% elif eq_mounts %}
+            <div class="row mt-3 mb-3 m-0 p-0 text-danger">
+                <div class="col p-0 m-0"><hr class="bg-danger mt-4"></div>
+                <div class="col-5 p-0 m-0">
+                    <h3 class="mt-2 textdanger">Wierzchowiec</h3>
+                </div>
+                <div class="col p-0 m-0"><hr class="bg-danger mt-4"></div>
+            </div>
 
-                <div id='mount-add' class='d-none'> 
-                    <select class='w-50 ms-2 text-center border border-warning bg-dark text-white-50 rounded'>
-                        {% for item in eq_mounts %}
-                            <option id='{{ item.id }}' value='{{ item.name }}'>
-                                {{ item.name }} 
-                                ({{ item.durability }}/{{ item.name|getMaxDurability }})
-                            </option>
-                        {% endfor %}
-                    </select>
-                    <a onclick="wearItem('mount', 'mount-add')" class='btn btn-sm btn-success'>OK</a>
+            <div name='head' class='row mt-2 border border-warning rounded bg-gray m-0 p-0'>
+                <div class="row c-gold me-0 pe-0">
+                    <div class="col h6 text-start p-2 pb-0 ms-1">
+                        Wierzchowiec - Brak
+                    </div>
+                </div>
+
+                <div class="row me-0 pe-0">
+                    <div class="col text-center">
+                        <a href='' class="c-gold h4">
+                            Brak wierzchowca
+                        </a>
+                    </div>
+                </div>
+
+                <hr class="mb-0 mt-1">
+
+                <div class="row ps-0 ms-1 me-0 pe-0">
+
+                    <div class="col border-end border-warning mb-0 d-flex align-items-center justify-content-center">
+                        <a class="text-light h5 btn btn-info m-2 w-75" onclick='show_or_hideById("mount-add")'>Załóż</a>
+                    </div>                
+                </div>
+
+                <div id='mount-add' class='d-none row text-end m-0 p-0 mt-2 mb-2'>
+                    <div class="col-8">
+                        <select class='w-100 p-2 ms-2 text-center border border-warning bg-dark text-white-50 rounded'>
+                            {% for item in eq_mounts %}
+                                <option id='{{ item.id }}' value='{{ item.name }}'>
+                                    {{ item.name }} 
+                                    ({{ item.durability }}/{{ item.name|getMaxDurability }})
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col text-start">
+                        <a onclick="wearItem('Mount', 'mount-add')" class='btn w-75 btn-success'>OK</a>
+                    </div>
                 </div> 
 
+            </div>
+                
+        {% endif %}
+
+        {% if mount_armor %}
+            <form name='head' method='post' action='changedur-{{ mount_armor.id }}' class='row mt-2 border border-warning rounded bg-gray m-0 p-0'>
+                {% csrf_token %}
+                <div class="row c-gold me-0 pe-0">
+                    <div class="col h6 text-start p-2 ps-3 pb-0">
+                        <span class="text-white-50">Wytrzymałość:</span> {{ mount_armor.durability }}/{{ mount_armor.name|getMaxDurability }}
+                    </div>
+                    <div class="col h6 text-end p-2 pb-0">
+                        Pancerz wierzchowca
+                    </div>
+                </div>
+
+                <div class="row me-0 pe-0">
+                    <div class="col text-center">
+                        <a href='/dunnorpg/items/{{ mount_armor.name|getDescId }}' class="{{ mount_armor.name|getItemRarity }} h4">
+                            {{ mount_armor.name }}
+                        </a>
+                    </div>
+                </div>
+
+                <hr class="mb-0 mt-1">
+                {% if mount_armor.name|getSkill %}
+                    <div class="row me-0 pe-0">
+                        <div class="col text-justified {{ mount_armor.name|getItemRarity }} p-0 ps-1 pt-1">
+                            {{ mount_armor.name|getSkill }}
+                        </div>
+                    </div>
+                    <hr class="mb-0 mt-1">
                 {% endif %}
-            </p></div>
-        </form>      
 
-        <form name='mount-armor' method='post' action='changedur-{{ mount_armor.id }}' class='row mt-2'><hr />
-            {% csrf_token %}
-            <div class='col'><p><span class="text-white-50">Armor: </span> 
+                <div class="row ps-0 ms-1 me-0 pe-0">
 
-                {% if mount_armor != None %}
-                    <span class='text-info fa fa-exchange-alt' onclick='show_or_hideById("mount_armor-swap")'></span> 
+                    <div class="col-3 border-end border-warning p-3 h6 mb-0 d-flex align-items-center justify-content-center">
+                        <span class="text-white-50">Pancerz:</span> <span class="c-gold ms-1" id="mount_armor_value">{{ mount_armor.name|getItemArmor }}</span>
+                    </div>                
+                    <div class="col-3 border-end border-warning p-3 h6 mb-0 d-flex align-items-center justify-content-center">
+                        <span class="text-white-50">Waga:</span> <span class="c-gold ms-1">{{ mount_armor.name|getItemWeight }}kg</span>
+                    </div>                
+                    <div class="col-3 border-end border-warning h6 mb-0 d-flex align-items-center justify-content-center">
+                        <a class="btn btn-info p-3 pt-2 pb-2 text-light" onclick='show_or_hideById("mount_armor-swap")'>Zmień</a>
+                    </div>                  
+                    <div class="col-3 h6 mb-0 d-flex align-items-center justify-content-center">
+                        <a class="btn btn-danger p-3 pt-2 pb-2 text-light" href='move_eq-{{ mount_armor.id }}'>Odłóż</a>
+                    </div>
 
-                    <a class='{{ mount_armor.name|getItemRarity }} fw-bold' href='/dunnorpg/items/{{ mount_armor.name|getDescId }}'>
-                        {{ mount_armor.name }}</a>
-    
-                        <span class='{{ mount_armor.name|getItemRarity }}'><b>
-                        [ <span id="mount_armor_value">{{ mount_armor.name|getItemArmor }}</span>; {{ mount_armor.name|getItemWeight }}kg
-                        {% if mount_armor.name|getSkill %};
-                            <span onclick="showSkill(this)" class='fw-normal' title="{{ mount_armor.name|getSkill }}">
-                                {{ mount_armor.name|getSkill }}
-                            </span>
-                        {% endif %}]</b></span>
-                        
-                        (
-                        {% if user.is_superuser %}
-                            <input type='number' min="0" id='mount_armor-dur-gm' class='c-gold text-center bg-dark border-0' style='width: 5vw' value='{{ mount_armor.durability }}' name="dur">
-                        {% else %}
-                            {{ mount_armor.durability }} 
-                        {% endif %}  
-                            / {{ mount_armor.name|getMaxDurability }} ) 
-                    <a href='move_eq-{{ mount_armor.id }}' class='fa fa-arrow-right text-success text-decoration-none'>EQ</a>
+                </div>
 
-                    <div id='mount_armor-swap' class='d-none'> 
-                        <select class='w-50 ms-2 text-center border border-warning bg-dark text-white-50 rounded'>
+                <div id='mount_armor-swap' class='d-none row text-end m-0 p-0 mt-2 mb-2'>
+                    <div class="col-8">
+                        <select class='w-100 p-2 ms-2 text-center border border-warning bg-dark text-white-50 rounded'>
                             {% for item in eq_mounts_armor %}
                                 <option id='{{ item.id }}' name={{ item.durability }} value='{{ item.name }}'>
                                     {{ item.name }} 
@@ -1366,39 +1463,86 @@
                                 </option>
                             {% endfor %}
                         </select>
-                        <a onclick="swapItem('{{ mount_armor.id }}', 'mount_armor-swap')" class='btn btn-sm btn-success'>OK</a>
                     </div>
+                    <div class="col text-start">
+                        <a onclick="swapItem('{{ mount_armor.id }}', 'mount_armor-swap')" class='btn w-75 btn-success'>Zamień</a>
+                    </div>
+                </div>
 
-                {% else %}
-                <span class='text-info fa fa-plus' onclick='show_or_hideById("mount_armor-add")'></span> 
+            </form>
+        {% elif eq_mounts_armor %}
+            <div name='head' class='row mt-2 border border-warning rounded bg-gray m-0 p-0'>
+                <div class="row c-gold me-0 pe-0">
+                    <div class="col h6 text-start p-2 pb-0 ms-1">
+                        Pancerz wierzchowca - Brak
+                    </div>
+                </div>
 
-                <div id='mount_armor-add' class='d-none'> 
-                    <select class='w-50 ms-2 text-center border border-warning bg-dark text-white-50 rounded'>
-                        {% for item in eq_mounts_armor %}
-                            <option id='{{ item.id }}' value='{{ item.name }}'>
-                                {{ item.name }} 
-                                ({{ item.durability }}/{{ item.name|getMaxDurability }})
-                            </option>
-                        {% endfor %}
-                    </select>
-                    <a onclick="wearItem('Mount_armor', 'mount_armor-add')" class='btn btn-sm btn-success'>OK</a>
+                <div class="row me-0 pe-0">
+                    <div class="col text-center">
+                        <a href='' class="c-gold h4">
+                            Brak pancerza
+                        </a>
+                    </div>
+                </div>
+
+                <hr class="mb-0 mt-1">
+
+                <div class="row ps-0 ms-1 me-0 pe-0">
+
+                    <div class="col border-end border-warning mb-0 d-flex align-items-center justify-content-center">
+                        <a class="text-light h5 btn btn-info m-2 w-75" onclick='show_or_hideById("mount_armor-add")'>Załóż</a>
+                    </div>                
+                </div>
+
+                <div id='mount_armor-add' class='d-none row text-end m-0 p-0 mt-2 mb-2'>
+                    <div class="col-8">
+                        <select class='w-100 p-2 ms-2 text-center border border-warning bg-dark text-white-50 rounded'>
+                            {% for item in eq_mounts_armor %}
+                                <option id='{{ item.id }}' value='{{ item.name }}'>
+                                    {{ item.name }} 
+                                    ({{ item.durability }}/{{ item.name|getMaxDurability }})
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col text-start">
+                        <a onclick="wearItem('Mount_armor', 'mount_armor-add')" class='btn w-75 btn-success'>OK</a>
+                    </div>
                 </div> 
 
-                {% endif %}
-            </p></div>
-        </form>  
+            </div>
+                
         {% endif %}
 
-        <div class='row'><hr />
-            <a class='col c-gold' href='/dunnorpg/info/races/{{ race_id }}' title='{{ race_desc }}'><span class="text-white-50">Race:</span> {{ value.race }} ({{ value.size }})</a>
-                    <form method="post" action="change-coins">
-                        {% csrf_token %}
-                        <span class="text-white-50">Coins: <!-- Not working as for now -->
-                            <input type='number' min="0" id='coins' class='c-gold text-center bg-dark border-0' style='width: 8vw' value='{{ value.coins }}' name="coins-amount">
-                        </span>
-                    </form>
+        <div class="row mt-3 mb-3 m-0 p-0 text-danger">
+            <div class="col p-0 m-0"><hr class="bg-danger mt-4"></div>
+            <div class="col-2 p-0 m-0">
+                <h3 class="mt-2 textdanger">Inne</h3>
+            </div>
+            <div class="col p-0 m-0"><hr class="bg-danger mt-4"></div>
         </div>
 
+        <div class='row bg-gray border border-warning m-0 p-0'>
+            <div class="col-5 m-0 p-0 text-end text-white-50 h3">
+                Monety:
+            </div>
+            <div class="col m-0 p-0 h3">
+                <form method="post" action="change-coins">
+                    {% csrf_token %}
+                    <input type='number' min="0" id='coins' class='c-gold text-center border-0 bg-gray m-0 p-0 w-75' style='width: 8vw' value='{{ value.coins }}' name="coins-amount">
+                </form>
+            </div>
+        </div>
+
+        <div class='row bg-gray border border-warning m-0 p-0 mt-2'>
+            <div class="col-3 m-0 p-0 text-end text-white-50 h3">
+                Rasa:
+            </div>
+            <div class="col m-0 p-0 h3">
+                <a class='col c-gold' href='/dunnorpg/info/races/{{ race_id }}' title='{{ race_desc }}'>{{ value.race }}</a>
+            </div>
+        </div>
     </div>    
     
     <form id="notes-block" class="d-none position-fixed mt-2 border border-warning bg-gray rounded" 
@@ -1729,7 +1873,8 @@ function isHit(hand, dualHanded=false){
         "Kostur": 6,
         "Tarcza": 6,
         "Kusza": 6,
-        "Łuk": 6
+        "Łuk": 6,
+        "Flamethrower": 1
     }
 
     if(hand=='left'){
@@ -1737,11 +1882,12 @@ function isHit(hand, dualHanded=false){
         itemType = document.getElementById('l-type').textContent
     }else if(hand=='right'){
         itemName = document.getElementById('r-name').textContent
-        itemName = document.getElementById('r-type').textContent
+        itemType = document.getElementById('r-type').textContent
     }
 
     let neededAcc = 6
-    neededAcc = accurs[itemName]
+    console.log(itemName)
+    neededAcc = accurs[itemType]
     if(!neededAcc){
         if(dualHanded){
             neededAcc=8
@@ -1790,7 +1936,11 @@ function isHit(hand, dualHanded=false){
 
 }
 
-function showAttackResult(hand, dualHanded=false){
+function finishAttackSequence(){
+    show_or_hideById('result-div')
+}
+
+async function showAttackResult(hand, dualHanded=false, item_id=null){
     let itName = ""
     let itType = ""
     let stats = ""
@@ -1804,9 +1954,27 @@ function showAttackResult(hand, dualHanded=false){
     let txt2 = document.getElementById('result-div-row2')
     let txt3 = document.getElementById('result-div-row3-col2')
     let body_target = document.getElementById('body-target').value
+    let isDestr = document.getElementById('is-destructible').value
+    let url = window.location.href
+    let ammo_unavailable = document.getElementById('ammo-row').classList.contains('d-none')
+    let ammo = document.getElementById('chosen-ammo').value
+    let ammo_amount = document.getElementById('ammo-count').value
 
     if(body_target=='head' && multiplier<1.5){
         multiplier=1.5
+    }
+
+    console.log(ammo_unavailable)
+    if(isDestr=='destructible'){
+        let take_ammo = await fetch(url+`take_dur-${item_id}`, {
+            method: "GET"
+        })
+    }
+
+    if(!ammo_unavailable && ammo!='not-needed'){
+        let take_dur = await fetch(url+`take_ammo-${ammo}-${ammo_amount}`, {
+            method: "GET"
+        })
     }
 
     let hit = isHit(hand, dualHanded)
@@ -1902,7 +2070,7 @@ function gatherAttackInfo(hand, item_id){
 
     btn.onclick = function(){
         div.classList.add("d-none")
-        showAttackResult(hand, dualHanded)
+        showAttackResult(hand, dualHanded, item_id)
     }
 
     div.classList.remove("d-none")
