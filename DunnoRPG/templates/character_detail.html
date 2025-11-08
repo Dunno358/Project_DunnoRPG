@@ -95,10 +95,19 @@
 
     <div class='row m-0 p-2'>
         <div class="col">
-            Mnożnik obrażeń:
+            Wynik na kości (celność):
         </div>
+        <div class="col ">
+            <input type="number" min="0" value="10" class="w-75 text-center border border-warning bg-gray c-gold rounded p-1 ms-4" id="dice-cel"/>
+        </div>
+    </div>
+
+    <div class='row m-0 p-2'>
         <div class="col">
-            <input type="number" value="1" step="0.1" class="w-75 text-center border border-warning bg-gray c-gold rounded p-1 ms-4" id="dmg-multiplier"/>
+            Wynik na kości (obrażenia):
+        </div>
+        <div class="col ">
+            <input type="number" min="0" value="10" class="w-75 text-center border border-warning bg-gray c-gold rounded p-1 ms-4" id="dice-dmg"/>
         </div>
     </div>
 
@@ -113,24 +122,6 @@
                 <option value='hands'>Ręce</option>
                 <option value='boots'>Nogi</option>
             </select>
-        </div>
-    </div>
-
-    <div class='row m-0 p-2'>
-        <div class="col">
-            Wynik na kości (celność):
-        </div>
-        <div class="col ">
-            <input type="number" min="0" value="10" class="w-75 text-center border border-warning bg-gray c-gold rounded p-1 ms-4" id="dice-cel"/>
-        </div>
-    </div>
-
-    <div class='row m-0 p-2'>
-        <div class="col">
-            Wynik na kości (obrażenia):
-        </div>
-        <div class="col ">
-            <input type="number" min="0" value="10" class="w-75 text-center border border-warning bg-gray c-gold rounded p-1 ms-4" id="dice-dmg"/>
         </div>
     </div>
 
@@ -174,6 +165,15 @@
             <div class="col">
                 <input type="number" value="1" class="w-75 text-center border border-warning bg-gray c-gold rounded p-1 ms-4" id="ammo-count"/>
             </div>
+        </div>
+    </div>
+
+    <div class='row m-0 p-2'>
+        <div class="col">
+            Mnożnik obrażeń:
+        </div>
+        <div class="col">
+            <input type="number" value="1" step="0.1" class="w-75 text-center border border-warning bg-gray c-gold rounded p-1 ms-4" id="dmg-multiplier"/>
         </div>
     </div>
 
@@ -256,19 +256,37 @@
             </div>
         </div>
 
-        <div class='row'>
-            <p class='col'>
-                <span class="text-white-50">Armor:</span> 
-                <span id='armor'>{{ value.name|getArmor }}</span>; <span id='armor-weight'>{{ value.name|getArmorWeight }}</span>kg (-<span id='armor-mod'></span> ZRE)</p>
-            <form class='col' method="post" action="change-health">
-                {% csrf_token %}
-                <span class="text-white-50">Health:</span> 
-                <input type='number' id='hp-val' class='c-gold text-center bg-dark border-0' style='width: 6vw' value='{{ value.HP }}' name="hp">/{{ value.fullHP }}
-                <button type='submit' class='btn btn-sm btn-success ms-3 rounded text-black'>Change</button>
-            </form>
+        <div class="row mt-2 m-0 p-0">
+            <div class="col rounded p-1 bg-gray bg-gradient border border-warning m-2 p-1 h6 pb-0">
+                <span class="text-white-50">Pancerz:</span> 
+                <span id='armor'>{{ value.name|getArmor }}</span>
+            </div>
+            <div class="col rounded p-1 bg-gray bg-gradient border border-warning m-2 p-1 h6 pb-0">
+                <span class="text-white-50">Życie:</span> 
+                <input type='number' id='hp-val' class='c-gold text-center bg-gray bg-gradient border-0 h6' style='width: 6vw' value='{{ value.HP }}' name="hp">/{{ value.fullHP }}
+            </div>
         </div>
 
-        <div class="row mt-3 mb-3 m-0 p-0 text-danger">
+        <div class="row m-0 p-0">
+            <div class="col rounded bg-gray bg-gradient border border-warning m-2 p-2 h6">
+                <span class="text-white-50">Monety:</span> 
+                <span>{{ value.coins  }}</span>
+            </div>
+            <div class="col rounded bg-gray bg-gradient border border-warning m-2 p-2 h6">
+                <span class="text-white-50">Waga:</span> 
+                <span id='armor-weight'>{{ value.name|getArmorWeight }}kg</span> 
+            </div>
+        </div>
+
+        <div class="row m-0 p-0 mt-1 d-none"> 
+            <div class="col">
+                <a class="btn bg-danger bg-gradient text-white w-100 ps-2 pe-2" onclick="console.log('test')"> 
+                    Otrzymano obrażenia
+                </a>
+            </div>
+        </div>
+
+        <div class="row mt-2 mb-3 m-0 p-0 text-danger">
             <div class="col-5 p-0 m-0"><hr class="bg-danger mt-4"></div>
             <div class="col-2 p-0 m-0">
                 <h3 class="mt-2 textdanger">Głowa</h3>
@@ -314,10 +332,10 @@
                         <span class="text-white-50">Waga:</span> <span class="c-gold ms-1">{{ helmet.name|getItemWeight }}kg</span>
                     </div>                
                     <div class="col-3 border-end border-warning h6 mb-0 d-flex align-items-center justify-content-center">
-                        <a class="btn btn-info p-3 pt-2 pb-2 text-light" onclick='show_or_hideById("helmet-swap")'>Zmień</a>
+                        <a class="btn btn-info p-3 pt-2 pb-2 text-white" onclick='show_or_hideById("helmet-swap")'>Zmień</a>
                     </div>                  
                     <div class="col-3 h6 mb-0 d-flex align-items-center justify-content-center">
-                        <a class="btn btn-danger p-3 pt-2 pb-2 text-light" href='move_eq-{{ helmet.id }}'>Odłóż</a>
+                        <a class="btn btn-danger p-3 pt-2 pb-2 text-white" href='move_eq-{{ helmet.id }}'>Odłóż</a>
                     </div>
 
                 </div>
@@ -431,10 +449,10 @@
                         <span class="text-white-50">Waga:</span> <span class="c-gold ms-1">{{ torso.name|getItemWeight }}kg</span>
                     </div>                
                     <div class="col-3 border-end border-warning h6 mb-0 d-flex align-items-center justify-content-center">
-                        <a class="btn btn-info p-3 pt-2 pb-2 text-light" onclick='show_or_hideById("torso-swap")'>Zmień</a>
+                        <a class="btn btn-info p-3 pt-2 pb-2 text-white" onclick='show_or_hideById("torso-swap")'>Zmień</a>
                     </div>                  
                     <div class="col-3 h6 mb-0 d-flex align-items-center justify-content-center">
-                        <a class="btn btn-danger p-3 pt-2 pb-2 text-light" href='move_eq-{{ torso.id }}'>Odłóż</a>
+                        <a class="btn btn-danger p-3 pt-2 pb-2 text-white" href='move_eq-{{ torso.id }}'>Odłóż</a>
                     </div>
 
                 </div>
@@ -577,10 +595,10 @@
                         <span class="text-white-50">Waga:</span> <span class="c-gold ms-1" id="l-weight">{{ leftItem.name|getItemWeight }}kg</span>
                     </div>                
                     <div class="col-3 border-end border-warning h6 mb-0 d-flex align-items-center justify-content-center">
-                        <a class="btn btn-info p-3 pt-2 pb-2 text-light" onclick='show_or_hideById("leftItem-swap")'>Zmień</a>
+                        <a class="btn btn-info p-3 pt-2 pb-2 text-white" onclick='show_or_hideById("leftItem-swap")'>Zmień</a>
                     </div>                  
                     <div class="col-3 h6 mb-0 d-flex align-items-center justify-content-center">
-                        <a class="btn btn-danger p-3 pt-2 pb-2 text-light" href='move_eq-{{ leftItem.id }}'>Odłóż</a>
+                        <a class="btn btn-danger p-3 pt-2 pb-2 text-white" href='move_eq-{{ leftItem.id }}'>Odłóż</a>
                     </div>
 
                 </div>
@@ -728,10 +746,10 @@
                         <span class="text-white-50">Waga:</span> <span class="c-gold ms-1" id="r-weight">{{ rightItem.name|getItemWeight }}kg</span>
                     </div>                
                     <div class="col-3 border-end border-warning h6 mb-0 d-flex align-items-center justify-content-center">
-                        <a class="btn btn-info p-3 pt-2 pb-2 text-light" onclick='show_or_hideById("rightItem-swap")'>Zmień</a>
+                        <a class="btn btn-info p-3 pt-2 pb-2 text-white" onclick='show_or_hideById("rightItem-swap")'>Zmień</a>
                     </div>                  
                     <div class="col-3 h6 mb-0 d-flex align-items-center justify-content-center">
-                        <a class="btn btn-danger p-3 pt-2 pb-2 text-light" href='move_eq-{{ rightItem.id }}'>Odłóż</a>
+                        <a class="btn btn-danger p-3 pt-2 pb-2 text-white" href='move_eq-{{ rightItem.id }}'>Odłóż</a>
                     </div>
 
                 </div>
@@ -851,10 +869,10 @@
                         <span class="text-white-50">Waga:</span> <span class="c-gold ms-1">{{ sideItem.name|getItemWeight }}kg</span>
                     </div>                
                     <div class="col-3 border-end border-warning h6 mb-0 d-flex align-items-center justify-content-center">
-                        <a class="btn btn-info p-3 pt-2 pb-2 text-light" onclick='show_or_hideById("sideItem-swap")'>Zmień</a>
+                        <a class="btn btn-info p-3 pt-2 pb-2 text-white" onclick='show_or_hideById("sideItem-swap")'>Zmień</a>
                     </div>                  
                     <div class="col-3 h6 mb-0 d-flex align-items-center justify-content-center">
-                        <a class="btn btn-danger p-3 pt-2 pb-2 text-light" href='move_eq-{{ sideItem.id }}'>Odłóż</a>
+                        <a class="btn btn-danger p-3 pt-2 pb-2 text-white" href='move_eq-{{ sideItem.id }}'>Odłóż</a>
                     </div>
 
                 </div>
@@ -973,10 +991,10 @@
                         <span class="text-white-50">Waga:</span> <span class="c-gold ms-1">{{ boots.name|getItemWeight }}kg</span>
                     </div>                
                     <div class="col-3 border-end border-warning h6 mb-0 d-flex align-items-center justify-content-center">
-                        <a class="btn btn-info p-3 pt-2 pb-2 text-light" onclick='show_or_hideById("boots-swap")'>Zmień</a>
+                        <a class="btn btn-info p-3 pt-2 pb-2 text-white" onclick='show_or_hideById("boots-swap")'>Zmień</a>
                     </div>                  
                     <div class="col-3 h6 mb-0 d-flex align-items-center justify-content-center">
-                        <a class="btn btn-danger p-3 pt-2 pb-2 text-light" href='move_eq-{{ boots.id }}'>Odłóż</a>
+                        <a class="btn btn-danger p-3 pt-2 pb-2 text-white" href='move_eq-{{ boots.id }}'>Odłóż</a>
                     </div>
 
                 </div>
@@ -1090,10 +1108,10 @@
                         <span class="text-white-50">Waga:</span> <span class="c-gold ms-1">{{ gloves.name|getItemWeight }}kg</span>
                     </div>                
                     <div class="col-3 border-end border-warning h6 mb-0 d-flex align-items-center justify-content-center">
-                        <a class="btn btn-info p-3 pt-2 pb-2 text-light" onclick='show_or_hideById("gloves-swap")'>Zmień</a>
+                        <a class="btn btn-info p-3 pt-2 pb-2 text-white" onclick='show_or_hideById("gloves-swap")'>Zmień</a>
                     </div>                  
                     <div class="col-3 h6 mb-0 d-flex align-items-center justify-content-center">
-                        <a class="btn btn-danger p-3 pt-2 pb-2 text-light" href='move_eq-{{ gloves.id }}'>Odłóż</a>
+                        <a class="btn btn-danger p-3 pt-2 pb-2 text-white" href='move_eq-{{ gloves.id }}'>Odłóż</a>
                     </div>
 
                 </div>
@@ -1207,10 +1225,10 @@
                         <span class="text-white-50">Waga:</span> <span class="c-gold ms-1">{{ amulet.name|getItemWeight }}kg</span>
                     </div>                
                     <div class="col-3 border-end border-warning h6 mb-0 d-flex align-items-center justify-content-center">
-                        <a class="btn btn-info p-3 pt-2 pb-2 text-light" onclick='show_or_hideById("amulet-swap")'>Zmień</a>
+                        <a class="btn btn-info p-3 pt-2 pb-2 text-white" onclick='show_or_hideById("amulet-swap")'>Zmień</a>
                     </div>                  
                     <div class="col-3 h6 mb-0 d-flex align-items-center justify-content-center">
-                        <a class="btn btn-danger p-3 pt-2 pb-2 text-light" href='move_eq-{{ amulet.id }}'>Odłóż</a>
+                        <a class="btn btn-danger p-3 pt-2 pb-2 text-white" href='move_eq-{{ amulet.id }}'>Odłóż</a>
                     </div>
 
                 </div>
@@ -1324,10 +1342,10 @@
                         <span class="text-white-50">Pancerz:</span> <span id='mount_armor_default' class="c-gold ms-1">{{ mount.name|getItemArmor }}</span>
                     </div>                
                     <div class="col-3 border-end border-warning h6 mb-0 d-flex align-items-center justify-content-center">
-                        <a class="btn btn-info p-3 pt-2 pb-2 text-light" onclick='show_or_hideById("mount-swap")'>Zmień</a>
+                        <a class="btn btn-info p-3 pt-2 pb-2 text-white" onclick='show_or_hideById("mount-swap")'>Zmień</a>
                     </div>                  
                     <div class="col-3 h6 mb-0 d-flex align-items-center justify-content-center">
-                        <a class="btn btn-danger p-3 pt-2 pb-2 text-light" href='move_eq-{{ mount.id }}'>Odłóż</a>
+                        <a class="btn btn-danger p-3 pt-2 pb-2 text-white" href='move_eq-{{ mount.id }}'>Odłóż</a>
                     </div>
 
                 </div>
@@ -1441,10 +1459,10 @@
                         <span class="text-white-50">Waga:</span> <span class="c-gold ms-1">{{ mount_armor.name|getItemWeight }}kg</span>
                     </div>                
                     <div class="col-3 border-end border-warning h6 mb-0 d-flex align-items-center justify-content-center">
-                        <a class="btn btn-info p-3 pt-2 pb-2 text-light" onclick='show_or_hideById("mount_armor-swap")'>Zmień</a>
+                        <a class="btn btn-info p-3 pt-2 pb-2 text-white" onclick='show_or_hideById("mount_armor-swap")'>Zmień</a>
                     </div>                  
                     <div class="col-3 h6 mb-0 d-flex align-items-center justify-content-center">
-                        <a class="btn btn-danger p-3 pt-2 pb-2 text-light" href='move_eq-{{ mount_armor.id }}'>Odłóż</a>
+                        <a class="btn btn-danger p-3 pt-2 pb-2 text-white" href='move_eq-{{ mount_armor.id }}'>Odłóż</a>
                     </div>
 
                 </div>
@@ -1519,19 +1537,19 @@
             <div class="col p-0 m-0"><hr class="bg-danger mt-4"></div>
         </div>
 
-        <div class='row bg-gray border border-warning m-0 p-0'>
+        <div class='w-75 ms-5 rounded row bg-gray bg-gradient border border-warning m-0 p-2'>
             <div class="col-5 m-0 p-0 text-end text-white-50 h3">
                 Monety:
             </div>
             <div class="col m-0 p-0 h3">
                 <form method="post" action="change-coins">
                     {% csrf_token %}
-                    <input type='number' min="0" id='coins' class='c-gold text-center border-0 bg-gray m-0 p-0 w-75' style='width: 8vw' value='{{ value.coins }}' name="coins-amount">
+                    <input type='number' min="0" id='coins' class='c-gold text-center border-0 bg-gray bg-gradient m-0 p-0 w-75' style='width: 8vw' value='{{ value.coins }}' name="coins-amount">
                 </form>
             </div>
         </div>
 
-        <div class='row bg-gray border border-warning m-0 p-0 mt-2'>
+        <div class='w-100 bg-gray bg-gradient border border-warning m-0 p-0 mt-2 mb-1'>
             <div class="col-3 m-0 p-0 text-end text-white-50 h3">
                 Rasa:
             </div>
