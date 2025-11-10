@@ -495,15 +495,15 @@ class calculateGettingHit(APIView):
 
         destroyed = False
         d_count = 0
-        for part in parts:
-            if part == "armor":
-                continue
-            items[part].durability-=(raw_dmg)
-            if items[part].durability < 0:
-                items[part].durability = 0
-                destroyed = True
-                d_count += 1
-            items[part].save()
+
+        if not "armor" in parts:
+            for part in parts:
+                items[part].durability-=(raw_dmg)
+                if items[part].durability < 0:
+                    items[part].durability = 0
+                    destroyed = True
+                    d_count += 1
+                items[part].save()
 
         destroyed_txt = ""
         if destroyed:
