@@ -1004,12 +1004,10 @@ def fix_item(request, **kwargs):
 def change_coins(request, **kwargs):
     if request.method == 'POST':
         char = get_object_or_404(models.Character, id=kwargs['char_id'])
-        if request.user.is_superuser:
-            char.coins = request.POST['coins-amount']
-            char.save()
-        else:
-            messages.error(request,"Only GM can change coins, go and ask your GM to do so.")
-        return redirect('character_detail', char.id)  
+        char.coins = request.POST['coins-amount']
+        char.save()
+        return redirect('character_detail', char.id) 
+    
 def change_health(request, **kwargs):  
     if request.method == 'POST':
         char = get_object_or_404(models.Character, id=kwargs['char_id'])
