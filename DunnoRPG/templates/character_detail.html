@@ -261,9 +261,23 @@
                 <span class="text-white-50">Pancerz:</span> 
                 <span id='armor'>{{ value.name|getArmor }}</span>
             </div>
-            <div class="col rounded p-1 bg-gray bg-gradient border border-warning m-2 p-1 h6 pb-0">
-                <span class="text-white-50">Życie:</span> 
-                <input type='number' id='hp-val' class='c-gold text-center bg-gray bg-gradient border-0 h6' style='width: 6vw' value='{{ value.HP }}' name="hp">/{{ value.fullHP }}
+            <div class="col rounded p-1 bg-gray bg-gradient border border-warning m-2 p-1 h6 pb-0"> 
+                <form class='' method="post" action="change-health">
+                    {% csrf_token %}
+                    <span class="text-white-50">Życie:</span>
+                    <input type='number' id='hp-val' class='c-gold text-center bg-gray bg-gradient border-0 h6' style='width: 6vw' value='{{ value.HP }}' name="hp">/{{ value.fullHP }}
+                </form>
+            </div>
+        </div>
+
+        <div class="row m-0 p-0">
+            <div class="col rounded bg-gray bg-gradient border border-warning m-2 p-2 h6">
+                <span class="text-white-50">Waga:</span> 
+                <span id='armor-weight'>{{ value.name|getArmorWeight }}kg</span>
+            </div>
+            <div class="col rounded bg-gray bg-gradient border border-warning m-2 p-2 h6">
+                <span class="text-white-50">Kara:</span> 
+                -<span id='armor-mod'></span> ZRE
             </div>
         </div>
 
@@ -272,20 +286,86 @@
                 <span class="text-white-50">Monety:</span> 
                 <span>{{ value.coins  }}</span>
             </div>
-            <div class="col rounded bg-gray bg-gradient border border-warning m-2 p-2 h6">
-                <span class="text-white-50">Waga:</span> 
-                <span id='armor-weight'>{{ value.name|getArmorWeight }}kg</span> 
-            </div>
         </div>
 
-        <div class="row m-0 p-0 mt-1 d-none"> 
+        <div class="row m-0 p-0 mt-1">
             <div class="col">
-                <a class="btn bg-danger bg-gradient text-white w-100 ps-2 pe-2" onclick="console.log('test')"> 
+                <a class="btn bg-danger bg-gradient text-white w-100 ps-2 pe-2" onclick="show_or_hideById('get-damage')"> <!-- Tutaj pokazanie formularza z wyborem części ciała i wartości dmg, ap oraz OK jako href do viewsa który ogarnie i potem powróci tutaj -->
                     Otrzymano obrażenia
                 </a>
             </div>
         </div>
 
+        <div id='get-damage' class='d-none h5 position-fixed bg-dark c-gold container-fluid m-0 p-0 border border-danger' style="top: 5vh; width: 100vw; overflow: auto;">
+            <div class="row m-0 p-0 mt-2">
+                <div class="col text-center text-danger">
+                    <h4>Miejsce obrażeń</h4>
+                </div>
+            </div>
+
+            <div class="row m-0 p-0">
+                <div id="get-dmg-head" class="col bg-gray p-2 m-1 rounded bg-gradient border border-warning get-dmg-place" onclick="setActive('get-dmg-head')">
+                    Głowa
+                </div>
+                <div id="get-dmg-torso" class="col bg-gray p-2 m-1 rounded bg-gradient border border-primary active text-primary get-dmg-place" onclick="setActive('get-dmg-torso')">
+                    Torso
+                </div>
+                <div id="get-dmg-hands" class="col bg-gray p-2 m-1 rounded bg-gradient border border-warning get-dmg-place" onclick="setActive('get-dmg-hands')">
+                    Ręce
+                </div>
+                <div id="get-dmg-legs" class="col bg-gray p-2 m-1 rounded bg-gradient border border-warning get-dmg-place" onclick="setActive('get-dmg-legs')">
+                    Nogi
+                </div>
+                <div id="get-dmg-armor" class="col bg-gray p-2 m-1 rounded bg-gradient border border-warning get-dmg-place" onclick="setActive('get-dmg-armor')">
+                    Ignoruj pancerz
+                </div>
+            </div>
+
+            <div class="row m-0 p-0 mt-2">
+                <div class="col text-center text-danger">
+                    <h4>Ilość obrażeń</h4>
+                </div>
+            </div>
+
+            <div class="row m-0 p-0 mt-2">
+                <div class="col">
+                    <div class="col">
+                        Obrażenia:
+                    </div>
+                    <div class="col">
+                        <input type="number" class="bg-gray border border-warning c-gold rounded text-center" id="get-dmg-dmg"/>
+                    </div>
+                </div>
+
+                <div class="col mt-1 m-0 p-0">
+                    <div class="col">
+                        AP:
+                    </div>
+                    <div class="col">
+                        <input type="number" class="bg-gray border border-warning c-gold rounded text-center" id="get-dmg-ap"/>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row m-0 p-0 mt-3">
+                <div class="col-9 m-0 p-0 text-end">
+                    Zastosuj mnożnik ciała:
+                </div>
+                <div class="col text-start">
+                    <input type="checkbox" id="get-dmg-ign-chk" style="width: 5vw; height: 3.5vh" checked />
+                </div>
+            </div>
+
+            <div class="row m-0 p-0 mt-4 mb-2">
+                <div class="col m-0 p-0">
+                    <a class="w-75 btn btn-danger" onclick="show_or_hideById('get-damage')">Wróć</a>
+                </div>
+                <div class="col m-0 p-0">
+                    <a class="w-75 btn btn-success" onclick="calculateGettingHit()">OK</a>
+                </div>
+            </div>
+        </div>
+        
         <div class="row mt-2 mb-3 m-0 p-0 text-danger">
             <div class="col-5 p-0 m-0"><hr class="bg-danger mt-4"></div>
             <div class="col-2 p-0 m-0">
@@ -309,11 +389,15 @@
                 <div class="row me-0 pe-0">
                     <div class="col text-center">
                         <a href='/dunnorpg/items/{{ helmet.name|getDescId }}' class="{{ helmet.name|getItemRarity }} h4">
-                            {{ helmet.name }} {{ helmet.name|getDurabilityPercent:helmet.durability }}
+                            {{ helmet.name }} {{ helmet.name|getDurabilityPercent:helmet.durability }} 
+                            {% if user.is_superuser %}
+                                <a href="/admin/DunnoRPG/charitems/{{ helmet.id }}/change/" class="fa fa-link" target="_blank"></a>
+                            {% endif %}
                         </a>
                     </div>
                 </div>
 
+                <hr class="mb-0 mt-1">
                 {% if helmet.name|getSkill %}
                     <div class="row me-0 pe-0">
                         <div class="col text-justified {{ helmet.name|getItemRarity }} p-0 ps-1 pt-1">
@@ -425,7 +509,10 @@
                 <div class="row me-0 pe-0">
                     <div class="col text-center">
                         <a href='/dunnorpg/items/{{ torso.name|getDescId }}' class="{{ torso.name|getItemRarity }} h4">
-                            {{ torso.name }} {{ torso.name|getDurabilityPercent:torso.durability }}
+                            {{ torso.name }} {{ torso.name|getDurabilityPercent:torso.durability }} 
+                            {% if user.is_superuser %}
+                                <a href="/admin/DunnoRPG/charitems/{{ torso.id }}/change/" class="fa fa-link" target="_blank"></a>
+                            {% endif %}
                         </a>
                     </div>
                 </div>
@@ -569,7 +656,10 @@
                 <div class="row me-0 pe-0">
                     <div class="col text-center">
                         <a href='/dunnorpg/items/{{ leftItem.name|getDescId }}' class="{{ leftItem.name|getItemRarity }} h4">
-                            {{ leftItem.name }} <span id="l-dur-perc">{{ leftItem.name|getDurabilityPercent:leftItem.durability }}</span>
+                            {{ leftItem.name }} <span id="l-dur-perc">{{ leftItem.name|getDurabilityPercent:leftItem.durability }}</span> 
+                            {% if user.is_superuser %}
+                                <a href="/admin/DunnoRPG/charitems/{{ leftItem.id }}/change/" class="fa fa-link" target="_blank"></a>
+                            {% endif %}
                         </a>
                     </div>
                 </div>
@@ -720,7 +810,10 @@
                 <div class="row me-0 pe-0">
                     <div class="col text-center">
                         <a href='/dunnorpg/items/{{ rightItem.name|getDescId }}' class="{{ rightItem.name|getItemRarity }} h4">
-                            {{ rightItem.name }} <span id="r-dur-perc">{{ rightItem.name|getDurabilityPercent:rightItem.durability }}</span>
+                            {{ rightItem.name }} <span id="r-dur-perc">{{ rightItem.name|getDurabilityPercent:rightItem.durability }}</span> 
+                            {% if user.is_superuser %}
+                                <a href="/admin/DunnoRPG/charitems/{{ rightItem.id }}/change/" class="fa fa-link" target="_blank"></a>
+                            {% endif %}
                         </a>
                     </div>
                 </div>
@@ -845,7 +938,10 @@
                 <div class="row me-0 pe-0">
                     <div class="col text-center">
                         <a href='/dunnorpg/items/{{ sideItem.name|getDescId }}' class="{{ sideItem.name|getItemRarity }} h4">
-                            {{ sideItem.name }} {{ sideItem.name|getDurabilityPercent:sideItem.durability }}
+                            {{ sideItem.name }} {{ sideItem.name|getDurabilityPercent:sideItem.durability }} 
+                            {% if user.is_superuser %}
+                                <a href="/admin/DunnoRPG/charitems/{{ sideItem.id }}/change/" class="fa fa-link" target="_blank"></a>
+                            {% endif %}
                         </a>
                     </div>
                 </div>
@@ -967,7 +1063,10 @@
                 <div class="row me-0 pe-0">
                     <div class="col text-center">
                         <a href='/dunnorpg/items/{{ boots.name|getDescId }}' class="{{ boots.name|getItemRarity }} h4">
-                            {{ boots.name }} {{ boots.name|getDurabilityPercent:boots.durability }}
+                            {{ boots.name }} {{ boots.name|getDurabilityPercent:boots.durability }} 
+                            {% if user.is_superuser %}
+                                <a href="/admin/DunnoRPG/charitems/{{ boots.id }}/change/" class="fa fa-link" target="_blank"></a>
+                            {% endif %}
                         </a>
                     </div>
                 </div>
@@ -1084,7 +1183,10 @@
                 <div class="row me-0 pe-0">
                     <div class="col text-center">
                         <a href='/dunnorpg/items/{{ gloves.name|getDescId }}' class="{{ gloves.name|getItemRarity }} h4">
-                            {{ gloves.name }} {{ gloves.name|getDurabilityPercent:gloves.durability }}
+                            {{ gloves.name }} {{ gloves.name|getDurabilityPercent:gloves.durability }} 
+                            {% if user.is_superuser %}
+                                <a href="/admin/DunnoRPG/charitems/{{ gloves.id }}/change/" class="fa fa-link" target="_blank"></a>
+                            {% endif %}
                         </a>
                     </div>
                 </div>
@@ -1840,6 +1942,44 @@ function wearItem(place, block_id){
     it1 = it1.options[it1.selectedIndex].id
     url = window.location.href+it1+';'+place
     window.location.replace(url)
+}
+
+function setActive(id){
+    let block = document.getElementById(id)
+
+    if(block.classList.contains('active')){
+        block.classList.remove('active')
+        block.classList.remove('border-primary')
+        block.classList.remove('text-primary')
+        block.classList.add('border-warning')
+        block.classList.add('c-gold') 
+    }else{
+        block.classList.add('active')
+        block.classList.add('border-primary') 
+        block.classList.add('text-primary') 
+        block.classList.remove('border-warning') 
+        block.classList.remove('c-gold') 
+    }
+}
+
+function calculateGettingHit(){
+    let url = window.location.href
+    let dmg = document.getElementById('get-dmg-dmg').value
+    let ap = document.getElementById('get-dmg-ap').value
+    let use_multiplier = Number(document.getElementById('get-dmg-ign-chk').checked)
+    let parts_block = document.getElementsByClassName('active get-dmg-place')
+    let parts = []
+    
+    if(dmg==''){dmg=0}
+    if(ap==''){ap=0}
+
+    for (let i=0; i<parts_block.length; i++) {
+        parts.push(parts_block[i].id.replace('get-dmg-',''))
+    }
+
+    let parts_str = parts.join('|')
+
+    window.location.replace(url+`calculate_hit-${dmg}-${ap}-${parts_str}-${use_multiplier}`)
 }
 
 function getWeaponMod(){

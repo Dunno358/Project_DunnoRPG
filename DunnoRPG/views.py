@@ -431,8 +431,6 @@ class CharacterDetails(DetailView):
         context['eq_mounts'] = eq_mounts_qs
         context['eq_mounts_armor'] = eq_mounts_armor_qs
 
-        print(context['eq_mounts'])
-
         return context 
     
 class TakeItemDurFromAttack(APIView):
@@ -442,6 +440,80 @@ class TakeItemDurFromAttack(APIView):
             item.durability-=1
         item.save()
         return Response("OK")
+
+class calculateGettingHit(APIView):
+    def get(self, request, *args, **kwargs):
+        dmg = kwargs['dmg']
+        ap = kwargs['ap']
+        parts = kwargs['parts'].split("|")
+        use_multiplier = bool(kwargs['multiplier'])
+        raw_dmg = int(dmg+ap)
+
+        deadly = True
+        if parts == ["head"] and use_multiplier:
+            dmg = int(dmg*1.5)
+        if parts in [["hands"],["legs"],["hands","legs"]]:
+            deadly = False
+
+        char = get_object_or_404(models.Character, id=kwargs['char_id'])
+        helmet = models.CharItems.objects.filter(character=char.name, position='Helmet').first()
+        torso = models.CharItems.objects.filter(character=char.name, position='Torso').first()
+        boots = models.CharItems.objects.filter(character=char.name, position='Boots').first()
+        gloves = models.CharItems.objects.filter(character=char.name, position='Gloves').first()
+        items = {
+            'head': helmet,
+            'torso': torso,
+            'legs': boots,
+            'hands': gloves
+        }
+
+        armor = 0
+
+        if not "armor" in parts:
+            for item in items:
+                item = items[item]
+                try:
+                    desc_armor = models.Items.objects.filter(name=item.name).first().armor
+                    if desc_armor != 0:
+                        armor += math.ceil(item.durability / 50)
+                except:
+                    pass
+
+            armor -= ap
+            dmg -= armor
+
+        injured = ""
+        if dmg > 0:
+            char.HP -= dmg
+            if char.HP <= 0:
+                if deadly:
+                    char.HP = 0
+                else:
+                    char.HP = 1 #Attacks on hand/leg cannot kill directly
+                injured = " oraz stajesz się nieprzytomny/a. Zaczynasz się wykrwawiać"
+            char.save()
+
+        destroyed = False
+        d_count = 0
+        for part in parts:
+            if part == "armor":
+                continue
+            items[part].durability-=(raw_dmg)
+            if items[part].durability < 0:
+                items[part].durability = 0
+                destroyed = True
+                d_count += 1
+            items[part].save()
+
+        destroyed_txt = ""
+        if destroyed:
+            destroyed_txt = f"Krytycznie uszkodzono {d_count} elementów pancerza."
+
+        if dmg > 0: 
+            messages.error(request, f"Uderzenie przebiło pancerz! Tracisz {dmg} życia{injured}. {destroyed_txt}")
+        else:
+            messages.success(request, "Uderzenie zatrzymało się na pancerzu!")
+        return redirect(f"/dunnorpg/character_detail/{kwargs['char_id']}")
 
 class TakeAmmoFromAttack(APIView):
     def get(self, request, *args, **kwargs):
@@ -941,12 +1013,10 @@ def change_coins(request, **kwargs):
 def change_health(request, **kwargs):  
     if request.method == 'POST':
         char = get_object_or_404(models.Character, id=kwargs['char_id'])
-        if request.user.is_superuser:
-            char.HP = request.POST['hp']
-            char.save()
-        else:
-            messages.error(request,"Only GM can change health, go and ask your GM to do so.")
+        char.HP = request.POST['hp']
+        char.save()
         return redirect('character_detail', char.id) 
+    
 def char_wear_item(request, **kwargs):
     char = get_object_or_404(models.Character, id=kwargs['char_id'])
     char_skills = models.Skills.objects.filter(character=char.name)
