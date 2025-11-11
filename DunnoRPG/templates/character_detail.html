@@ -10,13 +10,13 @@
 
         <div class='row text-center ms-1'>
             <div class='col mt-4'>
-                <h5 id='window-action-text-top' class='m-1'></h5>
+                <h3 id='window-action-text-top' class='m-1'></h3>
             </div>
         </div>
 
         <div class='row text-center ms-1'>
             <div class='col mt-1 mb-2'>
-                <h2 id='window-action-text-center' class='m-1'>Action</h2>
+                <h3 id='window-action-text-center' class='m-1'>Action</h3>
             </div>
         </div>
 
@@ -189,19 +189,19 @@
 <div class="container-fluid" style="position: sticky; top: 0.5px; z-index: 5">        
     <div class="header-bg bg-dark border-top border-bottom border-primary row">
         <div class='col-3 m-0 p-1 btn btn-dark btn-outline-warning border border-warning rounded' id='Stats'  onclick="show_or_hideByName(this)">
-            <span class='fas fa-stream'><br>Statystyki</span>
+            <span class='fas fa-stream'></span><br>Statystyki
         </div>
 
         <div class='col-2 m-0 p-1 btn btn-dark btn-outline-warning border border-warning rounded' id='Move' onclick="show_or_hideByName(this)">
-            <span class='fas fa-running'><br>Ruch</span>
+            <span class='fas fa-running'></span><br>Ruch
         </div>
 
         <div class='col-4 m-0 p-1 btn btn-dark btn-outline-warning border border-warning rounded' id='Skills' onclick="show_or_hideByName(this)">
-            <span class='fas fa-meteor'><br>Umiejętności</span>
+            <span class='fas fa-meteor'></span><br>Umiejętności
         </div>
 
         <div class='col-3 m-0 p-1 btn btn-dark btn-outline-warning border border-warning rounded' id='Effects' onclick="show_or_hideByName(this)">
-            <span class='fas fa-theater-masks'><br>Efekty</span>
+            <span class='fas fa-theater-masks'></span><br>Efekty
         </div>
     </div>
 </div>
@@ -1872,16 +1872,16 @@
 <div class='container mt-2' style="position: sticky; bottom: 0.5px;">
     <div class='row'>
         <div onclick='show_result_at_window("Parry")' class='col-3 m-0 p-1 btn btn-dark btn-outline-warning border border-warning rounded'>
-            <span class='fas fa-shield-alt'><br>Parowanie</span>
+            <span class='fas fa-shield-alt'></span><br>Parowanie
         </div>
         <div onclick='show_result_at_window("Dodge")' class='col-2 m-0 p-1 btn btn-dark btn-outline-warning border border-warning rounded'>
-            <span class='fas fa-walking'><br>Unik</span>
+            <span class='fa-solid fa-person-falling' id="dodge-icon"></span><br>Unik
         </div>
         <a href='/dunnorpg/items/ch{{ value.id }}' name='eq-link' class='col-4 m-0 p-1 btn btn-dark btn-outline-warning border border-warning rounded'>
-            <span class='fas fa-toolbox'><br>Ekwipunek</span>
+            <span class='fas fa-toolbox'></span><br>Ekwipunek
         </a>
         <div onclick='document.getElementById("notes-block").classList.remove("d-none")' class='col-3 m-0 p-1 btn btn-dark btn-outline-warning border border-warning rounded'>
-            <span class='fas fa-pencil-alt'><br>Notatki</span>
+            <span class='fas fa-pencil-alt'></span><br>Notatki
         </div>
     </div>
 </div>
@@ -2045,7 +2045,6 @@ function isHit(hand, dualHanded=false){
     }
 
     let neededAcc = 6
-    console.log(itemName)
     neededAcc = accurs[itemType]
     if(!neededAcc){
         if(dualHanded){
@@ -2123,7 +2122,6 @@ async function showAttackResult(hand, dualHanded=false, item_id=null){
         multiplier=1.5
     }
 
-    console.log(ammo_unavailable)
     if(isDestr=='destructible'){
         let take_ammo = await fetch(url+`take_dur-${item_id}`, {
             method: "GET"
@@ -2154,7 +2152,6 @@ async function showAttackResult(hand, dualHanded=false, item_id=null){
         staffDmg = document.getElementById('r-staff-dmg').textContent.split(";")[0].slice(1)
     }
 
-    console.log(dur)
     if(bonus==''){
         bonus = 0
     }else{
@@ -2344,8 +2341,11 @@ function show_result_at_window(action){
     document.getElementById('pop-window').classList.remove('d-none')
 
 
-    window_action = document.getElementById('window-action-text-center')
-    window_action_additional = document.getElementById('window-action-text-top')
+    window_action_bottom = document.getElementById('window-action-text-center')
+    window_action_top = document.getElementById('window-action-text-top')
+
+    window_action_top.textContent = ""
+    window_action_bottom.textContent = ""
 
     window_url = document.getElementById('window-footer-text')
 
@@ -2355,52 +2355,10 @@ function show_result_at_window(action){
     if(action=='Dice'){window_url.innerHTML = 'Google Dice'}
     else{window_url.innerHTML = ''}
 
-
-    if(action == 'Dice')
-    {
-        diceRoll = getRandomInt(1,21)
-        window_action.innerHTML = "<b>Dice:</b> " + diceRoll
-        window_action.onclick = ''
-        window_action_additional.innerHTML = ''
-        window_action_additional.onclick = ''
-    }
-
-    else if (action == 'Accuraccy')
-    {
-        count_armor = false
-        special_classes = ["kusznik", "strzelec wyborowy", "rewolwerowiec", "łucznik"]
-        try{
-            char_class = document.getElementById("char-class").innerHTML
-            if(special_classes.includes(char_class.trim().toLowerCase())){
-                count_armor = true
-            }
-        }catch{
-            count_armor = false
-        }
-        window_action_additional.innerHTML = ''
-        window_action_additional.onclick = ''
-        cel_effect_bonus = parseInt(document.getElementById('effects-accuraccy').innerHTML)
-        cel = parseInt(document.getElementById('stat-CEL').innerHTML)
-        cel_mod = parseInt(document.getElementById('stat-CEL-mod').innerHTML)
-        armor_mod = parseInt(document.getElementById('armor-mod').innerHTML) 
-        weight_mod = document.getElementById('weapon-weight-mod').innerHTML
-        cel_mods = cel+cel_mod+cel_effect_bonus-weight_mod
-        if(count_armor){
-            cel_mods -= armor_mod
-        }
-
-        dice_result = getDiceWMods(window_action,cel_mods,getResult=true,text=action)
-
-        details = 'CEL'+'('+cel+')'+ ' + '+'MODS'+'('+(cel_mod+cel_effect_bonus)+')'+' - WEAPON WEIGHT('+weight_mod+')'
-        if(count_armor){
-            details += ' & ARMOR'+'('+(-armor_mod)+')'
-        }
-        window_action.onclick = function() {change_result(details,window_action,cel_mods, dice_result)}
-        console.log(count_armor)
-    }
     
-    else if (action == 'Dodge')
+    if (action == 'Dodge')
     {
+        let dodge_icon = document.getElementById('dodge_icon')
         dodge_effect_bonus = parseInt(document.getElementById('effects-dodge').innerHTML)
         zre = parseInt(document.getElementById('stat-ZRE').innerHTML)
         zre_mod = parseInt(document.getElementById('stat-ZRE-mod').innerHTML) 
@@ -2408,145 +2366,96 @@ function show_result_at_window(action){
         weight_mod = document.getElementById('shield-weight-mod').innerHTML
         dodge_mods = zre+zre_mod+dodge_effect_bonus-armor_mod-weight_mod
 
-        window_action_additional.innerHTML = ''
-        window_action_additional.onclick = ''
+        window_action_top.innerHTML = ''
+        window_action_top.onclick = ''
 
-        dice_result = getDiceWMods(window_action,dodge_mods,getResult=true,text="Bonus do wyniku rzutu kości")
+        dice_result = getDiceWMods(window_action_top,dodge_mods,getResult=true,text="Unik | Bonus do wyniku kości")
 
         details = 'ZRE'+'('+zre+')'+ ' + '+'MODS'+'('+(zre_mod+dodge_effect_bonus)+')'+ ' + '+'ARMOR'+'('+(-armor_mod)+')'+' - SHIELD WEIGHT('+weight_mod+')'
-        window_action.onclick = function() {change_result(details,window_action,dodge_mods, dice_result)}
-    }
-
-    else if (action == 'Attack')
-    {
-        attack_effect_bonus = parseInt(document.getElementById('effects-attack').innerHTML)
-        sil = parseInt(document.getElementById('stat-SIŁ').innerHTML)
-        sil_mod = parseInt(document.getElementById('stat-SIŁ-mod').innerHTML) 
-        amulet_bonus = parseInt(document.getElementById('amulet-attack-mod').innerHTML) 
-
-
-        if(document.getElementById('l_bonus').innerHTML != 'Empty')
-        {
-            leftWeapon = document.getElementById('l_weapon')
-            l_type = leftWeapon.getAttribute('name')
-            if(['Pistol','Musket','Crossbow','Bow'].includes(l_type)){
-                sil=0
-                sil_mod=0
-            }
-            l_bonus = parseInt(document.getElementById('l_bonus').innerHTML)+amulet_bonus
-            l_range = `[Zasięg ${left_range}] `
-
-            if(leftWeapon.getAttribute("name") == 'shield')
-            { //shield-left-hand-attack
-                shield_attack_mods = sil+sil_mod-10+attack_effect_bonus
-                l_shield_dice_result = l_range+getDiceWMods(window_action_additional,shield_attack_mods,getResult=true,text='Left hand',d0exception=false ,prefix=l_range)
-                l_shield_details = 'SIŁ'+'('+sil+')'+ ' + ' + 'MODS'+'('+sil_mod+')'+' + '+'BONUS'+'('+l_bonus+')'+' + '+'BASIC(-10)'
-                window_action_additional.onclick = function() {change_result(l_shield_details,window_action_additional,shield_attack_mods, l_shield_dice_result,additional=true)}
-            }
-            else
-            { //normal-left-hand-attack
-                leftWeaponDmg = parseInt(document.getElementById('l_dmg').innerHTML)
-                leftWeaponAp = parseInt(document.getElementById('l_ap').innerHTML)
-                l_mods = sil+sil_mod+leftWeaponDmg+l_bonus+attack_effect_bonus
-                l_normal_dice_result = l_range+getDiceWMods(window_action_additional,l_mods,getResult=true,text='Left hand',d0exception=false ,prefix=l_range)
-                l_normal_details = 'SIŁ'+'('+sil+')'+ ' + '+'MODS'+'('+(sil_mod+attack_effect_bonus)+')'+' + '+'WEAPON'+'('+leftWeaponDmg+')'+' + '+'BONUS'+'('+l_bonus+')'+' ; '+'AP'+'('+leftWeaponAp+')'
-                window_action_additional.onclick = function() {change_result(l_normal_details,window_action_additional,l_mods, l_normal_dice_result,additional=true)}
-            }
-        }
-        else{window_action_additional.innerHTML = 'Left hand: Empty'}
-
-
-
-        if(document.getElementById('r_bonus').innerHTML != 'Empty' && document.getElementById('r_bonus').innerHTML != '')
-        {
-            rightWeapon = document.getElementById('r_weapon')
-            r_bonus = parseInt(document.getElementById('r_bonus').innerHTML)+amulet_bonus
-            r_type = rightWeapon.getAttribute('name')
-            r_range = `[Zasięg ${right_range}] `
-            if(['Pistol','Musket','Crossbow','Bow'].includes(r_type)){
-                sil=0
-                sil_mod=0
-            }
-
-            if(rightWeapon.getAttribute("name") == 'shield')
-            { //shield-right-hand-attack
-                shield_attack_mods = sil+sil_mod-10+attack_effect_bonus
-                r_shield_dice_result = r_range+getDiceWMods(window_action,shield_attack_mods,getResult=true,text='Right hand',d0exception=false ,prefix=r_range)
-                r_shield_details = 'SIŁ'+'('+sil+')'+ ' + ' + 'MODS'+'('+sil_mod+')'+' + '+'BONUS'+'('+r_bonus+')'+' + '+'BASIC(-10)'
-                window_action.onclick = function() {change_result(r_shield_details,window_action,shield_attack_mods, r_shield_dice_result)}
-            }
-            else
-            { //normal-right-hand-attack
-                rightWeaponDmg = parseInt(document.getElementById('r_dmg').innerHTML)
-                rightWeaponAp = parseInt(document.getElementById('r_ap').innerHTML)
-                r_mods = sil+sil_mod+rightWeaponDmg+r_bonus+attack_effect_bonus
-                r_normal_dice_result = r_range+getDiceWMods(window_action,r_mods,getResult=true,text='Right hand',d0exception=false ,prefix=r_range)
-                r_normal_details = 'SIŁ'+'('+sil+')'+ ' + '+'MODS'+'('+(sil_mod+attack_effect_bonus)+')'+' + '+'WEAPON'+'('+rightWeaponDmg+')'+' + '+'BONUS'+'('+r_bonus+')'+' ; '+'AP'+'('+rightWeaponAp+')'
-                window_action.onclick = function() {change_result(r_normal_details,window_action,r_mods, r_normal_dice_result)}
-            }  
-        }
-        else{window_action.innerHTML = 'Right hand: Empty'}
+        window_action_top.onclick = function() {change_result(details,window_action,dodge_mods, dice_result)}
     }
 
     else if (action == 'Parry')
     {
-        window_action.textContent = "Obecnie niedostępne"
+        try{l_range=parseInt(document.getElementById('l-range').textContent)}catch{l_range=0}
+        try{r_range=parseInt(document.getElementById('r-range').textContent)}catch{r_range=0}
+        //window_action.textContent = "Obecnie niedostępne"
         parry_effect_bonus = parseInt(document.getElementById('effects-parry').innerHTML)
         sil = parseInt(document.getElementById('stat-SIŁ').innerHTML)
         sil_mod = parseInt(document.getElementById('stat-SIŁ-mod').innerHTML) 
-        l_type = document.getElementById('l-type').textContent
+        try{l_type = document.getElementById('l-type').textContent}catch{l_type=null}
+        try{r_type = document.getElementById('r-type').textContent}catch{r_type=null}
+        try{
+            r_bonus = parseInt(document.getElementById('r_bonus').textContent.slice(1,-1))
+        }catch{
+            r_bonus = 0
+        }
+        if(isNaN(r_bonus)){r_bonus=0}
+
+        try{
+            l_bonus = parseInt(document.getElementById('l_bonus').textContent.slice(1,-1))
+        }catch{
+            l_bonus = 0
+        }
+        if(isNaN(l_bonus)){l_bonus=0}
 
 
-        if(document.getElementById('l_bonus').innerHTML != 'Empty')
+        if(l_range>8){
+            window_action_top.innerHTML = 'Parowanie | Lewa ręka: Brak modyfikatorów.'
+        }
+        else if(l_type)
         {
             leftWeapon = document.getElementById('l_weapon')
-            l_bonus = parseInt(document.getElementById('l_bonus').innerHTML)
 
             if(l_type == "Tarcza")
             { //shield-left-hand-attack
-                l_block = parseInt(document.getElementById('l_block').innerHTML)
-                l_shield_dice_result = getDiceWMods(window_action_additional,(l_block+l_bonus),getResult=true,text='Left hand', d0exception=true)
+                l_stats = document.getElementById('l_stats').textContent
+                l_block = parseInt(l_stats.split(":")[1])
+                l_shield_dice_result = getDiceWMods(window_action_top,(l_block+l_bonus),getResult=true,text='Blok tarczą - Lewa ręka', d0exception=true)
                 l_shield_details = 'BLOCK'+'('+l_block+')'+ ' + ' + 'BONUS'+'('+l_bonus+')'
-                window_action_additional.onclick = function() {change_result(l_shield_details,window_action_additional,(l_block+l_bonus), l_shield_dice_result,additional=true)}
+                window_action_top.onclick = function() {change_result(l_shield_details,window_action_top,(l_block+l_bonus), l_shield_dice_result,additional=true)}
             }
             else
             { //normal-left-hand-parry
-                leftWeaponDmg = parseInt(document.getElementById('l_dmg').innerHTML)
-                leftWeaponAp = parseInt(document.getElementById('l_ap').innerHTML)
-                l_mods = sil+sil_mod+leftWeaponDmg+l_bonus+parry_effect_bonus
-                l_normal_dice_result = getDiceWMods(window_action_additional,l_mods,getResult=true,text='Left hand')
-                l_normal_details = 'SIŁ'+'('+sil+')'+ ' + '+'MODS'+'('+(sil_mod+parry_effect_bonus)+')'+' + '+'WEAPON'+'('+leftWeaponDmg+')'+' + '+'BONUS'+'('+l_bonus+')'
-                window_action_additional.onclick = function() {change_result(l_normal_details,window_action_additional,l_mods, l_normal_dice_result,additional=true)}
+                l_stats = document.getElementById('l_stats').textContent
+                leftWeaponDmg = parseInt(l_stats.split(",")[0].replace('1K',''))
+                leftWeaponApBonus = Math.round(parseInt(l_stats.split(",")[1].replace('AP',''))/2)
+                l_mods = sil+sil_mod+leftWeaponDmg+l_bonus+parry_effect_bonus+leftWeaponApBonus
+                l_normal_dice_result = getDiceWMods(window_action_top,l_mods,getResult=true,text='Parowanie - Lewa ręka | Bonus do kości', d0exception=true)
+                l_normal_details = 'SIŁ'+'('+sil+')'+ ' + '+'MODS'+'('+(sil_mod+parry_effect_bonus)+')'+' + '+'WEAPON'+'('+leftWeaponDmg+')'+' + '+'BONUS'+'('+l_bonus+')'+' + '+'AP Bonus'+'('+leftWeaponApBonus+')'
+                window_action_top.onclick = function() {change_result(l_normal_details,window_action_top,l_mods, l_normal_dice_result,additional=true)}
             }
         }
-        else{window_action_additional.innerHTML = 'Left hand: Empty'}
+        else{window_action_top.innerHTML = 'Parowanie lewej ręki niedostępne'}
 
 
-
-        if(document.getElementById('r_bonus').innerHTML != 'Empty' && document.getElementById('r_bonus').innerHTML != '')
+        if(r_range>8){
+            window_action_bottom.innerHTML = 'Parowanie | Prawa ręka: Brak modyfikatorów.'
+        }
+        else if(r_type)
         {
             rightWeapon = document.getElementById('r_weapon')
-            r_bonus = parseInt(document.getElementById('r_bonus').innerHTML)
-            r_type = document.getElementById('r-type').textContent
 
             if(r_type == "Tarcza")
             { //shield-right-hand-attack
-                r_block = parseInt(document.getElementById('r_block').innerHTML)
+                r_stats = document.getElementById('r_stats').textContent
+                r_block = parseInt(r_stats.split(":")[1])
                 r_shield_dice_result = getDiceWMods(window_action,(r_block+r_bonus),getResult=true,text='Right hand', d0exception=true)
                 r_shield_details = 'BLOCK'+'('+r_block+')'+ ' + ' + 'BONUS'+'('+r_bonus+')'
-                window_action.onclick = function() {change_result(r_shield_details,window_action,(r_block+r_bonus), r_shield_dice_result)}
+                window_action_bottom.onclick = function() {change_result(r_shield_details,window_action_bottom,(r_block+r_bonus), r_shield_dice_result)}
             }
             else
             { //normal-right-hand-parry
-                rightWeaponDmg = parseInt(document.getElementById('r_dmg').innerHTML)
-                rightWeaponAp = parseInt(document.getElementById('r_ap').innerHTML)
-                r_mods = sil+sil_mod+rightWeaponDmg+r_bonus+parry_effect_bonus
-                r_normal_dice_result = getDiceWMods(window_action,r_mods,getResult=true,text='Right hand')
-                r_normal_details = 'SIŁ'+'('+sil+')'+ ' + '+'MODS'+'('+(sil_mod+parry_effect_bonus)+')'+' + '+'WEAPON'+'('+rightWeaponDmg+')'+' + '+'BONUS'+'('+r_bonus+')'
-                window_action.onclick = function() {change_result(r_normal_details,window_action,r_mods, r_normal_dice_result)}
+                r_stats = document.getElementById('r_stats').textContent
+                rightWeaponDmg = parseInt(r_stats.split(",")[0].replace('1K',''))
+                rightWeaponApBonus = Math.round(parseInt(r_stats.split(",")[1].replace('AP',''))/2)
+                r_mods = sil+sil_mod+rightWeaponDmg+r_bonus+parry_effect_bonus+rightWeaponApBonus
+                r_normal_dice_result = getDiceWMods(window_action_bottom,r_mods,getResult=true,text='Parowanie - Prawa ręka | Bonus do kości', d0exception=true)
+                r_normal_details = 'SIŁ'+'('+sil+')'+ ' + '+'MODS'+'('+(sil_mod+parry_effect_bonus)+')'+' + '+'WEAPON'+'('+rightWeaponDmg+')'+' + '+'BONUS'+'('+r_bonus+')'+' + '+'AP Bonus'+'('+rightWeaponApBonus+')'
+                window_action_bottom.onclick = function() {change_result(r_normal_details,window_action_bottom,r_mods, r_normal_dice_result)}
             }
         }
-        else{window_action.innerHTML = 'Right hand: Empty'}
+        else{window_action_bottom.innerHTML = 'Parowanie prawej ręki niedostępne'}
     }
 }
 
