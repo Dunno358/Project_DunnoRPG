@@ -5,12 +5,8 @@
 {% include 'dunnorpg/messages.html' %}
 <!-- TODO: Add checking if class armor allows for item when putting on or changing item of armor -->
 
-<style>
-    hr   {opacity: 1;}
-</style>
-
 <div id='pop-window' class='d-none position-fixed container-fluid mt-5'>
-    <div class='row bg-dark c-gold rounded border border-warning mt-5 ms-5 me-5'>
+    <div class='row bg-dark c-gold rounded border border-warning m-0'>
 
         <div class='row text-center ms-1'>
             <div class='col mt-4'>
@@ -19,8 +15,8 @@
         </div>
 
         <div class='row text-center ms-1'>
-            <div class='col mt-4 mb-2'>
-                <h5 id='window-action-text-center' class='m-1'>Action</h5>
+            <div class='col mt-1 mb-2'>
+                <h2 id='window-action-text-center' class='m-1'>Action</h2>
             </div>
         </div>
 
@@ -190,19 +186,23 @@
     </div>
 </div>
 
-<div class="container-fluid">        
-    <div class="header-bg bg-dark border-top border-bottom border-primary mt-1 row">
-        <button id='Stats'  onclick="show_or_hideByName(this)" class='col m-1 btn btn-dark btn-outline-warning border border-warning rounded'>
-            Stats</button>
+<div class="container-fluid" style="position: sticky; top: 0.5px; z-index: 5">        
+    <div class="header-bg bg-dark border-top border-bottom border-primary row">
+        <div class='col-3 m-0 p-1 btn btn-dark btn-outline-warning border border-warning rounded' id='Stats'  onclick="show_or_hideByName(this)">
+            <span class='fas fa-stream'><br>Statystyki</span>
+        </div>
 
-        <button id='Equipment' onclick="show_or_hideByName(this)" class='col m-1 btn btn-dark btn-outline-primary border border-primary rounded'>
-            Equipment</button>
+        <div class='col-2 m-0 p-1 btn btn-dark btn-outline-warning border border-warning rounded' id='Move' onclick="show_or_hideByName(this)">
+            <span class='fas fa-running'><br>Ruch</span>
+        </div>
 
-        <button id='Skills' onclick="show_or_hideByName(this)" class='col m-1 btn btn-dark btn-outline-warning border border-warning rounded'>
-            Skills</button>
-        
-        <button id='Effects' onclick="show_or_hideByName(this)" class='col m-1 btn btn-dark borderborder-warning btn-outline-warning rounded'>
-            Effects</button>
+        <div class='col-4 m-0 p-1 btn btn-dark btn-outline-warning border border-warning rounded' id='Skills' onclick="show_or_hideByName(this)">
+            <span class='fas fa-meteor'><br>Umiejętności</span>
+        </div>
+
+        <div class='col-3 m-0 p-1 btn btn-dark btn-outline-warning border border-warning rounded' id='Effects' onclick="show_or_hideByName(this)">
+            <span class='fas fa-theater-masks'><br>Efekty</span>
+        </div>
     </div>
 </div>
 
@@ -219,13 +219,18 @@
         <p id='amulet-attack-mod'>{{ value.name|getAmuletAttackBonus }}</p>
     </div>
 
-    <div name='Stats' class="row card-body d-none text-center mt-4 c-gold border border-warning bg-dark rounded position-fixed m-0 p-0">
+    <div name='Stats' id='stats-block' class="row card-body d-none text-center mt-4 c-gold border border-warning bg-dark rounded position-fixed m-0 p-0" style="width: 99%">
         <h3>Stats</h3>
         <p name='stat'><span class="text-white-50">INT:</span> <span id='stat-INT'>{{ value.INT }}</span> (<span id='stat-INT-mod'>{{ value|getMod:"INT" }}</span>)</p>
         <p name='stat'><span class="text-white-50">SIŁ:</span> <span id='stat-SIŁ'>{{ value.SIŁ }}</span> (<span id='stat-SIŁ-mod'>{{ value|getMod:"SIŁ" }}</span>)</p>
         <p name='stat'><span class="text-white-50">ZRE:</span> <span id='stat-ZRE'>{{ value.ZRE }}</span> (<span id='stat-ZRE-mod'>{{ value|getMod:"ZRE" }}</span>)</p>
         <p name='stat'><span class="text-white-50">CHAR:</span> <span id='stat-CHAR'>{{ value.CHAR }}</span> (<span id='stat-CHAR-mod'>{{ value|getMod:"CHAR" }}</span>)</p>
         <p name='stat'><span class="text-white-50">CEL:</span> <span id='stat-CEL'>{{ value.CEL }}</span> (<span id='stat-CEL-mod'>{{ value|getMod:"CEL" }}</span>)</p>
+        <div class="row m-1 p-0">
+            <div class="col">
+                <button class="btn btn-success w-50" onclick="show_or_hideById('stats-block')">OK</button>
+            </div>
+        </div>
     </div>
 
     <div name='Equipment' class="row text-center m-0 p-0 card-body c-gold border border-warning bg-dark rounded">
@@ -1305,6 +1310,9 @@
                         <a href='/dunnorpg/items/{{ amulet.name|getDescId }}' class="{{ amulet.name|getItemRarity }} h4">
                             {{ amulet.name }}
                         </a>
+                        {% if user.is_superuser %}
+                            <a href="/admin/DunnoRPG/charitems/{{ amulet.id }}/change/" class="fa fa-link" target="_blank"></a>
+                        {% endif %}
                     </div>
                 </div>
 
@@ -1422,6 +1430,9 @@
                         <a href='/dunnorpg/items/{{ mount.name|getDescId }}' class="{{ mount.name|getItemRarity }} h4">
                             {{ mount.name }}
                         </a>
+                        {% if user.is_superuser %}
+                            <a href="/admin/DunnoRPG/charitems/{{ mount.id }}/change/" class="fa fa-link" target="_blank"></a>
+                        {% endif %}
                     </div>
                 </div>
 
@@ -1539,6 +1550,9 @@
                         <a href='/dunnorpg/items/{{ mount_armor.name|getDescId }}' class="{{ mount_armor.name|getItemRarity }} h4">
                             {{ mount_armor.name }}
                         </a>
+                        {% if user.is_superuser %}
+                            <a href="/admin/DunnoRPG/charitems/{{ mount_armor.id }}/change/" class="fa fa-link" target="_blank"></a>
+                        {% endif %}
                     </div>
                 </div>
 
@@ -1662,7 +1676,7 @@
     </div>    
     
     <form id="notes-block" class="d-none position-fixed mt-2 border border-warning bg-gray rounded" 
-    style="width: 75%; left: 13%; height: 55%;" method="post" action="/dunnorpg/update_field/{{ value.id }}?model=Character">
+    style="width: 99%;left: 0%;top: 10vh;height: 75%;" method="post" action="/dunnorpg/update_field/{{ value.id }}?model=Character">
         {% csrf_token %}
         <div class="row">
             <div class="col"></div>
@@ -1676,7 +1690,7 @@
         </div>    
         <div class="row">
             <textarea value="test" class="card-body m-2 rounded" name="notes-text"
-            style="height: 35vh; background-color: #dbc78a;">{{ value.notes }}</textarea>
+            style="height: 55vh; background-color: #dbc78a;">{{ value.notes }}</textarea>
         </div>
         <div class="row ms-3 me-3">
             <button type="submit" class="col bg-success border-0 rounded fst-italic">
@@ -1855,30 +1869,21 @@
     </div>
 </div>
 
-<div class='container mt-2'>
+<div class='container mt-2' style="position: sticky; bottom: 0.5px;">
     <div class='row'>
-        <div onclick='show_result_at_window("Accuraccy")' class='col m-1 btn btn-dark btn-outline-warning border border-warning rounded'>
-            <span class='fas fa-crosshairs'> Accuraccy</span>
+        <div onclick='show_result_at_window("Parry")' class='col-3 m-0 p-1 btn btn-dark btn-outline-warning border border-warning rounded'>
+            <span class='fas fa-shield-alt'><br>Parowanie</span>
         </div>
-        <div onclick='show_result_at_window("Parry")' class='col m-1 btn btn-dark btn-outline-warning border border-warning rounded'>
-            <span class='fas fa-shield-alt'> Parry</span>
+        <div onclick='show_result_at_window("Dodge")' class='col-2 m-0 p-1 btn btn-dark btn-outline-warning border border-warning rounded'>
+            <span class='fas fa-walking'><br>Unik</span>
         </div>
-        <div onclick='show_result_at_window("Attack")' class='col m-1 btn btn-dark btn-outline-warning border border-warning rounded'>
-            <span class='fab fa-pied-piper-alt'> Attack</span>
-        </div>
-        <div onclick='show_result_at_window("Dodge")' class='col m-1 btn btn-dark btn-outline-warning border border-warning rounded'>
-            <span class='fas fa-walking'> Dodge</span>
-        </div>
-        <div onclick='show_result_at_window("Dice")' class='col m-1 btn btn-dark btn-outline-warning border border-warning rounded'>
-            <span class='fas fa-dice-d20'> Dice</span>
-        </div>
-        <a href='/dunnorpg/items/ch{{ value.id }}' name='eq-link' class='col m-1 btn btn-dark btn-outline-warning border border-warning rounded'>
-            <span class='fas fa-scroll'> Equipment</span>
+        <a href='/dunnorpg/items/ch{{ value.id }}' name='eq-link' class='col-4 m-0 p-1 btn btn-dark btn-outline-warning border border-warning rounded'>
+            <span class='fas fa-toolbox'><br>Ekwipunek</span>
         </a>
-        <div onclick='document.getElementById("notes-block").classList.remove("d-none")' class='col m-1 btn btn-dark btn-outline-warning border border-warning rounded'>
-            <span class='fas fa-pencil-alt'> Notes</span>
+        <div onclick='document.getElementById("notes-block").classList.remove("d-none")' class='col-3 m-0 p-1 btn btn-dark btn-outline-warning border border-warning rounded'>
+            <span class='fas fa-pencil-alt'><br>Notatki</span>
         </div>
-    
+    </div>
 </div>
 
 <div class='d-none'>
@@ -2406,7 +2411,7 @@ function show_result_at_window(action){
         window_action_additional.innerHTML = ''
         window_action_additional.onclick = ''
 
-        dice_result = getDiceWMods(window_action,dodge_mods,getResult=true,text=action)
+        dice_result = getDiceWMods(window_action,dodge_mods,getResult=true,text="Bonus do wyniku rzutu kości")
 
         details = 'ZRE'+'('+zre+')'+ ' + '+'MODS'+'('+(zre_mod+dodge_effect_bonus)+')'+ ' + '+'ARMOR'+'('+(-armor_mod)+')'+' - SHIELD WEIGHT('+weight_mod+')'
         window_action.onclick = function() {change_result(details,window_action,dodge_mods, dice_result)}
@@ -2485,9 +2490,11 @@ function show_result_at_window(action){
 
     else if (action == 'Parry')
     {
+        window_action.textContent = "Obecnie niedostępne"
         parry_effect_bonus = parseInt(document.getElementById('effects-parry').innerHTML)
         sil = parseInt(document.getElementById('stat-SIŁ').innerHTML)
         sil_mod = parseInt(document.getElementById('stat-SIŁ-mod').innerHTML) 
+        l_type = document.getElementById('l-type').textContent
 
 
         if(document.getElementById('l_bonus').innerHTML != 'Empty')
@@ -2495,7 +2502,7 @@ function show_result_at_window(action){
             leftWeapon = document.getElementById('l_weapon')
             l_bonus = parseInt(document.getElementById('l_bonus').innerHTML)
 
-            if(leftWeapon.getAttribute("name") == 'shield')
+            if(l_type == "Tarcza")
             { //shield-left-hand-attack
                 l_block = parseInt(document.getElementById('l_block').innerHTML)
                 l_shield_dice_result = getDiceWMods(window_action_additional,(l_block+l_bonus),getResult=true,text='Left hand', d0exception=true)
@@ -2520,8 +2527,9 @@ function show_result_at_window(action){
         {
             rightWeapon = document.getElementById('r_weapon')
             r_bonus = parseInt(document.getElementById('r_bonus').innerHTML)
+            r_type = document.getElementById('r-type').textContent
 
-            if(rightWeapon.getAttribute("name") == 'shield')
+            if(r_type == "Tarcza")
             { //shield-right-hand-attack
                 r_block = parseInt(document.getElementById('r_block').innerHTML)
                 r_shield_dice_result = getDiceWMods(window_action,(r_block+r_bonus),getResult=true,text='Right hand', d0exception=true)
@@ -2542,7 +2550,7 @@ function show_result_at_window(action){
     }
 }
 
-function getDiceWMods(instance,modsPoints,getResult=false,text='Result', d0exception=false, prefix=''){
+function getDiceWMods(instance,modsPoints,getResult=false,text='Result', d0exception=true, prefix=''){
     if (d0exception){
         dice = 0
     }
@@ -2553,9 +2561,9 @@ function getDiceWMods(instance,modsPoints,getResult=false,text='Result', d0excep
     if(result < 1){
         result = 1
     }
-    instance.innerHTML = `${prefix}${text}: ` + result + ' (Dice ' + dice + ')'
+    instance.innerHTML = `${prefix}${text}: ` + result
     if (getResult){
-        return text + ': ' + result + ' (Dice ' + dice + ')'
+        return text + ': ' + result
     }
 }
 </script>
