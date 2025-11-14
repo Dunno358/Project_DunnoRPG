@@ -1428,7 +1428,7 @@ class ItemsView(ListView):
             context['items_boots'] = self.armor_dict['boots']
             context['items_amulets'] = self.armor_dict['amulets']
             context['items_other'] = self.armor_dict['other']
-            context['all_items'] = models.Items.objects.filter(found=True).order_by('name')
+            context['all_items'] = models.Items.objects.order_by('name')
             context['player_items'] = models.Eq.objects.filter(character=self.character.name).values()
             context['characters'] = models.Character.objects.filter(hidden=False).values()
             context['character'] = self.character
