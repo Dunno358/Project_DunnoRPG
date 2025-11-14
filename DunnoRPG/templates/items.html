@@ -100,7 +100,7 @@
 </div>
 {% endif %}
 
-<div id='del-confirm' class='d-none position-fixed container-fluid'>
+<div id='del-confirm' class='d-none position-fixed container-fluid' style="z-index: 5;">
     <div class='row bg-dark c-gold rounded border border-warning mt-5 ms-5 me-5'>
       <div class='col text-center'>
         <h2 id='del-confirm-title' class='m-2 mt-5 fst-150'>Jesteś pewien?</h2>
@@ -193,15 +193,10 @@
     </div>
 </div>
 
-<div id='search-result' class='container'>
+<div id='search-result' class='container m-0 p-0'>
     {% for item in items %}
     <div>
         <div class='row bg-dark bg-opacity-75 rounded m-2 p-2'>
-            {% if user.is_superuser %}
-            <a class='col-3 btn btn-danger' href='setFound-{{ item.id }}-0-{{ view.kwargs.char_id }}'>
-                Unfound
-            </a>                
-            {% endif %}
 
             {% if view.kwargs.char_id != 0 %}
                 <button class='col-2 text-center text-white bg-danger p-2 m-1 rounded' onclick="deleteConfirmation('{{ item.name }}', {{ view.kwargs.char_id }}, {{ item.id }})">X</button>
@@ -225,13 +220,22 @@
                 Sell</button>
             {% endif %}
             {% if user.is_superuser %}
-                <a class='col-3 ms-1 btn btn-success' href='setFound-{{ item.id }}-1-{{ view.kwargs.char_id }}'>
-                    {% if item.found == True %}
-                        Already found
-                    {% else %}
-                        Found
-                    {% endif %}
-                </a> 
+                <div class="row m-0 mt-1 p-0">
+                    <div class="col m-0 p-0">
+                        <a class='btn btn-danger w-100' href='setFound-{{ item.id }}-0-{{ view.kwargs.char_id }}'>
+                            Unfound
+                        </a> 
+                    </div>
+                    <div class="col m-0 p-0">
+                        <a class='ms-1 btn btn-success w-100' href='setFound-{{ item.id }}-1-{{ view.kwargs.char_id }}'>
+                            {% if item.found == True %}
+                                Already found
+                            {% else %}
+                                Found
+                            {% endif %}
+                        </a> 
+                    </div>
+                </div>
             {% endif %}
         </div>
     </div>

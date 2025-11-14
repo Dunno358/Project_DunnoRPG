@@ -192,7 +192,7 @@
             <span class='fas fa-stream'></span><br>Statystyki
         </div>
 
-        <div class='col-2 m-0 p-1 btn btn-dark btn-outline-warning border border-warning rounded' id='Move' onclick="show_or_hideByName(this)">
+        <div class='col-2 m-0 p-1 btn btn-dark btn-outline-warning border border-warning rounded' id='Move' onclick="show_result_at_window('Move')">
             <span class='fas fa-running'></span><br>Ruch
         </div>
 
@@ -1675,8 +1675,8 @@
         </div>
     </div>    
     
-    <form id="notes-block" class="d-none position-fixed mt-2 border border-warning bg-gray rounded" 
-    style="width: 99%;left: 0%;top: 10vh;height: 75%;" method="post" action="/dunnorpg/update_field/{{ value.id }}?model=Character">
+    <form id="notes-block" class="d-none position-fixed mt-2 border border-primary bg-gray rounded" 
+    style="width: 99%;left: 0%;top: 10vh;height: 75%; z-index: 6;" method="post" action="/dunnorpg/update_field/{{ value.id }}?model=Character">
         {% csrf_token %}
         <div class="row">
             <div class="col"></div>
@@ -1693,7 +1693,7 @@
             style="height: 55vh; background-color: #dbc78a;">{{ value.notes }}</textarea>
         </div>
         <div class="row ms-3 me-3">
-            <button type="submit" class="col bg-success border-0 rounded fst-italic">
+            <button type="submit" class="col bg-success border-0 rounded fst-italic text-light h6 p-2 mb-0 mt-2">
                 Zapisz
             </button>
         </div>
@@ -2374,7 +2374,21 @@ function show_result_at_window(action){
         details = 'ZRE'+'('+zre+')'+ ' + '+'MODS'+'('+(zre_mod+dodge_effect_bonus)+')'+ ' + '+'ARMOR'+'('+(-armor_mod)+')'+' - SHIELD WEIGHT('+weight_mod+')'
         window_action_top.onclick = function() {change_result(details,window_action,dodge_mods, dice_result)}
     }
+    else if (action == 'Move')
+    {
+        zre = parseInt(document.getElementById('stat-ZRE').innerHTML)
+        zre_mod = parseInt(document.getElementById('stat-ZRE-mod').innerHTML) 
+        armor_mod = parseInt(document.getElementById('armor-mod').innerHTML) 
+        weight_mod = document.getElementById('shield-weight-mod').innerHTML
 
+        full_zre = parseInt(zre+zre_mod+-armor_mod-weight_mod)
+        bonus_move = full_zre/3
+        full_move = Math.ceil(4+bonus_move) //4 + 1 for every 3 ZRE
+
+        window_action_top.textContent = `Zasięg ruchu wynikający ze zręczności: ${full_move} hex`
+        window_action_bottom.textContent = ''
+
+    }
     else if (action == 'Parry')
     {
         try{l_range=parseInt(document.getElementById('l-range').textContent)}catch{l_range=0}
