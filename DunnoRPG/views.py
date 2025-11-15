@@ -480,7 +480,7 @@ class calculateGettingHit(APIView):
                     pass
 
             armor -= ap
-            dmg*=float(kwargs['final_multiplier']) #Use additional multiplier before armor
+            dmg = int(dmg*float(kwargs['final_multiplier'])) #Use additional multiplier before armor
             dmg -= armor
 
         injured = ""
