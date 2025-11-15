@@ -361,6 +361,15 @@
                 </div>
             </div>
 
+            <div class="col mt-2 m-0 p-0">
+                <div class="col">
+                    Mnożnik podsumowujący:
+                </div>
+                <div class="col">
+                    <input type="number" class="bg-gray border border-warning c-gold rounded text-center" value="1.00" step="0.01" id="get-dmg-multiplier"/>
+                </div>
+            </div>
+
             <div class="row m-0 p-0 mt-4 mb-2">
                 <div class="col m-0 p-0">
                     <a class="w-75 btn btn-danger" onclick="show_or_hideById('get-damage')">Wróć</a>
@@ -1971,6 +1980,7 @@ function calculateGettingHit(){
     let url = window.location.href
     let dmg = document.getElementById('get-dmg-dmg').value
     let ap = document.getElementById('get-dmg-ap').value
+    let multiplier = document.getElementById('get-dmg-multiplier').value
     let use_multiplier = Number(document.getElementById('get-dmg-ign-chk').checked)
     let parts_block = document.getElementsByClassName('active get-dmg-place')
     let parts = []
@@ -1984,7 +1994,7 @@ function calculateGettingHit(){
 
     let parts_str = parts.join('|')
 
-    window.location.replace(url+`calculate_hit-${dmg}-${ap}-${parts_str}-${use_multiplier}`)
+    window.location.replace(url+`calculate_hit-${dmg}-${ap}-${parts_str}-${use_multiplier}-${multiplier}`)
 }
 
 function getWeaponMod(){

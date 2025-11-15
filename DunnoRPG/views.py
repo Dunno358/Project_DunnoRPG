@@ -480,6 +480,7 @@ class calculateGettingHit(APIView):
                     pass
 
             armor -= ap
+            dmg*=float(kwargs['final_multiplier']) #Use additional multiplier before armor
             dmg -= armor
 
         injured = ""
@@ -783,11 +784,11 @@ def del_eq_item(request, **kwargs):
     itemDesc = get_object_or_404(models.Items, id=kwargs['obj_id'])
     char = get_object_or_404(models.Character, id=kwargs['char_id'])
     item = models.Eq.objects.filter(name=itemDesc.name, character=char.name).first()
-    if item.amount == 1:
+    if item.amount <= int(kwargs['amount']):
         item.delete()
     else:
-        item.amount -= 1
-        item.weight -= itemDesc.weight
+        item.amount -= int(kwargs['amount'])
+        item.weight -= itemDesc.weight*int(kwargs['amount'])
         item.save()
     return redirect(f"/dunnorpg/items/ch{kwargs['char_id']}")
 def sell_item(request, **kwargs):

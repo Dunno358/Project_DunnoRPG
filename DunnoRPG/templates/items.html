@@ -72,7 +72,7 @@
         <h1 class='col c-gold text-center' style='-webkit-text-stroke: 1px black;'>
             {{ current_weight }}/{{ max_weight }}kg
         </h1>
-        <div class="col-3 text-start">
+        <div class="col-3 text-start ps-0 ms-0">
             <button class="btn btn-primary p-2" onclick="document.getElementById('give-item-main').classList.remove('d-none')">
                 Transfer
             </button>
@@ -100,12 +100,22 @@
 </div>
 {% endif %}
 
-<div id='del-confirm' class='d-none position-fixed container-fluid' style="z-index: 5;">
-    <div class='row bg-dark c-gold rounded border border-warning mt-5 ms-5 me-5'>
+<div id='del-confirm' class='d-none position-fixed container-fluid m-0 p-0' style="z-index: 5; top: 25%">
+    <div class='row bg-dark c-gold rounded border border-warning m-0 p-0 ms-1 me-1'>
       <div class='col text-center'>
         <h2 id='del-confirm-title' class='m-2 mt-5 fst-150'>Jesteś pewien?</h2>
-        <a onclick='this.parentNode.parentNode.parentNode.classList.add("d-none")' class='btn btn-lg btn-outline-danger m-1 mb-5'>Nie</a>
-        <a href='' id='del-confirm-positive' class='btn btn-lg btn-outline-success m-1 mb-5'>Tak</a>
+        <br>
+        <div class="row">
+            <div class="col-4 m-0 p-0 text-end">
+                <span>Ilość: </span>
+            </div>
+            <div class="col text-start">
+                <input type="number" value="1" id="del-amount" class="text-center border border-warning bg-gray c-gold rounded w-50"/>
+            </div>
+        </div>
+        <br>
+        <a onclick='this.parentNode.parentNode.parentNode.classList.add("d-none")' class='btn btn-lg btn-outline-danger m-1 mt-2 mb-3'>Nie</a>
+        <a id='del-confirm-positive' class='btn btn-lg btn-outline-success m-1 mt-2 mb-3'>Tak</a>
       </div>
     </div>
 </div>
@@ -250,8 +260,8 @@
                     <option id='{{ item.id }}' value='{{ item.name }}'>{{ item.name }}</option>
                     {% endfor %}
                 </select><br>
-                <input id='selected-eq-add-dur' type='number' min="0" placeholder='Item durability here :)' class='w-25 bg-dark c-gold m-1 text-center' value='50'/>
-                <a onclick='makeAddToEqRequest()' class='btn btn-success m-1'>Add</a>
+                <input id='selected-eq-add-dur' type='number' min="0" placeholder='Item durability here :)' class='w-25 bg-dark c-gold m-3 text-center' value='50'/>
+                <a onclick='makeAddToEqRequest()' class='btn btn-success m-3'>Add</a>
             </div>
         </div>
     {% endif %}
@@ -571,10 +581,19 @@
         }
     }
 
+    function doDelete(chid, id){
+        let amount = document.getElementById('del-amount').value
+        url = '/dunnorpg/items/'+chid+'del'+id+'-'+amount
+        window.location.replace(url)
+    }
+
     function deleteConfirmation(name, chid, id){
+        let btn = document.getElementById('del-confirm-positive')
         document.getElementById('del-confirm-title').innerHTML = "Usunąć "+name+"?"
     
-        document.getElementById('del-confirm-positive').href = chid+'del'+id
+        btn.onclick = function(){
+        doDelete(chid, id)
+        }
         document.getElementById('del-confirm').classList.remove('d-none')
       }
 

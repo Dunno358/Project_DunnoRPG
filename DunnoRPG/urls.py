@@ -15,7 +15,7 @@ urlpatterns = [
     path('character_detail/<int:char_id>/move_eq-<int:item_id>', views.MoveItemToEq.as_view(), name='move_item_to_eq'),
     path('character_detail/<int:char_id>/take_dur-<int:item_id>', views.TakeItemDurFromAttack.as_view(), name='take_attack_dur_from_item'),
     path('character_detail/<int:char_id>/take_ammo-<int:item_id>-<int:item_amount>', views.TakeAmmoFromAttack.as_view(), name='take_ammo_from_attack'),
-    path('character_detail/<int:char_id>/calculate_hit-<int:dmg>-<int:ap>-<str:parts>-<int:multiplier>', views.calculateGettingHit.as_view(), name='calculate_getting_hit'),
+    path('character_detail/<int:char_id>/calculate_hit-<int:dmg>-<int:ap>-<str:parts>-<int:multiplier>-<int:final_multiplier>', views.calculateGettingHit.as_view(), name='calculate_getting_hit'),
     path('character_detail/<int:char_id>/<int:item_id>;<str:place>', views.char_wear_item, name='wear_item'),
     path('character_detail/<int:char_id>/<int:it1_id>-<int:it2_id>', views.char_swap_item, name='swap_item'),
     path('character_detail/<int:char_id>/swap_side/<str:hand>', views.swap_side_to_hand, name='swap_side'),
@@ -36,7 +36,7 @@ urlpatterns = [
     path('char-delete/<int:char_id>', views.DeleteCharacter.as_view(), name='delete_character'),
     
     path('items/ch<int:char_id>', views.ItemsView.as_view(), name='items'),
-    path('items/<int:char_id>del<int:obj_id>', views.del_eq_item, name='del_eq_item'),
+    path('items/<int:char_id>del<int:obj_id>-<int:amount>', views.del_eq_item, name='del_eq_item'),
     path('items/sell<int:item_id>;<int:char_id>;<int:mod>', views.sell_item, name='sell_item'),
     path('items/give<int:item_id>;<int:from_char>;<int:to_char>;<int:amount>', views.give_item, name='give_item'),
     path('items/<int:id>', views.ItemDetailView.as_view(), name='item_detail'),
