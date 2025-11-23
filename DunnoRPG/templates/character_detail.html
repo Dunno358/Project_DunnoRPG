@@ -1886,11 +1886,14 @@
         <div onclick='show_result_at_window("Dodge")' class='col-2 m-0 p-1 btn btn-dark btn-outline-warning border border-warning rounded'>
             <span class='fa-solid fa-person-falling' id="dodge-icon"></span><br>Unik
         </div>
-        <a href='/dunnorpg/items/ch{{ value.id }}' name='eq-link' class='col-4 m-0 p-1 btn btn-dark btn-outline-warning border border-warning rounded'>
+        <a href='/dunnorpg/items/ch{{ value.id }}' name='eq-link' class='col-3 m-0 p-0 btn btn-dark btn-outline-warning border border-warning rounded'>
             <span class='fas fa-toolbox'></span><br>Ekwipunek
         </a>
-        <div onclick='document.getElementById("notes-block").classList.remove("d-none")' class='col-3 m-0 p-1 btn btn-dark btn-outline-warning border border-warning rounded'>
-            <span class='fas fa-pencil-alt'></span><br>Notatki
+        <div onclick='show_result_at_window("Overwatch")' class='col-3 m-0 p-1 btn btn-dark btn-outline-warning border border-warning rounded'>
+            <span class='fa-regular fa-eye-slash' id="overwatch-icon"></span><br>Overwatch
+        </div>
+        <div onclick='document.getElementById("notes-block").classList.remove("d-none")' class='col-1 m-0 p-0 btn btn-dark btn-outline-warning border border-warning rounded'>
+            <span class='fas fa-pencil-alt mt-4'></span><br>
         </div>
     </div>
 </div>
@@ -2384,6 +2387,31 @@ function show_result_at_window(action){
         details = 'ZRE'+'('+zre+')'+ ' + '+'MODS'+'('+(zre_mod+dodge_effect_bonus)+')'+ ' + '+'ARMOR'+'('+(-armor_mod)+')'+' - SHIELD WEIGHT('+weight_mod+')'
         window_action_top.onclick = function() {change_result(details,window_action,dodge_mods, dice_result)}
     }
+    else if(action == "Overwatch")
+    {
+        try{
+            let l_range = parseInt(document.getElementById('l-range').textContent)
+            if(l_range>5){
+                window_action_top.textContent = `Zasięg Overwatch dla lewej ręki: 1 hex`
+            }else{
+                window_action_top.textContent = `Zasięg Overwatch dla lewej ręki: ${l_range} hex`
+            }
+        }catch{
+            window_action_top.textContent = `Brak Overwatch dla lewej ręki.`
+        }
+
+
+        try{
+            let r_range = parseInt(document.getElementById('r-range').textContent)
+            if(r_range>5){
+                window_action_bottom.textContent = `Zasięg Overwatch dla lewej ręki: 1 hex`
+            }else{
+                window_action_bottom.textContent = `Zasięg Overwatch dla lewej ręki: ${r_range} hex`
+            }
+        }catch{
+            window_action_bottom.textContent = `Brak Overwatch dla prawej ręki.`
+        }
+    }
     else if (action == 'Move')
     {
         zre = parseInt(document.getElementById('stat-ZRE').innerHTML)
@@ -2396,7 +2424,7 @@ function show_result_at_window(action){
         full_move = Math.ceil(4+bonus_move) //4 + 1 for every 3 ZRE
 
         window_action_top.textContent = `Zasięg ruchu wynikający ze zręczności: ${full_move} hex`
-        window_action_bottom.textContent = ''
+        window_action_bottom.textContent = `Zasięg ruchu przy sprincie (zabiera ruch): ${full_move*2} hex`
 
     }
     else if (action == 'Parry')
