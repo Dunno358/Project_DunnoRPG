@@ -2404,9 +2404,9 @@ function show_result_at_window(action){
         try{
             let r_range = parseInt(document.getElementById('r-range').textContent)
             if(r_range>5){
-                window_action_bottom.textContent = `Zasięg Overwatch dla lewej ręki: 1 hex`
+                window_action_bottom.textContent = `Zasięg Overwatch dla prawej ręki: 1 hex`
             }else{
-                window_action_bottom.textContent = `Zasięg Overwatch dla lewej ręki: ${r_range} hex`
+                window_action_bottom.textContent = `Zasięg Overwatch dla prawej ręki: ${r_range} hex`
             }
         }catch{
             window_action_bottom.textContent = `Brak Overwatch dla prawej ręki.`
