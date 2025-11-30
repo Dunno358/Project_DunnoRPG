@@ -797,7 +797,12 @@ def sell_item(request, **kwargs):
         eqItem = get_object_or_404(models.Eq, id=kwargs['item_id'])
         itemDesc = get_object_or_404(models.Items, name=eqItem.name)
         char = get_object_or_404(models.Character, id=kwargs['char_id'])
+        amount = int(kwargs['amount'])
         
+        if amount>eqItem.amount:
+            messages.error(request, f"Hola, hola! Nie masz tego tyle! Masz {eqItem.amount} sztuk tego przedmiotu. ({itemDesc.name})")
+            return redirect(f"/dunnorpg/items/ch{kwargs['char_id']}")
+
         charisma = char.CHAR
         for mod in models.Mods.objects.filter(character=char.name, field="CHAR"):
             charisma += mod.value
@@ -813,7 +818,7 @@ def sell_item(request, **kwargs):
         
         durability_percent = eqItem.durability/itemDesc.maxDurability
         #print(f"dur {durability_percent}")
-        base_price = int(itemDesc.price*durability_percent*eqItem.amount)
+        base_price = int(itemDesc.price*durability_percent*amount)
         #print(f"totally base {itemDesc.price}")
         #print(f"base {base_price}")
         char_bonus = round(((charisma*4)*base_price)/100)
@@ -823,9 +828,13 @@ def sell_item(request, **kwargs):
         char.coins += price
         char.save()
 
-        eqItem.delete()
+        eqItem.amount -= amount
+        if eqItem==0:
+            eqItem.delete()
+        else:
+            eqItem.save()
 
-        messages.success(request, f"Sprzedano {itemDesc.name} za {price} monet! Obecny majątek: {char.coins} monet.")
+        messages.success(request, f"Sprzedano {amount}x {itemDesc.name} za {price} monet! Obecny majątek: {char.coins} monet.")
     except:
         messages.error(request, f"Gdzie chcesz to sprzedać? Najpierw zajrzyj z drużyną do jakiegoś miasta!")
     return redirect(f"/dunnorpg/items/ch{kwargs['char_id']}")

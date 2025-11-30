@@ -181,6 +181,15 @@
         </div>
       </div>
 
+    <div class="row h6">
+        <div class="col-4 m-0 p-0 text-end">
+            <span>Ilość: </span>
+        </div>
+        <div class="col text-start">
+            <input type="number" value="1" id="sell-amount" class="text-center border border-warning bg-gray c-gold rounded w-50"/>
+        </div>
+    </div>
+
     <div class='row mt-2'>
       <div class='col text-center'>
         <h2 id='sell-item-title' class='m-2 mt-0 fst-150'>Co my tu mamy...</h2>
@@ -598,12 +607,20 @@
       }
 
     function sellConfirmation(chid, id, price, dur, maxDur, itemName, amount, charBonus){
+        console.log(amount)
         let main_block = document.getElementById("sell-item-main")
         let title = document.getElementById("sell-item-title")
         let item_name = document.getElementById("sell-item-name")
         let sell_btn = document.getElementById("sell-btn")
         let charisma = parseInt(document.getElementById("charisma").innerHTML)
+        let amount_input = document.getElementById("sell-amount")
         //console.log(charisma)
+        amount_input.value = amount
+
+        amount_input.oninput = (e) => {
+            let newAmount = parseInt(e.target.value) || 0
+            sellConfirmation(chid, id, price, dur, maxDur, itemName, newAmount, charBonus)
+        }
 
         let dur_perc = dur/maxDur
         let base_price = parseInt(price*dur_perc*amount)
@@ -630,10 +647,10 @@
         title.innerHTML = `Sprzedawca: Rzućmy okiem... No stan jest ${quality}, proponuję ${calc_price} monet.`
         item_name.innerHTML = itemName
 
-        sell_btn.setAttribute("onclick", `sellItem(${id}, ${parseInt(charBonus)})`)
+        sell_btn.setAttribute("onclick", `sellItem(${id}, ${parseInt(charBonus)}, ${amount})`)
     }
 
-    function sellItem(item_id, bonus){
+    function sellItem(item_id, bonus, amount){
         let isNegotiating = document.getElementById("sell-item-negotiate").checked
         let chid = document.getElementById('chid').innerHTML
 
@@ -649,7 +666,7 @@
             }
         }
 
-        window.location.href = "sell"+item_id+";"+chid+";"+selling_item_mod
+        window.location.href = "sell"+item_id+";"+chid+";"+selling_item_mod+";"+amount
 
     }
 
