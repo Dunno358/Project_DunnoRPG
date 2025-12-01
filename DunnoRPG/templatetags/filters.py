@@ -554,17 +554,19 @@ def getItemRange(item_name):
 
         ranges = {
             "pistol": 9,
+            "kusza refleksyjna": 15,
             "crossbow": 16,
             "heavy crossbow": 17,
             "arbalest": 18,
             "bow": 14,
             "longbow": 16,
+            "shortbow": 12,
             "musket": 18,
             "lute": 1,
             "shield": 1,
             "strzelba": 8,
             "krótka strzelba": 5,
-            "wand": 15,
+            "wand": 12,
             'flamethrower': 5
         }
 
