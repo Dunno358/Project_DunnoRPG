@@ -552,6 +552,11 @@ def getItemRange(item_name):
         type = item.type.lower()
         bonus = 0
 
+        #If custom range is set on item then return it
+        if item.range != 0:
+            return item.range
+        #Else get the category range
+
         ranges = {
             "pistol": 9,
             "kusza refleksyjna": 15,
