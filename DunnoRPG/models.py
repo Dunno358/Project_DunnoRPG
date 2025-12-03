@@ -141,6 +141,7 @@ class Items(models.Model):
     found = models.BooleanField(default=False)
     diceBonus = models.IntegerField(default=0)
     AP = models.IntegerField(default=0)
+    range = models.IntegerField(default=0)
     armor = models.IntegerField(default=0)
     block = models.IntegerField(default=0)
     skill = models.TextField(blank=True)
