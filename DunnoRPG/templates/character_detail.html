@@ -393,7 +393,9 @@
                 {% csrf_token %}
                 <div class="row c-gold me-0 pe-0">
                     <div class="col h6 text-start p-2 ps-3 pb-0">
-                        <span class="text-white-50">Wytrzymałość:</span> {{ helmet.durability }}/{{ helmet.name|getMaxDurability }}
+                        <span class="text-white-50">Wytrzymałość:</span>
+                        <input value="{{ helmet.durability }}" class="bg-gray border-0 c-gold p-0 m-0 h6" style="width: 20%" name="dur"/>
+                        /{{ helmet.name|getMaxDurability }}
                     </div>
                     <div class="col h6 text-end p-2 pb-0">
                         Głowa - {{ helmet.name|getArmorWeightType }}
@@ -513,7 +515,9 @@
                 {% csrf_token %}
                 <div class="row c-gold me-0 pe-0">
                     <div class="col h6 text-start p-2 ps-3 pb-0">
-                        <span class="text-white-50">Wytrzymałość:</span> {{ torso.durability }}/{{ torso.name|getMaxDurability }}
+                        <span class="text-white-50">Wytrzymałość:</span>
+                        <input value="{{ torso.durability }}" class="bg-gray border-0 c-gold p-0 m-0 h6" style="width: 20%" name="dur"/>
+                        /{{ torso.name|getMaxDurability }}
                     </div>
                     <div class="col h6 text-end p-2 pb-0">
                         Tors - {{ torso.name|getArmorWeightType }}
@@ -660,7 +664,9 @@
 
                 <div class="row c-gold me-0 pe-0">
                     <div class="col h6 text-start p-2 ps-3 pb-0">
-                        <span class="text-white-50">Wytrzymałość:</span> {{ leftItem.durability }}/{{ leftItem.name|getMaxDurability }}
+                        <span class="text-white-50">Wytrzymałość:</span>
+                        <input value="{{ leftItem.durability }}" class="bg-gray border-0 c-gold p-0 m-0 h6" style="width: 20%" name="dur"/>
+                        /{{ leftItem.name|getMaxDurability }}
                     </div>
                     <div class="col h6 text-end p-2 pb-0">
                         Lewa ręka - <span id="l-type">{{ leftItem.name|getItemType:'pl' }}</span>
@@ -814,7 +820,9 @@
 
                 <div class="row c-gold me-0 pe-0">
                     <div class="col h6 text-start p-2 ps-3 pb-0">
-                        <span class="text-white-50">Wytrzymałość:</span> {{ rightItem.durability }}/{{ rightItem.name|getMaxDurability }}
+                        <span class="text-white-50">Wytrzymałość:</span>
+                        <input value="{{ rightItem.durability }}" class="bg-gray border-0 c-gold p-0 m-0 h6" style="width: 20%" name="dur"/>
+                        /{{ rightItem.name|getMaxDurability }}
                     </div>
                     <div class="col h6 text-end p-2 pb-0">
                         Prawa ręka - <span id="r-type">{{ rightItem.name|getItemType:'pl' }}</span>
@@ -942,7 +950,9 @@
                 {% csrf_token %}
                 <div class="row c-gold me-0 pe-0">
                     <div class="col h6 text-start p-2 ps-3 pb-0">
-                        <span class="text-white-50">Wytrzymałość:</span> {{ sideItem.durability }}/{{ sideItem.name|getMaxDurability }}
+                        <span class="text-white-50">Wytrzymałość:</span>
+                        <input value="{{ sideItem.durability }}" class="bg-gray border-0 c-gold p-0 m-0 h6" style="width: 20%" name="dur"/>
+                        /{{ sideItem.name|getMaxDurability }}
                     </div>
                     <div class="col h6 text-end p-2 pb-0">
                         Miejsce przy pasie
@@ -1067,7 +1077,9 @@
                 {% csrf_token %}
                 <div class="row c-gold me-0 pe-0">
                     <div class="col h6 text-start p-2 ps-3 pb-0">
-                        <span class="text-white-50">Wytrzymałość:</span> {{ boots.durability }}/{{ boots.name|getMaxDurability }}
+                        <span class="text-white-50">Wytrzymałość:</span>
+                        <input value="{{ boots.durability }}" class="bg-gray border-0 c-gold p-0 m-0 h6" style="width: 20%" name="dur"/>
+                        /{{ boots.name|getMaxDurability }}
                     </div>
                     <div class="col h6 text-end p-2 pb-0">
                         Nogi - {{ boots.name|getArmorWeightType }}
@@ -1187,7 +1199,9 @@
                 {% csrf_token %}
                 <div class="row c-gold me-0 pe-0">
                     <div class="col h6 text-start p-2 ps-3 pb-0">
-                        <span class="text-white-50">Wytrzymałość:</span> {{ gloves.durability }}/{{ gloves.name|getMaxDurability }}
+                        <span class="text-white-50">Wytrzymałość:</span>
+                        <input value="{{ gloves.durability }}" class="bg-gray border-0 c-gold p-0 m-0 h6" style="width: 20%" name="dur"/>
+                        /{{ gloves.name|getMaxDurability }}
                     </div>
                     <div class="col h6 text-end p-2 pb-0">
                         Ręce - {{ gloves.name|getArmorWeightType }}
@@ -1307,7 +1321,9 @@
                 {% csrf_token %}
                 <div class="row c-gold me-0 pe-0">
                     <div class="col h6 text-start p-2 ps-3 pb-0">
-                        <span class="text-white-50">Wytrzymałość:</span> {{ amulet.durability }}/{{ amulet.name|getMaxDurability }}
+                        <span class="text-white-50">Wytrzymałość:</span>
+                        <input value="{{ amulet.durability }}" class="bg-gray border-0 c-gold p-0 m-0 h6" style="width: 20%" name="dur"/>
+                        /{{ amulet.name|getMaxDurability }}
                     </div>
                     <div class="col h6 text-end p-2 pb-0">
                         Akcesoria - {{ amulet.name|getArmorWeightType }}
@@ -1427,7 +1443,9 @@
                 {% csrf_token %}
                 <div class="row c-gold me-0 pe-0">
                     <div class="col h6 text-start p-2 ps-3 pb-0">
-                        <span class="text-white-50">Punkty życia:</span> {{ mount.durability }}/{{ mount.name|getMaxDurability }}
+                        <span class="text-white-50">Punkty życia:</span>
+                        <input value="{{ mount.durability }}" class="bg-gray border-0 c-gold p-0 m-0 h6" style="width: 20%" name="dur"/>
+                        /{{ mount.name|getMaxDurability }}
                     </div>
                     <div class="col h6 text-end p-2 pb-0">
                         Wierzchowiec
@@ -1547,7 +1565,9 @@
                 {% csrf_token %}
                 <div class="row c-gold me-0 pe-0">
                     <div class="col h6 text-start p-2 ps-3 pb-0">
-                        <span class="text-white-50">Wytrzymałość:</span> {{ mount_armor.durability }}/{{ mount_armor.name|getMaxDurability }}
+                        <span class="text-white-50">Wytrzymałość:</span>
+                        <input value="{{ mount_armor.durability }}" class="bg-gray border-0 c-gold p-0 m-0 h6" style="width: 20%" name="dur"/>
+                        /{{ mount_armor.name|getMaxDurability }}
                     </div>
                     <div class="col h6 text-end p-2 pb-0">
                         Pancerz wierzchowca

@@ -976,12 +976,13 @@ def swap_side_to_hand(request, **kwargs):
 
     return redirect('character_detail', char.id)
 def change_item_durability(request,**kwargs):
-    if request.method == 'POST':
+    dur = request.POST.get('dur')
+    if dur is not None and dur != '':
         char = get_object_or_404(models.Character, id=kwargs['char_id'])
         item = get_object_or_404(models.CharItems, id=kwargs['item_id'])
         item.durability = int(request.POST['dur'])
         item.save()
-        return redirect('character_detail', char.id)
+    return redirect('character_detail', char.id)
 def fix_item(request, **kwargs):
     if request.method == 'POST':
         try:
