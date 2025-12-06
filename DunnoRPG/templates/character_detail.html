@@ -277,7 +277,7 @@
 
         <div class="row m-0 p-0">
             <div class="col rounded bg-gray bg-gradient border border-warning m-2 p-2 h6">
-                <span class="text-white-50">Waga:</span> 
+                <span class="text-white-50"></span> 
                 <span id='armor-weight'>{{ value.name|getArmorWeight }}kg</span>
             </div>
             <div class="col rounded bg-gray bg-gradient border border-warning m-2 p-2 h6">
@@ -392,12 +392,12 @@
             <form name='head' method='post' action='changedur-{{ helmet.id }}' class='row mt-2 border border-warning rounded bg-gray m-0 p-0'>
                 {% csrf_token %}
                 <div class="row c-gold me-0 pe-0">
-                    <div class="col h6 text-start p-2 ps-3 pb-0">
+                    <div class="col-7 h6 text-start pt-2 ps-1 pb-0 pe-0">
                         <span class="text-white-50">Wytrzymałość:</span>
-                        <input value="{{ helmet.durability }}" class="bg-gray border-0 c-gold p-0 m-0 h6" style="width: 20%" name="dur"/>
+                        <input value="{{ helmet.durability }}" class="bg-gray border-0 c-gold p-0 m-0 h6 text-end" style="width: 15%" name="dur"/>
                         /{{ helmet.name|getMaxDurability }}
                     </div>
-                    <div class="col h6 text-end p-2 pb-0">
+                    <div class="col h6 text-end p-2 pb-0 border-start border-warning">
                         Głowa - {{ helmet.name|getArmorWeightType }}
                     </div>
                 </div>
@@ -425,11 +425,11 @@
 
                 <div class="row ps-0 ms-1 me-0 pe-0">
 
-                    <div class="col-3 border-end border-warning p-3 h6 mb-0 d-flex align-items-center justify-content-center">
+                    <div class="col-4 border-end border-warning p-3 h6 mb-0 d-flex align-items-center justify-content-center">
                         <span class="text-white-50">Pancerz:</span> <span class="c-gold ms-1">{{ helmet.name|getItemArmor }}</span>
                     </div>                
-                    <div class="col-3 border-end border-warning p-3 h6 mb-0 d-flex align-items-center justify-content-center">
-                        <span class="text-white-50">Waga:</span> <span class="c-gold ms-1">{{ helmet.name|getItemWeight }}kg</span>
+                    <div class="col-2 border-end border-warning p-3 h6 mb-0 d-flex align-items-center justify-content-center">
+                        <span class="text-white-50"></span> <span class="c-gold ms-1">{{ helmet.name|getItemWeight }}kg</span>
                     </div>                
                     <div class="col-3 border-end border-warning h6 mb-0 d-flex align-items-center justify-content-center">
                         <a class="btn btn-info p-3 pt-2 pb-2 text-white" onclick='show_or_hideById("helmet-swap")'>Zmień</a>
@@ -514,12 +514,12 @@
             <form name='head' method='post' action='changedur-{{ torso.id }}' class='row mt-2 border border-warning rounded bg-gray m-0 p-0'>
                 {% csrf_token %}
                 <div class="row c-gold me-0 pe-0">
-                    <div class="col h6 text-start p-2 ps-3 pb-0">
+                    <div class="col-7 h6 text-start pt-2 ps-1 pb-0 pe-0">
                         <span class="text-white-50">Wytrzymałość:</span>
-                        <input value="{{ torso.durability }}" class="bg-gray border-0 c-gold p-0 m-0 h6" style="width: 20%" name="dur"/>
+                        <input value="{{ torso.durability }}" class="bg-gray border-0 c-gold p-0 m-0 h6 text-end" style="width: 15%" name="dur"/>
                         /{{ torso.name|getMaxDurability }}
                     </div>
-                    <div class="col h6 text-end p-2 pb-0">
+                    <div class="col h6 text-end p-2 pb-0 border-start border-warning">
                         Tors - {{ torso.name|getArmorWeightType }}
                     </div>
                 </div>
@@ -547,11 +547,11 @@
 
                 <div class="row ps-0 ms-1 me-0 pe-0">
 
-                    <div class="col-3 border-end border-warning p-3 h6 mb-0 d-flex align-items-center justify-content-center">
+                    <div class="col-4 border-end border-warning p-3 h6 mb-0 d-flex align-items-center justify-content-center">
                         <span class="text-white-50">Pancerz:</span> <span class="c-gold ms-1">{{ torso.name|getItemArmor }}</span>
                     </div>                
-                    <div class="col-3 border-end border-warning p-3 h6 mb-0 d-flex align-items-center justify-content-center">
-                        <span class="text-white-50">Waga:</span> <span class="c-gold ms-1">{{ torso.name|getItemWeight }}kg</span>
+                    <div class="col-2 border-end border-warning p-3 h6 mb-0 d-flex align-items-center justify-content-center">
+                        <span class="text-white-50"></span> <span class="c-gold ms-1">{{ torso.name|getItemWeight }}kg</span>
                     </div>                
                     <div class="col-3 border-end border-warning h6 mb-0 d-flex align-items-center justify-content-center">
                         <a class="btn btn-info p-3 pt-2 pb-2 text-white" onclick='show_or_hideById("torso-swap")'>Zmień</a>
@@ -663,12 +663,12 @@
                 <span class="d-none" id="l-dualhanded">{{ leftItem.name|isDualHanded }}</span>
 
                 <div class="row c-gold me-0 pe-0">
-                    <div class="col h6 text-start p-2 ps-3 pb-0">
+                    <div class="col-7 h6 text-start pt-2 ps-1 pb-0 pe-0">
                         <span class="text-white-50">Wytrzymałość:</span>
-                        <input value="{{ leftItem.durability }}" class="bg-gray border-0 c-gold p-0 m-0 h6" style="width: 20%" name="dur"/>
+                        <input value="{{ leftItem.durability }}" class="bg-gray border-0 c-gold p-0 m-0 h6 text-end" style="width: 15%" name="dur"/>
                         /{{ leftItem.name|getMaxDurability }}
                     </div>
-                    <div class="col h6 text-end p-2 pb-0">
+                    <div class="col h6 text-end p-2 pb-0 border-start border-warning">
                         Lewa ręka - <span id="l-type">{{ leftItem.name|getItemType:'pl' }}</span>
                     </div>
                 </div>
@@ -696,13 +696,13 @@
 
                 <div class="row ps-0 ms-1 me-0 pe-0">
 
-                    <div class="col-3 border-end border-warning p-1 h6 mb-0 d-flex align-items-center justify-content-center">
+                    <div class="col-4 border-end border-warning p-1 h6 mb-0 d-flex align-items-center justify-content-center">
                         <span class="c-gold ms-1">
                             <span id="l_stats">{{ leftItem.name|getItemStatByName }}</span> <span id='l_bonus'>{{ value.name|isPreffereOrUnliked:leftItem.name }}</span>
                         </span>
                     </div>                
-                    <div class="col-3 border-end border-warning p-3 h6 mb-0 d-flex align-items-center justify-content-center">
-                        <span class="text-white-50">Waga:</span> <span class="c-gold ms-1" id="l-weight">{{ leftItem.name|getItemWeight }}kg</span>
+                    <div class="col-2 border-end border-warning p-3 h6 mb-0 d-flex align-items-center justify-content-center">
+                        <span class="text-white-50"></span> <span class="c-gold ms-1" id="l-weight">{{ leftItem.name|getItemWeight }}kg</span>
                     </div>                
                     <div class="col-3 border-end border-warning h6 mb-0 d-flex align-items-center justify-content-center">
                         <a class="btn btn-info p-3 pt-2 pb-2 text-white" onclick='show_or_hideById("leftItem-swap")'>Zmień</a>
@@ -819,12 +819,12 @@
                 <span class="d-none" id="r-dualhanded">{{ rightItem.name|isDualHanded }}</span>
 
                 <div class="row c-gold me-0 pe-0">
-                    <div class="col h6 text-start p-2 ps-3 pb-0">
+                    <div class="col-7 h6 text-start pt-2 ps-1 pb-0 pe-0">
                         <span class="text-white-50">Wytrzymałość:</span>
-                        <input value="{{ rightItem.durability }}" class="bg-gray border-0 c-gold p-0 m-0 h6" style="width: 20%" name="dur"/>
+                        <input value="{{ rightItem.durability }}" class="bg-gray border-0 c-gold p-0 m-0 h6 text-end" style="width: 15%" name="dur"/>
                         /{{ rightItem.name|getMaxDurability }}
                     </div>
-                    <div class="col h6 text-end p-2 pb-0">
+                    <div class="col h6 text-end p-2 pb-0 border-start border-warning">
                         Prawa ręka - <span id="r-type">{{ rightItem.name|getItemType:'pl' }}</span>
                     </div>
                 </div>
@@ -852,13 +852,13 @@
 
                 <div class="row ps-0 ms-1 me-0 pe-0">
 
-                    <div class="col-3 border-end border-warning p-1 h6 mb-0 d-flex align-items-center justify-content-center">
+                    <div class="col-4 border-end border-warning p-1 h6 mb-0 d-flex align-items-center justify-content-center">
                         <span class="c-gold ms-1">
                             <span id="r_stats">{{ rightItem.name|getItemStatByName }}</span> <span id='r_bonus'>{{ value.name|isPreffereOrUnliked:rightItem.name }}</span>
                         </span>
                     </div>                
-                    <div class="col-3 border-end border-warning p-3 h6 mb-0 d-flex align-items-center justify-content-center">
-                        <span class="text-white-50">Waga:</span> <span class="c-gold ms-1" id="r-weight">{{ rightItem.name|getItemWeight }}kg</span>
+                    <div class="col-2 border-end border-warning p-3 h6 mb-0 d-flex align-items-center justify-content-center">
+                        <span class="text-white-50"></span> <span class="c-gold ms-1" id="r-weight">{{ rightItem.name|getItemWeight }}kg</span>
                     </div>                
                     <div class="col-3 border-end border-warning h6 mb-0 d-flex align-items-center justify-content-center">
                         <a class="btn btn-info p-3 pt-2 pb-2 text-white" onclick='show_or_hideById("rightItem-swap")'>Zmień</a>
@@ -949,12 +949,12 @@
             <form name='head' method='post' action='changedur-{{ sideItem.id }}' class='row mt-2 border border-warning rounded bg-gray m-0 p-0'>
                 {% csrf_token %}
                 <div class="row c-gold me-0 pe-0">
-                    <div class="col h6 text-start p-2 ps-3 pb-0">
+                    <div class="col-7 h6 text-start pt-2 ps-1 pb-0 pe-0">
                         <span class="text-white-50">Wytrzymałość:</span>
-                        <input value="{{ sideItem.durability }}" class="bg-gray border-0 c-gold p-0 m-0 h6" style="width: 20%" name="dur"/>
+                        <input value="{{ sideItem.durability }}" class="bg-gray border-0 c-gold p-0 m-0 h6 text-end" style="width: 15%" name="dur"/>
                         /{{ sideItem.name|getMaxDurability }}
                     </div>
-                    <div class="col h6 text-end p-2 pb-0">
+                    <div class="col h6 text-end p-2 pb-0 border-start border-warning">
                         Miejsce przy pasie
                     </div>
                 </div>
@@ -982,11 +982,11 @@
 
                 <div class="row ps-0 ms-1 me-0 pe-0">
 
-                    <div class="col-3 border-end border-warning p-1 h6 mb-0 d-flex align-items-center justify-content-center">
+                    <div class="col-4 border-end border-warning p-1 h6 mb-0 d-flex align-items-center justify-content-center">
                         <span class="c-gold ms-1">{{ sideItem.name|getItemStatByName }}</span>
                     </div>                
-                    <div class="col-3 border-end border-warning p-3 h6 mb-0 d-flex align-items-center justify-content-center">
-                        <span class="text-white-50">Waga:</span> <span class="c-gold ms-1">{{ sideItem.name|getItemWeight }}kg</span>
+                    <div class="col-2 border-end border-warning p-3 h6 mb-0 d-flex align-items-center justify-content-center">
+                        <span class="text-white-50"></span> <span class="c-gold ms-1">{{ sideItem.name|getItemWeight }}kg</span>
                     </div>                
                     <div class="col-3 border-end border-warning h6 mb-0 d-flex align-items-center justify-content-center">
                         <a class="btn btn-info p-3 pt-2 pb-2 text-white" onclick='show_or_hideById("sideItem-swap")'>Zmień</a>
@@ -1076,12 +1076,12 @@
             <form name='head' method='post' action='changedur-{{ boots.id }}' class='row mt-2 border border-warning rounded bg-gray m-0 p-0'>
                 {% csrf_token %}
                 <div class="row c-gold me-0 pe-0">
-                    <div class="col h6 text-start p-2 ps-3 pb-0">
+                    <div class="col-7 h6 text-start pt-2 ps-1 pb-0 pe-0">
                         <span class="text-white-50">Wytrzymałość:</span>
-                        <input value="{{ boots.durability }}" class="bg-gray border-0 c-gold p-0 m-0 h6" style="width: 20%" name="dur"/>
+                        <input value="{{ boots.durability }}" class="bg-gray border-0 c-gold p-0 m-0 h6 text-end" style="width: 15%" name="dur"/>
                         /{{ boots.name|getMaxDurability }}
                     </div>
-                    <div class="col h6 text-end p-2 pb-0">
+                    <div class="col h6 text-end p-2 pb-0 border-start border-warning">
                         Nogi - {{ boots.name|getArmorWeightType }}
                     </div>
                 </div>
@@ -1109,11 +1109,11 @@
 
                 <div class="row ps-0 ms-1 me-0 pe-0">
 
-                    <div class="col-3 border-end border-warning p-3 h6 mb-0 d-flex align-items-center justify-content-center">
+                    <div class="col-4 border-end border-warning p-3 h6 mb-0 d-flex align-items-center justify-content-center">
                         <span class="text-white-50">Pancerz:</span> <span class="c-gold ms-1">{{ boots.name|getItemArmor }}</span>
                     </div>                
-                    <div class="col-3 border-end border-warning p-3 h6 mb-0 d-flex align-items-center justify-content-center">
-                        <span class="text-white-50">Waga:</span> <span class="c-gold ms-1">{{ boots.name|getItemWeight }}kg</span>
+                    <div class="col-2 border-end border-warning p-3 h6 mb-0 d-flex align-items-center justify-content-center">
+                        <span class="text-white-50"></span> <span class="c-gold ms-1">{{ boots.name|getItemWeight }}kg</span>
                     </div>                
                     <div class="col-3 border-end border-warning h6 mb-0 d-flex align-items-center justify-content-center">
                         <a class="btn btn-info p-3 pt-2 pb-2 text-white" onclick='show_or_hideById("boots-swap")'>Zmień</a>
@@ -1198,12 +1198,12 @@
             <form name='head' method='post' action='changedur-{{ gloves.id }}' class='row mt-2 border border-warning rounded bg-gray m-0 p-0'>
                 {% csrf_token %}
                 <div class="row c-gold me-0 pe-0">
-                    <div class="col h6 text-start p-2 ps-3 pb-0">
+                    <div class="col-7 h6 text-start pt-2 ps-1 pb-0 pe-0">
                         <span class="text-white-50">Wytrzymałość:</span>
-                        <input value="{{ gloves.durability }}" class="bg-gray border-0 c-gold p-0 m-0 h6" style="width: 20%" name="dur"/>
+                        <input value="{{ gloves.durability }}" class="bg-gray border-0 c-gold p-0 m-0 h6 text-end" style="width: 15%" name="dur"/>
                         /{{ gloves.name|getMaxDurability }}
                     </div>
-                    <div class="col h6 text-end p-2 pb-0">
+                    <div class="col h6 text-end p-2 pb-0 border-start border-warning">
                         Ręce - {{ gloves.name|getArmorWeightType }}
                     </div>
                 </div>
@@ -1231,11 +1231,11 @@
 
                 <div class="row ps-0 ms-1 me-0 pe-0">
 
-                    <div class="col-3 border-end border-warning p-3 h6 mb-0 d-flex align-items-center justify-content-center">
+                    <div class="col-4 border-end border-warning p-3 h6 mb-0 d-flex align-items-center justify-content-center">
                         <span class="text-white-50">Pancerz:</span> <span class="c-gold ms-1">{{ gloves.name|getItemArmor }}</span>
                     </div>                
-                    <div class="col-3 border-end border-warning p-3 h6 mb-0 d-flex align-items-center justify-content-center">
-                        <span class="text-white-50">Waga:</span> <span class="c-gold ms-1">{{ gloves.name|getItemWeight }}kg</span>
+                    <div class="col-2 border-end border-warning p-3 h6 mb-0 d-flex align-items-center justify-content-center">
+                        <span class="text-white-50"></span> <span class="c-gold ms-1">{{ gloves.name|getItemWeight }}kg</span>
                     </div>                
                     <div class="col-3 border-end border-warning h6 mb-0 d-flex align-items-center justify-content-center">
                         <a class="btn btn-info p-3 pt-2 pb-2 text-white" onclick='show_or_hideById("gloves-swap")'>Zmień</a>
@@ -1320,12 +1320,12 @@
             <form name='head' method='post' action='changedur-{{ amulet.id }}' class='row mt-2 border border-warning rounded bg-gray m-0 p-0'>
                 {% csrf_token %}
                 <div class="row c-gold me-0 pe-0">
-                    <div class="col h6 text-start p-2 ps-3 pb-0">
+                    <div class="col-7 h6 text-start pt-2 ps-1 pb-0 pe-0">
                         <span class="text-white-50">Wytrzymałość:</span>
-                        <input value="{{ amulet.durability }}" class="bg-gray border-0 c-gold p-0 m-0 h6" style="width: 20%" name="dur"/>
+                        <input value="{{ amulet.durability }}" class="bg-gray border-0 c-gold p-0 m-0 h6 text-end" style="width: 15%" name="dur"/>
                         /{{ amulet.name|getMaxDurability }}
                     </div>
-                    <div class="col h6 text-end p-2 pb-0">
+                    <div class="col h6 text-end p-2 pb-0 border-start border-warning">
                         Akcesoria - {{ amulet.name|getArmorWeightType }}
                     </div>
                 </div>
@@ -1353,11 +1353,11 @@
 
                 <div class="row ps-0 ms-1 me-0 pe-0">
 
-                    <div class="col-3 border-end border-warning p-3 h6 mb-0 d-flex align-items-center justify-content-center">
+                    <div class="col-4 border-end border-warning p-3 h6 mb-0 d-flex align-items-center justify-content-center">
                         <span class="text-white-50">Pancerz:</span> <span class="c-gold ms-1">{{ amulet.name|getItemArmor }}</span>
                     </div>                
-                    <div class="col-3 border-end border-warning p-3 h6 mb-0 d-flex align-items-center justify-content-center">
-                        <span class="text-white-50">Waga:</span> <span class="c-gold ms-1">{{ amulet.name|getItemWeight }}kg</span>
+                    <div class="col-2 border-end border-warning p-3 h6 mb-0 d-flex align-items-center justify-content-center">
+                        <span class="text-white-50"></span> <span class="c-gold ms-1">{{ amulet.name|getItemWeight }}kg</span>
                     </div>                
                     <div class="col-3 border-end border-warning h6 mb-0 d-flex align-items-center justify-content-center">
                         <a class="btn btn-info p-3 pt-2 pb-2 text-white" onclick='show_or_hideById("amulet-swap")'>Zmień</a>
@@ -1443,7 +1443,7 @@
                 {% csrf_token %}
                 <div class="row c-gold me-0 pe-0">
                     <div class="col h6 text-start p-2 ps-3 pb-0">
-                        <span class="text-white-50">Punkty życia:</span>
+                        <span class="text-white-50">Życie:</span>
                         <input value="{{ mount.durability }}" class="bg-gray border-0 c-gold p-0 m-0 h6" style="width: 20%" name="dur"/>
                         /{{ mount.name|getMaxDurability }}
                     </div>
@@ -1564,12 +1564,12 @@
             <form name='head' method='post' action='changedur-{{ mount_armor.id }}' class='row mt-2 border border-warning rounded bg-gray m-0 p-0'>
                 {% csrf_token %}
                 <div class="row c-gold me-0 pe-0">
-                    <div class="col h6 text-start p-2 ps-3 pb-0">
+                    <div class="col-7 h6 text-start pt-2 ps-1 pb-0 pe-0">
                         <span class="text-white-50">Wytrzymałość:</span>
-                        <input value="{{ mount_armor.durability }}" class="bg-gray border-0 c-gold p-0 m-0 h6" style="width: 20%" name="dur"/>
+                        <input value="{{ mount_armor.durability }}" class="bg-gray border-0 c-gold p-0 m-0 h6 text-end" style="width: 15%" name="dur"/>
                         /{{ mount_armor.name|getMaxDurability }}
                     </div>
-                    <div class="col h6 text-end p-2 pb-0">
+                    <div class="col h6 text-end p-2 pb-0 border-start border-warning">
                         Pancerz wierzchowca
                     </div>
                 </div>
@@ -1597,11 +1597,11 @@
 
                 <div class="row ps-0 ms-1 me-0 pe-0">
 
-                    <div class="col-3 border-end border-warning p-3 h6 mb-0 d-flex align-items-center justify-content-center">
+                    <div class="col-4 border-end border-warning p-3 h6 mb-0 d-flex align-items-center justify-content-center">
                         <span class="text-white-50">Pancerz:</span> <span class="c-gold ms-1" id="mount_armor_value">{{ mount_armor.name|getItemArmor }}</span>
                     </div>                
-                    <div class="col-3 border-end border-warning p-3 h6 mb-0 d-flex align-items-center justify-content-center">
-                        <span class="text-white-50">Waga:</span> <span class="c-gold ms-1">{{ mount_armor.name|getItemWeight }}kg</span>
+                    <div class="col-2 border-end border-warning p-3 h6 mb-0 d-flex align-items-center justify-content-center">
+                        <span class="text-white-50"></span> <span class="c-gold ms-1">{{ mount_armor.name|getItemWeight }}kg</span>
                     </div>                
                     <div class="col-3 border-end border-warning h6 mb-0 d-flex align-items-center justify-content-center">
                         <a class="btn btn-info p-3 pt-2 pb-2 text-white" onclick='show_or_hideById("mount_armor-swap")'>Zmień</a>
