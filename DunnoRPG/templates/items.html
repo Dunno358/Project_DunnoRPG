@@ -261,16 +261,38 @@
     {% endfor %}
 
     {% if view.kwargs.char_id != 0 %}
-        <div class='row bg-dark bg-opacity-75 rounded m-2 p-2 text-center'>
+        <div class='row bg-dark bg-opacity-75 rounded m-2 p-2 text-center ms-0 ps-0'>
             <h1 onclick='show_or_hideById("adding-item", true, this)' class='col text-info fa fa-plus bg-dark p-2 border border-primary rounded'></h1>
-            <div id='adding-item' class='col d-none'>
-                <select id='selected-eq-add' class='bg-dark rounded border border-warning c-gold p-1 text-center'>
-                    {% for item in all_items %}
-                    <option id='{{ item.id }}' value='{{ item.name }}'>{{ item.name }}</option>
-                    {% endfor %}
-                </select><br>
-                <input id='selected-eq-add-dur' type='number' min="0" placeholder='Item durability here :)' class='w-25 bg-dark c-gold m-3 text-center' value='50'/>
-                <a onclick='makeAddToEqRequest()' class='btn btn-success m-3'>Add</a>
+            <div id='adding-item' class='row d-none w-100 m-0 p-0'>
+                <div class="row w-100 m-0 p-0">
+                    <div class="col">
+                        <select id='selected-eq-add' class='bg-dark rounded border border-warning c-gold p-1 text-center'>
+                            {% for item in all_items %}
+                            <option id='{{ item.id }}' value='{{ item.name }}'>{{ item.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="row w-100 m-0 p-0">
+                    <div class="col">
+                        <span class="c-gold h6 ms-3">Wytrzymałość:</span>
+                        <input id='selected-eq-add-dur' type='number' min="0" placeholder='Item durability here :)' class='w-25 bg-dark bg-gradient c-gold m-3 text-center' value='50'/>
+                    </div>
+                </div>
+
+                <div class="row w-100 m-0 p-0">
+                    <div class="col">
+                        <span class="c-gold h6 ms-3">Ilość:</span>
+                        <input id='selected-eq-add-amount' type='number' min="1" placeholder='Item amount here :)' class='w-25 bg-dark bg-gradient c-gold m-3 mt-0 text-center' value=1 />
+                    </div>
+                </div>
+
+                <div class="row w-100 m-0 p-0">
+                    <div class="col">
+                        <a onclick='makeAddToEqRequest()' class='btn btn-success m-3'>Poproś o przedmiot</a>
+                    </div>
+                </div>
             </div>
         </div>
     {% endif %}
@@ -607,7 +629,6 @@
       }
 
     function sellConfirmation(chid, id, price, dur, maxDur, itemName, amount, charBonus){
-        console.log(amount)
         let main_block = document.getElementById("sell-item-main")
         let title = document.getElementById("sell-item-title")
         let item_name = document.getElementById("sell-item-name")
@@ -628,6 +649,10 @@
         //console.log(char_bonus)
         //console.log(base_price,char_bonus,base_price+char_bonus)
         let calc_price = base_price+char_bonus
+        if(calc_price<0){
+            calc_price=0
+        }
+
         let quality = ""
 
         if(dur_perc>0.90){
@@ -681,11 +706,12 @@
 
     function makeAddToEqRequest(){
         chid = document.getElementById('chid').innerHTML
-        dur = document.getElementById('selected-eq-add-dur').getAttribute('value')
+        dur = document.getElementById('selected-eq-add-dur').value
+        amount = document.getElementById('selected-eq-add-amount').value
         it1 = document.getElementById('selected-eq-add')
         it1 = it1.options[it1.selectedIndex].id
 
-        url = '/dunnorpg/makerequest/'+chid+';Items;Items;'+it1+';0;Equipment;eq_add-'+dur+'dur;items'
+        url = '/dunnorpg/makerequest/'+chid+';Items;Items;'+it1+';0;Equipment;eq_add-'+dur+'dur;items'+';'+amount
         window.location.replace(url)
     }
 </script>

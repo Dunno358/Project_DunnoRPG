@@ -216,6 +216,7 @@ class Requests(models.Model):
     model = models.CharField(max_length = 150)
     field = models.CharField(max_length = 150, null=True, blank=True)
     title = models.CharField(max_length = 150)
+    amount = models.IntegerField(default=1)
     
 class Cities(models.Model):
     city_name = models.CharField(max_length = 150)

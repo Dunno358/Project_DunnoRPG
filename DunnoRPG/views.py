@@ -1654,7 +1654,8 @@ class makeRequest(APIView):
                     object2_id = kwargs['object2_id'],
                     model = kwargs['model'],
                     field = kwargs['field'],
-                    title = kwargs['title']            
+                    title = kwargs['title'],
+                    amount = kwargs['amount']            
             )
             messages.success(request,'Request created successfully!')
         except:
@@ -1754,7 +1755,7 @@ class RequestHandling(APIView):
                                             type = itemDesc.type,
                                             weight = itemDesc.weight,
                                             durability = dur,
-                                            amount = 1
+                                            amount = rq_object.amount
                                         )
                                         rq_object.delete()
                                     else:
@@ -1836,7 +1837,7 @@ class RequestHandling(APIView):
                                         type = itemDesc.type,
                                         weight = itemDesc.weight,
                                         durability = dur,
-                                        amount = 1
+                                        amount = rq.amount
                                     )
                                     rq.delete()
                                 else:
