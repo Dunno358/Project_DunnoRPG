@@ -26,40 +26,46 @@
 <div name='bar' class='container mt-1'>
     <div class='row bg-gray border border-warning rounded'>
 
-        <div class='col btn btn-dark btn-outline-warning p-2 m-2' onclick='show_or_hideById(this)'>
-            Singlehand 
+        <div class="row m-0 p-0">
+            <div class='col btn btn-dark btn-outline-warning p-2 m-1' onclick='show_or_hideById(this)'>
+                Jednoręczne 
+            </div>
+
+            <div class='col btn btn-dark btn-outline-warning p-2 m-1' onclick='show_or_hideById(this)'>
+                Dwuręczne
+            </div>
         </div>
 
-        <div class='col btn btn-dark btn-outline-warning p-2 m-2' onclick='show_or_hideById(this)'>
-            Twohand
+        <div class="row m-0 p-0">
+            <div class='col btn btn-dark btn-outline-warning p-2 m-1' onclick='show_or_hideById(this)'>
+                Hełmy
+            </div>
+
+            <div class='col btn btn-dark btn-outline-warning p-2 m-1' onclick='show_or_hideById(this)'>
+                Napierśniki
+            </div>
+
+            <div class='col btn btn-dark btn-outline-warning p-2 m-1' onclick='show_or_hideById(this)'>
+                Buty
+            </div>
+
+            <div class='col btn btn-dark btn-outline-warning p-2 m-1' onclick='show_or_hideById(this)'>
+                Rękawice
+            </div>
         </div>
 
-        <div class='col btn btn-dark btn-outline-warning p-2 m-2' onclick='show_or_hideById(this)'>
-            Helmets
-        </div>
+        <div class="row m-0 p-0">
+            <div class='col btn btn-dark btn-outline-warning p-2 m-1' onclick='show_or_hideById(this)'>
+                Amulety
+            </div>
 
-        <div class='col btn btn-dark btn-outline-warning p-2 m-2' onclick='show_or_hideById(this)'>
-            Torso
-        </div>
+            <div class='col btn btn-dark btn-outline-warning p-2 m-1' onclick='show_or_hideById(this)'>
+                Wierzchowce
+            </div>
 
-        <div class='col btn btn-dark btn-outline-warning p-2 m-2' onclick='show_or_hideById(this)'>
-            Boots
-        </div>
-
-        <div class='col btn btn-dark btn-outline-warning p-2 m-2' onclick='show_or_hideById(this)'>
-            Gloves
-        </div>
-
-        <div class='col btn btn-dark btn-outline-warning p-2 m-2' onclick='show_or_hideById(this)'>
-            Amulets
-        </div>
-
-        <div class='col btn btn-dark btn-outline-warning p-2 m-2' onclick='show_or_hideById(this)'>
-            Animals
-        </div>
-
-        <div class='col btn btn-dark btn-outline-warning p-2 m-2' onclick='show_or_hideById(this)'>
-            Other
+            <div class='col btn btn-dark btn-outline-warning p-2 m-1' onclick='show_or_hideById(this)'>
+                Inne
+            </div>
         </div>
 
     </div>
@@ -93,8 +99,8 @@
     <div class='row text-center'>
         <form action="{% url 'items' view.kwargs.char_id %}" method='GET' class='container-fluid'>
             <input name='search' class='text-center bg-gray c-gold border rounded border-warning' 
-            placeholder="Item's name...">
-            <button type='submit' class='fas fa-search bg-dark btn btn-outline-warning'></button>
+            placeholder="Nazwa/Opis przedmiotu...">
+            <button type='submit' class='fas fa-search bg-dark btn btn-outline-warning' style="width: 3rem;"></button>
         </form>
     </div>
 </div>
@@ -299,7 +305,7 @@
     
 </div>
 
-<div id='Singlehand' class='container d-none'>
+<div id='Jednoręczne' class='container d-none'>
     {% for item in items_singlehand %}
         <div>
             <div class='row bg-dark bg-opacity-75 rounded m-2 p-2'>
@@ -330,7 +336,7 @@
     {% endfor %}
 </div>
 
-<div id='Twohand' class='container d-none'>
+<div id='Dwuręczne' class='container d-none'>
     {% for item in items_twohand %}
     <div>
         <div class='row bg-dark bg-opacity-75 rounded m-2 p-2'>
@@ -361,7 +367,7 @@
     {% endfor %}
 </div>
 
-<div id='Helmets' class='container d-none'>
+<div id='Hełmy' class='container d-none'>
     {% for item in items_helmet %}
     <div>
         <div class='row bg-dark bg-opacity-75 rounded m-2 p-2'>
@@ -392,7 +398,7 @@
     {% endfor %}
 </div>
 
-<div id='Torso' class='container d-none'>
+<div id='Napierśniki' class='container d-none'>
     {% for item in items_torso %}
     <div>
         <div class='row bg-dark bg-opacity-75 rounded m-2 p-2'>
@@ -423,7 +429,7 @@
     {% endfor %}
 </div>
 
-<div id='Boots' class='container d-none'>
+<div id='Buty' class='container d-none'>
     {% for item in items_boots %}
     <div>
         <div class='row bg-dark bg-opacity-75 rounded m-2 p-2'>
@@ -454,7 +460,7 @@
     {% endfor %}
 </div>
 
-<div id='Gloves' class='container d-none'>
+<div id='Rękawice' class='container d-none'>
     {% for item in items_gloves %}
     <div>
         <div class='row bg-dark bg-opacity-75 rounded m-2 p-2'>
@@ -485,7 +491,7 @@
     {% endfor %}
 </div>
 
-<div id='Amulets' class='container d-none'>
+<div id='Amulety' class='container d-none'>
     {% for item in items_amulets %}
     <div>
         <div class='row bg-dark bg-opacity-75 rounded m-2 p-2'>
@@ -516,7 +522,7 @@
     {% endfor %}
 </div>
 
-<div id='Animals' class='container d-none'>
+<div id='Wierzchowce' class='container d-none'>
     {% for item in animals %}
     <div>
         <div class='row bg-dark bg-opacity-75 rounded m-2 p-2'>
@@ -547,7 +553,7 @@
     {% endfor %}
 </div>
 
-<div id='Other' class='container d-none'>
+<div id='Inne' class='container d-none'>
     {% for item in items_other %}
     <div>
         <div class='row bg-dark bg-opacity-75 rounded m-2 p-2'>
