@@ -24,10 +24,14 @@ def getItemStatByName(itemName):
         item = models.Items.objects.all().filter(name=itemName).values()[0]
         if item['type'].lower() != 'shield':
             bonus = item['diceBonus']
-            if bonus >= 0:
-                return f"1K+{item['diceBonus']}, {item['AP']}AP"
+
+            if bonus == -15:
+                return f"1K10+SIŁ"
             else:
-                return f"1K{item['diceBonus']}, {item['AP']}AP"
+                if bonus >= 0:
+                    return f"1K+{item['diceBonus']}, {item['AP']}AP"
+                else:
+                    return f"1K{item['diceBonus']}, {item['AP']}AP"
         else:
             return f"Blok: {item['block']}"
     except:
@@ -86,6 +90,9 @@ def getArmorWeightType(itemName):
     weight = item.weight
     type = item.type
 
+    if type not in types:
+        return "Broń"
+
     if weight < types[type][0]:
         weightType = "Lekkie"
     elif weight < types[type][1]:
@@ -116,9 +123,14 @@ def getMaxDurability(itemName):
 
 @register.filter
 def getStaffMagicDmg(itemName, charId):
-    char = get_object_or_404(models.Character, id=charId)
+
+    if charId==0:
+        int = 0
+    else:
+        char = get_object_or_404(models.Character, id=charId)
+        int = char.INT
+
     item = get_object_or_404(models.Items, name=itemName)
-    int = char.INT
     rarity = item.rarity
 
     if item.type=="Wand":
@@ -142,7 +154,7 @@ def getStaffMagicDmg(itemName, charId):
         if dmg > 0:
             dmg = f"+{dmg}"
 
-        return f"[1K{dmg}, {dictionary_ap[rarity]}AP; Zasięg: 10]"
+        return f"[1K{dmg}, {dictionary_ap[rarity]}AP]"
     else:
         return ""
 
@@ -557,6 +569,7 @@ def getItemRange(item_name):
             return item.range
         #Else get the category range
 
+        armor = ['helmet','armor','torso','boots','gloves','amulet', 'mount armor']
         ranges = {
             "pistol": 9,
             "kusza refleksyjna": 15,
@@ -585,7 +598,10 @@ def getItemRange(item_name):
         if twohanded:
             return 2+bonus
         else:
-            return 1+bonus
+            if type in armor:
+                return "Brak"
+            else:
+                return 1+bonus
     except:
         return "?"
 
