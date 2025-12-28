@@ -834,7 +834,7 @@ def sell_item(request, **kwargs):
         char.save()
 
         eqItem.amount -= amount
-        if eqItem==0:
+        if eqItem.amount==0:
             eqItem.delete()
         else:
             eqItem.save()
