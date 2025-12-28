@@ -28,6 +28,7 @@
                 {% for char in characters %}
                     <option value='{{ char.id }}' class='h4'>{{ char.name }}</option>
                     <option id="{{ char.id }}-char" class="d-none">{{ char.CHAR }}</option>
+                    <option id="{{ char.id }}-char-mod" class="d-none">{{ char.id|getModFromId:"CHAR" }}</option>
                 {% endfor %}
             </select>
             <div class="row">
@@ -465,13 +466,19 @@
         token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
         let dice = Math.floor(Math.random() * 20) + 1
         let characterCharisma = parseInt(document.getElementById(`${char_id}-char`).innerHTML)
-        result = dice+characterCharisma
-        console.log(result)
+        let characterCharismaMod = parseInt(document.getElementById(`${char_id}-char-mod`).innerHTML)
+        result = dice+characterCharisma+characterCharismaMod
 
         if(result>=15){
             cost = parseInt(cost*0.5)
         }else if(result>=12){
             cost = parseInt(cost*0.75)
+        }else if(result<=0){
+            cost = parseInt(cost*1.25)
+        }else if(result<=-10){
+            cost = parseInt(cost*1.5)
+        }else if(result<=-15){
+            cost = parseInt(cost*2)
         }
 
         req_body = {
@@ -493,7 +500,6 @@
         data = await response.json()
         fixed = data.new_durability - parseInt(document.getElementById(`fix-${item_id}-dur`).innerHTML)
 
-          console.log(response)
           if(response.status==200){
             document.getElementById(`fix-${item_id}-dur`).innerHTML = data.new_durability
             document.getElementById(`fix-${item_id}-item`).innerHTML += `<span class="unique" style="text-decoration: none"> [Fixed ${fixed} for ${data.cost} coins]</span>`

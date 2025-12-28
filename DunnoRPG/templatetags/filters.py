@@ -401,6 +401,28 @@ def getMod(character,stat_for_mod):
     return value
 
 @register.filter
+def getModFromId(charId,stat_for_mod):
+    value = 0
+    character = get_object_or_404(models.Character, id=charId)
+    for stat in models.Mods.objects.all().filter(character=character.name, field=stat_for_mod).values():
+        value += stat['value']
+    items = []
+    for item in models.CharItems.objects.all().filter(character=character.name):
+        try:
+            stats = models.Items.objects.all().filter(name=item.name).first().skillStats.split(';')
+            for stat in stats:
+                if stat[:-2].lower() == stat_for_mod.lower():
+                    if stat[-2] == "+":
+                        value += int(stat[-1])
+                    elif stat[-2] == "-":
+                        value -= int(stat[-1])
+        except:
+            pass
+    if value>=0:
+        value = f"+{value}"
+    return value
+
+@register.filter
 def getCharacterEffects(character):
     return models.Effects.objects.all().filter(character=character['name']).values()
 
