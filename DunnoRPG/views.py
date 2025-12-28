@@ -216,11 +216,16 @@ class CharacterSkills(ListView, FormView):
         skills_count_magical = 0
         current_skills = []
 
+        magical_exceptions = [
+            "Spaczbłyskawica"
+        ]
+
         for skill in context['skills']:
             cost = int(models.Skills_Decs.objects.filter(name=skill['skill']).values()[0]['cost'])
             current_skills.append(skill['skill'])
             if skill['category'].lower() == 'magical':
-                skills_count_magical += skill['level'] * cost
+                if skill['skill'] not in magical_exceptions:
+                    skills_count_magical += skill['level'] * cost
 
         magical_skills_points = character_stats['INT'] - skills_count_magical
         if magical_skills_points < 0:
