@@ -5,37 +5,90 @@
 {% block content %}
 
 {% include 'dunnorpg/messages.html' %}
-<div class='container mt-2'>
-    <div class='row'>
-        <div class='col-1 c-gold'>
-            <a class='btn btn-dark btn-outline-danger' href={% url 'home' %}>Back</a>
-        </div>
-        <div class='col c-gold text-center'>
-            <h1 class='txt-shadow fst-italic'><span id='points_left'>10</span> points left</h1>
+<div class='container mt-0'>
+
+    <div class="row">
+        <div class="col c-gold">
+            <a class='btn btn-dark btn-outline-danger w-100' href={% url 'home' %}><- Powrót na stronę główną</a>
         </div>
     </div>
 </div>
-<div class="container">
+
+<div class='container mb-5 d-none mt-2' id="iframe-container" style='height: 30rem;'>
+
+    <div class="row">
+        <div class="col c-gold ps-0 pe-0">
+            <button class="'btn btn-dark btn-outline-danger w-100 border-1 p-1 rounded" onclick=hideIframe()> 
+                <b>X Zamknik podgląd X</b>
+            </button>
+        </div>
+    </div>
+
+    <div class="row h-100">
+        <div class="col c-gold ps-0 pe-0">
+            <iframe src="" class="w-100 h-100 border border-warning" id="iframe"></iframe>
+        </div>
+    </div>
+</div>
+
+<div class="container ps-0 pe-0 mt-5">
     <div class='row ms-1 me-1'>
         <div class="col bg-gray border border-warning c-gold rounded text-center">
-            <form method='POST'>
-            {% csrf_token %}
-            {{ form.as_p }}
-            <a class='btn btn-dark btn-outline-warning m-3 p-2 c-gold w-25'
-                href='https://docs.google.com/document/d/1-v1iUAAMa5P62GotcEOsj89H0ntl7CHtrTYfwtNVW9g/edit?usp=sharing' target='_blank'>
-                Races
-            </a>
-            <a class='btn btn-dark btn-outline-warning m-3 p-2 c-gold w-25'
-                href='https://docs.google.com/document/d/1A-AM1SF78bhQ0blRxf06kb7VQ9WMYVeSN4VhOn3j53g/edit?usp=sharing' target='_blank'>
-                Classes
-            </a>
-            <input class="btn btn-dark border border-warning btn-lg w-75 me-4 m-1" type="submit" value="Go to skills"></input>
-            </form>
+
+            <div class="row mt-3">
+                <div class="col">
+                    <input class="w-100 text-center rounded" id="char-name" placeholder="Nazwa postaci">
+                </div>
+            </div>
+
+            <div class="row mt-2">
+                <div class="col">
+                    <a class='c-gold' style="text-decoration: underline; margin-left: -6rem" onclick=showIframe('/dunnorpg/info/races')>[Sprawdź rasy]</a>
+                    <span class="c-gold h4">Rasa:</span>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <select class="w-100 text-center border border-warning bg-dark text-white-50 rounded" id="char-race">
+                        {% for race in races %}
+                            <option value={{ race.name }}>{{ race.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+
+            <div class="row mt-2">
+                <div class="col">
+                    <a class='c-gold' style="text-decoration: underline; margin-left: -6rem" onclick=showIframe('/dunnorpg/info/classes')>[Sprawdź klasy]</a>
+                    <span class="c-gold h4">Klasa:</span>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <select class="w-100 text-center border border-warning bg-dark text-white-50 rounded" id="char-class">
+                        {% for class in classes %}
+                            <option value={{ class.name }}>{{ class.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+
+            <!-- TODO: Teraz tak, żeby kliknięcie tego inputa (zmienić na buttom) robiło requesta do api (api do zrobienia) które stworzy nową postać o nazwę, klase i rase i przeniesie do character_edit dla tej nowej postaci -->
+            <input class="btn btn-dark border border-warning btn-lg w-75 me-4 m-1 mt-3" type="submit" value="Dalej"></input>
         </div>
     </div>
 </div>
 
 <script>
+    function hideIframe(){
+        document.getElementById('iframe-container').classList.add('d-none')
+    }
+
+    function showIframe(iframe_src){
+        document.getElementById('iframe').src = iframe_src
+        document.getElementById('iframe-container').classList.remove('d-none')
+    }
+
     let operations = new CharacterCreation();
     operations.races()
     operations.count_points()
