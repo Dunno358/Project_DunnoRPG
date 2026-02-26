@@ -16,12 +16,18 @@ class Users(models.Model):
 class Character(models.Model):
     owner = models.CharField(max_length=100)
     name = models.CharField(max_length=50)
+    level = models.IntegerField(default=1)
+    exp = models.IntegerField(default=0)
+    type = models.CharField(max_length=50, null=True)
     race = models.CharField(max_length=30)
     chosen_class = models.CharField(max_length=80, default='', blank=True)
     size = models.CharField(max_length=2)
     HP = models.IntegerField()
+    alcohol = models.CharField(max_length=50, default=0)
+    food = models.IntegerField(default=100)
+    water = models.IntegerField(default=100)
     fullHP = models.IntegerField(null=True)
-    coins = models.IntegerField(default=5)
+    coins = models.FloatField(default=0.0)
     Helmet = models.CharField(max_length=50, blank=True)
     Torso = models.CharField(max_length=50, blank=True)
     Gloves = models.CharField(max_length=50, blank=True)
@@ -33,10 +39,13 @@ class Character(models.Model):
     CHAR = models.IntegerField()
     CEL = models.IntegerField()
     points_left = models.IntegerField(null=True)
+    barrier = models.CharField(max_length=50, default=0) #e.g. 15/25 where 15 is current and 25 is max
+    mutation = models.TextField(null=True) # names separated by ; and functions somewhere will do actions based on names
     weaponBonus = models.IntegerField(null=True)
     preferredWeapons = models.TextField(null=True)
     unlikedWeapons = models.TextField(null=True)
     extra_capacity = models.IntegerField(default=0)
+    city_bargains = models.TextField(blank=True, null=True) #city_id-item_id-price_for_this_specific_player | so failed bargaining has an effect and not an option to refresh bargain
     notes = models.TextField(blank=True, null=True)
     model_url = models.CharField(max_length=255, blank=True, null=True)
     hidden = models.BooleanField(default=False)
@@ -53,6 +62,14 @@ class Mods(models.Model):
 
     def __str__(self):
         return f"{self.character} | {self.field}: {self.value}"
+
+class Mutations(models.Model):
+    name = models.CharField(max_length=255, null=True)
+    description = models.TextField(null=True)
+    effect = models.CharField(max_length=255, null=True)
+
+    def __str__(self):
+        return f"{self.name}"
 
 class Races(models.Model):
     name = models.CharField(max_length=100)
@@ -110,6 +127,7 @@ class Skills_Decs(models.Model):
     name = models.CharField(max_length=100)
     category = models.CharField(max_length = 50, null = True)
     desc = models.TextField()
+    restrictions = models.CharField(max_length=255, default="Uniwersalne") #all for everyone
     level1 = models.TextField(null=True)
     need1_1 = models.CharField(max_length=20, null=True, blank=True)
     need1_2 = models.CharField(max_length=20, null=True, blank=True)
@@ -135,11 +153,16 @@ class Skills_Decs(models.Model):
 class Items(models.Model):
     name = models.CharField(max_length=50, null=True)
     type = models.CharField(max_length=50, null=True)
+    category = models.CharField(max_length=50, null=True)
+    on_use = models.CharField(max_length = 150, null=True)
+    use_cost = models.CharField(max_length=30, null=True) #half/full as full action and half action
+    dmg_type = models.CharField(max_length=50, null=True)
     rarity = models.CharField(max_length=50, null=True)
     dualHanded = models.BooleanField(default=False)
     desc = models.TextField(null=True)
     found = models.BooleanField(default=False)
-    diceBonus = models.IntegerField(default=0)
+    dmgDice = models.CharField(max_length=50, default="1K10") # nKx where n is number of dices and x is which dice
+    dmgModifier = models.IntegerField(default=1) #for ammo
     AP = models.IntegerField(default=0)
     range = models.IntegerField(default=0)
     armor = models.IntegerField(default=0)
@@ -154,7 +177,7 @@ class Items(models.Model):
     additionalInfo = models.TextField(blank=True,null=True)
     effectsAfterPen = models.TextField(blank=True,null=True)
     effectsAlways = models.TextField(blank=True,null=True)
-    price = models.IntegerField(default=5)
+    price = models.FloatField(default=0.0)
 
     def __str__(self):
         if self.dualHanded == True:
@@ -164,6 +187,11 @@ class Items(models.Model):
 class CharItems(models.Model):
     owner = models.CharField(max_length = 80)
     character = models.CharField(max_length = 150)
+    category = models.CharField(max_length = 50, null=True)
+    on_use = models.CharField(max_length = 150, null=True)
+    use_cost = models.CharField(max_length=30, null=True)
+    effectsafterpen = models.CharField(max_length = 150, null=True)
+    effectsall = models.CharField(max_length = 150, null=True)
     name = models.CharField(max_length = 150, null=True, blank=True)
     durability = models.IntegerField(default=50, null=True, blank=True)
     hand = models.CharField(max_length = 10, default='Left', null=True, blank=True)
@@ -172,7 +200,10 @@ class CharItems(models.Model):
     def __str__(self):
         max_durability = get_object_or_404(Items, name=self.name).maxDurability
         return f"[{self.character}] {self.name} ({self.durability}/{max_durability}) [{self.hand}]"
-    
+
+class GM(models.Model):
+    session_stopped = models.BooleanField(default=True)
+
 class Effects(models.Model):
     owner = models.CharField(max_length = 150)
     character = models.CharField(max_length = 150)
