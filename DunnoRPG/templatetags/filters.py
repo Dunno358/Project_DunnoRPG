@@ -23,15 +23,15 @@ def getItemStatByName(itemName):
     try:
         item = models.Items.objects.all().filter(name=itemName).values()[0]
         if item['type'].lower() != 'shield':
-            bonus = item['diceBonus']
+            bonus = 0#item['diceBonus']
 
             if bonus == -15:
                 return f"1K10+SIŁ"
             else:
                 if bonus >= 0:
-                    return f"1K+{item['diceBonus']}, {item['AP']}AP"
+                    return f"1K+{bonus}, {item['AP']}AP"
                 else:
-                    return f"1K{item['diceBonus']}, {item['AP']}AP"
+                    return f"1K{bonus}, {item['AP']}AP"
         else:
             return f"Blok: {item['block']}"
     except:
@@ -104,7 +104,7 @@ def getArmorWeightType(itemName):
 
 @register.filter
 def getItemBonus(itemName):
-    bonus = get_object_or_404(models.Items, name=itemName).diceBonus
+    bonus = 0 #get_object_or_404(models.Items, name=itemName).diceBonus
     if bonus>=0:
         return f"+{bonus}"
     else:
@@ -211,7 +211,9 @@ def getItemPrice(itemName, full=False):
     try:
         price = models.Items.objects.filter(name=itemName).get().price
         if full:
-            return price*2
+            rawPriceFull = price*2
+            priceFull = "{:.1f}".format(rawPriceFull) # e.g. 10.1
+            return priceFull
         else: return price
     except:
         return None
@@ -465,7 +467,7 @@ def getAmuletAttackBonus(charName):
         amulet = models.Items.objects.filter(
             name=models.CharItems.objects.filter(character=charName, position='Amulet').first().name
             ).first()
-        return amulet.diceBonus
+        return amulet.dmgDice
     except:
         return 0
     

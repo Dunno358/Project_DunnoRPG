@@ -12,7 +12,7 @@
                 Wytrzymałość: {{ item.maxDurability }}
             </h2>
         </div>
-        <div class='col text-center c-gold fst-italic m-0 p-0 border-bottom border-warning bg-dark bg-gradient'>
+        <div class='col text-center c-gold fst-italic m-0 p-0 border-end border-bottom border-warning bg-dark bg-gradient'>
             <h2>
                 Zasięg ataku: <br>{{ item.name|getItemRange }}
             </h2>
@@ -28,7 +28,7 @@
     <div class='row mt-2 text-border-black'>
         <div class='col text-center c-gold fst-italic m-0 p-0'>
             <h2>
-                Typ: {{ item.name|getItemType:'pl' }} ({{ item.name|getArmorWeightType }})
+                Typ: {{ item.type }} {% if item.dualHanded %}(Dwuręczne){% endif %}
             </h2>
         </div>
     </div>
@@ -46,7 +46,7 @@
             {% elif item.type == 'Wand' %}
                 <h2>{{ item.name|getStaffMagicDmg:0 }}</h2>
             {% else %}
-                <h2>1K{% if item.diceBonus >= 0 %}+{% endif %}{{ item.diceBonus }}, {{ item.AP }}AP</h2>
+                <h2>{{ item.dmgDice }}, AP: {{ item.AP }}% <!-- 1K{% if item.diceBonus >= 0 %}+{% endif %}{{ item.diceBonus }}, {{ item.AP }}AP --></h2>
             {% endif %}
         </div>
     </div>
@@ -86,17 +86,38 @@
 
     <div class='row mt-5 c-gold text-center mb-1'>
         <div class='col bg-dark p-2 border border-warning rounded ms-3 me-3'>
-            <h5>Price: {{ item.price }}</h5>
+            <h5>Cena: {{ item.price }}</h5>
         </div>
         <div class='col bg-dark p-2 border border-warning rounded ms-2 me-2'>
             {% if item.type == 'Animal' %}
-            <h5>Extra capacity: +{{ item.diceBonus }}kg</h5>
+            <h5>Dostępny ekwipunek: +{{ item.dmgDice }}kg</h5>
             {% else %}
-            <h5>Weight: {{ item.weight }}kg</h5>
+            <h5>Waga: {{ item.weight }}kg</h5>
             {% endif %}
         </div>
     </div>
 
+    <div class='row text-border-black mt-2'>
+        <div class='col text-center c-gold fst-italic m-0 p-0 border-bottom border-top border-end border-warning bg-dark bg-gradient '>
+            <h2>
+                Trafienie od: <br> {{ item.neededAccuraccy }}
+            </h2>
+        </div>
+        <div class='col text-center c-gold fst-italic m-0 p-0 border-bottom border-top border-warning bg-dark bg-gradient'>
+            <h2>
+                Typ obrażeń: <br>{{ item.dmg_type }}
+            </h2>
+        </div>
+    </div>
+        {% if item.altAttack != 'None' %}
+            <div class='row text-border-black'>
+                <div class='col text-center c-gold fst-italic m-0 p-0 border-bottom border-top border-warning bg-dark bg-gradient'>
+                    <h2>
+                        Alternatywny atak: <br>{{ item.altAttack }}
+                    </h2>
+                </div>
+            </div>
+        {% endif %}
 </div>
 
 <script>

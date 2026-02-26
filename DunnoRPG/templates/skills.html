@@ -4,6 +4,19 @@
 {% include 'top_bar.html' %}
 
 <div class='container'>
+    <div class='row mt-1 bg-gray p-1 rounded border border-warning'>
+        <div class="col m-0 p-0">
+            <select class="w-100 p-1 text-center border border-warning bg-dark text-white-50 rounded" id='restriction-choose'>
+                <option value='Wszystkie'>Wszystkie</option>
+                {% for restriction in restrictions %}
+                    <option value='{{ restriction }}'>{{ restriction }}</option>
+                {% endfor %}
+            </select>
+        </div>
+    </div>
+</div>
+
+<div class='container'>
     <div id='top' class='row mt-1 bg-gray p-1 rounded border border-warning'>
             {% for skill in skills %}
                     <button type='button' onclick="show(this)" class='col m-1 btn btn-dark btn-outline-warning'>{{ skill }}</button>
@@ -13,7 +26,7 @@
 
 <div id='Magical' class='row bg-dark d-none ms-1 me-1 border border-primary rounded'>
     {% for skill in magical_skills %}
-        <div class='col m-1 border border-warning rounded bg-gray text-center p-2'>
+        <div class='skill-card col m-1 border border-warning rounded bg-gray text-center p-2' data-restrictions='{{ skill.restrictions|default_if_none:""|escape }}'>
             <a title='{{ skill.desc }}' href='{{ skill.id }}/' class='h3 c-gold'>[{{ skill.number }}] {{ skill.name }}</a>
         </div>
     {% endfor %}
@@ -21,7 +34,7 @@
 
 <div id='Melee' class='row bg-dark d-none ms-1 me-1 border border-primary rounded'>
     {% for skill in melee_skills %}
-        <div class='col m-1 border border-warning rounded bg-gray text-center p-2'>
+        <div class='skill-card col m-1 border border-warning rounded bg-gray text-center p-2' data-restrictions='{{ skill.restrictions|default_if_none:""|escape }}'>
             <a title='{{ skill.desc }}' href='{{ skill.id }}/' class='h3 c-gold'>{{ skill.name }}</a>
         </div>
     {% endfor %}
@@ -29,7 +42,7 @@
 
 <div id='Range' class='row bg-dark d-none ms-1 me-1 border border-primary rounded'>
     {% for skill in range_skills %}
-        <div class='col m-1 border border-warning rounded bg-gray text-center p-2'>
+        <div class='skill-card col m-1 border border-warning rounded bg-gray text-center p-2' data-restrictions='{{ skill.restrictions|default_if_none:""|escape }}'>
             <a title='{{ skill.desc }}' href='{{ skill.id }}/' class='h3 c-gold'>{{ skill.name }}</a>
         </div>
     {% endfor %}
@@ -37,7 +50,7 @@
 
 <div id='Agility' class='row bg-dark d-none ms-1 me-1 border border-primary rounded'>
     {% for skill in agility_skills %}
-        <div class='col m-1 border border-warning rounded bg-gray text-center p-2'>
+        <div class='skill-card col m-1 border border-warning rounded bg-gray text-center p-2' data-restrictions='{{ skill.restrictions|default_if_none:""|escape }}'>
             <a title='{{ skill.desc }}' href='{{ skill.id }}/' class='h3 c-gold'>{{ skill.name }}</a>
         </div>
     {% endfor %}
@@ -45,7 +58,7 @@
 
 <div id='Education' class='row bg-dark d-none ms-1 me-1 border border-primary rounded'>
     {% for skill in education_skills %}
-        <div class='col m-1 border border-warning rounded bg-gray text-center p-2'>
+        <div class='skill-card col m-1 border border-warning rounded bg-gray text-center p-2' data-restrictions='{{ skill.restrictions|default_if_none:""|escape }}'>
             <a title='{{ skill.desc }}' href='{{ skill.id }}/' class='h3 c-gold'>{{ skill.name }}</a>
         </div>
     {% endfor %}
@@ -53,7 +66,7 @@
 
 <div id='Animals' class='row bg-dark d-none ms-1 me-1 border border-primary rounded'>
     {% for skill in animals_skills %}
-        <div class='col m-1 border border-warning rounded bg-gray text-center p-2'>
+        <div class='skill-card col m-1 border border-warning rounded bg-gray text-center p-2' data-restrictions='{{ skill.restrictions|default_if_none:""|escape }}'>
             <a title='{{ skill.desc }}' href='{{ skill.id }}/' class='h3 c-gold'>{{ skill.name }}</a>
         </div>
     {% endfor %}
@@ -61,7 +74,7 @@
 
 <div id='Equipment' class='row bg-dark d-none ms-1 me-1 border border-primary rounded'>
     {% for skill in eq_skills %}
-        <div class='col m-1 border border-warning rounded bg-gray text-center p-2'>
+        <div class='skill-card col m-1 border border-warning rounded bg-gray text-center p-2' data-restrictions='{{ skill.restrictions|default_if_none:""|escape }}'>
             <a title='{{ skill.desc }}' href='{{ skill.id }}/' class='h3 c-gold'>{{ skill.name }}</a>
         </div>
     {% endfor %}
@@ -69,7 +82,15 @@
 
 <div id='Other' class='row bg-dark d-none ms-1 me-1 border border-primary rounded'>
     {% for skill in other_skills %}
-        <div class='col m-1 border border-warning rounded bg-gray text-center p-2'>
+        <div class='skill-card col m-1 border border-warning rounded bg-gray text-center p-2' data-restrictions='{{ skill.restrictions|default_if_none:""|escape }}'>
+            <a title='{{ skill.desc }}' href='{{ skill.id }}/' class='h3 c-gold'>{{ skill.name }}</a>
+        </div>
+    {% endfor %}
+</div>
+
+<div id='All' class='row bg-dark d-none ms-1 me-1 border border-primary rounded'>
+    {% for skill in all_skills %}
+        <div class='skill-card col m-1 border border-warning rounded bg-gray text-center p-2' data-restrictions='{{ skill.restrictions|default_if_none:""|escape }}'>
             <a title='{{ skill.desc }}' href='{{ skill.id }}/' class='h3 c-gold'>{{ skill.name }}</a>
         </div>
     {% endfor %}
@@ -79,7 +100,7 @@
     document.getElementById('tb-skills').classList.remove('btn-outline-warning')
     document.getElementById('tb-skills').classList.add('btn-outline-primary')
     function show(btn) {
-        let ids = ['Magical','Melee','Range','Agility','Education','Animals','Equipment','Other']
+        let ids = ['Magical','Melee','Range','Agility','Education','Animals','Equipment','Other','All']
         for (let i = 0; i < ids.length; i++) {
             element = document.getElementById(ids[i])
             if (btn.innerHTML==ids[i]){
@@ -94,8 +115,27 @@
             }
           }
         }
+
+    function filterSkillsByRestriction() {
+        const restrictionSelect = document.getElementById('restriction-choose')
+        const selectedRestriction = restrictionSelect.value.trim().toLowerCase()
+        const noFilterValues = ['wszystkie', 'all', '']
+        const skillCards = document.querySelectorAll('.skill-card')
+
+        skillCards.forEach((card) => {
+            const cardRestrictions = (card.dataset.restrictions || '')
+                .split(';')
+                .map((item) => item.trim().toLowerCase())
+                .filter(Boolean)
+
+            const shouldShow = noFilterValues.includes(selectedRestriction) || cardRestrictions.includes(selectedRestriction)
+            card.classList.toggle('d-none', !shouldShow)
+        })
+    }
+
+    document.getElementById('restriction-choose').addEventListener('change', filterSkillsByRestriction)
+    filterSkillsByRestriction()
 </script>
 
 {% endblock content %}
-
 

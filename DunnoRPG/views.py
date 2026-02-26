@@ -49,6 +49,20 @@ class charGET(ListView):
         context['characters_count'] = self.get_queryset().count()
         return context
     
+class AddCharacterView(APIView):
+    template_name = 'character_add.html'
+    rendered_classes = [TemplateHTMLRenderer]
+
+    def get(self,request):
+        races = models.Races.objects.all()
+        classes = models.Classes.objects.all()
+        
+        context = {
+            'races': races,
+            'classes': classes
+        }
+        return Response(context)
+
 class charPOST(FormView):
     template_name = 'character_add.html'
     form_class = CharacterForm
@@ -622,6 +636,16 @@ class Skills(APIView):
 
     def get(self,request):
         skills = models.Skills_Decs.objects.all()
+        restrictions = []
+        
+        for skill in skills:
+            skill_restrictions = skill.restrictions.split(';')
+            for rst in skill_restrictions:
+                if rst == "all":
+                    rst = "Uniwersalne"
+                if rst not in restrictions:
+                    restrictions.append(rst)
+        
 
         magical_skills = list(skills.filter(category='Magical').values().order_by('name'))
         melee_skills = list(skills.filter(category='Melee').values().order_by('name'))
@@ -651,7 +675,9 @@ class Skills(APIView):
             'animals_skills': animals_skills,
             'eq_skills': eq_skills,
             'other_skills': other_skills,
-            'skills': ['Magical','Melee','Range','Agility','Education','Animals','Equipment','Other'],
+            'all_skills': skills,
+            'restrictions': restrictions,
+            'skills': ['Magical','Melee','Range','Agility','Education','Animals','Equipment','Other', 'All'],
             'user': current_user
         }
         return Response(context)
@@ -822,13 +848,14 @@ def sell_item(request, **kwargs):
         #print(f"charisma {charisma}")
         
         durability_percent = eqItem.durability/itemDesc.maxDurability
-        #print(f"dur {durability_percent}")
-        base_price = int(itemDesc.price*durability_percent*amount)
-        #print(f"totally base {itemDesc.price}")
-        #print(f"base {base_price}")
-        char_bonus = round(((charisma*4)*base_price)/100)
-        #print(f"bonus {char_bonus}")
-        price = int(base_price) + char_bonus #Get 100% of calculated price + [charisma*4]% bonus
+
+        raw_base_price = itemDesc.price*durability_percent*amount
+        base_price = float("{:.1f}".format(raw_base_price)) # e.g. 10.1
+
+        raw_char_bonus = round(((charisma*4)*base_price)/100)
+        char_bonus = float("{:.1f}".format(raw_char_bonus))
+
+        price = base_price + char_bonus #Get 100% of calculated price + [charisma*4]% bonus
 
         char.coins += price
         char.save()
@@ -1040,7 +1067,7 @@ def char_wear_item(request, **kwargs):
     item = models.Items.objects.get(name=item_eq_obj.name)
     
     if item.type == 'Animal':
-        char.extra_capacity = item.diceBonus
+        char.extra_capacity = item.dmgDice
         char.save()
      
     wolverin_barbarian = 'barbarzyńca: droga rosomaka'
@@ -1262,7 +1289,7 @@ def char_swap_item(request, **kwargs):
             models.Effects.objects.filter(character=char.name, name=effect[0]).first().delete()
     
     if it2D.type == 'Animal':
-        char.extra_capacity = it2D.diceBonus
+        char.extra_capacity = it2D.dmgDice
     
     it1.name = it2.name
     it1.durability = it2.durability
@@ -2162,6 +2189,7 @@ class BuyItem(APIView):
         if current_weight+item.weight*item_amount <= max_weight:
             price = item.price*2*int(item_amount)
             charisma = character.CHAR
+
             for mod in models.Mods.objects.filter(character=character.name, field="CHAR"):
                 charisma += mod.value
             for char_item in models.CharItems.objects.filter(character=character.name):
@@ -2173,7 +2201,8 @@ class BuyItem(APIView):
                 except:
                     pass
 
-            char_bonus = price * (charisma * 2) // 100
+            raw_char_bonus = price * (charisma * 2) / 100
+            char_bonus = float("{:.1f}".format(raw_char_bonus)) # e.g. 10.1
             price -= char_bonus
 
             if character.coins >= price:
@@ -2205,8 +2234,8 @@ class BuyItem(APIView):
                 character.coins -= price
                 character.save()
                 
-                if item.name in ["Strzała","Pocisk do broni prochowej"]:
-                    item_amount = item_amount*10
+                #if item.name in ["Strzała","Pocisk do broni prochowej"]:
+                #    item_amount = item_amount*10
                 try:
                     existing_item = get_object_or_404(models.Eq, name=item.name, character=character.name)
                     existing_item.amount += item_amount

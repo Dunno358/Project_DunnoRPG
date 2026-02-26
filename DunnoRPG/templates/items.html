@@ -650,8 +650,10 @@
         }
 
         let dur_perc = dur/maxDur
-        let base_price = parseInt(price*dur_perc*amount)
-        let char_bonus = parseInt((base_price/100)*(charisma*4))
+        let base_price = price*dur_perc*amount
+        base_price = parseFloat(base_price.toFixed(1))
+        let char_bonus = ((base_price/100)*(charisma*4))
+        char_bonus = parseFloat(char_bonus.toFixed(1))
         //console.log(char_bonus)
         //console.log(base_price,char_bonus,base_price+char_bonus)
         let calc_price = base_price+char_bonus

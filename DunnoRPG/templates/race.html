@@ -4,9 +4,18 @@
 {% block content %}
 {% include 'top_bar.html' %}
 
-<div class='container mt-3'>
+<div class='container'>
 
-    <div class='row text-border-black'>
+    <div class='container mt-0'>
+
+        <div class="row">
+            <div class="col c-gold">
+                <a class='btn btn-dark btn-outline-danger w-100' href={% url 'classes' %}><- Powrót do listy ras</a>
+            </div>
+        </div>
+    </div>
+
+    <div class='row text-border-black mt-3'>
         <div class='col text-center c-gold fst-italic'>
             <h1 id="race-name">{{ race.name }}</h1>
         </div>
