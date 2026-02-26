@@ -1,0 +1,48 @@
+{
+    "info": "To be able to pick random line for some dialog occasion via app, like selling/buying", 
+    "bargaining": {
+        "try": [
+            "Mam horom curke",
+            "Da radę coś zrobić z tą ceną?",
+            "Panie, co tyle?",
+            "Jesteś krasnoludem? Bo skąpość w cenach tak sugeruje...",
+            "To już u pieprzonego elfa bym lepszą cenę dostał!",
+            "Druhu! Mi tyle? Daj taniej po starej znajomości!",
+            "Czy ty chcesz mnie ojebać na kase w biały dzień?",
+            "Wiem co tam robisz po pracy, jak nie zejdziesz z ceny to wygadam się straży.",
+            "Z konia spadłeś z tą ceną?",
+            "Należy mi się taniej.",
+            "Daj taniej dla bombelka.",
+            "Dej taniej",
+            "Ty nie wiesz kim ja jestem?"
+        ],
+        "success": [
+            "A niech będzie!",
+            "A co tam! Mam dzisiaj dobry dzień.",
+            "Ten jeden raz okej",
+            "Dobrze ci z oczu patrzy",
+            "Dobra, nazwijmy to wtedy inwestycją w przyszłe interesy",
+            "Córa mi się dzisiaj żeni, niech będzie!",
+            "Tyle wczoraj w karczmie wygrałem, że w sumie mogę zrobić dobry uczynek.",
+            "Z takimi jak ty lepiej dobrze trzymać, niech będzie.",
+            "Ehhh... Niech będzie",
+            "Przepraszam",
+            "Moja stara",
+            "A ja to cię chyba kojarze! Dzięki tobie uratowano te dzieci z płonącego budynku miesiąc temu!"
+        ],
+        "failed": [
+            "Spieprzaj cwaniaku!",
+            "No i padło o jedno słowo za dużo",
+            "Z taką mordą chcesz mieć taniej?",
+            "Coś ci źle z oczu patrzy",
+            "A takiego!",
+            "Cały czas krzywo się na mnie lampisz, a teraz chcesz taniej?",
+            "Całą kase wczoraj w karczmie przejebałem a ty chcesz taniej?",
+            "Nie znam cię, a nieznajomym z ceny nie spuszczam.",
+            "Spadaj",
+            "Jasne! Jak tylko Sigmar wróci to sam zmieni cenę w moim cenniku.",
+            "Chuja się znasz.",
+            "Przepraszam jaśnie wielmożną osobistość."
+        ]
+    }
+}
