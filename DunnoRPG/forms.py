@@ -135,26 +135,11 @@ class CharacterSkillsForm(forms.ModelForm):
         ]
         
 class AddEqItemForm(forms.ModelForm):
-    try:
-        all_characters = Character.objects.filter(hidden=False).order_by('name')
-    except:
-        all_characters = []
-
-    characters = []
-    try:
-        for character in all_characters:
-            characters.append((character.id, character.name))
-    except:
-        pass
-    
-    character = forms.ChoiceField(choices=characters,label='',widget=forms.Select(attrs={
+    character = forms.ChoiceField(choices=[],label='',widget=forms.Select(attrs={
         'class': 'text-center bg-dark rounded border border-warning c-gold p-1 m-1'
     }))
     
-    items = []
-    for item in Items.objects.all().order_by('name'):
-        items.append((item.id, item.name))
-    name = forms.ChoiceField(choices=items,label='',widget=forms.Select(attrs={
+    name = forms.ChoiceField(choices=[],label='',widget=forms.Select(attrs={
         'class': 'text-center bg-dark rounded border border-info c-gold p-1 m-1'
     }))  
     
@@ -174,6 +159,17 @@ class AddEqItemForm(forms.ModelForm):
         'class': '',
         'name': 'override'
     }))
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['character'].choices = [
+            (character.id, character.name)
+            for character in Character.objects.filter(hidden=False).order_by('name')
+        ]
+        self.fields['name'].choices = [
+            (item.id, item.name)
+            for item in Items.objects.all().order_by('name')
+        ]
     
     class Meta: 
         model = Eq
