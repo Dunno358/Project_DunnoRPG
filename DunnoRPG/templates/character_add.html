@@ -51,7 +51,7 @@
                 <div class="col">
                     <select class="w-100 text-center border border-warning bg-dark text-white-50 rounded" id="char-race">
                         {% for race in races %}
-                            <option value={{ race.name }}>{{ race.name }}</option>
+                            <option value="{{ race.name }}">{{ race.name }}</option>
                         {% endfor %}
                     </select>
                 </div>
@@ -67,14 +67,47 @@
                 <div class="col">
                     <select class="w-100 text-center border border-warning bg-dark text-white-50 rounded" id="char-class">
                         {% for class in classes %}
-                            <option value={{ class.name }}>{{ class.name }}</option>
+                            <option value="{{ class.name }}">{{ class.name }}</option>
                         {% endfor %}
                     </select>
                 </div>
             </div>
 
+            <div class="row mt-2 {% if not user.is_superuser %}d-none{% endif %}">
+                <div class="col">
+                    <span class="c-gold h4">Type:</span>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <input class="w-100 text-center border border-warning bg-dark text-white-50 rounded" id="char-type" type="text" value="Player"/>
+                </div>
+            </div>
+
+            <div class="row mt-2 {% if not user.is_superuser %}d-none{% endif %}">
+                <div class="col">
+                    <span class="c-gold h4">Owner:</span>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <input class="w-100 text-center border border-warning bg-dark text-white-50 rounded" id="char-owner" type="text" value="{{ user }}"/>
+                </div>
+            </div>
+
+            <div class="row mt-2 {% if not user.is_superuser %}d-none{% endif %}">
+                <div class="col">
+                    <span class="c-gold h4">EXP:</span>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <input class="w-100 text-center border border-warning bg-dark text-white-50 rounded" id="char-exp" type="number" value="0"/>
+                </div>
+            </div>
+
             <!-- TODO: Teraz tak, żeby kliknięcie tego inputa (zmienić na buttom) robiło requesta do api (api do zrobienia) które stworzy nową postać o nazwę, klase i rase i przeniesie do character_edit dla tej nowej postaci -->
-            <input class="btn btn-dark border border-warning btn-lg w-75 me-4 m-1 mt-3" type="submit" value="Dalej"></input>
+            <button class="btn btn-dark border border-warning btn-lg w-75 me-4 m-1 mt-3" onclick=createChar()>Dalej</input>
         </div>
     </div>
 </div>
@@ -89,9 +122,18 @@
         document.getElementById('iframe-container').classList.remove('d-none')
     }
 
-    let operations = new CharacterCreation();
-    operations.races()
-    operations.count_points()
+    function createChar(){
+        name = document.getElementById('char-name').value
+        char_class = document.getElementById('char-class').value
+        char_race = document.getElementById('char-race').value
+        char_type =  document.getElementById('char-type').value
+        char_owner = document.getElementById('char-owner').value
+        char_exp = document.getElementById('char-exp').value
+
+        url = `${window.location.href}/create/${name}/${char_class}/${char_race}/${char_type}/${char_owner}/${char_exp}`
+        window.location.replace(url)
+    }
+
 </script>
 
 {% endblock content %}
