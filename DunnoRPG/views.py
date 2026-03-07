@@ -40,9 +40,9 @@ class charGET(ListView):
     
     def get_queryset(self):
         if self.request.user.is_superuser:
-            return self.model.objects.all()
+            return self.model.objects.order_by('name')
         else:
-            return self.model.objects.filter(owner=self.request.user)
+            return self.model.objects.filter(owner=self.request.user).order_by('name')
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -54,8 +54,8 @@ class AddCharacterView(APIView):
     rendered_classes = [TemplateHTMLRenderer]
 
     def get(self,request):
-        races = models.Races.objects.all()
-        classes = models.Classes.objects.all()
+        races = models.Races.objects.order_by('name')
+        classes = models.Classes.objects.order_by('name')
         
         context = {
             'races': races,
@@ -803,6 +803,103 @@ def skill_downgrade(request,char_id,skill_id):
         messages.error(request,f'{skill.skill} level cannot be lower!')
     
     return redirect(f'/dunnorpg/character_add_skills/{char_id}/')
+def create_character(request,name,char_class,race,type,owner,exp):
+    try:
+        maxHP = 20
+        size_dict = {"S": 0.5,"M": 1,"L": 2}
+        race = get_object_or_404(models.Races, name=race)
+        char_class = get_object_or_404(models.Classes, name=char_class)
+        class_mods = char_class.mods.split(";")
+        class_hp_mod = int(char_class.hp_mod or 0)
+        class_skills = char_class.skills.split(";")
+        class_effects = char_class.effects.split(";")
+        class_mods = char_class.mods.split(";")
+
+        if type=="":
+            type="Player"
+        if owner=="":
+            owner=request.user
+
+        if models.Character.objects.filter(name=name).exists():
+            messages.error(request, "Nazwa zajęta")
+            return redirect('character_add')
+        elif race=="" or char_class=="":
+            messages.error(request, f"Nie wybrano rasy lub klasy")
+            return redirect('character_add')
+
+        raceStatsPlus = race.statPlus.split(";")
+        raceStatsMinus = race.statMinus.split(";")
+
+        classStats = {"INT":0,"SIŁ":0,"CHAR":0,"ZRE":0,"CEL":0}
+        for mod in class_mods:
+            mod_val = int(mod[-2:])
+            if mod.startswith("CHAR"):
+                classStats['CHAR'] += mod_val
+            else:
+                classStats[mod[:-2]] = mod_val
+
+        models.Character.objects.create(
+            owner=owner,
+            name=name,
+            type=type,
+            exp=exp,
+            chosen_class=char_class,
+            race=race,
+            size=size_dict[race.size],
+            HP=maxHP+class_hp_mod,
+            coins=0,
+            INT=0+int(raceStatsPlus[0])-int(raceStatsMinus[0])+classStats['INT'],
+            SIŁ=0+int(raceStatsPlus[1])-int(raceStatsMinus[1])+classStats['SIŁ'],
+            ZRE=0+int(raceStatsPlus[2])-int(raceStatsMinus[2])+classStats['ZRE'],
+            CHAR=0+int(raceStatsPlus[3])-int(raceStatsMinus[3])+classStats['CHAR'],
+            CEL=0+int(raceStatsPlus[4])-int(raceStatsMinus[4])+classStats['CEL'],
+            points_left=race.points_limit,
+            weaponBonus=race.weaponsBonus,
+            preferredWeapons=race.weaponsPreffered,
+            unlikedWeapons=race.weaponsUnliked,
+            extra_capacity=0,
+            mutation = "-"
+        )
+
+        for skill in class_skills:
+            print(f"ADDING {skill}")
+            skill_name = skill[:-1]
+            skill_lvl = skill[len(skill)-1]
+            skill_desc = get_object_or_404(models.Skills_Decs, name=skill_name)
+            models.Skills.objects.create(
+                owner = owner,
+                character = name,
+                skill = skill_name,
+                category = f"{skill_lvl}free",
+                level = skill_lvl,
+                desc = skill_desc.desc,
+                uses_left = skill_desc.useAmount
+            )
+
+        for effect in class_effects: #Effects are to be overhauled
+            eff_name = effect[:-2]
+            parts = effect.split("-")
+            eff_nr = parts[len(parts)-1]
+            #eff_desc = models.get_object_or_404(models.Effects_Decs, name=eff_name)
+            models.Effects.objects.create(
+                owner = owner,
+                character = name,
+                name = eff_name,
+                bonus = 0,
+                time = eff_nr
+            )
+
+        try:
+            new_char = get_object_or_404(models.Character, name=name)
+            return redirect(f'character_add_skills', new_char.id)
+        except:
+            messages.error(request, "Wystąpił błąd")
+            return redirect(f'character_add')
+    except Exception as e:
+        print(traceback.format_exc())
+        messages.error(request, "Wystąpił błąd")
+        return redirect(f'character_add')
+
 def log_as_guest(request):
     guest_user = User.objects.get(username='Guest')
     user = authenticate(request, username='Guest', password='GuestPassword')

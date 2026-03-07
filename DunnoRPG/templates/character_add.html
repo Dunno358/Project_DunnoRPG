@@ -130,7 +130,7 @@
         char_owner = document.getElementById('char-owner').value
         char_exp = document.getElementById('char-exp').value
 
-        url = `${window.location.href}/create/${name}/${char_class}/${char_race}/${char_type}/${char_owner}/${char_exp}`
+        url = window.location.href + `/create/${name}/${char_class}/${char_race}/${char_type}/${char_owner}/${char_exp}`
         window.location.replace(url)
     }
 
