@@ -766,7 +766,7 @@ def skill_upgrade(request,char_id,skill_id):
                     character_object.points_left -= int(skill_details['cost'])
                 character_object.save()
             else:
-                messages.error(request, f'Not enough points to upgrade {skill.skill}.')
+                messages.error(request, f'Za mało punktów, żeby ulepszyć {skill.skill}.')
         else:
             msg = f"Your stats are too low to upgrade {skill.skill}, you need "
             if need1!=None:
@@ -777,7 +777,7 @@ def skill_upgrade(request,char_id,skill_id):
                 msg += f"{need2[:3]}({need2[3]})."
             messages.error(request, msg)
     else:
-        messages.error(request,f'{skill.skill} maximum level reached!')
+        messages.error(request,f'{skill.skill}: Osiagnięto już maksymalny poziom!')
     
     return redirect(f'/dunnorpg/character_add_skills/{char_id}/')
 def skill_downgrade(request,char_id,skill_id):
@@ -800,7 +800,7 @@ def skill_downgrade(request,char_id,skill_id):
             character_object.points_left += int(skill_details['cost'])
         character_object.save()
     else:
-        messages.error(request,f'{skill.skill} level cannot be lower!')
+        messages.error(request,f'{skill.skill}: Niżej się nie da!')
     
     return redirect(f'/dunnorpg/character_add_skills/{char_id}/')
 def create_character(request,name,char_class,race,type,owner,exp):
