@@ -63,139 +63,6 @@ class AddCharacterView(APIView):
         }
         return Response(context)
 
-class charPOST(FormView):
-    template_name = 'character_add.html'
-    form_class = CharacterForm
-    success_url = reverse_lazy('home')
-
-    def form_valid(self, form):
-        character = form.save(commit=False)
-        current_user = self.request.user
-
-        character.owner = current_user
-        chosen_race = get_object_or_404(models.Races, name=character.race)
-        usedPoints = character.INT+character.SIŁ+character.ZRE+character.CHAR+character.CEL
-        
-        valid = False
-        if usedPoints <= chosen_race.points_limit:
-            valid = True
-
-        if valid:
-            character.size = chosen_race.size
-
-            try:
-                char_class = get_object_or_404(models.Classes, name=character.chosen_class)
-                class_skills = char_class.skills.split(";")
-                while "" in class_skills:
-                    class_skills.remove("")
-
-                class_effects = char_class.effects.split(";")
-                while "" in class_effects:
-                    class_effects.remove("")
-
-                class_mods = char_class.mods.split(";")
-                while "" in class_mods:
-                    class_mods.remove("")
-
-                class_hp_mod = char_class.hp_mod
-                if class_hp_mod == "":
-                    class_hp_mod = 0
-                else:
-                    class_hp_mod = int(class_hp_mod)
-            except:
-                class_hp_mod = 0
-                class_skills = class_mods = class_effects = []
-
-            character.points_left = chosen_race.points_limit - (character.INT+character.SIŁ+character.ZRE+character.CHAR+character.CEL)
-
-            pluses = chosen_race.statPlus.split(';')
-            minuses = chosen_race.statMinus.split(';')
-            character.INT += int(pluses[0])-int(minuses[0])
-            character.SIŁ += int(pluses[1])-int(minuses[1])
-            character.ZRE += int(pluses[2])-int(minuses[2])
-            character.CHAR += int(pluses[3])-int(minuses[3])
-            character.CEL += int(pluses[4])-int(minuses[4])
-
-            character.fullHP = character.HP = character.HP+class_hp_mod
-                
-            character.weaponBonus = chosen_race.weaponsBonus
-            character.preferredWeapons = chosen_race.weaponsPreffered
-            character.unlikedWeapons = chosen_race.weaponsUnliked
-
-            character.save()
-
-            skills = models.Skills.objects
-            race_skills = chosen_race.Skills.split(';')
-            for skill in race_skills:
-                try:
-                    skill_name = skill[1:].strip()
-                    skill_level = skill[0]
-                    skills.create(
-                        owner=current_user,
-                        character=character.name,
-                        skill=skill_name,
-                        category=f'{skill_level}free',
-                        level=skill_level,
-                        desc = models.Skills_Decs.objects.all().filter(name=skill_name).values()[0]['desc']
-                        )
-                except:
-                    print(f"Skipped {skill} because of {traceback.format_exc()}")
-            for skill in class_skills: #second loop as class skills are defined little different
-                try:
-                    skill_name = skill[:-1].strip()
-                    skill_level = skill[-1]
-                    if not f"{skill_level}{skill_name}" in race_skills:
-                        skills.create(
-                            owner=current_user,
-                            character=character.name,
-                            skill=skill_name,
-                            category=f'{skill_level}free',
-                            level=skill_level,
-                            desc = models.Skills_Decs.objects.all().filter(name=skill_name).values()[0]['desc']
-                            )
-                except:
-                    print(f"Skipped {skill} because of {traceback.format_exc()}")
-
-            effects = models.Effects.objects
-            for effect in class_effects:
-                name = effect.split("-")[0]
-                bonus = effect.split("-")[1]
-                if bonus.lower().endswith("m"):
-                    bonus = -int(bonus[:-1])
-                else:
-                    bonus = int(bonus)
-                effects.create(
-                    owner=current_user,
-                    character=character.name,
-                    name = name,
-                    bonus = bonus,
-                    time = 110               
-                )
-
-            mods = models.Mods.objects
-            for mod in class_mods:
-                if "+" in mod:
-                    name = mod.split("+")[0]
-                    bonus = int(mod.split("+")[1])
-                elif "-" in mod:
-                    name = mod.split("-")[0]
-                    bonus = -int(mod.split("-")[1])   
-                mods.create(
-                    owner=current_user,
-                    character=character.name,
-                    field = name,
-                    value = bonus,                   
-                )                 
-
-            return redirect(f'character_add_skills/{character.id}')
-        else:
-            messages.error(self.request,'Not enought points.')
-            return redirect(f'character_add')
-    
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        return context
-
 class DeleteCharacter(APIView):
     def get(self,request,char_id):
         character = get_object_or_404(models.Character,id=char_id)
@@ -206,6 +73,20 @@ class DeleteCharacter(APIView):
             character.delete()
 
         return redirect('/dunnorpg')
+
+class EditCharacterView(APIView):
+    template_name = 'character_add_skills.html'
+    rendered_classes = [TemplateHTMLRenderer]
+
+    def get(self,request):
+        user = self.request.user
+        id = self.kwargs['id']
+        chosen_character = get_object_or_404(models.Character, id=id)
+        character_skills_queryset = models.Skills.objects.all().filter(owner=chosen_character.owner, character=chosen_character.name).values() 
+        
+        context = {
+        }
+        return Response(context)
 
 class CharacterSkills(ListView, FormView):
     model = models.Skills
