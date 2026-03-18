@@ -21,7 +21,7 @@ urlpatterns = [
     path('character_detail/<int:char_id>/swap_side/<str:hand>', views.swap_side_to_hand, name='swap_side'),
     path('character_add', views.AddCharacterView.as_view(), name="character_add"),
     path('character_add/create/<name>/<char_class>/<race>/<type>/<owner>/<exp>', views.create_character, name="character_create"),
-    path('character_add_skills/<id>/', views.CharacterSkills.as_view(), name="character_add_skills"),
+    path('character_add_skills/<id>/', views.EditCharacterView.as_view(), name="character_add_skills"),
     
     path('skills/', views.Skills.as_view(), name='skills'),
     path('skills/<id>/', views.SkillDetail.as_view(), name='skill_detail'),
@@ -29,6 +29,7 @@ urlpatterns = [
     path('character_add_skills/<char_id>/delete/<skill_id>', views.skill_delete, name='skill_delete'),
     path('character_add_skills/<char_id>/upgrade/<skill_id>', views.skill_upgrade, name='skill_upgrade'),
     path('character_add_skills/<char_id>/downgrade/<skill_id>', views.skill_downgrade, name='skill_downgrade'),
+    path('character_add_skills/<char_id>/add/<skill_id>/<lvl>', views.skill_add, name='skill_add'),
     
     path('character_add_skills/<int:char_id>/up/<str:stat>', views.UpgradeCharacterStats.as_view(), name='stat-upgrade'),
     path('character_add_skills/<int:char_id>/down/<str:stat>', views.DowngradeCharacterStats.as_view(), name='stat-downgrade'),

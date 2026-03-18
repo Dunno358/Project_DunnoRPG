@@ -30,7 +30,7 @@ from DunnoRPG.serializers import (CharacterSerializer, ItemSerializer,
                                   SkillsDecsSerializer, SkillsSerializer)
 
 from . import models
-from .forms import CharacterForm, CharacterSkillsForm, AddEqItemForm, AddEffectForm
+from .forms import CharacterSkillsForm, AddEqItemForm, AddEffectForm
 
 
 class charGET(ListView):
@@ -78,13 +78,23 @@ class EditCharacterView(APIView):
     template_name = 'character_add_skills.html'
     rendered_classes = [TemplateHTMLRenderer]
 
-    def get(self,request):
+    def get(self, request, *args, **kwargs):
         user = self.request.user
-        id = self.kwargs['id']
+        id = kwargs['id']
         chosen_character = get_object_or_404(models.Character, id=id)
-        character_skills_queryset = models.Skills.objects.all().filter(owner=chosen_character.owner, character=chosen_character.name).values() 
+        available_skills = models.Skills_Decs.objects.filter(
+            Q(restrictions__icontains='all') | Q(restrictions__icontains=chosen_character.chosen_class) | Q(restrictions__icontains='Uniwersalne')
+        ).order_by('name').values()
+
+        character_skills_queryset = models.Skills.objects.filter(
+            owner=chosen_character.owner,
+            character=chosen_character.name
+        ).order_by('skill').values()
         
         context = {
+            "character": chosen_character,
+            "current_skills": character_skills_queryset,
+            "available_skills": available_skills
         }
         return Response(context)
 
@@ -596,6 +606,49 @@ class SkillDetail(APIView):
 
         return Response(context)
 
+def skill_add(request,char_id,skill_id,lvl):
+    character = get_object_or_404(models.Character, id=char_id)
+    skill_details = get_object_or_404(models.Skills_Decs, id=skill_id)
+    lvl = int(lvl)
+
+    while not getattr(skill_details, f"level{lvl}"):
+        lvl -= 1
+
+    reqOK = True
+    reqs_raw = getattr(skill_details, f"reqs{lvl}", "") or ""
+    reqs = reqs_raw.split(";") if reqs_raw else []
+
+    for req in reqs:
+        stat = req[:-1]
+        char_stat = int(getattr(character, stat))
+        value = req[-1:]
+        if char_stat < int(value):
+            messages.error(request, f"Halo, halo! Za mało {stat}! Potrzeba {value} a jest {char_stat}!")
+            reqOK = False
+
+
+    if reqOK:
+        if int(character.points_left) < int(skill_details.cost):
+            messages.error(request, f'Brak wolnych punkcików. Potrzeba {skill_details.cost} a ty masz {character.points_left}. We se najpierw trochę zdobądź a potem zawracaj mi interes.')
+            reqOK = False
+
+    if reqOK:
+        models.Skills.objects.create(
+            owner = character.owner,
+            character = character.name,
+            skill = skill_details.name,
+            category = skill_details.category,
+            level = lvl,
+            desc = getattr(skill_details, f"level{lvl}"),
+            uses_left = skill_details.useAmount
+        )
+
+        character.points_left -= int(skill_details.cost)
+        character.save()
+
+    return redirect(f'/dunnorpg/character_add_skills/{char_id}/')
+    
+
 def skill_delete(request,char_id,skill_id):
     skill = get_object_or_404(models.Skills, id=skill_id)
     skill_details = get_object_or_404(models.Skills_Decs, name=skill.skill)
@@ -686,7 +739,7 @@ def skill_downgrade(request,char_id,skill_id):
     return redirect(f'/dunnorpg/character_add_skills/{char_id}/')
 def create_character(request,name,char_class,race,type,owner,exp):
     try:
-        maxHP = 20
+        maxHP = race.hp
         size_dict = {"S": 0.5,"M": 1,"L": 2}
         race = get_object_or_404(models.Races, name=race)
         char_class = get_object_or_404(models.Classes, name=char_class)
