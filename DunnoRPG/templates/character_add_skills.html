@@ -29,18 +29,24 @@
 </form>
 
 <div class='container'>
-    {% if user.is_superuser %}
         <div class="row">
             <div class="col text-end">
-                <button class="m-2 btn btn-primary" onclick="changeOwnerScreen('{{ character }}')">
-                    Change owner
-                </button>
+                    <button class="m-2 btn btn-success" onclick="">
+                        Zaawansowane
+                    </button>
+            </div>
+
+            <div class="col text-end">
+                {% if user.is_superuser %}
+                    <button class="m-2 btn btn-primary" onclick="changeOwnerScreen('{{ character }}')">
+                        Change owner
+                    </button>
+                {% endif %}
             </div>
         </div>
-    {% endif %}
     <div class='row'>
         <div class='col text-center c-gold fst-italic txt-shadow p-0'>
-            <h2>Dostępne punkty umiejętności: <span>{{ skills_count }}</span></h2>            
+            <h2>Dostępne punkty umiejętności: <span>{{ character.points_left }}</span></h2>            
         </div>
     </div>
 </div>
@@ -50,57 +56,84 @@
         <table>
             <td class='border border-warning'>
                 <a href='up/INT' class='col text-decoration-none text-success fsw-bold h2'>+</a>
-                <div class='row'><span class='col'>INT: {{ character_stats.INT }}</span></div>
+                <div class='row'><span class='col'>INT: {{ character.INT }}</span></div>
                 <a href='down/INT' class='col text-decoration-none text-danger fsw-bold h2'>-</a>
             </td>
 
             <td class='border border-warning'>
                 <a href='up/SIŁ' class='col text-decoration-none text-success fsw-bold h2'>+</a>
-                <div class='row'><span class='col'>SIŁ: {{ character_stats.SIŁ }}</span></div>
+                <div class='row'><span class='col'>SIŁ: {{ character.SIŁ }}</span></div>
                 <a href='down/SIŁ' class='col text-decoration-none text-danger fsw-bold h2'>-</a>
             </td>
 
             <td class='border border-warning'>
                 <a href='up/ZRE' class='col text-decoration-none text-success fsw-bold h2'>+</a>
-                <div class='row'><span class='col'>ZRE: {{ character_stats.ZRE }}</span></div>
+                <div class='row'><span class='col'>ZRE: {{ character.ZRE }}</span></div>
                 <a href='down/ZRE' class='col text-decoration-none text-danger fsw-bold h2'>-</a>
             </td>
 
             <td class='border border-warning'>
                 <a href='up/CHAR' class='col text-decoration-none text-success fsw-bold h2'>+</a>
-                <div class='row'><span class='col'>CHAR: {{ character_stats.CHAR }}</span></div>
+                <div class='row'><span class='col'>CHAR: {{ character.CHAR }}</span></div>
                 <a href='down/CHAR' class='col text-decoration-none text-danger fsw-bold h2'>-</a>
             </td>
 
             <td class='border border-warning'>
                 <a href='up/CEL' class='col text-decoration-none text-success fsw-bold h2'>+</a>
-                <div class='row'><span class='col'>CEL: {{ character_stats.CEL }}</span></div>
+                <div class='row'><span class='col'>CEL: {{ character.CEL }}</span></div>
                 <a href='down/CEL' class='col text-decoration-none text-danger fsw-bold h2'>-</a>
             </td>
         </table> 
-    </div> 
-    <div class='row m-0'>
-        <div class="fs-5 p-2 col bg-gray border border-warning c-gold rounded text-center m-0">
-            <form method='POST' class='pt-1'>
-            {% csrf_token %}
-            {{ form.as_table }}
-            <input class="btn btn-dark border border-warning btn-lg w-75 m-1 mt-3" type="submit" value="Add and continue"></input>
-            </form>
+    </div>  
+
+    <div class='container m-0 p-0 mt-2 border border-warning c-gold rounded'>
+
+        <div class="row text-center text-white-50 h2 p-2 col bg-gray text-center m-0">
+            <div class="col">
+                <span>Umiejętność</span>
+            </div>
+        </div> 
+
+        <div class="row text-center fs-5 p-2 col bg-gray text-center m-0">
+            <div class="col">
+                <select class="text-center w-100 border border-warning bg-dark text-white-50 rounded" id="skill-choose-name">
+                    {% for skill in available_skills %}
+                        <option value="{{ skill.id }}">{{ skill.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div> 
+
+        <div class="row text-center fs-5 p-2 col bg-gray text-center m-0">
+            <div class="col text-white-50">
+                <b>Poziom:</b>
+            </div>
+            <div class="col">
+                <select class="text-center w-100 border border-warning bg-dark text-white-50 rounded" id="skill-choose-lvl">
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                    <option value="3">3</option>
+                    <option value="4">4</option>
+                </select>
+            </div>
+        </div> 
+
+        <div class="row text-center fs-5 p-2 col bg-gray text-center m-0">
+            <div class="col">
+                <button class="bg-dark border border-primary text-primary rounded p-1">Pokaż umiejętność</button>
+            </div>
+            <div class="col">
+                <button class="bg-dark border border-success text-success rounded p-1" onclick="addSkill()">Dodaj umiejętność</button>
+            </div>
         </div> 
     </div>  
- </div>
 
- <div class='container mt-2'>
-    <div class='row text-center ms-5 me-5'>
-        <a class='col m-1 btn btn-dark border btn-outline-warning border border-warning' target='_blank' href="{% url 'skills' %}">Skills</a>
-        <a class='col m-1 btn btn-dark border btn-outline-success border border-warning' href="{% url 'home' %}">Finish</a>
-    </div>
-</div>
+ </div>
 
 <div class='container mt-4'>
     <div class='row text-center m-1' style=''>
         <div class='col w-50 c-gold fw-bolder fst-italic fs-4 bg-gray text-center rounded border border-warning'>
-            <p><span id="char-name" class="d-none">{{ character }}</span>Aktualne umiejętności:</p>
+            <p><span id="char-name" class="d-none">{{ character.name }}</span>Aktualne umiejętności:</p>
         </div>
     </div> 
 </div>
@@ -108,7 +141,7 @@
 <div class='container p-0 bg-opacity-75'>
     <div class='row m-1'>
         <div class='col rounded fs-5 p-1 c-gold bg-gray text-center border border-warning'>
-                {% for skill in skills %}
+                {% for skill in current_skills %}
                 <div style='margin-left: 2%; width: 96%;' class='p-1 bg-dark border border-warning rounded'>
                     <a href='downgrade/{{ skill.id }}' class='mt-1 btn btn-sm btn-outline-warning w-25 me-2'>-</a>
                     <a href='upgrade/{{ skill.id }}' class='mt-1 btn btn-sm btn-outline-warning w-25 ms-2'>+</a>
@@ -130,6 +163,13 @@
     function changeOwnerScreen(character){
         document.getElementById("Character").innerHTML = character
         document.getElementById("choose-new-owner").classList.remove("d-none")
+    }
+
+    function addSkill(){
+        let skill_id = document.getElementById("skill-choose-name").value
+        let lvl = document.getElementById("skill-choose-lvl").value
+        url = window.location.href + `add/${skill_id}/${lvl}`
+        window.location.replace(url)
     }
  </script>
  
