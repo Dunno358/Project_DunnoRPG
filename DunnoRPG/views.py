@@ -792,6 +792,7 @@ def create_character(request,name,char_class,race,type,owner,exp):
             race=race,
             size=size_dict[race.size],
             HP=maxHP+class_hp_mod,
+            fullHP=maxHP+class_hp_mod,
             coins=0,
             INT=0+int(raceStatsPlus[0])-int(raceStatsMinus[0])+classStats['INT'],
             SIŁ=0+int(raceStatsPlus[1])-int(raceStatsMinus[1])+classStats['SIŁ'],
