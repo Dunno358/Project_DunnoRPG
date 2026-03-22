@@ -28,7 +28,7 @@
     </div>
 </form>
 
-<div class='container'>
+<div class='container hideable'>
         <div class="row">
             <div class="col text-end">
                     <button class="m-2 btn btn-success" onclick="">
@@ -51,8 +51,16 @@
     </div>
 </div>
 
-<div class="container mt-3 p-0">
-    <div class='row txt-shadow bg-gray border border-warning c-gold rounded text-center m-1'> 
+<div class='container d-none' id="iframe-container" style='height: 19rem;'>
+    <div class="row h-100">
+        <div class="col c-gold ps-0 pe-0">
+            <iframe src="" class="w-100 h-100 border border-warning" id="iframe"></iframe>
+        </div>
+    </div>
+</div>
+
+<div class="container p-0">
+    <div class='row txt-shadow bg-gray border border-warning c-gold rounded text-center m-1 hideable'> 
         <table>
             <td class='border border-warning'>
                 <a href='up/INT' class='col text-decoration-none text-success fsw-bold h2'>+</a>
@@ -86,7 +94,7 @@
         </table> 
     </div>  
 
-    <div class='container m-0 p-0 mt-2 border border-warning c-gold rounded'>
+    <div class='container m-0 p-0 mt-1 border border-warning c-gold rounded'>
 
         <div class="row text-center text-white-50 h2 p-2 col bg-gray text-center m-0">
             <div class="col">
@@ -96,7 +104,7 @@
 
         <div class="row text-center fs-5 p-2 col bg-gray text-center m-0">
             <div class="col">
-                <select class="text-center w-100 border border-warning bg-dark text-white-50 rounded" id="skill-choose-name">
+                <select class="text-center w-100 border border-warning bg-dark text-white-50 rounded" id="skill-choose-name" onchange="skillChanged()"> 
                     {% for skill in available_skills %}
                         <option value="{{ skill.id }}">{{ skill.name }}</option>
                     {% endfor %}
@@ -120,7 +128,7 @@
 
         <div class="row text-center fs-5 p-2 col bg-gray text-center m-0">
             <div class="col">
-                <button class="bg-dark border border-primary text-primary rounded p-1">Pokaż umiejętność</button>
+                <button class="bg-dark border border-primary text-primary rounded p-1" id="iframe-btn" onclick="changeToIframe()">Pokaż umiejętność</button>
             </div>
             <div class="col">
                 <button class="bg-dark border border-success text-success rounded p-1" onclick="addSkill()">Dodaj umiejętność</button>
@@ -170,6 +178,49 @@
         let lvl = document.getElementById("skill-choose-lvl").value
         url = window.location.href + `add/${skill_id}/${lvl}`
         window.location.replace(url)
+    }
+
+    function skillChanged(){
+        let iframe = document.getElementById("iframe")
+        let select = document.getElementById("skill-choose-name")
+        let id = select.value
+
+        iframe.src = `/dunnorpg/skills/${id}`
+    }
+
+    function changeToIframe(reverse=false){
+        let toHide = document.getElementsByClassName("hideable")
+        let iframe_container = document.getElementById("iframe-container")
+        let btn = document.getElementById("iframe-btn")
+        let iframe = document.getElementById("iframe-btn")
+
+        for (let i = 0; i < toHide.length; i++) {
+            if(!reverse){
+                toHide[i].classList.add("d-none")
+                iframe_container.classList.remove("d-none")
+
+                btn.classList.remove("text-primary")
+                btn.classList.remove("border-primary")
+                btn.classList.add("text-danger")
+                btn.classList.add("border-danger")
+                btn.textContent = "Ukryj umiejętność"
+
+                btn.onclick = () => changeToIframe(true);
+
+            }else{
+                toHide[i].classList.remove("d-none")
+                iframe_container.classList.add("d-none")
+
+                btn.classList.add("text-primary")
+                btn.classList.add("border-primary")
+                btn.classList.remove("text-danger")
+                btn.classList.remove("border-danger")
+                btn.textContent = "Pokaż umiejętność"
+
+                btn.onclick = () => changeToIframe(false);
+
+            }
+        }
     }
  </script>
  
