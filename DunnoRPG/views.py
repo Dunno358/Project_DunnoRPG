@@ -96,10 +96,15 @@ class EditCharacterView(APIView):
             character=chosen_character.name
         ).order_by('skill').values()
         
+        users = []
+        for user in User.objects.values():
+            users.append(user)
+
         context = {
             "character": chosen_character,
             "current_skills": character_skills_queryset,
-            "available_skills": available_skills
+            "available_skills": available_skills,
+            "users": users
         }
         return Response(context)
 
@@ -744,6 +749,7 @@ def skill_downgrade(request,char_id,skill_id):
     return redirect(f'/dunnorpg/character_add_skills/{char_id}/')
 def create_character(request,name,char_class,race,type,owner,exp):
     try:
+        race =  get_object_or_404(models.Races, name=race)
         maxHP = race.hp
         size_dict = {"S": 0.5,"M": 1,"L": 2}
         race = get_object_or_404(models.Races, name=race)
@@ -801,7 +807,6 @@ def create_character(request,name,char_class,race,type,owner,exp):
         )
 
         for skill in class_skills:
-            print(f"ADDING {skill}")
             skill_name = skill[:-1]
             skill_lvl = skill[len(skill)-1]
             skill_desc = get_object_or_404(models.Skills_Decs, name=skill_name)
@@ -831,12 +836,11 @@ def create_character(request,name,char_class,race,type,owner,exp):
         try:
             new_char = get_object_or_404(models.Character, name=name)
             return redirect(f'character_add_skills', new_char.id)
-        except:
-            messages.error(request, "Wystąpił błąd")
+        except Exception as e:
+            messages.error(request, f"Wystąpił błąd [404]: {e}")
             return redirect(f'character_add')
     except Exception as e:
-        print(traceback.format_exc())
-        messages.error(request, "Wystąpił błąd")
+        messages.error(request, f"Wystąpił błąd: {e}")
         return redirect(f'character_add')
 
 def log_as_guest(request):
