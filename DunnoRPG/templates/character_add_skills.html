@@ -5,7 +5,7 @@
  
 <form method="post" action="change_owner" id='choose-new-owner' class='d-none position-fixed container-fluid'>
     {% csrf_token %}
-    <div class='row bg-dark c-gold rounded border border-warning mt-5 ms-5 me-5'>
+    <div class='row bg-dark c-gold rounded border border-warning mt-5 m-2'>
       <div class='col text-center'>
         <select class='bg-dark text-primary h4 m-3 border border-warning rounded text-center' 
         name="new_owner" id="new_owner_select">
@@ -14,7 +14,7 @@
             {% endfor %}
         </select>
         <p id='Character' class='c-gold h5'>{{ character }}</p>
-        <input type="hidden" name="chosen_character_id" value="{{ character_id }}">
+        <input type="hidden" name="chosen_character_id" value="{{ character.id }}">
 
         <div class="row">
             <div class="col m-0 p-0">
@@ -28,10 +28,60 @@
     </div>
 </form>
 
+<div id='advanced' class="container card-body text-center mt-5 c-gold border border-warning bg-dark rounded position-fixed m-0 p-0 ms-1 pb-3 d-none" style="width: 96%">
+    <h3 class="mt-1">Zaawansowane</h3>
+
+    <div class="row m-0 p-0 mt-3">
+        <div class="col-5 m-0 p-0 text-end">
+            <span class="text-white-50">Maks. liczba HP:</span>
+        </div>
+        <div class="col">
+            <input class="w-100 text-center border border-warning bg-gray text-white-50 rounded" id="adv-maxhp" type="number" value="{{ character.fullHP }}" />
+        </div>
+    </div>
+
+    <div class="row m-0 p-0 mt-3">
+        <div class="col-5 m-0 p-0 text-end">
+            <span class="text-white-50">Dostępne punkty:</span>
+        </div>
+        <div class="col">
+            <input class="w-100 text-center border border-warning bg-gray text-white-50 rounded" id="adv-points" type="number" value="{{ character.points_left }}" />
+        </div>
+    </div>
+
+    <div class="row m-0 p-0 mt-3">
+        <div class="col-5 m-0 p-0 text-end">
+            <span class="text-white-50">Podgląd postaci:</span>
+        </div>
+        <div class="col">
+            <input class="w-100 text-center border border-warning bg-gray text-white-50 rounded" id="adv-url" type="text" value="{{ character.model_url }}" />
+        </div>
+    </div>
+
+    <div class="row m-0 p-0 mt-3">
+        <div class="col-5 m-0 p-0 text-end">
+            <span class="text-white-50">Rozmiar postaci:</span>
+        </div>
+        <div class="col">
+            <input class="w-100 text-center border border-warning bg-gray text-white-50 rounded" id="adv-size" type="number" value="{{ character.size }}" />
+        </div>
+    </div>
+
+    <div class="row m-0 p-0 mt-3">
+        <div class="col">
+            <button class="btn btn-danger w-100" onclick="show_or_hideById('advanced')">Zamknij</button>
+        </div>
+        <div class="col">
+            <button class="btn btn-success w-100" onclick="" disabled>Zmień</button>
+        </div>
+    </div>
+    
+</div>
+
 <div class='container hideable'>
         <div class="row">
             <div class="col text-end">
-                    <button class="m-2 btn btn-success" onclick="">
+                    <button class="m-2 btn btn-success" onclick="show_or_hideById('advanced')">
                         Zaawansowane
                     </button>
             </div>
@@ -222,6 +272,16 @@
             }
         }
     }
+
+    function show_or_hideById(id){
+        let element = document.getElementById(id)
+        if (element.classList.contains('d-none')){
+            element.classList.remove('d-none')
+        }
+        else{
+            element.classList.add('d-none')
+        }
+    };
  </script>
  
  {% endblock content %}
