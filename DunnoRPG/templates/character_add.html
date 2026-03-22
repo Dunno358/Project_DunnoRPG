@@ -73,36 +73,39 @@
                 </div>
             </div>
 
-            <div class="row mt-2 {% if not user.is_superuser %}d-none{% endif %}">
+            <div class="row mt-2">
                 <div class="col">
                     <span class="c-gold h4">Type:</span>
                 </div>
             </div>
             <div class="row">
                 <div class="col">
-                    <input class="w-100 text-center border border-warning bg-dark text-white-50 rounded" id="char-type" type="text" value="Player"/>
+                    <input class="w-100 text-center border border-warning bg-dark text-white-50 rounded" id="char-type" type="text" value="Player"
+                    {% if not user.is_superuser %}disabled{% endif %}/>
                 </div>
             </div>
 
-            <div class="row mt-2 {% if not user.is_superuser %}d-none{% endif %}">
+            <div class="row mt-2">
                 <div class="col">
                     <span class="c-gold h4">Owner:</span>
                 </div>
             </div>
             <div class="row">
                 <div class="col">
-                    <input class="w-100 text-center border border-warning bg-dark text-white-50 rounded" id="char-owner" type="text" value="{{ user }}"/>
+                    <input class="w-100 text-center border border-warning bg-dark text-white-50 rounded" id="char-owner" type="text" value="{{ user }}"
+                    {% if not user.is_superuser %}disabled{% endif %}/>
                 </div>
             </div>
 
-            <div class="row mt-2 {% if not user.is_superuser %}d-none{% endif %}">
+            <div class="row mt-2">
                 <div class="col">
                     <span class="c-gold h4">EXP:</span>
                 </div>
             </div>
             <div class="row">
                 <div class="col">
-                    <input class="w-100 text-center border border-warning bg-dark text-white-50 rounded" id="char-exp" type="number" value="0"/>
+                    <input class="w-100 text-center border border-warning bg-dark text-white-50 rounded" id="char-exp" type="number" value="0"
+                    {% if not user.is_superuser %}disabled{% endif %}/>
                 </div>
             </div>
 
