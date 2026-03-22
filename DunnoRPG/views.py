@@ -32,6 +32,11 @@ from DunnoRPG.serializers import (CharacterSerializer, ItemSerializer,
 from . import models
 from .forms import CharacterSkillsForm, AddEqItemForm, AddEffectForm
 
+raceSizes = {
+    "S": 0.5,
+    "M": 1,
+    "L": 2
+}
 
 class charGET(ListView):
     model = models.Character
