@@ -1,8 +1,9 @@
 {% extends 'master.html' %}
- {% block content %}
- {% include 'top_bar.html' %}
- {% include 'dunnorpg/messages.html' %}
- 
+{% block content %}
+{% include 'top_bar.html' %}
+{% include 'dunnorpg/messages.html' %}
+<meta name="csrf-token" content="{{ csrf_token }}"> 
+
 <form method="post" action="change_owner" id='choose-new-owner' class='d-none position-fixed container-fluid'>
     {% csrf_token %}
     <div class='row bg-dark c-gold rounded border border-warning mt-5 m-2'>
@@ -29,7 +30,7 @@
 </form>
 
 <div id='advanced' class="container card-body text-center mt-5 c-gold border border-warning bg-dark rounded position-fixed m-0 p-0 ms-1 pb-3 d-none" style="width: 96%">
-    <h3 class="mt-1">Zaawansowane</h3>
+    <h3 class="mt-1">Zaawansowane - {{ character.name }}</h3>
 
     <div class="row m-0 p-0 mt-3">
         <div class="col-5 m-0 p-0 text-end">
@@ -72,10 +73,16 @@
             <button class="btn btn-danger w-100" onclick="show_or_hideById('advanced')">Zamknij</button>
         </div>
         <div class="col">
-            <button class="btn btn-success w-100" onclick="" disabled>Zmień</button>
+            <button class="btn btn-success w-100" onclick="changeAdvanced()">Zmień</button>
         </div>
     </div>
     
+    <div class="row m-0 p-0 mt-2">
+        <div class="col">
+            <span class="h5 d-none" id="adv-txt">Pomyślnie zastosowano zmiany</span>
+        </div>
+    </div>
+
 </div>
 
 <div class='container hideable'>
@@ -96,7 +103,7 @@
         </div>
     <div class='row'>
         <div class='col text-center c-gold fst-italic txt-shadow p-0'>
-            <h2>Dostępne punkty umiejętności: <span>{{ character.points_left }}</span></h2>            
+            <h2>Dostępne punkty umiejętności: <br><span>{{ character.points_left }}</span></h2>            
         </div>
     </div>
 </div>
@@ -274,6 +281,8 @@
     }
 
     function show_or_hideById(id){
+        document.getElementById("adv-txt").classList.add("d-none")
+
         let element = document.getElementById(id)
         if (element.classList.contains('d-none')){
             element.classList.remove('d-none')
@@ -282,6 +291,39 @@
             element.classList.add('d-none')
         }
     };
+
+    async function changeAdvanced(){
+        let token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+        let url = window.location.href + 'change_adv'
+        let txt = document.getElementById("adv-txt")
+
+        req_body = {
+            "maxHP": document.getElementById("adv-maxhp").value,
+            "points": document.getElementById("adv-points").value,
+            "url": document.getElementById("adv-url").value,
+            "size": document.getElementById("adv-size").value
+        }
+
+        response = await fetch(url, {
+            method: "POST",
+            body: JSON.stringify(req_body),
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRFToken": token
+            },
+          })
+
+          txt.classList.remove("d-none")
+        if(response.status==200){
+            txt.textContent = "Pomyślnie zapisano zmiany"
+            txt.classList.remove("text-danger")
+            txt.classList.add("text-success")
+        }else{
+            txt.textContent = "Wystąpił błąd"
+            txt.classList.add("text-danger")
+            txt.classList.remove("text-success")
+        }
+    }
  </script>
  
  {% endblock content %}

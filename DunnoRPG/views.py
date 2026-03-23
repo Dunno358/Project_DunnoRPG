@@ -1085,6 +1085,22 @@ def fix_item(request, **kwargs):
             return JsonResponse({"error": str(e)}, status=400)
 
     return JsonResponse({"error": "Invalid request method"}, status=405)
+def change_char_details(request, **kwargs):
+    try:
+        data = json.loads(request.body)
+        char = get_object_or_404(models.Character, id=kwargs['char_id'])
+
+        char.fullHP = int(data['maxHP'])
+        char.points_left = int(data['points'])
+        char.model_url = data['url']
+        char.size = int(data['size'])
+        char.save()
+
+        return JsonResponse({"message": "Pomyślnie zmieniono dane"}, status=200)
+    except Exception as e:
+        print(traceback.format_exc())
+        return JsonResponse({"error": str(e)}, status=400)
+    
 def change_coins(request, **kwargs):
     if request.method == 'POST':
         char = get_object_or_404(models.Character, id=kwargs['char_id'])
