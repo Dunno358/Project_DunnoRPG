@@ -226,6 +226,7 @@
         <p name='stat'><span class="text-white-50">ZRE:</span> <span id='stat-ZRE'>{{ value.ZRE }}</span> (<span id='stat-ZRE-mod'>{{ value|getMod:"ZRE" }}</span>)</p>
         <p name='stat'><span class="text-white-50">CHAR:</span> <span id='stat-CHAR'>{{ value.CHAR }}</span> (<span id='stat-CHAR-mod'>{{ value|getMod:"CHAR" }}</span>)</p>
         <p name='stat'><span class="text-white-50">CEL:</span> <span id='stat-CEL'>{{ value.CEL }}</span> (<span id='stat-CEL-mod'>{{ value|getMod:"CEL" }}</span>)</p>
+        <p name='stat'><span class="text-white-50">SPO:</span> <span id='stat-SPO'>{{ value.SPO }}</span> (<span id='stat-SPO-mod'>{{ value|getMod:"SPO" }}</span>)</p>
         <div class="row m-1 p-0">
             <div class="col">
                 <button class="btn btn-success w-50" onclick="show_or_hideById('stats-block')">OK</button>
@@ -1927,6 +1928,7 @@
     <p id='item-skill-zre'>{{ value.name|getStatFromItems:"ZRE" }}</p>
     <p id='item-skill-char'>{{ value.name|getStatFromItems:"CHAR" }}</p>
     <p id='item-skill-cel'>{{ value.name|getStatFromItems:"CEL" }}</p>
+    <p id='item-skill-spo'>{{ value.name|getStatFromItems:"SPO" }}</p>
 </div>
 
 <script>

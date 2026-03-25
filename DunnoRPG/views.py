@@ -25,6 +25,7 @@ from django.contrib.auth.decorators import user_passes_test
 import traceback
 import json
 import math
+from pathlib import Path
 
 from DunnoRPG.serializers import (CharacterSerializer, ItemSerializer,
                                   SkillsDecsSerializer, SkillsSerializer)
@@ -100,11 +101,16 @@ class EditCharacterView(APIView):
         for user in User.objects.values():
             users.append(user)
 
+        stats_path = Path(__file__).resolve().parent / 'json_data' / 'stats.json'
+        with stats_path.open(encoding='utf-8') as stats_file:
+            stats_descriptions = json.load(stats_file)
+
         context = {
             "character": chosen_character,
             "current_skills": character_skills_queryset,
             "available_skills": available_skills,
-            "users": users
+            "users": users,
+            "stats_descriptions": stats_descriptions,
         }
         return Response(context)
 
@@ -495,7 +501,7 @@ class UpgradeCharacterStats(APIView):
     def get(self, request, *args, **kwargs):
         char_id = kwargs['char_id']
         stat = kwargs['stat']
-        if stat not in {'INT', 'SIŁ', 'ZRE', 'CHAR', 'CEL'}:
+        if stat not in {'INT', 'SIŁ', 'ZRE', 'CHAR', 'CEL', 'SPO'}:
             raise Http404('Invalid character statistic')
         
         character = get_object_or_404(models.Character, id=char_id)
@@ -513,7 +519,7 @@ class DowngradeCharacterStats(APIView):
     def get(self, request, *args, **kwargs):
         char_id = kwargs['char_id']
         stat = kwargs['stat']
-        if stat not in {'INT', 'SIŁ', 'ZRE', 'CHAR', 'CEL'}:
+        if stat not in {'INT', 'SIŁ', 'ZRE', 'CHAR', 'CEL', 'SPO'}:
             raise Http404('Invalid character statistic')
         
         character = get_object_or_404(models.Character, id=char_id)
@@ -775,7 +781,7 @@ def create_character(request,name,char_class,race,type,owner,exp):
         raceStatsPlus = race.statPlus.split(";")
         raceStatsMinus = race.statMinus.split(";")
 
-        classStats = {"INT":0,"SIŁ":0,"CHAR":0,"ZRE":0,"CEL":0}
+        classStats = {"INT":0,"SIŁ":0,"CHAR":0,"ZRE":0,"CEL":0, "SPO": 0}
         for mod in class_mods:
             mod_val = int(mod[-2:])
             if mod.startswith("CHAR"):
@@ -799,6 +805,7 @@ def create_character(request,name,char_class,race,type,owner,exp):
             ZRE=0+int(raceStatsPlus[2])-int(raceStatsMinus[2])+classStats['ZRE'],
             CHAR=0+int(raceStatsPlus[3])-int(raceStatsMinus[3])+classStats['CHAR'],
             CEL=0+int(raceStatsPlus[4])-int(raceStatsMinus[4])+classStats['CEL'],
+            SPO=0+int(raceStatsPlus[5])-int(raceStatsMinus[5])+classStats['SPO'],
             points_left=race.points_limit,
             weaponBonus=race.weaponsBonus,
             preferredWeapons=race.weaponsPreffered,
@@ -1696,7 +1703,8 @@ class RaceView(DetailView):
             f"SIŁ(+{chosen_race.statPlus[1]})",
             f"ZRE(+{chosen_race.statPlus[2]})",
             f"CHAR(+{chosen_race.statPlus[3]})",
-            f"CEL(+{chosen_race.statPlus[4]})"
+            f"CEL(+{chosen_race.statPlus[4]})",
+            f"SPO(+{chosen_race.statPlus[5]})"
         ]
         chosen_race.statMinus = chosen_race.statMinus.split(";")
         chosen_race.statMinus = [
@@ -1704,7 +1712,8 @@ class RaceView(DetailView):
             f"SIŁ(-{chosen_race.statMinus[1]})",
             f"ZRE(-{chosen_race.statMinus[2]})",
             f"CHAR(-{chosen_race.statMinus[3]})",
-            f"CEL(-{chosen_race.statMinus[4]})"
+            f"CEL(-{chosen_race.statMinus[4]})",
+            f"SPO(-{chosen_race.statMinus[5]})"
         ]
 
         chosen_race.weaponsPreffered = chosen_race.weaponsPreffered.split(";")

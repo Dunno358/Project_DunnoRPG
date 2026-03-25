@@ -38,6 +38,7 @@ class Character(models.Model):
     ZRE = models.IntegerField()
     CHAR = models.IntegerField()
     CEL = models.IntegerField()
+    SPO = models.IntegerField(default=0)
     points_left = models.IntegerField(null=True)
     barrier = models.CharField(max_length=50, default=0) #e.g. 15/25 where 15 is current and 25 is max
     mutation = models.TextField(null=True) # names separated by ; and functions somewhere will do actions based on names

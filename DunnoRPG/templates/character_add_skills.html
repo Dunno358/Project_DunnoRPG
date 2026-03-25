@@ -85,6 +85,22 @@
 
 </div>
 
+<div id='info-card' class="container card-body text-center mt-5 c-gold border border-warning bg-dark rounded position-fixed m-0 p-0 ms-1 pb-3 d-none" style="width: 96%">
+    <h3 class="mt-1" id="info-card-topic"></h3>
+
+    <div class="row">
+        <div class="col c-gold text-start ps-5 pe-5">
+            <span class="h6" id="info-card-content"></span>
+        </div>
+    </div>
+
+    <div class="row m-0 p-0 mt-3">
+        <div class="col">
+            <button class="btn btn-success w-100" onclick="show_or_hideById('info-card')">OK</button>
+        </div>
+    </div>
+</div>
+
 <div class='container hideable'>
         <div class="row">
             <div class="col text-end">
@@ -119,34 +135,52 @@
 <div class="container p-0">
     <div class='row txt-shadow bg-gray border border-warning c-gold rounded text-center m-1 hideable'> 
         <table>
-            <td class='border border-warning'>
+            <td class='border border-warning col-2'>
                 <a href='up/INT' class='col text-decoration-none text-success fsw-bold h2'>+</a>
-                <div class='row'><span class='col'>INT: {{ character.INT }}</span></div>
+                <div class='row'>
+                    <span class='col' onclick="showInfoCard('Inteligencja')">INT:<br>{{ character.INT }}</span>
+                </div>
                 <a href='down/INT' class='col text-decoration-none text-danger fsw-bold h2'>-</a>
             </td>
 
-            <td class='border border-warning'>
+            <td class='border border-warning col-2'>
                 <a href='up/SIŁ' class='col text-decoration-none text-success fsw-bold h2'>+</a>
-                <div class='row'><span class='col'>SIŁ: {{ character.SIŁ }}</span></div>
+                <div class='row'>
+                    <span class='col' onclick="showInfoCard('Siła')">SIŁ:<br>{{ character.SIŁ }}</span>
+                </div>
                 <a href='down/SIŁ' class='col text-decoration-none text-danger fsw-bold h2'>-</a>
             </td>
 
-            <td class='border border-warning'>
+            <td class='border border-warning col-2'>
                 <a href='up/ZRE' class='col text-decoration-none text-success fsw-bold h2'>+</a>
-                <div class='row'><span class='col'>ZRE: {{ character.ZRE }}</span></div>
+                <div class='row'>
+                    <span class='col' onclick="showInfoCard('Zręczność')">ZRE:<br>{{ character.ZRE }}</span>
+                </div>
                 <a href='down/ZRE' class='col text-decoration-none text-danger fsw-bold h2'>-</a>
             </td>
 
-            <td class='border border-warning'>
+            <td class='border border-warning col-2'>
                 <a href='up/CHAR' class='col text-decoration-none text-success fsw-bold h2'>+</a>
-                <div class='row'><span class='col'>CHAR: {{ character.CHAR }}</span></div>
+                <div class='row'>
+                    <span class='col' onclick="showInfoCard('Charyzma')">CHAR:<br>{{ character.CHAR }}</span>
+                </div>
                 <a href='down/CHAR' class='col text-decoration-none text-danger fsw-bold h2'>-</a>
             </td>
 
-            <td class='border border-warning'>
+            <td class='border border-warning col-2'>
                 <a href='up/CEL' class='col text-decoration-none text-success fsw-bold h2'>+</a>
-                <div class='row'><span class='col'>CEL: {{ character.CEL }}</span></div>
+                <div class='row'>
+                    <span class='col' onclick="showInfoCard('Celność')">CEL:<br>{{ character.CEL }}</span>
+                </div>
                 <a href='down/CEL' class='col text-decoration-none text-danger fsw-bold h2'>-</a>
+            </td>
+
+            <td class='border border-warning col-2'>
+                <a href='up/SPO' class='col text-decoration-none text-success fsw-bold h2'>+</a>
+                <div class='row'>
+                    <span class='col' onclick="showInfoCard('Spostrzegawczość')">SPO:<br>{{ character.SPO }}</span>
+                </div>
+                <a href='down/SPO' class='col text-decoration-none text-danger fsw-bold h2'>-</a>
             </td>
         </table> 
     </div>  
@@ -222,7 +256,11 @@
     </div class='row'>
  </div>
 
+ {{ stats_descriptions|json_script:"stats-descriptions" }}
+
  <script>
+    const statsDescriptions = JSON.parse(document.getElementById("stats-descriptions").textContent)
+
     document.title = "[E] " + document.getElementById("char-name").innerHTML + " | DunnoRPG"
 
     function changeOwnerScreen(character){
@@ -323,6 +361,16 @@
             txt.classList.add("text-danger")
             txt.classList.remove("text-success")
         }
+    }
+
+    function showInfoCard(title){
+        let card = document.getElementById("info-card")
+        let topic = document.getElementById("info-card-topic")
+        let content = document.getElementById("info-card-content")
+
+        card.classList.remove("d-none")
+        topic.textContent = title
+        content.textContent = statsDescriptions[title] || "Brak opisu dla tej statystyki."
     }
  </script>
  
