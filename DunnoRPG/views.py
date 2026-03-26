@@ -134,23 +134,10 @@ class CharacterSkills(ListView, FormView):
         chosen_character = get_object_or_404(models.Character, id=id).name
         character_stats = models.Character.objects.filter(id=id).values()[0]
         skills_points = character_stats['points_left']
-        skills_count_magical = 0
         current_skills = []
 
-        magical_exceptions = [
-            "Spaczbłyskawica"
-        ]
-
         for skill in context['skills']:
-            cost = int(models.Skills_Decs.objects.filter(name=skill['skill']).values()[0]['cost'])
             current_skills.append(skill['skill'])
-            if skill['category'].lower() == 'magical':
-                if skill['skill'] not in magical_exceptions:
-                    skills_count_magical += skill['level'] * cost
-
-        magical_skills_points = character_stats['INT'] - skills_count_magical
-        if magical_skills_points < 0:
-            magical_skills_points = 0
 
         users = []
         for user in User.objects.values():
@@ -160,7 +147,6 @@ class CharacterSkills(ListView, FormView):
         context['character_id'] = id
         context['character_stats'] = character_stats
         context['skills_count'] = skills_points
-        context['skills_count_magical'] = magical_skills_points
         context['form'] = CharacterSkillsForm()
         context['users'] = users
 
@@ -180,21 +166,15 @@ class CharacterSkills(ListView, FormView):
             })
 
         skills_count = 0
-        skills_count_magical = 0
         current_skills = []
 
         for skill in character_skills:
             cost = int(models.Skills_Decs.objects.filter(name=skill['skill']).values()[0]['cost'])
             current_skills.append(skill['skill'])
-            if skill['category'].lower() == 'magical':
-                skills_count_magical += skill['level'] * cost
-            elif skill['category'][1:] != 'free':
+            if skill['category'][1:] != 'free':
                 skills_count += skill['level'] * cost
                 
         skills_points = chosen_character['points_left']
-        magical_skills_points = chosen_character['INT'] - skills_count_magical
-        if magical_skills_points < 0:
-            magical_skills_points = 0
 
         skill_to_add = form.save(commit=False)
         validated_skill = models.Skills_Decs.objects.filter(name=skill_to_add.skill).values()[0]
@@ -209,28 +189,21 @@ class CharacterSkills(ListView, FormView):
                 level -= 1
                 continue
 
-        requirements_satisfied = [True, True]
+        requirements_satisfied = True
         req_stats = []
-        for x in range(2):
-            try:
-                req_stat = validated_skill[f"need{skill_to_add.level}_{x+1}"][:3]
-                req_value = int(validated_skill[f"need{skill_to_add.level}_{x+1}"][3])
-                if req_stat == 'CHA':
-                    req_stat = 'CHAR'
-                req_stats.append(f"{req_stat}: {req_value}")
-                req_satisfied = chosen_character[req_stat] >= req_value
-                requirements_satisfied[x] = req_satisfied
-            except:
-                req_satisfied = True
+        reqs = validated_skill[f"reqs{skill_to_add.level}"].split(";")
+        for req in reqs:
+            req_stat = req[-1]
+            req_value = req[:-1]
+            req_stats.append(f"{req_stat}: {req_value}")
 
-        requirements_satisfied = requirements_satisfied[0] and requirements_satisfied[1]
-        if validated_skill['category'].lower() == 'magical':
-            available_points = magical_skills_points
-        else:
-            available_points = skills_points
+            req_satisfied = chosen_character[req_stat] >= req_value
+            if not req_satisfied:
+                requirements_satisfied = False
+                break
 
         correct = False
-        if available_points > 0 and skill_to_add.level <= available_points:
+        if skills_points > 0 and skill_to_add.level <= skills_points:
             if requirements_satisfied:
                 if validated_skill['name'] not in current_skills:
                     correct = True
@@ -239,7 +212,7 @@ class CharacterSkills(ListView, FormView):
             else:
                 msg = "Requirements: " + ", ".join(req_stats)
         else:
-            msg = f"Not enough points: {available_points} points available and {skill_to_add.level} points are needed for {validated_skill['name']} lvl.{skill_to_add.level}"
+            msg = f"Not enough points: {skills_points} points available and {skill_to_add.level} points are needed for {validated_skill['name']} lvl.{skill_to_add.level}"
 
         if correct:
             skill_details = models.Skills_Decs.objects.filter(name=skill_to_add.skill).values()[0]
@@ -602,17 +575,19 @@ class SkillDetail(APIView):
 
         for data in serializer.data:
             if data.startswith('level') and len(serializer.data[data])>0:
-                try:
-                    need1_label = serializer.data[f"need{data[5]}_1"]
-                    need1 = f"{need1_label[:3]}: {need1_label[3]}"
-                except:
-                    need1 = ''
-                try:
-                    need2_label = serializer.data[f"need{data[5]}_2"]
-                    need2 = f"{need2_label[:3]}: {need2_label[3]}"
-                except:
-                    need2 = ''
-                levels.append({'level': data, 'desc': serializer.data[data], 'need1': need1, 'need2': need2})
+                needs = []
+                reqs_raw = serializer.data[f"reqs{data[-1]}"]
+                if reqs_raw is None:
+                    reqs_raw = ""
+                reqs = reqs_raw.split(";")
+
+                for req in reqs:
+                    if req != "":
+                        stat = req[:-1]
+                        val = req[-1]
+                        needs.append(f"{stat}: {val}")
+
+                levels.append({'level': data, 'desc': serializer.data[data], 'needs': needs})
 
         context = {
             'skill': serializer.data,
@@ -670,9 +645,8 @@ def skill_delete(request,char_id,skill_id):
     skill_details = get_object_or_404(models.Skills_Decs, name=skill.skill)
     character = get_object_or_404(models.Character, id=char_id)
     
-    if skill.category != 'Magical':
-        character.points_left += skill.level*int(skill_details.cost)
-        character.save()
+    character.points_left += skill.level*int(skill_details.cost)
+    character.save()
     skill.delete()
     return redirect(f'/dunnorpg/character_add_skills/{char_id}/')
 def skill_upgrade(request,char_id,skill_id):
@@ -686,45 +660,32 @@ def skill_upgrade(request,char_id,skill_id):
         not_max_lvl = False
     
     if not_max_lvl:
-        need1 = skill_details[f"need{skill.level+1}_1"]
-        need2 = skill_details[f"need{skill.level+1}_2"]
-        req1_OK = (need1==None) or ( int(character[f"{need1[:3]}"])>=int(need1[3]) )
-        req2_OK = (need2==None) or ( int(character[f"{need2[:3]}"])>=int(need2[3]) )
+        reqs_ok = True
+        reqs = skill_details[f"reqs{skill.level+1}"].split(";")
 
-        if req1_OK and req2_OK:
+        if reqs is None:
+            reqs = []
+
+        for req in reqs:
+            reqs_ok = (req==None) or (int(character[f"{req[:-1]}"])>=int(req[-1]))
+            if not reqs_ok:
+                break
+
+        if reqs_ok:
             cat = skill_details['category']
-            points_ok = True
-            if cat=='Magical':
-                mag_points = 0
-                magical_skills = models.Skills.objects.filter(character=character['name'], category='Magical').values()
-                
-                for mag_skill in magical_skills:
-                    detailed_info = get_object_or_404(models.Skills_Decs, name=mag_skill['skill'])
-                    mag_points += int(mag_skill['level'])*int(detailed_info.cost)
-                
-                if int(character['INT'])-mag_points <= 0:
-                    points_ok = False
-            else:
-                points_ok = character_object.points_left>0
+            points_ok = character_object.points_left>0
                
             if points_ok:        
                 skill.level += 1
                 skill.desc = skill_details['desc']+' '+skill_details[f"level{skill.level}"]
                 skill.save()
 
-                if cat != 'Magical':
-                    character_object.points_left -= int(skill_details['cost'])
+                character_object.points_left -= int(skill_details['cost'])
                 character_object.save()
             else:
                 messages.error(request, f'Za mało punktów, żeby ulepszyć {skill.skill}.')
         else:
-            msg = f"Your stats are too low to upgrade {skill.skill}, you need "
-            if need1!=None:
-                msg += f"{need1[:3]}({need1[3]})"
-                if need2 != None:
-                    msg += f" and {need2[:3]}({need2[3]})."
-            elif need2!=None:
-                msg += f"{need2[:3]}({need2[3]})."
+            msg = f"Nie spełniasz wymagań do ulepszenia {skill.skill}!"
             messages.error(request, msg)
     else:
         messages.error(request,f'{skill.skill}: Osiagnięto już maksymalny poziom!')
