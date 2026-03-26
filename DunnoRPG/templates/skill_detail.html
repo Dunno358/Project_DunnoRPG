@@ -53,23 +53,18 @@
                 </div>
             </div>
             <div class='row c-gold text-center txt-shadow'>
-                {% if  level.need1|length > 0 %}
-                <h2>Requirements:</h2>
-                {% else %}
-                <h2>Requirements: None</h2>
-                {% endif %}
+                <h2>Wymagane Statystyki:</h2>
             </div>
             <div class='row'>
-                {% if  level.need1|length > 0 %}
-                <div class='col text-center c-gold txt-shadow fst-italic' style='font-size: 150%;'>
-                    <p style="--bs-bg-opacity: .7;" class='m-1 bg-dark rounded border border-warning'><span class='opacity-100'>{{ level.need1 }}</span></p>
-                </div> 
-                {% endif %}   
-                {% if level.need2|length > 0 %}
-                <div class='col text-center c-gold txt-shadow fst-italic' style='font-size: 150%;'>
-                    <p style="--bs-bg-opacity: .7;" class='m-1 bg-dark rounded border border-warning'><span class='opacity-100'>{{ level.need2 }}</span></p>
-                </div> 
-                {% endif %}         
+                {% if level.needs|length > 0 %}
+                    {% for req in level.needs %}
+                        <div class='col-6 mt-1 mb-1 text-center c-gold txt-shadow fst-italic' style='font-size: 150%;'>
+                            <p style="--bs-bg-opacity: .7;" class='m-1 bg-dark rounded border border-warning'><span class='opacity-100'>{{ req }}</span></p>
+                        </div> 
+                    {% endfor %}   
+                {% else %}
+                    <h2 class="c-gold text-center">Brak</h2>
+                {% endif %}
             </div>
         </div>
     {% endfor %}
