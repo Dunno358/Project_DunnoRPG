@@ -16,32 +16,50 @@
 </div>
 
   <div class="container card-body">
+
+  <div class="row">
+    <div class="col text-center">
+      <form method="get">
+        <select
+          id="group-type"
+          name="character_type"
+          class="rounded p-1 text-center c-gold bg-gray border-warning w-75 h6"
+          onchange="this.form.submit()"
+        >
+          {% for t in character_types %}
+            <option value="{{ t }}" {% if t == selected_type %}selected{% endif %}>
+              {{ t }}
+            </option>
+          {% endfor %}
+        </select>
+      </form>
+    </div>
+  </div>
+
     <div class="row">
         {% for character in characters %}
-          {% if not character.hidden %}
-            <div class="col m-4 p-3 border border-warning bg-gray c-gold rounded text-center">
-              <dl>
-                {% if user.is_superuser %}
-                  <dt>Owner:</dt>
-                    <dd>{{ character.owner }}</dd>
-                  <dt>Character:</dt>
-                    <dd>{{ character.name }}</dd>
-                {% else %}
+          <div class="col m-4 p-3 border border-warning bg-gray c-gold rounded text-center">
+            <dl>
+              {% if user.is_superuser %}
+                <dt>Owner:</dt>
+                  <dd>{{ character.owner }}</dd>
                 <dt>Character:</dt>
                   <dd>{{ character.name }}</dd>
-                <dt>Race:</dt>
-                  <dd>{{ character.race }}</dd>
-                {% endif %}
-              </dl>
-                <div name='char_card_btns'>
-                  <a onclick="charDeleteConfirmation('Usunąć {{ character.name }}?',{{ character.id }})" class="btn btn-sm btn-dark btn-outline-danger m-1">Delete</a>
-                  <a class="btn btn-sm btn-dark btn-outline-primary m-1" href="{% url 'character_add_skills' character.id %}">Edit</a>
-                  <div class='container'>
-                    <a class="btn btn-dark btn-outline-warning m-1" href="{% url 'character_detail' character.id %}">Choose</a>
-                  </div>
+              {% else %}
+              <dt>Character:</dt>
+                <dd>{{ character.name }}</dd>
+              <dt>Race:</dt>
+                <dd>{{ character.race }}</dd>
+              {% endif %}
+            </dl>
+              <div name='char_card_btns'>
+                <a onclick="charDeleteConfirmation('Usunąć {{ character.name }}?',{{ character.id }})" class="btn btn-sm btn-dark btn-outline-danger m-1">Delete</a>
+                <a class="btn btn-sm btn-dark btn-outline-primary m-1" href="{% url 'character_add_skills' character.id %}">Edit</a>
+                <div class='container'>
+                  <a class="btn btn-dark btn-outline-warning m-1" href="{% url 'character_detail' character.id %}">Choose</a>
                 </div>
-            </div>        
-          {% endif %}
+              </div>
+          </div>        
         {% endfor %}
         {% if characters_count > 0 %}
           <div class="col mt-5 m-3 text-center">

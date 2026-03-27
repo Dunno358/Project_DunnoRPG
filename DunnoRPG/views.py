@@ -43,16 +43,36 @@ class charGET(ListView):
     model = models.Character
     template_name = 'home.html'
     context_object_name = 'characters'
-    
-    def get_queryset(self):
+
+    def get_base_queryset(self):
         if self.request.user.is_superuser:
-            return self.model.objects.order_by('name')
-        else:
-            return self.model.objects.filter(owner=self.request.user).order_by('name')
-    
+            return self.model.objects.filter(hidden=False)
+        return self.model.objects.filter(
+            owner=self.request.user,
+            hidden=False
+        )
+
+    def get_queryset(self):
+        qs = self.get_base_queryset()
+
+        selected_type = self.request.GET.get('character_type', 'Player')
+        if selected_type:
+            qs = qs.filter(type=selected_type)
+
+        return qs.order_by('name')
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+
+        base_qs = self.get_base_queryset()
+        base_qs = base_qs.exclude(type__isnull=True)
+        selected_type = self.request.GET.get('character_type', 'Player')
+
+        print(base_qs.values_list('type', flat=True).distinct())
+        context['selected_type'] = selected_type
+        context['character_types'] = sorted(base_qs.values_list('type', flat=True).distinct())
         context['characters_count'] = self.get_queryset().count()
+
         return context
     
 class AddCharacterView(APIView):
