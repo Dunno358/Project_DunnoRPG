@@ -1371,6 +1371,35 @@ def end_round(request, **kwargs):
         messages.warning(request, msg)
     return redirect('gm_panel')
 
+def manageFoodAndWater(char, value, stat_type):  # stat_type: "food" or "water"
+    value_now = getattr(char, stat_type)
+    value_changed = value_now + value
+    msg = ""
+
+    typeDict = {"food": "Głód", "water": "Pragnienie"}
+
+    print(f"value_changed {value_changed}")
+    print(f"value_now {value_now}")
+    if value_changed < 0:
+        diff = abs(value_changed)
+        setattr(char, stat_type, 0)
+        char.HP -= diff
+        if char.HP <= 0:
+            char.HP = 0
+        msg = f"Odczuwasz {typeDict[stat_type]} i tracisz {diff} PŻ"
+    elif value_changed <= 20:
+        setattr(char, stat_type, value_changed)
+        msg = f"Odczuwasz {typeDict[stat_type]}"
+        # TODO: Add efekt Głodny lub Spragniony
+    else:
+        if value_changed > 100:
+            setattr(char, stat_type, 100)
+        else:
+            setattr(char, stat_type, value_changed)
+
+    return char, msg
+
+
 class ItemsView(ListView):
     model = models.Items
     template_name = 'items.html'
@@ -1456,38 +1485,7 @@ class ItemsView(ListView):
             
             items_weight = 0
             for item in models.Eq.objects.filter(character=self.character.name):
-                if "strzała" in item.name.lower():
-                    try:
-                        if models.CharItems.objects.filter(character=self.character.name, hand="Side").first().name=="Kolczan":
-                            pass
-                        else:
-                            items_weight += item.weight 
-                    except:
-                        items_weight += item.weight 
-                elif "pocisk" in item.name.lower():
-                    try:
-                        allowed_items = ["Pas na amunicje","Zmodyfikowana Lustrzana Tarcza"]
-                        init_hands = [
-                            models.CharItems.objects.filter(character=self.character.name, hand="Left").first(),
-                            models.CharItems.objects.filter(character=self.character.name, hand="Right").first(),
-                            models.CharItems.objects.filter(character=self.character.name, hand="Side").first()
-                            ]
-                        hands = []
-                        for hand in init_hands:
-                            try:
-                                hands.append(hand.name)
-                            except:
-                                pass
-                        canPassWeight = any(item in allowed_items for item in hands)
-                        if canPassWeight:
-                            pass
-                        else:
-                            items_weight += item.weight 
-                    except:
-                        print(traceback.format_exc())
-                        items_weight += item.weight 
-                else:
-                    items_weight += item.weight 
+                items_weight += item.weight
             
             if self.character.SIŁ > 0:
                 max_weight = self.character.SIŁ*5+self.character.extra_capacity
@@ -1578,33 +1576,71 @@ class useItem(APIView):
                 return redirect(f'/dunnorpg/items/ch{char_id}')
 
             if action.startswith("addHP"):
+                name = action.split("-")[0]
                 amount = int(action.split("-")[1])
                 char.HP += amount
                 if char.HP > char.fullHP:
                     amount = int(char.fullHP - int(char.HP-amount))
                     char.HP = char.fullHP
+                #TODO: Funkcja do dodawania expa i lvlowania jeśli expa wystarczająco
                 char.exp += 1
 
-                #TODO: Sprawdzenie czy takowa już nie istnieje i wtedy tylko zwiększenie ilości
+                if name == "addHP_Potion":
+                    empty_bottle = get_object_or_404(models.Items, name="Pusta buteleczka")
+                    bottleExists = False
+                    bottle = None
+                    char_items = models.Eq.objects.all().filter(character=char.name)
+                    for item in char_items:
+                        if item.name == empty_bottle.name:
+                            bottleExists = True
+                            bottle = item
+                            break
 
-                empty_bottle = get_object_or_404(models.Items, name="Pusta buteleczka")
-                models.Eq.objects.create(
-                    owner = char.owner,
-                    character = char.name,
-                    name = empty_bottle.name,
-                    type = empty_bottle.type,
-                    weight = empty_bottle.weight,
-                    durability = empty_bottle.maxDurability,
-                    amount = 1
-                )
-                messages.success(request,f'Uleczono {amount} PŻ, wykorzystano {cost} akcji')
+                    if not bottleExists:
+                        models.Eq.objects.create(
+                            owner = char.owner,
+                            character = char.name,
+                            name = empty_bottle.name,
+                            type = empty_bottle.type,
+                            weight = empty_bottle.weight,
+                            durability = empty_bottle.maxDurability,
+                            amount = 1
+                        )
+                    else:
+                        bottle.amount += 1
+                        bottle.weight = empty_bottle.weight * bottle.amount
+                        bottle.save()
+                messages.success(request,f'Uleczono {amount} PŻ, wykorzystano {cost}/{char.actionLeft-cost} akcji')
+            elif action.startswith("addFood"):
+                amount = int(action.split("-")[1])
+                char, _ = manageFoodAndWater(char, amount, "food")
+                messages.success(request,f'Dodano {amount} nasycenia, wykorzystano {cost}/{char.actionLeft-cost} akcji')
+            elif action.startswith("addWater"):
+                amount = int(action.split("-")[1])
+                char, _ = manageFoodAndWater(char, amount, "food")
+                messages.success(request,f'Dodano {amount} napojenia, wykorzystano {cost}/{char.actionLeft-cost} akcji')
 
             char.actionLeft -= cost
+            char, waterMsg = manageFoodAndWater(char, -1, "water")
+            char, foodMsg = manageFoodAndWater(char, -1, "food")
             char.save()
-            eq_item.delete()
+
+            if eq_item.amount == 1:
+                eq_item.delete()
+            else:
+                eq_item.weight -= eq_item.weight/eq_item.amount
+                eq_item.amount -= 1
+                eq_item.save()
+
+            if waterMsg != "":
+                messages.error(request, waterMsg)
+            if foodMsg != "":
+                messages.error(request, foodMsg)
+
             return redirect(f'/dunnorpg/items/ch{char_id}')
         except Exception as e:
             messages.error(request, f"Błąd: {e}")
+            print(traceback.format_exc())
             return redirect(f'/dunnorpg/items/ch{char_id}')
 
 class ClassesView(ListView):
