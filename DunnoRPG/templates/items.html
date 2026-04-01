@@ -246,24 +246,15 @@
                 onclick="sellConfirmation('{{ view.kwargs.char_id }}','{{ item.eq_id }}','{{ item.price }}','{{ item.dur }}','{{ item.max_dur }}','{{ item.name }}', '{{ item.amount }}', '{{ charisma }}')">
                 Sell</button>
             {% endif %}
-            {% if user.is_superuser %}
                 <div class="row m-0 mt-1 p-0">
-                    <div class="col m-0 p-0">
-                        <a class='btn btn-danger w-100' href='setFound-{{ item.id }}-0-{{ view.kwargs.char_id }}'>
-                            Unfound
-                        </a> 
-                    </div>
-                    <div class="col m-0 p-0">
-                        <a class='ms-1 btn btn-success w-100' href='setFound-{{ item.id }}-1-{{ view.kwargs.char_id }}'>
-                            {% if item.found == True %}
-                                Already found
-                            {% else %}
-                                Found
-                            {% endif %}
-                        </a> 
-                    </div>
+                    {% if item.on_use and item.on_use != '-' %}
+                        <div class="col m-0 p-0">
+                            <a class='btn btn-success w-100' href='useItem-{{ item.id }}-{{ view.kwargs.char_id }}'>
+                                Użyj
+                            </a> 
+                        </div>
+                    {% endif %}
                 </div>
-            {% endif %}
         </div>
     </div>
     {% endfor %}
