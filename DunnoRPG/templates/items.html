@@ -74,8 +74,18 @@
 </div>
 
 {% if view.kwargs.char_id != 0 %}
-<div class='container mt-2'>
-    <div class='row'>
+<div class='container'>
+
+    <div class='container-fluid mt-0'>
+
+        <div class="row">
+            <div class="col c-gold">
+                <a class='btn btn-dark btn-outline-danger w-100' href={% url 'character_detail' view.kwargs.char_id %}><- Powrót do postaci</a>
+            </div>
+        </div>
+    </div>
+
+    <div class='row mt-2'>
         <div class="col-3"></div>
         <h1 class='col c-gold text-center' style='-webkit-text-stroke: 1px black;'>
             {{ current_weight }}/{{ max_weight }}kg
