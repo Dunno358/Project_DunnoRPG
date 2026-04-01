@@ -12,7 +12,7 @@
                 {% endif %}
                 ">
                     {{msg.message}}
-                <button onclick="document.getElementById('msg').classList.add('d-none')" type="button" class="m-2 close 
+                <button onclick="this.parentElement.classList.add('d-none')" type="button" class="m-2 close 
                 {% if msg.level == 40 %} bg-danger
                 {% elif msg.level == 30 %} bg-warning
                 {% elif msg.level == 25 %} bg-success
