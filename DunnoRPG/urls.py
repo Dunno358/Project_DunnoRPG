@@ -43,7 +43,7 @@ urlpatterns = [
     path('items/sell<int:item_id>;<int:char_id>;<int:mod>;<int:amount>', views.sell_item, name='sell_item'),
     path('items/give<int:item_id>;<int:from_char>;<int:to_char>;<int:amount>', views.give_item, name='give_item'),
     path('items/<int:id>', views.ItemDetailView.as_view(), name='item_detail'),
-    path('items/setFound-<int:id>-<int:state>-<int:char_id>', views.changeItemFoundState.as_view(), name='change_found_state'),
+    path('items/useItem-<int:id>-<int:char_id>', views.useItem.as_view(), name='use_item'),
     
     path('guest/', views.log_as_guest, name='log_as_guest'),
     path('gmpanel/', views.GMPanel.as_view(), name='gm_panel'),

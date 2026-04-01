@@ -1400,16 +1400,20 @@ class ItemsView(ListView):
             
             for item in models.Eq.objects.filter(character=self.character.name):
                 item_obj = get_object_or_404(models.Items, name=item.name)
-                queryset.append({'id': item_obj.id,
-                                 'eq_id': item.id, 
-                                 'rarity': item_obj.rarity, 
-                                 'found': item_obj.found, 
-                                 'name': item.name, 
-                                 'dur': item.durability, 
-                                 'amount': item.amount, 
-                                 'max_dur': item_obj.maxDurability,
-                                 'type': item_obj.type,
-                                 'price': item_obj.price}
+                queryset.append({
+                                'id': item_obj.id,
+                                'eq_id': item.id, 
+                                'rarity': item_obj.rarity, 
+                                'found': item_obj.found, 
+                                'name': item.name, 
+                                'dur': item.durability, 
+                                'amount': item.amount, 
+                                'max_dur': item_obj.maxDurability,
+                                'type': item_obj.type,
+                                'price': item_obj.price,
+                                "on_use": item_obj.on_use,
+                                "use_cost": item_obj.use_cost 
+                                }
                                 )
                 
                 if item_obj.type.lower() in self.armor_dict.keys():
@@ -1557,23 +1561,51 @@ class ItemDetailView(DetailView):
 
         return context
 
-class changeItemFoundState(APIView):
+class useItem(APIView):
     def get(self, request, *args, **kwargs):
-        if request.user.is_superuser:
-            state = kwargs['state']
+        try:
             item_id = kwargs['id']
-            char_id = kwargs['char_id']
-
             item = get_object_or_404(models.Items, id=item_id)
+            action = item.on_use
+            cost = float(item.use_cost)
 
-            try:
-                item.found = bool(state)
-            except:
-                raise Http404('changeItemFoundState at views; cannot state to bool')
-            
-            item.save()
-            
-        return redirect(f'/dunnorpg/items/ch{char_id}')
+            char_id = kwargs['char_id']
+            char = get_object_or_404(models.Character, id=char_id)
+            eq_item = models.Eq.objects.filter(name=item.name, character=char.name).first()
+
+            if float(char.actionLeft) < cost:
+                messages.error(request,f'Nie posiadasz wystarczająco akcji! Wymagane {cost} a dostępne {char.actionLeft}.')
+                return redirect(f'/dunnorpg/items/ch{char_id}')
+
+            if action.startswith("addHP"):
+                amount = int(action.split("-")[1])
+                char.HP += amount
+                if char.HP > char.fullHP:
+                    amount = int(char.fullHP - int(char.HP-amount))
+                    char.HP = char.fullHP
+                char.exp += 1
+
+                #TODO: Sprawdzenie czy takowa już nie istnieje i wtedy tylko zwiększenie ilości
+
+                empty_bottle = get_object_or_404(models.Items, name="Pusta buteleczka")
+                models.Eq.objects.create(
+                    owner = char.owner,
+                    character = char.name,
+                    name = empty_bottle.name,
+                    type = empty_bottle.type,
+                    weight = empty_bottle.weight,
+                    durability = empty_bottle.maxDurability,
+                    amount = 1
+                )
+                messages.success(request,f'Uleczono {amount} PŻ, wykorzystano {cost} akcji')
+
+            char.actionLeft -= cost
+            char.save()
+            eq_item.delete()
+            return redirect(f'/dunnorpg/items/ch{char_id}')
+        except Exception as e:
+            messages.error(request, f"Błąd: {e}")
+            return redirect(f'/dunnorpg/items/ch{char_id}')
 
 class ClassesView(ListView):
     model = models.Classes
