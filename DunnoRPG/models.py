@@ -23,6 +23,7 @@ class Character(models.Model):
     chosen_class = models.CharField(max_length=80, default='', blank=True)
     size = models.CharField(max_length=2)
     HP = models.IntegerField()
+    actionLeft = models.FloatField(default=1.0)
     alcohol = models.CharField(max_length=50, default=0)
     food = models.IntegerField(default=100)
     water = models.IntegerField(default=100)
@@ -130,6 +131,7 @@ class Skills_Decs(models.Model):
     category = models.CharField(max_length = 50, null = True)
     desc = models.TextField()
     restrictions = models.CharField(max_length=255, default="Uniwersalne") #all for everyone
+    use_cost = models.FloatField(default=1.0)
     level1 = models.TextField(null=True)
     reqs1 = models.CharField(max_length=255, null=True, blank=True)
     useslvl1 = models.IntegerField(null=True, blank=True)
