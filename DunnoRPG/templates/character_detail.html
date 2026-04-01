@@ -186,6 +186,19 @@
     </div>
 </div>
 
+<div class="container-fluid bg-dark bg-opacity-75 m-0 p-0">
+    <div class="row w-100 mb-0 pt-1 pb-1 text-info">
+        <div class="col text-center">
+            <span class="fw-bold {% if chosen_character.0.food > 20 %}text-success{% else %}text-danger text-decoration-underline{% endif %}">Nasycenie:</span> 
+            <span class="fw-bold {% if chosen_character.0.food > 20 %}text-success{% else %}text-danger text-decoration-underline{% endif %}" id="food-val">{{ chosen_character.0.food }}%</span>
+        </div>
+        <div class="col text-center">
+            <span class="fw-bold {% if chosen_character.0.water > 20 %}text-success{% else %}text-danger text-decoration-underline{% endif %}">Nawodnienie:</span>
+            <span class="fw-bold {% if chosen_character.0.water > 20 %}text-success{% else %}text-danger text-decoration-underline{% endif %}" id="water-val">{{ chosen_character.0.water }}%</span>
+        </div>
+    </div>
+</div>
+
 <div class="container-fluid" style="position: sticky; top: 0.5px; z-index: 5">        
     <div class="header-bg bg-dark border-top border-bottom border-primary row">
         <div class='col-3 m-0 p-1 btn btn-dark btn-outline-warning border border-warning rounded' id='Stats'  onclick="show_or_hideByName(this)">
@@ -236,7 +249,10 @@
 
     <div name='Equipment' class="row text-center m-0 p-0 card-body c-gold border border-warning bg-dark rounded">
         <div class="row mt-2 m-0 p-0">
-            <div class="col">
+            <div class="col-5 text-start h6">
+                EXP: <span id='char-exp' class="">{{ value.exp }}</span>%
+            </div>
+            <div class="col-2 text-end p-0 m-0">
                 {% if value.model_url %}
                     <a id='char-name' name='{{ value.id }}' href="{{ value.model_url }}" class="c-gold h2" target="_blank">
                         {{ value.name }}
@@ -245,10 +261,18 @@
                     <span id='char-name' name='{{ value.id }}' class="h1">{{ value.name }}</span>
                 {% endif %}
             </div>
+            <div class="col text-end">
+                <span id='char-lvl' class="h5">Lvl. {{ value.level }}</span>
+            </div>
         </div>
 
         <div class="row m-0 p-0">
-            <div class="col p-0 m-0 h5">
+            <div class="col-4 h6 text-start mb-0 pb-0">
+                <button class="btn btn-primary w-75 d-none">
+                    <span>Dodaj</span>
+                </button>
+            </div>
+            <div class="col-8 text-start p-0 m-0 h5 ">
             {% if value.chosen_class %}
                 jako <a 
                 href='/dunnorpg/info/classes/{{ class.id }}'
