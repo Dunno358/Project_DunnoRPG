@@ -819,7 +819,7 @@ def create_character(request,name,char_class,race,type,owner,exp):
                 character = name,
                 name = eff_name,
                 bonus = 0,
-                time = eff_nr
+                time = 1 #TODO: Handle when effects changing part starts
             )
 
         try:
@@ -830,6 +830,7 @@ def create_character(request,name,char_class,race,type,owner,exp):
             return redirect(f'character_add')
     except Exception as e:
         messages.error(request, f"Wystąpił błąd: {e}")
+        print(traceback.format_exc())
         return redirect(f'character_add')
 
 def log_as_guest(request):
@@ -1102,7 +1103,56 @@ def change_health(request, **kwargs):
         char.HP = request.POST['hp']
         char.save()
         return redirect('character_detail', char.id) 
-    
+
+def manageExp(char, exp):
+    msg = ''
+    msg_type = 'success'
+    try:
+        try:
+            amount = int(exp)
+        except:
+            amount = 0
+        added_amount = int(char.exp) + amount
+
+        if added_amount >= 100:
+            char.exp = added_amount - 100
+            char.level += 1
+            char.points_left += 1
+            char.food -= 20
+            char.water -= 20
+            msg = f"Zdobyto poziom! Nowy poziom to {char.level}, otrzymano punkt umiejętności."
+        else:
+            if added_amount < 0:
+                added_amount = 0
+            char.exp = added_amount
+            if amount >= 0:
+                msg = f"Dodano {amount} doświadczenia, łącznie masz już {added_amount}% doświadczenia"
+            else:
+                msg = f"Zabrano {abs(amount)} doświadczenia, pozostało ci {added_amount}% doświadczenia"
+
+        char.save()
+
+    except Exception as e:
+        msg = f"Błąd: {e}"
+        msg_type = 'error'
+        print(traceback.format_exc())
+
+    return char, msg, msg_type
+
+def add_exp(request, **kwargs):
+    char = get_object_or_404(models.Character, id=kwargs['char_id'])
+    msg = ''
+    msg_type = ''
+
+    char, msg, msg_type = manageExp(char, kwargs['exp'])
+
+    if msg_type == 'error':
+        messages.error(request, msg)
+    else:
+        messages.success(request, msg)
+
+    return redirect('character_detail', char.id)
+
 def char_wear_item(request, **kwargs):
     char = get_object_or_404(models.Character, id=kwargs['char_id'])
     char_skills = models.Skills.objects.filter(character=char.name)

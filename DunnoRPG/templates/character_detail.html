@@ -5,7 +5,30 @@
 {% include 'dunnorpg/messages.html' %}
 <!-- TODO: Add checking if class armor allows for item when putting on or changing item of armor -->
 
-<div id='pop-window' class='d-none position-fixed container-fluid mt-5'>
+<div id='add-exp-block' class='position-fixed container-fluid p-0 ms-4 d-none' style="margin-top: 7rem; width: 90%;">
+    <div class='row bg-dark c-gold rounded border border-warning me-1'>
+        <div class='col text-center'>
+            <div class="row">
+                <div class="col mt-2"><p class='c-gold h3'>Dodawanie doświadczenia</p></div>
+            </div>
+            <div class="row mt-3">
+                <div class="col-2 text-end"><span class="c-gold h6">EXP: </span></div>
+                <div class="col"><input class="text-center w-100 c-gold bg-dark border border-warning rounded" type="number" value="" id="add-exp-input" /></div>
+            </div>
+
+            <div class="row mt-4">
+                <div class="col m-0 p-0">
+                    <a onclick='document.getElementById("add-exp-block").classList.add("d-none")' id='exp-back' class='btn btn-danger w-75 m-1'>Powrót</a>
+                </div>
+                <div class="col m-0 p-0">
+                    <a onclick="addExp()" id='exp-success' class='btn btn-success w-75 m-1'>Dodaj</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id='pop-window' class='d-none position-fixed container-fluid' style='margin-top: 8rem;'>
     <div class='row bg-dark c-gold rounded border border-warning m-0'>
 
         <div class='row text-center ms-1'>
@@ -249,10 +272,21 @@
 
     <div name='Equipment' class="row text-center m-0 p-0 card-body c-gold border border-warning bg-dark rounded">
         <div class="row mt-2 m-0 p-0">
-            <div class="col-5 text-start h6">
+            <div class="col-3 text-start h6 pe-0 me-0 pt-1">
                 EXP: <span id='char-exp' class="">{{ value.exp }}</span>%
             </div>
-            <div class="col-2 text-end p-0 m-0">
+            <div class="col-4 h6 text-start mb-0 pb-0 ms-0 ps-0">
+                <button class="btn-sm btn-primary rounded w-75 p-1 h3 " onclick='document.getElementById("add-exp-block").classList.remove("d-none")'>
+                    <span>+</span>
+                </button>
+            </div>
+            <div class="col text-end pt-1">
+                <span id='char-lvl' class="h5">Lvl. {{ value.level }}</span>
+            </div>
+        </div>
+
+        <div class="row mt-0 m-0 p-0">
+            <div class="col text-center p-0 m-0">
                 {% if value.model_url %}
                     <a id='char-name' name='{{ value.id }}' href="{{ value.model_url }}" class="c-gold h2" target="_blank">
                         {{ value.name }}
@@ -261,18 +295,10 @@
                     <span id='char-name' name='{{ value.id }}' class="h1">{{ value.name }}</span>
                 {% endif %}
             </div>
-            <div class="col text-end">
-                <span id='char-lvl' class="h5">Lvl. {{ value.level }}</span>
-            </div>
         </div>
 
-        <div class="row m-0 p-0">
-            <div class="col-4 h6 text-start mb-0 pb-0">
-                <button class="btn btn-primary w-75 d-none">
-                    <span>Dodaj</span>
-                </button>
-            </div>
-            <div class="col-8 text-start p-0 m-0 h5 ">
+        <div class="row m-0 p-0 align-items-center">
+            <div class="col text-center p-0 m-0 h5 ">
             {% if value.chosen_class %}
                 jako <a 
                 href='/dunnorpg/info/classes/{{ class.id }}'
@@ -2558,6 +2584,15 @@ function show_result_at_window(action){
         }
         else{window_action_bottom.innerHTML = 'Parowanie prawej ręki niedostępne'}
     }
+}
+
+function addExp(){
+    let exp_val = document.getElementById('add-exp-input').value
+
+    if(exp_val==''){exp_val=0}
+
+    url = window.location.href+'add-exp/'+exp_val
+    window.location.replace(url)
 }
 
 function getDiceWMods(instance,modsPoints,getResult=false,text='Result', d0exception=true, prefix=''){
