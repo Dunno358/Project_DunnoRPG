@@ -1,0 +1,7 @@
+{
+    "Przewaga": "Do wyniku kości dodajesz wynik rzutu K6. Dwie przewagi naraz liczą się jako DużaPrzewaga.",
+    "DużaPrzewaga": "Do wyniku kości dodajesz wynik rzutu K12. Jeśli ilość przewag przekracza 1K12 to i tak zostajemy przy 1K12 - nie można mieć naraz więcej niż 2 przewag lub 1 dużej przewagi.",
+    "Utrudnienie": "Od wyniku kości odejmujesz wynik rzutu K6. Dwa utrudnienia tworzą DużeUtrudnienie.",
+    "DużeUtrudnienie": "Od wyniku kości odejmujesz wynik rzutu K12. Jeśli ilość utrudnień przekracza 1K12 to i tak zostajemy przy 1K12 - nie można mieć naraz więcej niż 2 utrudnienia lub 1 duże utrudnienie.",
+    "Overwatch": "Możliwość zaatakowania innej postaci która rozpoczyna ruch będąc w zasięgu ataku (nie strzału czy rzutu, jeśli zmienia hex. Można to wykonać tylko raz na rundę."
+}

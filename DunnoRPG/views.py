@@ -1706,50 +1706,59 @@ class ClassesView(ListView):
         return context
 
 class ClassView(DetailView):
-    model = models.Classes
-    template_name = 'class.html'
+    try:
+        model = models.Classes
+        template_name = 'class.html'
 
-    def get_object(self,queryset=None):
-        class_id = self.kwargs.get('id')
-        return get_object_or_404(models.Classes, id=class_id)
-    
-    def get_context_data(self,**kwargs):
-        context = super().get_context_data(**kwargs)
-        chosen_class = self.get_object()
-
-        chosen_class.armor_weight = chosen_class.armor_weight.replace("light","Lekki")
-        chosen_class.armor_weight = chosen_class.armor_weight.replace("medium","Średni")
-        chosen_class.armor_weight = chosen_class.armor_weight.replace("heavy","Ciężki")
-        chosen_class.armor_weight = chosen_class.armor_weight.replace("all","Każdy")
-        chosen_class.armor_weight = chosen_class.armor_weight.split(";")
-
-        chosen_class.skills = chosen_class.skills.split(";")
-        for skill in chosen_class.skills:
-            try:
-                index = chosen_class.skills.index(skill)
-                lvl = skill[-1]
-                chosen_class.skills[index] = f"{skill[:-1]}-{lvl}"
-            except:
-                pass
+        def get_object(self,queryset=None):
+            class_id = self.kwargs.get('id')
+            return get_object_or_404(models.Classes, id=class_id)
         
-        chosen_class.effects = chosen_class.effects.split(";")
-        for effect in chosen_class.effects:
-            try:
-                index = chosen_class.effects.index(effect)
-                if effect.lower().endswith("m"):
-                    lvl = effect[-2]
-                    chosen_class.effects[index] = f"{effect[:-3]}(-{lvl})"
-                else:
-                    lvl = effect[-1]
-                    chosen_class.effects[index] = f"{effect[:-2]}(+{lvl})"
-            except:
-                pass
+        def get_context_data(self,**kwargs):
+            context = super().get_context_data(**kwargs)
+            chosen_class = self.get_object()
 
-        chosen_class.mods = chosen_class.mods.split(";")
+            chosen_class.armor_weight = chosen_class.armor_weight.replace("light","Lekki")
+            chosen_class.armor_weight = chosen_class.armor_weight.replace("medium","Średni")
+            chosen_class.armor_weight = chosen_class.armor_weight.replace("heavy","Ciężki")
+            chosen_class.armor_weight = chosen_class.armor_weight.replace("all","Każdy")
+            chosen_class.armor_weight = chosen_class.armor_weight.split(";")
 
-        context['class'] = chosen_class
+            chosen_class.skills = chosen_class.skills.split(";")
+            for skill in chosen_class.skills:
+                try:
+                    index = chosen_class.skills.index(skill)
+                    lvl = skill[-1]
+                    chosen_class.skills[index] = f"{skill[:-1]}-{lvl}"
+                except:
+                    pass
+            
+            chosen_class.effects = chosen_class.effects.split(";")
+            for effect in chosen_class.effects:
+                try:
+                    index = chosen_class.effects.index(effect)
+                    if effect.lower().endswith("m"):
+                        lvl = effect[-2]
+                        chosen_class.effects[index] = f"{effect[:-3]}(-{lvl})"
+                    else:
+                        lvl = effect[-1]
+                        chosen_class.effects[index] = f"{effect[:-2]}(+{lvl})"
+                except:
+                    pass
 
-        return context
+            chosen_class.mods = chosen_class.mods.split(";")
+
+            class_skills = models.Skills_Decs.objects.filter(
+                restrictions__icontains=chosen_class.name
+            ).order_by('name')
+
+            context['class'] = chosen_class
+            context['theme_list'] = chosen_class.positives.split(';')
+            context['class_skills'] = class_skills
+
+            return context
+    except:
+        print(traceback.format_exc())
 
 class RacesView(ListView):
     model = models.Races

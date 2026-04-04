@@ -10,9 +10,51 @@
 
     <div class='container mt-0'>
 
+        <div id='iframe-card' class="container position-fixed m-0 p-0 pb-3 mt-0 d-none" 
+        style="width: 100%; z-index: 5; margin-left: -0.8rem !important;margin-top: -8rem !important">
+    
+            <div class="row">
+                <div class="col c-gold p-0">
+                    <button class='btn btn-dark btn-outline-danger w-100' onclick="show_or_hideById('iframe-card')">X Zamknij podgląd umiejętności X</button>
+                </div>
+            </div>
+
+            <div class="row w-100" style="height: 35rem !important;">
+                <div class="col c-gold text-start p-0">
+                    <iframe src="/dunnorpg/skills/1" class="border border-warning w-100 h-100" id="iframe"></iframe>
+                </div>
+            </div>
+
+        </div>
+
+        <div id='info-card' class="container card-body text-center c-gold border border-warning bg-dark rounded position-fixed m-0 p-0 pb-3 d-none mt-5" 
+        style="width: 98%; z-index: 5; margin-left: -1.3rem !important;">
+            <h3 class="mt-1" id="info-card-topic"></h3>
+
+            <div class="row">
+                <div class="col c-gold text-start ps-5 pe-5">
+                    <span class="h6" id="info-card-content"></span>
+                </div>
+            </div>
+
+            <div class="row m-0 p-0 mt-3">
+                <div class="col">
+                    <button class="btn btn-success w-100" onclick="show_or_hideById('info-card')">OK</button>
+                </div>
+            </div>
+        </div>
+
         <div class="row">
             <div class="col c-gold">
                 <a class='btn btn-dark btn-outline-danger w-100' href={% url 'classes' %}><- Powrót do klas</a>
+            </div>
+        </div>
+    </div>
+
+    <div id='class_desc' class='mt-3'>
+        <div class='row'>
+            <div class='col bg-opacity-75 text-center c-gold bg-dark border border-warning rounded ms-2 me-2 p-2 fst-italic'>
+                {{ class.desc }}
             </div>
         </div>
     </div>
@@ -26,54 +68,87 @@
     <div class='row mt-2 text-border-black'>
         <div class='col text-center c-gold fst-italic'>
             <h2>
-                Pancerz: {% for type in class.armor_weight %} {{ type }}{% if not forloop.last %}, {% endif %} {% endfor %}
+                Maks. pancerz: {{ class.armor_weight.0 }}
             </h2>
         </div>
     </div>
 
-    <div id='class_desc' class='mt-3'>
-        <div class='row'>
-            <div class='col bg-opacity-75 text-center c-gold bg-dark border border-warning rounded ms-5 me-5 p-2 fst-italic'>
-                {{ class.desc }}
+    {% if class.hp_mod %}
+        <div class='row text-border-black'>
+            <div class='col text-center c-gold fst-italic'>
+                <h4>
+                    Modyfikacja PŻ: {{ class.hp_mod|beautifyClassHpMod }}
+                </h4>
             </div>
         </div>
-    </div>
+    {% endif %}
 
-    <div class='row mt-4'>
-        <div class='col bg-opacity-75 text-center c-gold bg-dark border border-warning rounded ms-5 me-5 p-1 pt-2'>
-                <h5>Umiejętności: {% for skill in class.skills %} {{ skill }}{% if not forloop.last %}, {% endif %} {% endfor %}</h5>
+    <div class="container bg-dark rounded p-2 border border-warning c-gold mt-1" onclick="showSection(this, 'special-abilities')">
+        <div class="col text-center h3">
+            Specjalne właściwości   
         </div>
     </div>
-
-    <div class='row'>
-        <div class='col bg-opacity-75 text-center c-gold bg-dark rounded border border-warning border-top-0 ms-5 me-5 p-1 pt-2'>
-            <h5>Efekty: {% for effect in class.effects %} {{ effect }}{% if not forloop.last %}, {% endif %} {% endfor %}</h5>
-        </div>
-    </div>    
-
-    <div class='row'>
-        <div class='col bg-opacity-75 text-center c-gold bg-dark rounded border border-warning border-top-0 ms-5 me-5 p-1 pt-2'>
-            <h5>Modyfikacje: {% for mod in class.mods %} {{ mod }}{% if not forloop.last %}, {% endif %} {% endfor %}</h5>
-        </div>
-    </div>    
-
-    <div class="row mt-4 c-gold">
-        <div class="col text-center h2 text-border-black">Plusy</div>
-    </div>
-    <div class='row c-gold text-center'>
+    <div class='row c-gold text-center mt-1 d-none' id="special-abilities">
         <div class='col bg-dark p-2 border border-warning rounded ms-3 me-3'>
-            <h5>{{ class.positives }}</h5>
+            <ul class="list-group">
+                {% for theme in theme_list %}
+                    {{ theme|textWithDefinition }}
+                    <hr>
+                {% endfor %}
+            </ul>
         </div>
     </div>
 
-    <div class="row mt-4 c-gold">
-        <div class="col text-center h2 text-border-black">Minusy</div>
-    </div>
-    <div class='row c-gold text-center'>
-        <div class='col bg-dark p-2 border border-warning rounded ms-2 me-2'>
-            <h5>Minusy: {{ class.negatives }}</h5>
+    <div class="container bg-dark rounded p-2 border border-warning c-gold mt-1" onclick="showSection(this, 'class-skills')">
+        <div class="col text-center h3">
+            Dedykowane umiejętności   
         </div>
     </div>
+    <div class='row c-gold text-center mt-1 d-none' id="class-skills">
+        <div class='col bg-dark p-2 border border-warning rounded ms-3 me-3'>
+            <ul class="list-group">
+                {% for skill in class_skills %}
+                    <li class="h5 list-group-item bg-dark text-warning"><span class="c-gold" onclick="showIframe('{{ skill.name|classSkillHref }}')">{{ skill.name }}</span></li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+
+    <div class="container bg-dark rounded p-2 border border-warning c-gold mt-1" onclick="showSection(this, 'free-skills')">
+        <div class="col text-center h3">
+            Darmowe umiejętności   
+        </div>
+    </div>
+    <div class='row c-gold text-center mt-1 d-none' id="free-skills">
+        <div class='col bg-dark p-2 border border-warning rounded ms-3 me-3'>
+            <ul class="list-group">
+                {% for skill in class.skills %}
+                    <li class="h5 list-group-item bg-dark"><span class="c-gold" onclick="showIframe('{{ skill|classSkillHref }}')">{{ skill|beautifyClassFreeSkill }}</span></li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+
+    <div class="container bg-dark rounded p-2 border border-warning c-gold mt-1" onclick="showSection(this, 'class-mods')">
+        <div class="col text-center h3">
+            Modyfikacje statystyk   
+        </div>
+    </div>
+    <div class='row c-gold text-center mt-1 d-none' id="class-mods">
+        <div class='col bg-dark p-2 border border-warning rounded ms-3 me-3'>
+            <ul class="list-group">
+                {% for mod in class.mods %}
+                    <li class="h5 list-group-item bg-dark c-gold"><span class="c-gold">
+                        {% if mod %}
+                            {{ mod }}
+                        {% else %}
+                            Brak
+                        {% endif %}
+                    </span></li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>    
 
     <div class="row mt-4">
         <div class="col"></div>
@@ -92,6 +167,56 @@
     function hideDesc(instance){
         document.getElementById('class_desc').classList.add('d-none')
         document.getElementById('desc-btn').classList.remove('d-none')
+    }
+
+    function showInfoCard(title, text){
+        let card = document.getElementById("info-card")
+        let topic = document.getElementById("info-card-topic")
+        let content = document.getElementById("info-card-content")
+
+        card.classList.remove("d-none")
+        topic.textContent = title
+        content.textContent = text
+    }
+
+    function show_or_hideById(id){
+        let element = document.getElementById(id)
+        if (element.classList.contains('d-none')){
+            element.classList.remove('d-none')
+        }
+        else{
+            element.classList.add('d-none')
+        }
+    }
+
+    function showSection(startElement, targetId){
+        let target = document.getElementById(targetId)
+        console.log(startElement.classList)
+
+        if(startElement.classList.contains('border-warning')){
+            startElement.classList.remove("c-gold")
+            startElement.classList.remove("border-warning")
+            startElement.classList.add("text-primary")
+            startElement.classList.add("border-primary")
+            target.classList.remove("d-none")
+        }else{
+            startElement.classList.add("c-gold")
+            startElement.classList.add("border-warning")
+            startElement.classList.remove("text-primary")
+            startElement.classList.remove("border-primary")
+            target.classList.add("d-none")
+        }
+    }
+
+    function showIframe(skill_src){
+        console.log("showIframe", skill_src)
+        if(skill_src!=''){
+            let iframe = document.getElementById("iframe")
+            let iframe_div = document.getElementById("iframe-card")
+
+            iframe.src = skill_src
+            iframe_div.classList.remove("d-none")
+        }
     }
 </script>
 

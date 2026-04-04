@@ -1,8 +1,14 @@
 from django import template
+from django.utils.safestring import mark_safe
 from DunnoRPG import models
 from django.apps import apps
 from django.shortcuts import get_object_or_404
+from html import escape
 import math
+import json
+from pathlib import Path
+import re
+import traceback
 
 register = template.Library()
 
@@ -379,6 +385,66 @@ def rightItemNotAllowed(character):
     
     return True
 
+stats_path = Path(__file__).resolve().parent.parent / 'json_data' / 'definitions.json'
+with stats_path.open(encoding='utf-8') as stats_file:
+    definitions = json.load(stats_file)
+@register.filter
+def textWithDefinition(text):
+
+    parts = []
+    for chunk in re.split(r'(\s+)', str(text)):
+        if not chunk or chunk.isspace():
+            parts.append(chunk)
+            continue
+
+        match = re.match(r'^\|\|([^\s.,;:!?()[\]{}"\']+)(.*)$', chunk)
+        if not match:
+            parts.append(escape(chunk))
+            continue
+
+        term, suffix = match.groups()
+        definition = definitions.get(term, '')
+        parts.append(
+            f'<span onclick=\'showInfoCard("{term}",{json.dumps(definition, ensure_ascii=False)})\' '
+            f'style="cursor:pointer;" class="text-decoration-underline">{escape(term)}</span>{escape(suffix)}'
+        )
+
+    txtFixed = f'<li class="h5 list-group-item bg-dark text-warning">{"".join(parts)}</li>'
+    return mark_safe(txtFixed)
+
+@register.filter
+def classSkillHref(text):
+    try:
+        if "-" in text:
+            parts = text.split('-')
+            lvl = parts.pop()
+            skill_name = "-".join(parts)
+        else:
+            skill_name = text
+
+        skill = models.get_object_or_404(models.Skills_Decs, name=skill_name)
+
+        return f"/dunnorpg/skills/{skill.id}"
+    except:
+        return ""
+
+@register.filter
+def beautifyClassFreeSkill(text):
+    if text=="":
+        return "Brak"
+
+    parts = text.split('-')
+    lvl = parts.pop()
+    skill_name = "-".join(parts)
+
+    return f"{skill_name} lvl. {lvl}"
+
+@register.filter
+def beautifyClassHpMod(text):
+    change = int(text)
+    if change>0:
+        return f"+{change}"
+    return change
 
 #CHARACTER-GET
 @register.filter
