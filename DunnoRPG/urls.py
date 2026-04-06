@@ -20,6 +20,7 @@ urlpatterns = [
     path('character_detail/<int:char_id>/<int:item_id>;<str:place>', views.char_wear_item, name='wear_item'),
     path('character_detail/<int:char_id>/<int:it1_id>-<int:it2_id>', views.char_swap_item, name='swap_item'),
     path('character_detail/<int:char_id>/swap_side/<str:hand>', views.swap_side_to_hand, name='swap_side'),
+    path('character_detail/<char_id>/change_fight', views.enter_or_leave_fight, name='enter_or_leave_fight'),
     path('character_add', views.AddCharacterView.as_view(), name="character_add"),
     path('character_add/create/<name>/<char_class>/<race>/<type>/<owner>/<exp>', views.create_character, name="character_create"),
     path('character_add_skills/<id>/', views.EditCharacterView.as_view(), name="character_add_skills"),

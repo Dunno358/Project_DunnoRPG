@@ -210,6 +210,22 @@
 </div>
 
 <div class="container-fluid bg-dark bg-opacity-75 m-0 p-0">
+    <div class="row w-100 m-0 pt-1 pb-1 text-info">
+        <div class="col text-center">
+            <button class="btn w-100 {% if chosen_character.0.inFight %}btn-secondary{% else %}btn-success{% endif %}" id="outside-fight" onclick="maybeChangeFight(this)">Poza walką</button>
+        </div>
+        <div class="col text-center">
+            <button class="btn w-100 {% if chosen_character.0.inFight %}btn-danger{% else %}btn-secondary{% endif %}" id="in-fight" onclick="maybeChangeFight(this)">Walka</button>
+        </div>
+        {% if chosen_character.0.inFight %}
+            <div class="col text-center">
+                <button class="btn w-100 btn-primary disabled" id="end-round" onclick="">Zakończ rundę</button>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<div class="container-fluid bg-dark bg-opacity-75 m-0 p-0">
     <div class="row w-100 mb-0 pt-1 pb-1 text-info">
         <div class="col text-center">
             <span class="fw-bold {% if chosen_character.0.food > 20 %}text-success{% else %}text-danger text-decoration-underline{% endif %}">Nasycenie:</span> 
@@ -1787,18 +1803,13 @@
         <ul>
         {% for effect in value|getCharacterEffects %}
         <li onclick="show_or_hideById(this.attributes['name'].value)" name='ef{{ effect.id }}' class='fw-bold fst-italic'>
-            {{ effect.name }} (+{{ effect.bonus }}) 
-            {% if effect.time == 100 %}| Item
-            {% elif effect.time == 105 %}| Natural
-            {% elif effect.time == 110 %}| Class
-            {% else %}| Time left: {{ effect.time }}
-            {% endif %}
+            {{ effect.name }} | Pozostało: {% if effect.time > 100 %}?{% else %}{{ effect.time }}{% endif %}
 
             {% if user.is_superuser %}
             <a href="/admin/DunnoRPG/effects/{{ effect.id }}/change/" class="ms-2 fa fa-link" target="_blank"></a>
             {% endif %}
         </li>
-        <p id='ef{{ effect.id }}' class='d-none'>{{ effect.name|getEffectDesc }}</p>
+        <p id='ef{{ effect.id }}' class='d-none'>{{ effect.desc }}</p>
         {% endfor %}
         </ul>
     </div>
@@ -2609,6 +2620,13 @@ function getDiceWMods(instance,modsPoints,getResult=false,text='Result', d0excep
     instance.innerHTML = `${prefix}${text}: ` + result
     if (getResult){
         return text + ': ' + result
+    }
+}
+
+function maybeChangeFight(element){
+    if(element.classList.contains('btn-secondary')){
+        url = window.location.href+'change_fight'
+        window.location.replace(url)
     }
 }
 </script>
