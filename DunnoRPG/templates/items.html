@@ -260,7 +260,7 @@
                     {% if item.on_use and item.on_use != '-' %}
                         <div class="col m-0 p-0">
                             <a class='btn btn-success w-100' href='useItem-{{ item.id }}-{{ view.kwargs.char_id }}'>
-                                Użyj
+                                Użyj {% if item.use_info %}[{{ item.use_info }}]{% endif %}
                             </a> 
                         </div>
                     {% endif %}
