@@ -31,13 +31,16 @@ from DunnoRPG.serializers import (CharacterSerializer, ItemSerializer,
                                   SkillsDecsSerializer, SkillsSerializer)
 
 from . import models
-from .forms import CharacterSkillsForm, AddEqItemForm, AddEffectForm
+from .forms import CharacterSkillsForm, AddEqItemForm #, AddEffectForm
 
 raceSizes = {
     "S": 0.5,
     "M": 1,
     "L": 2
 }
+
+maxAdvs = 2
+maxBigAdvs = 1
 
 class charGET(ListView):
     model = models.Character
@@ -660,6 +663,15 @@ def skill_add(request,char_id,skill_id,lvl):
     return redirect(f'/dunnorpg/character_add_skills/{char_id}/')
     
 
+def enter_or_leave_fight(request,char_id):
+    character = get_object_or_404(models.Character, id=char_id)
+    if character.inFight:
+        character.inFight = False
+    else:
+        character.inFight = True
+    character.save()
+    return redirect(f'/dunnorpg/character_detail/{char_id}/')
+
 def skill_delete(request,char_id,skill_id):
     skill = get_object_or_404(models.Skills, id=skill_id)
     skill_details = get_object_or_404(models.Skills_Decs, name=skill.skill)
@@ -1107,6 +1119,8 @@ def change_health(request, **kwargs):
 def manageExp(char, exp):
     msg = ''
     msg_type = 'success'
+    waterMessage = ""
+    foodMessage = ""
     try:
         try:
             amount = int(exp)
@@ -1115,12 +1129,17 @@ def manageExp(char, exp):
         added_amount = int(char.exp) + amount
 
         if added_amount >= 100:
-            char.exp = added_amount - 100
-            char.level += 1
+            lvls_to_add = int(added_amount/100)
+            char.exp = added_amount - (lvls_to_add*100)
+            char.level += lvls_to_add
             char.points_left += 1
-            char.food -= 20
-            char.water -= 20
+            char, waterMessage = manageFoodAndWater(char, -20*lvls_to_add, "water")
+            char, foodMessage = manageFoodAndWater(char, -20*lvls_to_add, "food")
             msg = f"Zdobyto poziom! Nowy poziom to {char.level}, otrzymano punkt umiejętności."
+            if waterMessage != "":
+                msg += f" {waterMessage}"
+            if foodMessage != "":
+                msg += f" {foodMessage}"
         else:
             if added_amount < 0:
                 added_amount = 0
@@ -1421,15 +1440,70 @@ def end_round(request, **kwargs):
         messages.warning(request, msg)
     return redirect('gm_panel')
 
+def manageAdvantages(char, addOrRemove, type, info, time):
+    type = type.capitalize()
+    effects = models.Effects.objects.filter(character=char.name)
+    countAdvs = 0
+    countDisAdvs = 0
+    countBigAdvs = 0
+    countBigDisAdvs = 0
+    remCount = 0
+
+    if addOrRemove == "remove":
+        for effect in effects:
+            if effect.name == type and effect.desc == info:
+                    effect.delete()
+                    remCount += 1
+                    break
+    else:
+        for effect in effects:
+            if effect.name == "Przewaga":
+                countAdvs += 1
+            elif effect.name == "Utrudnienie":
+                countDisAdvs += 1
+            elif effect.name == "DużaPrzewaga":
+                countBigAdvs += 1
+            elif effect.name == "DużeUtrudnienie":
+                countBigDisAdvs += 1
+
+    if addOrRemove == "add":
+        if type in ["Przewaga","DużaPrzewaga"]:
+            if countBigAdvs >= maxBigAdvs:
+                return "Failed: Aktywna już jest DużaPrzewaga"
+            if type=="Przewaga":
+                if countAdvs >= maxAdvs:
+                    return "Failed: Osiagnięto maksymalną ilość Przewag"
+        else:
+            if countBigDisAdvs >= maxBigAdvs:
+                return "DużeUtrudnienie jest już aktywne"
+            if type=="Utrudnienie":
+                if countDisAdvs >= maxAdvs:
+                    return "Failed: Osiagnięto maksymalną ilość Utrudnień"
+        models.Effects.objects.create(
+            owner = char.owner,
+            character = char.name,
+            name = type,
+            desc = info,
+            time = time,
+            category = "Aktywny"
+        )
+        return f"Success: Dodano {type}"
+    else:
+        if remCount == 0:
+            return f"Failed: Nie znaleziono lub nie udało się usunąć"
+        return f"Success: Removed {info}"
+
 def manageFoodAndWater(char, value, stat_type):  # stat_type: "food" or "water"
+    effects = models.Effects.objects.filter(character=char.name)
+    has_food_effect = effects.filter(desc="Odczuwasz Głód", character=char.name).exists()
+    has_water_effect = effects.filter(desc="Odczuwasz Pragnienie", character=char.name).exists()
     value_now = getattr(char, stat_type)
     value_changed = value_now + value
     msg = ""
 
     typeDict = {"food": "Głód", "water": "Pragnienie"}
+    effectExists = {"food": has_food_effect, "water": has_water_effect}
 
-    print(f"value_changed {value_changed}")
-    print(f"value_now {value_now}")
     if value_changed < 0:
         diff = abs(value_changed)
         setattr(char, stat_type, 0)
@@ -1437,15 +1511,21 @@ def manageFoodAndWater(char, value, stat_type):  # stat_type: "food" or "water"
         if char.HP <= 0:
             char.HP = 0
         msg = f"Odczuwasz {typeDict[stat_type]} i tracisz {diff} PŻ"
+        if not effectExists[stat_type]:
+            manageAdvantages(char, "add", "Utrudnienie", f"Odczuwasz {typeDict[stat_type]}", 1000)
     elif value_changed <= 20:
         setattr(char, stat_type, value_changed)
         msg = f"Odczuwasz {typeDict[stat_type]}"
-        # TODO: Add efekt Głodny lub Spragniony
+        if not effectExists[stat_type]:
+            manageAdvantages(char, "add", "Utrudnienie", f"Odczuwasz {typeDict[stat_type]}", 1000)
     else:
         if value_changed > 100:
             setattr(char, stat_type, 100)
         else:
             setattr(char, stat_type, value_changed)
+
+        if value_changed > 20 and value_now <= 20:
+            manageAdvantages(char, "remove", "Utrudnienie", f"Odczuwasz {typeDict[stat_type]}", 1000)
 
     return char, msg
 
@@ -1491,7 +1571,8 @@ class ItemsView(ListView):
                                 'type': item_obj.type,
                                 'price': item_obj.price,
                                 "on_use": item_obj.on_use,
-                                "use_cost": item_obj.use_cost 
+                                "use_cost": item_obj.use_cost ,
+                                "use_info": item_obj.use_info
                                 }
                                 )
                 
@@ -1615,6 +1696,8 @@ class useItem(APIView):
             item_id = kwargs['id']
             item = get_object_or_404(models.Items, id=item_id)
             action = item.on_use
+            action_name = action.split("-")[0]
+            amount = int(action.split("-")[1])
             cost = float(item.use_cost)
 
             char_id = kwargs['char_id']
@@ -1626,49 +1709,46 @@ class useItem(APIView):
                 return redirect(f'/dunnorpg/items/ch{char_id}')
 
             if action.startswith("addHP"):
-                name = action.split("-")[0]
-                amount = int(action.split("-")[1])
                 char.HP += amount
                 if char.HP > char.fullHP:
                     amount = int(char.fullHP - int(char.HP-amount))
                     char.HP = char.fullHP
                 #TODO: Funkcja do dodawania expa i lvlowania jeśli expa wystarczająco
                 char.exp += 1
-
-                if name == "addHP_Potion":
-                    empty_bottle = get_object_or_404(models.Items, name="Pusta buteleczka")
-                    bottleExists = False
-                    bottle = None
-                    char_items = models.Eq.objects.all().filter(character=char.name)
-                    for item in char_items:
-                        if item.name == empty_bottle.name:
-                            bottleExists = True
-                            bottle = item
-                            break
-
-                    if not bottleExists:
-                        models.Eq.objects.create(
-                            owner = char.owner,
-                            character = char.name,
-                            name = empty_bottle.name,
-                            type = empty_bottle.type,
-                            weight = empty_bottle.weight,
-                            durability = empty_bottle.maxDurability,
-                            amount = 1
-                        )
-                    else:
-                        bottle.amount += 1
-                        bottle.weight = empty_bottle.weight * bottle.amount
-                        bottle.save()
                 messages.success(request,f'Uleczono {amount} PŻ, wykorzystano {cost}/{char.actionLeft-cost} akcji')
             elif action.startswith("addFood"):
-                amount = int(action.split("-")[1])
                 char, _ = manageFoodAndWater(char, amount, "food")
                 messages.success(request,f'Dodano {amount} nasycenia, wykorzystano {cost}/{char.actionLeft-cost} akcji')
             elif action.startswith("addWater"):
-                amount = int(action.split("-")[1])
-                char, _ = manageFoodAndWater(char, amount, "food")
+                char, _ = manageFoodAndWater(char, amount, "water")
                 messages.success(request,f'Dodano {amount} napojenia, wykorzystano {cost}/{char.actionLeft-cost} akcji')
+
+            addBottleNames = ["addHP_Potion", "addWater_Bottle"]
+            if action_name in addBottleNames:
+                empty_bottle = get_object_or_404(models.Items, name="Pusta buteleczka")
+                bottleExists = False
+                bottle = None
+                char_items = models.Eq.objects.all().filter(character=char.name)
+                for item in char_items:
+                    if item.name == empty_bottle.name:
+                        bottleExists = True
+                        bottle = item
+                        break
+
+                if not bottleExists:
+                    models.Eq.objects.create(
+                        owner = char.owner,
+                        character = char.name,
+                        name = empty_bottle.name,
+                        type = empty_bottle.type,
+                        weight = empty_bottle.weight,
+                        durability = empty_bottle.maxDurability,
+                        amount = 1
+                    )
+                else:
+                    bottle.amount += 1
+                    bottle.weight = empty_bottle.weight * bottle.amount
+                    bottle.save()
 
             char.actionLeft -= cost
             char, waterMsg = manageFoodAndWater(char, -1, "water")
@@ -2062,7 +2142,6 @@ class AddEffect(APIView):
                 owner = char.owner,
                 character = char.name,
                 name = effect.name,
-                bonus = data['bonus'],
                 time = data['time']
             )
             messages.warning(request, f'Added {effect.name} to {char.name}.')
@@ -2077,7 +2156,7 @@ class GMPanel(FormView):
         context = super().get_context_data(**kwargs)
 
         context['requests'] = models.Requests.objects.all()
-        context['effect_form'] = AddEffectForm
+        #context['effect_form'] = AddEffectForm
 
         return context
     
