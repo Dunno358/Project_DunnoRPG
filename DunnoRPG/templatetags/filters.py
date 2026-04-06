@@ -504,6 +504,9 @@ def getEffectDesc(effect):
 
 @register.filter
 def getEffectsBonus(character_name, action):
+    #WORK IN PROGRESS
+    #TODO: Most likely to be deleted as effects will be more informative then real values: advantage/disadvantage/information
+    """
     if action=='accuraccy':
         categories = ['cel','all']
     elif action=='attack':
@@ -526,6 +529,8 @@ def getEffectsBonus(character_name, action):
             bonus += effect['bonus']
 
     return bonus
+    """
+    return 0
 
 @register.filter
 def getAmuletAttackBonus(charName):
