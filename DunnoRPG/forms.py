@@ -83,6 +83,7 @@ class AddEqItemForm(forms.ModelForm):
         model = Eq
         fields = ['character','name','durability','amount']
 
+"""
 class AddEffectForm(forms.ModelForm):
     characters = []
     try:
@@ -114,4 +115,5 @@ class AddEffectForm(forms.ModelForm):
 
     class Meta:
         model = Effects
-        fields = ['character', 'name','bonus','time']    
+        fields = ['character', 'name','bonus','time'] 
+"""   
