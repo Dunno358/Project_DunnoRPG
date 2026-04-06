@@ -21,6 +21,7 @@ class Character(models.Model):
     type = models.CharField(max_length=50, null=True)
     race = models.CharField(max_length=30)
     chosen_class = models.CharField(max_length=80, default='', blank=True)
+    inFight = models.BooleanField(default=False)
     size = models.CharField(max_length=2)
     HP = models.IntegerField()
     actionLeft = models.FloatField(default=1.0)
@@ -44,8 +45,8 @@ class Character(models.Model):
     barrier = models.CharField(max_length=50, default=0) #e.g. 15/25 where 15 is current and 25 is max
     mutation = models.TextField(null=True, blank=True) # names separated by ; and functions somewhere will do actions based on names
     weaponBonus = models.IntegerField(null=True)
-    preferredWeapons = models.TextField(null=True)
-    unlikedWeapons = models.TextField(null=True)
+    preferredWeapons = models.TextField(null=True, blank=True)
+    unlikedWeapons = models.TextField(null=True, blank=True)
     extra_capacity = models.IntegerField(default=0)
     city_bargains = models.TextField(blank=True, null=True) #city_id-item_id-price_for_this_specific_player | so failed bargaining has an effect and not an option to refresh bargain
     notes = models.TextField(blank=True, null=True)
@@ -156,6 +157,7 @@ class Items(models.Model):
     type = models.CharField(max_length=50, null=True)
     category = models.CharField(max_length=50, null=True)
     on_use = models.CharField(max_length = 150, null=True)
+    use_info = models.CharField(max_length = 255, null=True)
     use_cost = models.CharField(max_length=30, null=True) #half/full as full action and half action
     dmg_type = models.CharField(max_length=50, null=True)
     rarity = models.CharField(max_length=50, null=True)
@@ -210,32 +212,16 @@ class Effects(models.Model):
     owner = models.CharField(max_length = 150)
     character = models.CharField(max_length = 150)
     name = models.CharField(max_length = 150)
-    bonus = models.IntegerField(default=0)
+    desc = models.TextField(blank=True)
     time = models.IntegerField(default=0)
+    category = models.CharField(max_length = 15, default="Informacyjne")
+
     def __str__(self):
         return f"{self.character}: {self.name} ({self.time})"
     
 class Effects_Decs(models.Model):
-    types = (
-        ('attack', 'attack'),
-        ('parry', 'parry'),
-        ('attack&parry', 'attack&parry'),
-        ('dodge&parry', 'dodge&parry'),
-        ('all','all'),
-        ('other','other'),
-        ('dodge','dodge'),
-        ('agility','agility'),
-        ('sneaking','sneaking'),
-        ('resistance', 'resistance'),
-        ('regeneration', 'regeneration'),
-        ('armor', 'armor'),
-        ('resting', 'resting'),
-        ('poison','poison'),
-        ('cel','cel')
-    )
-    
     name = models.CharField(max_length = 150)
-    category = models.CharField(max_length = 150, choices=types)
+    category = models.CharField(max_length = 150)
     desc = models.TextField()
     bonus = models.IntegerField(default=0)
     time = models.IntegerField(default=0)
