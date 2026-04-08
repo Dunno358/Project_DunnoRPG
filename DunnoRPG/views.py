@@ -598,8 +598,9 @@ class SkillDetail(APIView):
 
         for data in serializer.data:
             if data.startswith('level') and len(serializer.data[data])>0:
+                nr = data[-1]
                 needs = []
-                reqs_raw = serializer.data[f"reqs{data[-1]}"]
+                reqs_raw = serializer.data[f"reqs{nr}"]
                 if reqs_raw is None:
                     reqs_raw = ""
                 reqs = reqs_raw.split(";")
@@ -610,7 +611,9 @@ class SkillDetail(APIView):
                         val = req[-1]
                         needs.append(f"{stat}: {val}")
 
-                levels.append({'level': data, 'desc': serializer.data[data], 'needs': needs})
+                lvl_uses = serializer.data[f"useslvl{nr}"]
+
+                levels.append({'level': data, 'desc': serializer.data[data], 'needs': needs, 'uses': lvl_uses})
 
         context = {
             'skill': serializer.data,

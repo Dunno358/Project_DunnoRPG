@@ -1,4 +1,5 @@
 {% extends 'master.html' %}
+{% load filters %}
 
 {% block content %}
 {% include 'top_bar.html' %}
@@ -11,32 +12,40 @@
     </div>
 </div>
 
+<div id='info-card' class="container card-body text-center c-gold border border-warning bg-dark rounded position-fixed m-0 p-0 pb-3 d-none mt-5" 
+style="width: 98%; z-index: 5; margin-left: 0.22rem !important; margin-top: -8rem !important;">
+    <h3 class="mt-1" id="info-card-topic"></h3>
+
+    <div class="row">
+        <div class="col c-gold text-start ps-5 pe-5">
+            <span class="h6" id="info-card-content"></span>
+        </div>
+    </div>
+
+    <div class="row m-0 p-0 mt-3">
+        <div class="col">
+            <button class="btn btn-success w-100" onclick="show_or_hideById('info-card')">OK</button>
+        </div>
+    </div>
+</div>
+
 <div class='container'>
     <div class='row ms-3 me-3'>
         <div class='col c-gold fst-italic bg-gray opacity-75 border border-warning rounded text-center' style='font-size: 115%;'>
             <p>{{ skill.desc }}</p>
         </div>
     </div>
+    <div class='row'>
+        <div class='txt-shadow col c-gold fst-italic fw-bold rounded text-center' style='font-size: 145%;'>
+            <p>Koszt poziomu: {{ skill.cost }}</p>
+        </div>
+    </div>
 </div>
 
 <div class='container-fluid'>
     <div class='row'>
-        <div class='txt-shadow col c-gold fst-italic fw-bold rounded text-center' style='font-size: 175%;'>
-            <p>Cost(per level): {{ skill.cost }}</p>
-        </div>
-
-        <div class='txt-shadow col c-gold fst-italic fw-bold rounded text-center' style='font-size: 175%;'>
-            {% if skill.useAmount < 6 %}
-                <p>Uses(max): {{ skill.useAmount }}</p> 
-            {% else %}
-                <p>Uses: Infinite</p>
-            {% endif %}
-        </div>
-    </div>
-
-    <div class='row'>
         {% for level in levels %}
-            <div class='mt-5 col c-gold rounded text-center'>
+            <div class='mt-1 col c-gold rounded text-center'>
                 <button id='{{ level.level }}_btn' onclick='show(this)' type='button' class='fw-bold btn btn-dark btn-lg btn-outline-warning'>{{ level.level }}</button>
             </div>        
         {% endfor %}
@@ -46,12 +55,27 @@
 <div class='container-fluid row'>
     <div class='col-2'></div>
     {% for level in levels %}
-        <div class='d-none' id='{{ level.level }}'>
+        <div class='d-none ms-2' id='{{ level.level }}'>
             <div class='row'>
                 <div class='col text-center c-gold txt-shadow fst-italic' style='font-size: 140%;'>
-                    <p style="--bs-bg-opacity: .7;" class='m-4 mt-3 mb-3 bg-dark rounded border border-warning p-1'><span class='opacity-100'>{{ level.desc }}</span></p>
+                    <p style="--bs-bg-opacity: .7;" class='m-4 mt-3 mb-3 bg-dark rounded border border-warning p-1'><span class='opacity-100'>{{ level.desc|textWithDefinitionStandard }}</span></p>
                 </div>
             </div>
+
+            <div class='row'>
+                <div class='txt-shadow col c-gold fst-italic fw-bold rounded text-center p-0' style='font-size: 155%;'>
+                    <p style="--bs-bg-opacity: .7;" class='bg-dark rounded border border-warning'><span class='opacity-100'>Koszt akcji:<br>{{ skill.use_cost }}</span></p>
+                </div>
+
+                <div class='txt-shadow col c-gold fst-italic fw-bold rounded text-center' style='font-size: 155%;'>
+                    {% if skill.useAmount < 6 %}
+                        <p style="--bs-bg-opacity: .7;" class='bg-dark rounded border border-warning'><span class='opacity-100'>Ilość użyć:<br>{{ level.uses }}</span></p>
+                    {% else %}
+                        <p style="--bs-bg-opacity: .7;" class='bg-dark rounded border border-warning'><span class='opacity-100'>Ilość użyć:<br><span class="fa-solid fa-infinity"></span></span></p>
+                    {% endif %}
+                </div>
+            </div>
+
             <div class='row c-gold text-center txt-shadow'>
                 <h2>Wymagane Statystyki:</h2>
             </div>
@@ -92,7 +116,26 @@
                     document.getElementById(`${lvls[i]}_btn`).classList.add('btn-outline-warning')
                 }
             }
-          }
+    }
+
+    function showInfoCard(title, text){
+        let card = document.getElementById("info-card")
+        let topic = document.getElementById("info-card-topic")
+        let content = document.getElementById("info-card-content")
+
+        card.classList.remove("d-none")
+        topic.textContent = title
+        content.textContent = text
+    }
+    function show_or_hideById(id){
+        let element = document.getElementById(id)
+        if (element.classList.contains('d-none')){
+            element.classList.remove('d-none')
+        }
+        else{
+            element.classList.add('d-none')
+        }
+    }
 </script>
 
 {% endblock content %}
