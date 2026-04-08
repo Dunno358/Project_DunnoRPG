@@ -667,6 +667,7 @@ def enter_or_leave_fight(request,char_id):
     character = get_object_or_404(models.Character, id=char_id)
     if character.inFight:
         character.inFight = False
+        character.actionLeft = 1.0
     else:
         character.inFight = True
     character.save()
@@ -1102,6 +1103,35 @@ def change_char_details(request, **kwargs):
         print(traceback.format_exc())
         return JsonResponse({"error": str(e)}, status=400)
     
+def end_round_infight(request, **kwargs):
+    try:
+        char = get_object_or_404(models.Character, id=kwargs['char_id'])
+        effects = models.Effects.objects.filter(character=char.name)
+        removedAny = False
+
+        char.actionLeft = 1.0
+        char.save()
+
+        for effect in effects:
+            if effect.time == 1:
+                effect.delete()
+                removedAny = True
+            elif effect.time < 100:
+                effect.time -= 1
+                effect.save()
+
+        if removedAny:
+            msg = "Zakończono rundę, odnowiono ilość akcji postaci oraz usunięto niektóre efekty"
+        else:
+            msg = "Zakończono rundę oraz odnowiono ilość akcji postaci"
+
+        messages.success(request, msg)
+        return redirect('character_detail', char.id) 
+    except Exception as e:
+        print(traceback.format_exc())
+        messages.success(request, f"Błąd: {e}")
+        return redirect('character_detail', char.id) 
+
 def change_coins(request, **kwargs):
     if request.method == 'POST':
         char = get_object_or_404(models.Character, id=kwargs['char_id'])
@@ -1109,6 +1139,14 @@ def change_coins(request, **kwargs):
         char.save()
         return redirect('character_detail', char.id) 
     
+def change_action_amount(request, **kwargs):
+    if request.method == 'POST':
+        char = get_object_or_404(models.Character, id=kwargs['char_id'])
+        print(request.POST)
+        char.actionLeft = float(request.POST['actions-amount'])
+        char.save()
+        return redirect('character_detail', char.id) 
+
 def change_health(request, **kwargs):  
     if request.method == 'POST':
         char = get_object_or_404(models.Character, id=kwargs['char_id'])
@@ -1704,7 +1742,10 @@ class useItem(APIView):
             char = get_object_or_404(models.Character, id=char_id)
             eq_item = models.Eq.objects.filter(name=item.name, character=char.name).first()
 
-            if float(char.actionLeft) < cost:
+            if not char.inFight:
+                cost = 0.0
+
+            if float(char.actionLeft) < cost and char.inFight:
                 messages.error(request,f'Nie posiadasz wystarczająco akcji! Wymagane {cost} a dostępne {char.actionLeft}.')
                 return redirect(f'/dunnorpg/items/ch{char_id}')
 
@@ -1750,7 +1791,8 @@ class useItem(APIView):
                     bottle.weight = empty_bottle.weight * bottle.amount
                     bottle.save()
 
-            char.actionLeft -= cost
+            if char.inFight:
+                char.actionLeft -= cost
             char, waterMsg = manageFoodAndWater(char, -1, "water")
             char, foodMsg = manageFoodAndWater(char, -1, "food")
             char.save()

@@ -209,17 +209,36 @@
     </div>
 </div>
 
+{% if chosen_character.0.inFight %}
+    <div class="container bg-dark bg-opacity-75 pb-3">
+        <div class="row align-items-center">
+            <div class="col-1"></div>
+            <div class="col-6 text-end mt-1">
+                <span class="h-100 c-gold fw-bold">Dostępna ilość akcji:</span> 
+            </div>
+            <div class="col-4 text-start ps-0 mt-1 pe-0">
+                <form method="post" action="change-action-amount">
+                    {% csrf_token %}
+                    <input id='actions-amount' name='actions-amount' type="number" step="0.5" class="w-100 h-100 text-center c-gold bg-dark rounded bg-gradient" value="{{ chosen_character.0.actionLeft }}"/>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endif %}
+
 <div class="container-fluid bg-dark bg-opacity-75 m-0 p-0">
     <div class="row w-100 m-0 pt-1 pb-1 text-info">
         <div class="col text-center">
-            <button class="btn w-100 {% if chosen_character.0.inFight %}btn-secondary{% else %}btn-success{% endif %}" id="outside-fight" onclick="maybeChangeFight(this)">Poza walką</button>
+            <button class="btn w-100 h-100 {% if chosen_character.0.inFight %}btn-secondary{% else %}btn-success{% endif %}" id="outside-fight" onclick="maybeChangeFight(this)">
+                {% if chosen_character.0.inFight %}Zakończ walkę{% else %}Poza walką{% endif %}
+            </button>
         </div>
         <div class="col text-center">
-            <button class="btn w-100 {% if chosen_character.0.inFight %}btn-danger{% else %}btn-secondary{% endif %}" id="in-fight" onclick="maybeChangeFight(this)">Walka</button>
+            <button class="btn w-100 h-100 {% if chosen_character.0.inFight %}btn-danger{% else %}btn-secondary{% endif %}" id="in-fight" onclick="maybeChangeFight(this)">Walka</button>
         </div>
         {% if chosen_character.0.inFight %}
             <div class="col text-center">
-                <button class="btn w-100 btn-primary disabled" id="end-round" onclick="">Zakończ rundę</button>
+                <button class="btn w-100 h-100 btn-primary" id="end-round" onclick="(() => { window.location.replace(window.location.href+'end-round') })()">Zakończ rundę</button>
             </div>
         {% endif %}
     </div>
