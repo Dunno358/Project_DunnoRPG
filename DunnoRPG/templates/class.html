@@ -191,7 +191,6 @@
 
     function showSection(startElement, targetId){
         let target = document.getElementById(targetId)
-        console.log(startElement.classList)
 
         if(startElement.classList.contains('border-warning')){
             startElement.classList.remove("c-gold")
@@ -209,7 +208,6 @@
     }
 
     function showIframe(skill_src){
-        console.log("showIframe", skill_src)
         if(skill_src!=''){
             let iframe = document.getElementById("iframe")
             let iframe_div = document.getElementById("iframe-card")
