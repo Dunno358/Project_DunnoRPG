@@ -413,6 +413,29 @@ def textWithDefinition(text):
     return mark_safe(txtFixed)
 
 @register.filter
+def textWithDefinitionStandard(text):
+
+    parts = []
+    for chunk in re.split(r'(\s+)', str(text)):
+        if not chunk or chunk.isspace():
+            parts.append(chunk)
+            continue
+
+        match = re.match(r'^\|\|([^\s.,;:!?()[\]{}"\']+)(.*)$', chunk)
+        if not match:
+            parts.append(escape(chunk))
+            continue
+
+        term, suffix = match.groups()
+        definition = definitions.get(term, '')
+        parts.append(
+            f'<span onclick=\'showInfoCard("{term}",{json.dumps(definition, ensure_ascii=False)})\' '
+            f'style="cursor:pointer;" class="text-decoration-underline">{escape(term)}</span>{escape(suffix)}'
+        )
+
+    return mark_safe("".join(parts))
+
+@register.filter
 def classSkillHref(text):
     try:
         if "-" in text:
