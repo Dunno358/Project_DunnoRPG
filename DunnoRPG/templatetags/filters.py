@@ -436,6 +436,12 @@ def textWithDefinitionStandard(text):
     return mark_safe("".join(parts))
 
 @register.filter
+def beautifySplit(text, splitBy):
+    text = text.replace("all", "Wszyscy")
+
+    return text.replace(splitBy, ', ')
+
+@register.filter
 def classSkillHref(text):
     try:
         if "-" in text:

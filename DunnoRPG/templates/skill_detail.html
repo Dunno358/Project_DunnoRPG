@@ -39,6 +39,9 @@ style="width: 98%; z-index: 5; margin-left: 0.22rem !important; margin-top: -8re
         <div class='txt-shadow col c-gold fst-italic fw-bold rounded text-center' style='font-size: 145%;'>
             <p>Koszt poziomu: {{ skill.cost }}</p>
         </div>
+        <div class='txt-shadow col-5 c-gold fst-italic fw-bold rounded text-center' style='font-size: 145%;'>
+            <p onclick="showInfoCard('Dostępne dla:', '{{ skill.restrictions|beautifySplit:';' }}')" class="text-decoration-underline">Klasy</p>
+        </div>
     </div>
 </div>
 
