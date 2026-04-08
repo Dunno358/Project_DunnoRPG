@@ -42,7 +42,9 @@ class Character(models.Model):
     CEL = models.IntegerField()
     SPO = models.IntegerField(default=0)
     points_left = models.IntegerField(null=True)
-    barrier = models.CharField(max_length=50, default=0) #e.g. 15/25 where 15 is current and 25 is max
+    barrier = models.IntegerField(default=0)
+    maxBarrier = models.IntegerField(default=0)
+    counter = models.IntegerField(default=0)
     mutation = models.TextField(null=True, blank=True) # names separated by ; and functions somewhere will do actions based on names
     weaponBonus = models.IntegerField(null=True)
     preferredWeapons = models.TextField(null=True, blank=True)
