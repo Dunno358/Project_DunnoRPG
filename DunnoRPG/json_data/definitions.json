@@ -10,5 +10,6 @@
     "Powalenie": "Lądujesz wskazaną ilość hexów w przeciwną stronę niż ta z której nadszedł atak (1 hex jeśli nie sprecyzowane) i lądujesz na plecach. DużeUtrudnienie(-K12) do najbliższej akcji/reakcji",
     "Pokiereszowanie": "-K6 do wartości bloku lub czegoś w tym stylu czego używa przedmiot. Zazwyczaj trwa na czas najbliższej reakcji, jeśli nie jest napisane inaczej.",
     "Potrzaskanie":  "-K12 do wartości bloku lub czegoś w tym stylu czego używa przedmiot. Zazwyczaj trwa na czas najbliższej reakcji, jeśli nie jest napisane inaczej.",
-    "Potknięcie": "Tracisz połowę mobilności na wskazaną rundę, czyli np. zamiast poruszyć się 4 hexy to poruszysz się maks. 2 hexy."
+    "Potknięcie": "Tracisz połowę mobilności na wskazaną rundę, czyli np. zamiast poruszyć się 4 hexy to poruszysz się maks. 2 hexy.",
+    "Adrenalina": "Otrzymujesz tylko 50% obrażeń, kolejne 50% obrażeń otrzymasz pod koniec następnej rundy."
 }
