@@ -9,5 +9,6 @@
     "Odepchnięcie": "Trafiony przesuwa się o wskazaną ilość hexów (1 jeśli nie jest sprecyzowane) w kierunku przeciwnym niż to z którego nadeszło odepchnięcie. Jeśli na polu na którym miałby się znaleźć jest przeszkoda np. skała to zamiast tego otrzymuje 1K6 obrażeń.",
     "Powalenie": "Lądujesz wskazaną ilość hexów w przeciwną stronę niż ta z której nadszedł atak (1 hex jeśli nie sprecyzowane) i lądujesz na plecach. DużeUtrudnienie(-K12) do najbliższej akcji/reakcji",
     "Pokiereszowanie": "-K6 do wartości bloku lub czegoś w tym stylu czego używa przedmiot. Zazwyczaj trwa na czas najbliższej reakcji, jeśli nie jest napisane inaczej.",
-    "Potrzaskanie":  "-K12 do wartości bloku lub czegoś w tym stylu czego używa przedmiot. Zazwyczaj trwa na czas najbliższej reakcji, jeśli nie jest napisane inaczej."
+    "Potrzaskanie":  "-K12 do wartości bloku lub czegoś w tym stylu czego używa przedmiot. Zazwyczaj trwa na czas najbliższej reakcji, jeśli nie jest napisane inaczej.",
+    "Potknięcie": "Tracisz połowę mobilności na wskazaną rundę, czyli np. zamiast poruszyć się 4 hexy to poruszysz się maks. 2 hexy."
 }
