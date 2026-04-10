@@ -11,7 +11,7 @@
     "Pokiereszowanie": "-K6 do wartości bloku lub czegoś w tym stylu czego używa przedmiot. Zazwyczaj trwa na czas najbliższej reakcji, jeśli nie jest napisane inaczej.",
     "Potrzaskanie":  "-K12 do wartości bloku lub czegoś w tym stylu czego używa przedmiot. Zazwyczaj trwa na czas najbliższej reakcji, jeśli nie jest napisane inaczej.",
     "Potknięcie": "Tracisz połowę mobilności na wskazaną rundę, czyli np. zamiast poruszyć się 4 hexy to poruszysz się maks. 2 hexy.",
-    "Utrata równowagi": "Tracisz prawie całą mobilność na wskazaną rundę, niezależnie od tego ile masz normalnie ruchu to możesz ruszyć się tylko 1 hex.",
+    "UtrataRównowagi": "Tracisz prawie całą mobilność na wskazaną rundę, niezależnie od tego ile masz normalnie ruchu to możesz ruszyć się tylko 1 hex.",
     "Adrenalina": "Otrzymujesz tylko 50% obrażeń, kolejne 50% obrażeń otrzymasz pod koniec następnej rundy.",
     "Zryw": "Przesunięcie o 1 hex (chyba że jest wskazane inaczej) w dowolną stronę. Jest to niezależne od mobilności postaci i nie triggeruje Overwatch."
 }
