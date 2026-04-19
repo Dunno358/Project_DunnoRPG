@@ -44,8 +44,12 @@ class Character(models.Model):
     points_left = models.IntegerField(null=True)
     barrier = models.IntegerField(default=0)
     maxBarrier = models.IntegerField(default=0)
+    counterName = models.CharField(max_length=50, blank=True, null=True)
     counter = models.IntegerField(default=0)
+    counterName2 = models.CharField(max_length=50, blank=True, null=True)
+    counter2 = models.IntegerField(default=0)
     mutation = models.TextField(null=True, blank=True) # names separated by ; and functions somewhere will do actions based on names
+    anonimity = models.IntegerField(default=0) # boost to staying anonymous when someone tries to recognize you
     weaponBonus = models.IntegerField(null=True)
     preferredWeapons = models.TextField(null=True, blank=True)
     unlikedWeapons = models.TextField(null=True, blank=True)
@@ -136,6 +140,8 @@ class Skills_Decs(models.Model):
     desc = models.TextField()
     restrictions = models.CharField(max_length=255, default="Uniwersalne") #all for everyone
     use_cost = models.FloatField(default=1.0)
+    range = models.IntegerField(null=True, blank=True)
+    requiredCel = models.IntegerField(null=True, blank=True)
     level1 = models.TextField(null=True)
     reqs1 = models.CharField(max_length=255, null=True, blank=True)
     useslvl1 = models.IntegerField(null=True, blank=True)
