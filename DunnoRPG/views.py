@@ -613,7 +613,12 @@ class SkillDetail(APIView):
 
                 lvl_uses = serializer.data[f"useslvl{nr}"]
 
-                levels.append({'level': data, 'desc': serializer.data[data], 'needs': needs, 'uses': lvl_uses})
+                levels.append({
+                    'level': data, 
+                    'desc': serializer.data[data], 
+                    'needs': needs, 
+                    'uses': lvl_uses
+                    })
 
         context = {
             'skill': serializer.data,

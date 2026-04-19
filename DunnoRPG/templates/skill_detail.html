@@ -48,7 +48,7 @@ style="width: 98%; z-index: 5; margin-left: 0.22rem !important; margin-top: -8re
 <div class='container-fluid'>
     <div class='row'>
         {% for level in levels %}
-            <div class='mt-1 col c-gold rounded text-center'>
+            <div class='mt-1 col c-gold rounded text-center p-0'>
                 <button id='{{ level.level }}_btn' onclick='show(this)' type='button' class='fw-bold btn btn-dark btn-lg btn-outline-warning'>{{ level.level }}</button>
             </div>        
         {% endfor %}
@@ -66,17 +66,41 @@ style="width: 98%; z-index: 5; margin-left: 0.22rem !important; margin-top: -8re
             </div>
 
             <div class='row'>
-                <div class='txt-shadow col c-gold fst-italic fw-bold rounded text-center p-0' style='font-size: 155%;'>
+                <div class='txt-shadow col-6 c-gold fst-italic fw-bold rounded text-center p-1' style='font-size: 155%;'>
                     <p style="--bs-bg-opacity: .7;" class='bg-dark rounded border border-warning'><span class='opacity-100'>Koszt akcji:<br>{{ skill.use_cost }}</span></p>
                 </div>
 
-                <div class='txt-shadow col c-gold fst-italic fw-bold rounded text-center' style='font-size: 155%;'>
+                <div class='txt-shadow col-6 c-gold fst-italic fw-bold rounded text-center p-1' style='font-size: 155%;'>
                     {% if skill.useAmount < 6 %}
                         <p style="--bs-bg-opacity: .7;" class='bg-dark rounded border border-warning'><span class='opacity-100'>Ilość użyć:<br>{{ level.uses }}</span></p>
                     {% else %}
                         <p style="--bs-bg-opacity: .7;" class='bg-dark rounded border border-warning'><span class='opacity-100'>Ilość użyć:<br><span class="fa-solid fa-infinity"></span></span></p>
                     {% endif %}
                 </div>
+
+                {% if skill.range %}
+                    <div class='txt-shadow col-6 c-gold fst-italic fw-bold rounded text-center p-1' style='font-size: 155%;'>
+                        <p style="--bs-bg-opacity: .7;" class='bg-dark rounded border border-warning'><span class='opacity-100'>Zasięg:<br>{{ skill.range }}</span></p>
+                    </div>
+                {% endif %}
+
+                {% if skill.requiredCel %}
+                    <div class='txt-shadow col-6 c-gold fst-italic fw-bold rounded text-center p-1' style='font-size: 155%;'>
+                        <p style="--bs-bg-opacity: .7;" class='bg-dark rounded border border-warning'><span class='opacity-100'>Wym. CEL:<br>{{ skill.requiredCel }}</span></p>
+                    </div>
+                {% endif %}
+
+                {% if skill.dice %}
+                    <div class='txt-shadow col-6 c-gold fst-italic fw-bold rounded text-center p-1' style='font-size: 155%;'>
+                        <p style="--bs-bg-opacity: .7;" class='bg-dark rounded border border-warning'><span class='opacity-100'>Kość:<br>{{ skill.dice }}</span></p>
+                    </div>
+                {% endif %}
+
+                {% if skill.ap %}
+                    <div class='txt-shadow col-6 c-gold fst-italic fw-bold rounded text-center p-1' style='font-size: 155%;'>
+                        <p style="--bs-bg-opacity: .7;" class='bg-dark rounded border border-warning'><span class='opacity-100'>AP:<br>{{ skill.ap }}%</span></p>
+                    </div>
+                {% endif %}
             </div>
 
             <div class='row c-gold text-center txt-shadow'>
