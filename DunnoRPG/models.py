@@ -142,6 +142,8 @@ class Skills_Decs(models.Model):
     use_cost = models.FloatField(default=1.0)
     range = models.IntegerField(null=True, blank=True)
     requiredCel = models.IntegerField(null=True, blank=True)
+    dice = models.CharField(max_length=10, null=True, blank=True)
+    ap = models.IntegerField(null=True, blank=True)
     level1 = models.TextField(null=True)
     reqs1 = models.CharField(max_length=255, null=True, blank=True)
     useslvl1 = models.IntegerField(null=True, blank=True)
