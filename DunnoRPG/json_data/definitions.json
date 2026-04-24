@@ -17,5 +17,6 @@
     "BardzoSzybkiRuch": "Przemieszczasz się o 1 hex w dowolną stronę. Nie triggeruje to Overwatch żadnego przeciwnika.",
     "ŚwięteObrażenia": "Ignorują fizyczny pancerz",
     "ObrażeniaKrytyczne": "Do wyniku obrażeń dodajesz wynik drugiego rzutu kości na podstawowe obrażenia broni. Czyli jeśli broń zadaje K6 obrażeń a ty miałem jeszcze bonus K4 to zwiększa obrażenia o K6 jako wartość ataku broni.",
-    "Klątwa": "Tego typu ataku nie da uniknąć ani zablokować zwykłą tarczą, jedynie tarcze magiczne (w tym bariera) mogą zablokować jeśli mają 10 lub więcej bloku, ale po zaabsorbowaniu klątwy ich siła bloku spada do 0."
+    "Klątwa": "Tego typu ataku nie da uniknąć ani zablokować zwykłą tarczą, jedynie tarcze magiczne (w tym bariera) mogą zablokować jeśli mają 10 lub więcej bloku, ale po zaabsorbowaniu klątwy ich siła bloku spada do 0.",
+    "Szkielet": "Przywołany szkielet ma 5 PŻ, 3 mobilności, brak reakcji i umiejętności ale za to możliwość ataku kościaną pałką z 1K6 obrażeń i 10% AP (CEL 7)."
 }
