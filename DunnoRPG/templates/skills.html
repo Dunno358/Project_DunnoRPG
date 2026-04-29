@@ -66,7 +66,7 @@
     {% endfor %}
 </div>
 
-<div id='Animals' class='row bg-dark d-none ms-1 me-1 border border-primary rounded'>
+<div id='Natura' class='row bg-dark d-none ms-1 me-1 border border-primary rounded'>
     {% for skill in animals_skills %}
         <div class='skill-card col m-1 border border-warning rounded bg-gray text-center p-2' data-restrictions='{{ skill.restrictions|default_if_none:""|escape }}'>
             <a title='{{ skill.desc }}' href='{{ skill.id }}/' class='h3 c-gold'>{{ skill.name }}</a>
@@ -102,7 +102,7 @@
     document.getElementById('tb-skills').classList.remove('btn-outline-warning')
     document.getElementById('tb-skills').classList.add('btn-outline-primary')
     function show(btn) {
-        let ids = ['Magical','Melee','Range','Agility','Education','Animals','Equipment','Other','All']
+        let ids = ['Magical','Melee','Range','Agility','Education','Natura','Equipment','Other','All']
         for (let i = 0; i < ids.length; i++) {
             element = document.getElementById(ids[i])
             if (btn.innerHTML==ids[i]){
