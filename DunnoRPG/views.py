@@ -840,7 +840,6 @@ def create_character(request,name,char_class,race,type,owner,exp):
                 owner = owner,
                 character = name,
                 name = eff_name,
-                bonus = 0,
                 time = 1 #TODO: Handle when effects changing part starts
             )
 
@@ -1291,7 +1290,6 @@ def char_wear_item(request, **kwargs):
                     owner = char.owner,
                     character=char.name,
                     name = effect[0],
-                    bonus = effect[1],
                     time = effect[2]
                 )
             else:
@@ -1464,7 +1462,6 @@ def char_swap_item(request, **kwargs):
                 owner = char.owner,
                 character=char.name,
                 name = effect[0],
-                bonus = effect[1],
                 time = effect[2]
             )    
     
