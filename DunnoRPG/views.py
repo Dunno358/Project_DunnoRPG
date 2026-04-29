@@ -785,11 +785,12 @@ def create_character(request,name,char_class,race,type,owner,exp):
 
         classStats = {"INT":0,"SIŁ":0,"CHAR":0,"ZRE":0,"CEL":0, "SPO": 0}
         for mod in class_mods:
-            mod_val = int(mod[-2:])
-            if mod.startswith("CHAR"):
-                classStats['CHAR'] += mod_val
-            else:
-                classStats[mod[:-2]] = mod_val
+            if mod != '':
+                mod_val = int(mod[-2:])
+                if mod.startswith("CHAR"):
+                    classStats['CHAR'] += mod_val
+                else:
+                    classStats[mod[:-2]] = mod_val
 
         models.Character.objects.create(
             owner=owner,
