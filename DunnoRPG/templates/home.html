@@ -26,6 +26,7 @@
           class="rounded p-1 text-center c-gold bg-gray border-warning w-75 h6"
           onchange="this.form.submit()"
         >
+          <option value="" {% if not selected_type %}selected{% endif %}>Wszyscy</option>
           {% for t in character_types %}
             <option value="{{ t }}" {% if t == selected_type %}selected{% endif %}>
               {{ t }}
