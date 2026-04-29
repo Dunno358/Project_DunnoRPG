@@ -583,7 +583,7 @@ class Skills(APIView):
             'other_skills': other_skills,
             'all_skills': skills,
             'restrictions': restrictions,
-            'skills': ['Magical','Melee','Range','Agility','Education','Natura','Equipment','Other', 'All'],
+            'skills': ['Magia','Zwarcie','Dystansowe','Zwinność','Edukacja','Natura','Ekwipunek','Inne', 'Wszystkie'],
             'user': current_user
         }
         return Response(context)

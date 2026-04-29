@@ -26,7 +26,7 @@
     </div>
 </div>
 
-<div id='Magical' class='row bg-dark d-none ms-1 me-1 border border-primary rounded'>
+<div id='Magia' class='row bg-dark d-none ms-1 me-1 border border-primary rounded'>
     {% for skill in magical_skills %}
         <div class='skill-card col m-1 border border-warning rounded bg-gray text-center p-2' data-restrictions='{{ skill.restrictions|default_if_none:""|escape }}'>
             <a title='{{ skill.desc }}' href='{{ skill.id }}/' class='h3 c-gold'>[{{ skill.number }}] {{ skill.name }}</a>
@@ -34,7 +34,7 @@
     {% endfor %}
 </div>
 
-<div id='Melee' class='row bg-dark d-none ms-1 me-1 border border-primary rounded'>
+<div id='Zwarcie' class='row bg-dark d-none ms-1 me-1 border border-primary rounded'>
     {% for skill in melee_skills %}
         <div class='skill-card col m-1 border border-warning rounded bg-gray text-center p-2' data-restrictions='{{ skill.restrictions|default_if_none:""|escape }}'>
             <a title='{{ skill.desc }}' href='{{ skill.id }}/' class='h3 c-gold'>{{ skill.name }}</a>
@@ -42,7 +42,7 @@
     {% endfor %}
 </div>
 
-<div id='Range' class='row bg-dark d-none ms-1 me-1 border border-primary rounded'>
+<div id='Dystansowe' class='row bg-dark d-none ms-1 me-1 border border-primary rounded'>
     {% for skill in range_skills %}
         <div class='skill-card col m-1 border border-warning rounded bg-gray text-center p-2' data-restrictions='{{ skill.restrictions|default_if_none:""|escape }}'>
             <a title='{{ skill.desc }}' href='{{ skill.id }}/' class='h3 c-gold'>{{ skill.name }}</a>
@@ -50,7 +50,7 @@
     {% endfor %}
 </div>
 
-<div id='Agility' class='row bg-dark d-none ms-1 me-1 border border-primary rounded'>
+<div id='Zwinność' class='row bg-dark d-none ms-1 me-1 border border-primary rounded'>
     {% for skill in agility_skills %}
         <div class='skill-card col m-1 border border-warning rounded bg-gray text-center p-2' data-restrictions='{{ skill.restrictions|default_if_none:""|escape }}'>
             <a title='{{ skill.desc }}' href='{{ skill.id }}/' class='h3 c-gold'>{{ skill.name }}</a>
@@ -58,7 +58,7 @@
     {% endfor %}
 </div>
 
-<div id='Education' class='row bg-dark d-none ms-1 me-1 border border-primary rounded'>
+<div id='Edukacja' class='row bg-dark d-none ms-1 me-1 border border-primary rounded'>
     {% for skill in education_skills %}
         <div class='skill-card col m-1 border border-warning rounded bg-gray text-center p-2' data-restrictions='{{ skill.restrictions|default_if_none:""|escape }}'>
             <a title='{{ skill.desc }}' href='{{ skill.id }}/' class='h3 c-gold'>{{ skill.name }}</a>
@@ -74,7 +74,7 @@
     {% endfor %}
 </div>
 
-<div id='Equipment' class='row bg-dark d-none ms-1 me-1 border border-primary rounded'>
+<div id='Ekwipunek' class='row bg-dark d-none ms-1 me-1 border border-primary rounded'>
     {% for skill in eq_skills %}
         <div class='skill-card col m-1 border border-warning rounded bg-gray text-center p-2' data-restrictions='{{ skill.restrictions|default_if_none:""|escape }}'>
             <a title='{{ skill.desc }}' href='{{ skill.id }}/' class='h3 c-gold'>{{ skill.name }}</a>
@@ -82,7 +82,7 @@
     {% endfor %}
 </div>
 
-<div id='Other' class='row bg-dark d-none ms-1 me-1 border border-primary rounded'>
+<div id='Inne' class='row bg-dark d-none ms-1 me-1 border border-primary rounded'>
     {% for skill in other_skills %}
         <div class='skill-card col m-1 border border-warning rounded bg-gray text-center p-2' data-restrictions='{{ skill.restrictions|default_if_none:""|escape }}'>
             <a title='{{ skill.desc }}' href='{{ skill.id }}/' class='h3 c-gold'>{{ skill.name }}</a>
@@ -90,7 +90,7 @@
     {% endfor %}
 </div>
 
-<div id='All' class='row bg-dark d-none ms-1 me-1 border border-primary rounded'>
+<div id='Wszystkie' class='row bg-dark d-none ms-1 me-1 border border-primary rounded'>
     {% for skill in all_skills %}
         <div class='skill-card col m-1 border border-warning rounded bg-gray text-center p-2' data-restrictions='{{ skill.restrictions|default_if_none:""|escape }}'>
             <a title='{{ skill.desc }}' href='{{ skill.id }}/' class='h3 c-gold'>{{ skill.name }}</a>
@@ -102,7 +102,7 @@
     document.getElementById('tb-skills').classList.remove('btn-outline-warning')
     document.getElementById('tb-skills').classList.add('btn-outline-primary')
     function show(btn) {
-        let ids = ['Magical','Melee','Range','Agility','Education','Natura','Equipment','Other','All']
+        let ids = ['Magia','Zwarcie','Dystansowe','Zwinność','Edukacja','Natura','Ekwipunek','Inne','Wszystkie']
         for (let i = 0; i < ids.length; i++) {
             element = document.getElementById(ids[i])
             if (btn.innerHTML==ids[i]){
