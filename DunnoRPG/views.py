@@ -653,6 +653,16 @@ def skill_add(request,char_id,skill_id,lvl):
 
 
     if reqOK:
+        already_has_skill = models.Skills.objects.filter(
+            owner=character.owner,
+            character=character.name,
+            skill=skill_details.name
+        ).exists()
+        if already_has_skill:
+            messages.error(request, "Już posiadasz tę umiejętność")
+            reqOK = False
+
+    if reqOK:
         if int(character.points_left) < int(skill_details.cost):
             messages.error(request, f'Brak wolnych punkcików. Potrzeba {skill_details.cost} a ty masz {character.points_left}. We se najpierw trochę zdobądź a potem zawracaj mi interes.')
             reqOK = False
