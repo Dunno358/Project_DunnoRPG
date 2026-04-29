@@ -214,8 +214,11 @@ class CharacterSkills(ListView, FormView):
 
         requirements_satisfied = True
         req_stats = []
-        reqs = validated_skill[f"reqs{skill_to_add.level}"].split(";")
+        reqs_raw = validated_skill[f"reqs{skill_to_add.level}"] or ""
+        reqs = reqs_raw.split(";") if reqs_raw else []
         for req in reqs:
+            if not req:
+                continue
             req_stat = req[-1]
             req_value = req[:-1]
             req_stats.append(f"{req_stat}: {req_value}")
@@ -702,10 +705,8 @@ def skill_upgrade(request,char_id,skill_id):
     
     if not_max_lvl:
         reqs_ok = True
-        reqs = skill_details[f"reqs{skill.level+1}"].split(";")
-
-        if reqs is None:
-            reqs = []
+        reqs_text = skill_details[f"reqs{skill.level+1}"]
+        reqs = reqs_text.split(";") if reqs_text else []
 
         for req in reqs:
             reqs_ok = (req==None) or (int(character[f"{req[:-1]}"])>=int(req[-1]))
