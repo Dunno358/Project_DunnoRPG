@@ -7,7 +7,12 @@
 <div class='container'>
     <div class='row ms-4 me-4'>
         <div class='col text-center c-gold txt-shadow fst-italic'>
-            <h1 id="skill-name">{{ skill.name }}</h1>
+            <h1 id="skill-name">
+                {{ skill.name }}
+                {% if user.is_superuser %}
+                    <a href="/admin/DunnoRPG/skills_decs/{{ skill.id }}/change/" class="ms-2 fa fa-link c-gold" target="_blank"></a>
+                {% endif %}
+            </h1>
         </div>
     </div>
 </div>
