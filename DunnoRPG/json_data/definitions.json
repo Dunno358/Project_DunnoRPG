@@ -21,5 +21,6 @@
     "Szkielet": "Przywołany szkielet ma 5 PŻ, 3 mobilności, brak reakcji i umiejętności ale za to możliwość ataku kościaną pałką z 1K6 obrażeń i 10% AP (CEL 7).",
     "Zatrzymanie": "Utrata całej pozostałej mobilności w tej samej rundzie. Jeśli masz 4 hexy mobilności i ruszysz się jeden ale otrzymasz Zatrzymanie to i tak spada do 0.",
     "Spowolnienie": "Tracisz wartość mobilność równą połowie twojej maks. mobilności w tej samej rundzie. Jeśli twoja mobilność pozwala na ruch do 6 hexów to tracisz natychmiast 3 hexy ruchu.",
-    "Kamuflaż": "Nie możesz zostać celem ataku z odległości większej niż 1 hex, a taki atak i tak zyskuje Utrudnienie przy ataku w ciebie."
+    "Kamuflaż": "Nie możesz zostać celem ataku z odległości większej niż 1 hex, a taki atak i tak zyskuje Utrudnienie przy ataku w ciebie.",
+    "Przyciągnięcie": "Spraw by cel poruszył się w twoim kierunku o wskazaną liczbę hexów, jeśli nie jest ona wskazana to 1 hex."
 }
