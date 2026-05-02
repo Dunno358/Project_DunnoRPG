@@ -566,12 +566,13 @@ class Skills(APIView):
         command_skills = list(skills.filter(category='Command').values().order_by('name'))
         horsemanship_skills = list(skills.filter(category='Horsemanship').values().order_by('name'))
         aliigment_skills = list(skills.filter(category='Alligment').values().order_by('name'))
+        other_skills = list(skills.filter(category='Inne').values().order_by('name'))
         current_user = request.user
 
         for x in range(len(magical_skills)):
             magical_skills[x]["number"] = x+1
 
-        other_skills = drinking_skills+charisma_skills+command_skills+horsemanship_skills+aliigment_skills+crafting_skills
+        combined_other_skills = drinking_skills+charisma_skills+command_skills+horsemanship_skills+aliigment_skills+crafting_skills+other_skills
         context = {
             'magical_skills': magical_skills,
             'melee_skills': melee_skills,
@@ -580,7 +581,7 @@ class Skills(APIView):
             'education_skills': education_skills,
             'animals_skills': animals_skills,
             'eq_skills': eq_skills,
-            'other_skills': other_skills,
+            'other_skills': combined_other_skills,
             'all_skills': skills,
             'restrictions': restrictions,
             'skills': ['Magia','Zwarcie','Dystansowe','Zwinność','Edukacja','Natura','Ekwipunek','Inne', 'Wszystkie'],
