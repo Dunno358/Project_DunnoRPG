@@ -23,6 +23,6 @@
     "Spowolnienie": "Tracisz wartość mobilność równą połowie twojej maks. mobilności w tej samej rundzie. Jeśli twoja mobilność pozwala na ruch do 6 hexów to tracisz natychmiast 3 hexy ruchu.",
     "Kamuflaż": "Nie możesz zostać celem ataku z odległości większej niż 1 hex, a taki atak i tak zyskuje Utrudnienie przy ataku w ciebie.",
     "Przyciągnięcie": "Spraw by cel poruszył się w twoim kierunku o wskazaną liczbę hexów, jeśli nie jest ona wskazana to 1 hex.",
-    "LekkieZatrucie": "Zatruty przez 2 tury na jej początku traci 2 PŻ, pancerz czy osłony magiczne pozostają nietknięte. Dwa lekkie zatrucia powodują MocneZatrucie o czasie trwania 2+[tyle ile zostało ze starego zatrucia].",
-    "MocneZatrucie": "Zatruty przez min. 2 tury traci na jej początku 3 PŻ, pancerz czy magiczne osłony pozostają nietknięte."
+    "LekkieZatrucie": "Utrata 2 PŻ na początku tury przez 2 tury. Czas trwania kolejnych zatruć sumuje się, a dwa LekkieZatrucie zmieniają w MocneZatrucie..",
+    "MocneZatrucie": "Utrata 3 PŻ na początku tury przez 3 tury. Czas trwania kolejnych zatruć sumuje się."
 }
