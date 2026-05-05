@@ -1904,8 +1904,14 @@ class ClassView(DetailView):
 
 class RacesView(ListView):
     model = models.Races
-    template_name = 'races.html'  # Update to the template you use for displaying the list
-    context_object_name = 'races'  # Context variable to use in the template
+    template_name = 'races.html'
+    context_object_name = 'races'
+
+    def get_queryset(self):
+        races = super().get_queryset().order_by('name')
+        if not self.request.user.is_superuser:
+            races = races.exclude(name__startswith='|', name__endswith='|')
+        return races
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
