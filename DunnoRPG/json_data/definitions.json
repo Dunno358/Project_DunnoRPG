@@ -22,5 +22,7 @@
     "Zatrzymanie": "Utrata całej pozostałej mobilności w tej samej rundzie. Jeśli masz 4 hexy mobilności i ruszysz się jeden ale otrzymasz Zatrzymanie to i tak spada do 0.",
     "Spowolnienie": "Tracisz wartość mobilność równą połowie twojej maks. mobilności w tej samej rundzie. Jeśli twoja mobilność pozwala na ruch do 6 hexów to tracisz natychmiast 3 hexy ruchu.",
     "Kamuflaż": "Nie możesz zostać celem ataku z odległości większej niż 1 hex, a taki atak i tak zyskuje Utrudnienie przy ataku w ciebie.",
-    "Przyciągnięcie": "Spraw by cel poruszył się w twoim kierunku o wskazaną liczbę hexów, jeśli nie jest ona wskazana to 1 hex."
+    "Przyciągnięcie": "Spraw by cel poruszył się w twoim kierunku o wskazaną liczbę hexów, jeśli nie jest ona wskazana to 1 hex.",
+    "LekkieZatrucie": "Utrata 2 PŻ na początku tury przez 2 tury. Czas trwania kolejnych zatruć sumuje się, a dwa LekkieZatrucie zmieniają w MocneZatrucie..",
+    "MocneZatrucie": "Utrata 3 PŻ na początku tury przez 3 tury. Czas trwania kolejnych zatruć sumuje się."
 }
