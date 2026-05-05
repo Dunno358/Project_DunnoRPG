@@ -84,6 +84,8 @@ class AddCharacterView(APIView):
 
     def get(self,request):
         races = models.Races.objects.order_by('name')
+        if not request.user.is_superuser:
+            races = races.exclude(name__startswith='|', name__endswith='|')
         classes = models.Classes.objects.order_by('name')
         
         context = {
