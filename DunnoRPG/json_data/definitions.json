@@ -26,5 +26,6 @@
     "LekkieZatrucie": "Utrata 2 PŻ na początku tury przez 2 tury. Czas trwania kolejnych zatruć sumuje się, a dwa LekkieZatrucie zmieniają w MocneZatrucie..",
     "MocneZatrucie": "Utrata 3 PŻ na początku tury przez 3 tury. Czas trwania kolejnych zatruć sumuje się.",
     "Żwawość": "Twoja mobilność w najbliższej akcji zwiększa się o 50% twojej maks. mobilności.",
-    "Nadprędkość": "Twoja mobilność w najbliższej akcji zwiększa się o 100% twojej maks. mobilności."
+    "Nadprędkość": "Twoja mobilność w najbliższej akcji zwiększa się o 100% twojej maks. mobilności.",
+    "Dym": "Atak przechodzący przez dym gdy ani atakujący ani cel nie są w dymie ma DużeUtrudnienie. Atak gdy jednak ze stron lub obydwie są w dymie ma Utrudnienie."
 }
