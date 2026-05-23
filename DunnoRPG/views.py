@@ -1176,6 +1176,30 @@ def change_health(request, **kwargs):
         char.save()
         return redirect('character_detail', char.id) 
 
+def change_food_water(request, **kwargs):
+    if request.method == 'POST':
+        translate_stat = {
+            "food": "Nasycenie",
+            "water": "Nawodnienie"
+        }
+
+        stat_type = kwargs['stat_type']
+        if stat_type not in ["food", "water"]:
+            raise Http404("Invalid food/water stat")
+
+        char = get_object_or_404(models.Character, id=kwargs['char_id'])
+        value = max(0, min(100, int(request.POST[f'{stat_type}-amount'])))
+        current_value = getattr(char, stat_type)
+        char, msg = manageFoodAndWater(char, value - current_value, stat_type)
+        char.save()
+
+        if msg != "":
+            messages.error(request, msg)
+        else:
+            messages.success(request, f"Pomyślnie zmieniono wartość {translate_stat[stat_type]} na {value}%")
+
+        return redirect('character_detail', char.id)
+
 def manageExp(char, exp):
     msg = ''
     msg_type = 'success'
@@ -1754,8 +1778,7 @@ class useItem(APIView):
             item_id = kwargs['id']
             item = get_object_or_404(models.Items, id=item_id)
             action = item.on_use
-            action_name = action.split("-")[0]
-            amount = int(action.split("-")[1])
+            actions = [part.strip() for part in action.split(";") if part.strip()]
             cost = float(item.use_cost)
 
             char_id = kwargs['char_id']
@@ -1769,31 +1792,35 @@ class useItem(APIView):
                 messages.error(request,f'Nie posiadasz wystarczająco akcji! Wymagane {cost} a dostępne {char.actionLeft}.')
                 return redirect(f'/dunnorpg/items/ch{char_id}')
 
-            if action.startswith("addHP"):
-                char.HP += amount
-                if char.HP > char.fullHP:
-                    amount = int(char.fullHP - int(char.HP-amount))
-                    char.HP = char.fullHP
-                #TODO: Funkcja do dodawania expa i lvlowania jeśli expa wystarczająco
-                char.exp += 1
-                messages.success(request,f'Uleczono {amount} PŻ, wykorzystano {cost}/{char.actionLeft-cost} akcji')
-            elif action.startswith("addFood"):
-                char, _ = manageFoodAndWater(char, amount, "food")
-                messages.success(request,f'Dodano {amount} nasycenia, wykorzystano {cost}/{char.actionLeft-cost} akcji')
-            elif action.startswith("addWater"):
-                char, _ = manageFoodAndWater(char, amount, "water")
-                messages.success(request,f'Dodano {amount} napojenia, wykorzystano {cost}/{char.actionLeft-cost} akcji')
+            for single_action in actions:
+                action_name, amount_value = single_action.split("-", 1)
+                amount = int(amount_value)
+
+                if action_name.startswith("addHP"):
+                    char.HP += amount
+                    if char.HP > char.fullHP:
+                        amount = int(char.fullHP - int(char.HP-amount))
+                        char.HP = char.fullHP
+                    #TODO: Funkcja do dodawania expa i lvlowania jeśli expa wystarczająco
+                    char.exp += 1
+                    messages.success(request,f'Uleczono {amount} PŻ, wykorzystano {cost}/{char.actionLeft-cost} akcji')
+                elif action_name.startswith("addFood"):
+                    char, _ = manageFoodAndWater(char, amount, "food")
+                    messages.success(request,f'Dodano {amount} nasycenia, wykorzystano {cost}/{char.actionLeft-cost} akcji')
+                elif action_name.startswith("addWater"):
+                    char, _ = manageFoodAndWater(char, amount, "water")
+                    messages.success(request,f'Dodano {amount} napojenia, wykorzystano {cost}/{char.actionLeft-cost} akcji')
 
             addBottleNames = ["addHP_Potion", "addWater_Bottle"]
-            if action_name in addBottleNames:
+            if any(single_action.split("-", 1)[0] in addBottleNames for single_action in actions):
                 empty_bottle = get_object_or_404(models.Items, name="Pusta buteleczka")
                 bottleExists = False
                 bottle = None
                 char_items = models.Eq.objects.all().filter(character=char.name)
-                for item in char_items:
-                    if item.name == empty_bottle.name:
+                for char_item in char_items:
+                    if char_item.name == empty_bottle.name:
                         bottleExists = True
-                        bottle = item
+                        bottle = char_item
                         break
 
                 if not bottleExists:

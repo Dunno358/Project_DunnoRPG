@@ -247,12 +247,18 @@
 <div class="container-fluid bg-dark bg-opacity-75 m-0 p-0">
     <div class="row w-100 mb-0 pt-1 pb-1 text-info">
         <div class="col text-center">
-            <span class="fw-bold {% if chosen_character.0.food > 20 %}text-success{% else %}text-danger text-decoration-underline{% endif %}">Nasycenie:</span> 
-            <span class="fw-bold {% if chosen_character.0.food > 20 %}text-success{% else %}text-danger text-decoration-underline{% endif %}" id="food-val">{{ chosen_character.0.food }}%</span>
+            <form method="post" action="change-food-water/food" class="d-inline-flex align-items-center justify-content-center flex-nowrap">
+                {% csrf_token %}
+                <span class="fw-bold {% if chosen_character.0.food > 20 %}text-success{% else %}text-danger text-decoration-underline{% endif %}">Nasycenie:</span>
+                <input type="number" min="0" max="100" id="food-val" class="fw-bold text-center border-0 ms-1 {% if chosen_character.0.food > 20 %}text-success{% else %}text-danger text-decoration-underline{% endif %}" style="width: 2.7rem; background: transparent;" value="{{ chosen_character.0.food }}" name="food-amount"><span class="fw-bold {% if chosen_character.0.food > 20 %}text-success{% else %}text-danger text-decoration-underline{% endif %}">%</span>
+            </form>
         </div>
         <div class="col text-center">
-            <span class="fw-bold {% if chosen_character.0.water > 20 %}text-success{% else %}text-danger text-decoration-underline{% endif %}">Nawodnienie:</span>
-            <span class="fw-bold {% if chosen_character.0.water > 20 %}text-success{% else %}text-danger text-decoration-underline{% endif %}" id="water-val">{{ chosen_character.0.water }}%</span>
+            <form method="post" action="change-food-water/water" class="d-inline-flex align-items-center justify-content-center flex-nowrap">
+                {% csrf_token %}
+                <span class="fw-bold {% if chosen_character.0.water > 20 %}text-success{% else %}text-danger text-decoration-underline{% endif %}">Nawodnienie:</span>
+                <input type="number" min="0" max="100" id="water-val" class="fw-bold text-center border-0 ms-1 {% if chosen_character.0.water > 20 %}text-success{% else %}text-danger text-decoration-underline{% endif %}" style="width: 2.7rem; background: transparent;" value="{{ chosen_character.0.water }}" name="water-amount"><span class="fw-bold {% if chosen_character.0.water > 20 %}text-success{% else %}text-danger text-decoration-underline{% endif %}">%</span>
+            </form>
         </div>
     </div>
 </div>
@@ -374,8 +380,11 @@
 
         <div class="row m-0 p-0">
             <div class="col rounded bg-gray bg-gradient border border-warning m-2 p-2 h6">
-                <span class="text-white-50">Monety:</span> 
-                <span>{{ value.coins  }}</span>
+                <form method="post" action="change-coins">
+                    {% csrf_token %}
+                    <span class="text-white-50">Monety:</span>
+                    <input type='number' min="0" id='coins' class='c-gold text-center bg-gray bg-gradient border-0 h6' style='width: 18vw' value='{{ value.coins }}' name="coins-amount">
+                </form>
             </div>
         </div>
 
@@ -1771,18 +1780,6 @@
             <div class="col p-0 m-0"><hr class="bg-danger mt-4"></div>
         </div>
 
-        <div class='w-75 ms-5 rounded row bg-gray bg-gradient border border-warning m-0 p-2'>
-            <div class="col-5 m-0 p-0 text-end text-white-50 h3">
-                Monety:
-            </div>
-            <div class="col m-0 p-0 h3">
-                <form method="post" action="change-coins">
-                    {% csrf_token %}
-                    <input type='number' min="0" id='coins' class='c-gold text-center border-0 bg-gray bg-gradient m-0 p-0 w-75' style='width: 8vw' value='{{ value.coins }}' name="coins-amount">
-                </form>
-            </div>
-        </div>
-
         <div class='w-100 bg-gray bg-gradient border border-warning m-0 p-0 mt-2 mb-1'>
             <div class="col-3 m-0 p-0 text-end text-white-50 h3">
                 Rasa:
@@ -2027,6 +2024,8 @@ function catchErrorForValueChanges(id){
 
 trackValueChanges('hp-val')
 trackValueChanges('coins')
+trackValueChanges('food-val')
+trackValueChanges('water-val')
 durs = ['helmet-dur-gm','torso-dur-gm','leftItem-dur-gm','rightItem-dur-gm','sideItem-dur-gm','boots-dur-gm','gloves-dur-gm']
 durs.forEach(catchErrorForValueChanges)
 
