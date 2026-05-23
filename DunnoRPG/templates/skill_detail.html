@@ -63,10 +63,10 @@ style="width: 98%; z-index: 5; margin-left: 0.22rem !important; margin-top: -8re
 <div class='container-fluid row'>
     <div class='col-2'></div>
     {% for level in levels %}
-        <div class='d-none ms-2' id='{{ level.level }}'>
+        <div class='d-none ms-2 p-0' id='{{ level.level }}'>
             <div class='row'>
-                <div class='col text-center c-gold txt-shadow fst-italic' style='font-size: 140%;'>
-                    <p style="--bs-bg-opacity: .7;" class='m-4 mt-3 mb-3 bg-dark rounded border border-warning p-1'><span class='opacity-100'>{{ level.desc|textWithDefinitionStandard }}</span></p>
+                <div class='col text-center c-gold txt-shadow fst-italic p-0' style='font-size: 140%;'>
+                    <p style="--bs-bg-opacity: .7;" class='m-0 mt-3 mb-3 bg-dark rounded border border-warning p-1'><span class='opacity-100'>{{ level.desc|textWithDefinitionStandard }}</span></p>
                 </div>
             </div>
 
