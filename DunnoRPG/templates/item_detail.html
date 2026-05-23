@@ -21,7 +21,12 @@
 
     <div class='row text-border-black mt-2'>
         <div class='col text-center c-gold fst-italic '>
-            <h1 id="item-name" class="{{ item.rarity }}">{{ item.name }}</h1>
+            <h1 id="item-name" class="{{ item.rarity }}">
+                {{ item.name }}
+                {% if user.is_superuser %}
+                    <a href="/admin/DunnoRPG/items/{{ item.id }}/change/" class="ms-2 fa fa-link {{ item.rarity }}" target="_blank"></a>
+                {% endif %}
+            </h1>
         </div>
     </div>
 
