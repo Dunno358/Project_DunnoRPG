@@ -257,7 +257,7 @@
                 Sell</button>
             {% endif %}
                 <div class="row m-0 mt-1 p-0">
-                    {% if item.on_use and item.on_use != '-' %}
+                    {% if view.kwargs.char_id != 0 and item.on_use and item.on_use != '-' %}
                         <div class="col m-0 p-0">
                             <a class='btn btn-success w-100' href='useItem-{{ item.id }}-{{ view.kwargs.char_id }}'>
                                 Użyj {% if item.use_info %}[{{ item.use_info }}]{% endif %}
