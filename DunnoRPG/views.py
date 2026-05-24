@@ -32,6 +32,7 @@ from DunnoRPG.serializers import (CharacterSerializer, ItemSerializer,
 
 from . import models
 from .forms import CharacterSkillsForm, AddEqItemForm #, AddEffectForm
+from .services.item_effects import apply_item_use_effects
 
 raceSizes = {
     "S": 0.5,
@@ -1894,51 +1895,9 @@ class useItem(APIView):
                 messages.error(request,f'Nie posiadasz wystarczająco akcji! Wymagane {cost} a dostępne {char.actionLeft}.')
                 return redirect(f'/dunnorpg/items/ch{char_id}')
 
-            for single_action in actions:
-                action_name, amount_value = single_action.split("-", 1)
-                amount = int(amount_value)
-
-                if action_name.startswith("addHP"):
-                    char.HP += amount
-                    if char.HP > char.fullHP:
-                        amount = int(char.fullHP - int(char.HP-amount))
-                        char.HP = char.fullHP
-                    #TODO: Funkcja do dodawania expa i lvlowania jeśli expa wystarczająco
-                    char.exp += 1
-                    messages.success(request,f'Uleczono {amount} PŻ, wykorzystano {cost}/{char.actionLeft-cost} akcji')
-                elif action_name.startswith("addFood"):
-                    char, _ = manageFoodAndWater(char, amount, "food")
-                    messages.success(request,f'Dodano {amount} nasycenia, wykorzystano {cost}/{char.actionLeft-cost} akcji')
-                elif action_name.startswith("addWater"):
-                    char, _ = manageFoodAndWater(char, amount, "water")
-                    messages.success(request,f'Dodano {amount} napojenia, wykorzystano {cost}/{char.actionLeft-cost} akcji')
-
-            addBottleNames = ["addHP_Potion", "addWater_Bottle"]
-            if any(single_action.split("-", 1)[0] in addBottleNames for single_action in actions):
-                empty_bottle = get_object_or_404(models.Items, name="Pusta buteleczka")
-                bottleExists = False
-                bottle = None
-                char_items = models.Eq.objects.all().filter(character=char.name)
-                for char_item in char_items:
-                    if char_item.name == empty_bottle.name:
-                        bottleExists = True
-                        bottle = char_item
-                        break
-
-                if not bottleExists:
-                    models.Eq.objects.create(
-                        owner = char.owner,
-                        character = char.name,
-                        name = empty_bottle.name,
-                        type = empty_bottle.type,
-                        weight = empty_bottle.weight,
-                        durability = empty_bottle.maxDurability,
-                        amount = 1
-                    )
-                else:
-                    bottle.amount += 1
-                    bottle.weight = empty_bottle.weight * bottle.amount
-                    bottle.save()
+            char, effect_messages = apply_item_use_effects(char, actions, cost, manageFoodAndWater)
+            for effect_message in effect_messages:
+                getattr(messages, effect_message.level)(request, effect_message.text)
 
             if char.inFight:
                 char.actionLeft -= cost
