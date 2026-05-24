@@ -29,15 +29,7 @@ def getItemStatByName(itemName):
     try:
         item = models.Items.objects.all().filter(name=itemName).values()[0]
         if item['type'].lower() != 'shield':
-            bonus = 0#item['diceBonus']
-
-            if bonus == -15:
-                return f"1K10+SIŁ"
-            else:
-                if bonus >= 0:
-                    return f"1K+{bonus}, {item['AP']}AP"
-                else:
-                    return f"1K{bonus}, {item['AP']}AP"
+            return f"{item['dmgDice']}, {item['AP']}% AP"
         else:
             return f"Blok: {item['block']}"
     except:
@@ -160,7 +152,7 @@ def getStaffMagicDmg(itemName, charId):
         if dmg > 0:
             dmg = f"+{dmg}"
 
-        return f"[1K{dmg}, {dictionary_ap[rarity]}AP]"
+        return f"[1K{dmg}, {dictionary_ap[rarity]}% AP]"
     else:
         return ""
 

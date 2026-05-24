@@ -2303,7 +2303,7 @@ async function showAttackResult(hand, dualHanded=false, item_id=null){
     }
 
     let result = Math.round((attack_effect_bonus+sil+sil_mod+amulet_bonus+dice+dice_bonus+bonus+weapon_dmg)*multiplier*dur)
-    txt3.textContent = `${result} + ${weapon_ap} AP`
+    txt3.textContent = `${result} + ${weapon_ap}% AP`
 
     txt2.textContent = `${itName} - ${itType}`
     div.classList.remove("d-none")
@@ -2576,7 +2576,7 @@ function show_result_at_window(action){
                 leftWeaponApBonus = Math.round(parseInt(l_stats.split(",")[1].replace('AP',''))/2)
                 l_mods = sil+sil_mod+leftWeaponDmg+l_bonus+parry_effect_bonus+leftWeaponApBonus
                 l_normal_dice_result = getDiceWMods(window_action_top,l_mods,getResult=true,text='Parowanie - Lewa ręka | Bonus do kości', d0exception=true)
-                l_normal_details = 'SIŁ'+'('+sil+')'+ ' + '+'MODS'+'('+(sil_mod+parry_effect_bonus)+')'+' + '+'WEAPON'+'('+leftWeaponDmg+')'+' + '+'BONUS'+'('+l_bonus+')'+' + '+'AP Bonus'+'('+leftWeaponApBonus+')'
+                l_normal_details = 'SIŁ'+'('+sil+')'+ ' + '+'MODS'+'('+(sil_mod+parry_effect_bonus)+')'+' + '+'WEAPON'+'('+leftWeaponDmg+')'+' + '+'BONUS'+'('+l_bonus+')'+' + '+'AP Bonus'+'('+leftWeaponApBonus+'%)'
                 window_action_top.onclick = function() {change_result(l_normal_details,window_action_top,l_mods, l_normal_dice_result,additional=true)}
             }
         }
@@ -2605,7 +2605,7 @@ function show_result_at_window(action){
                 rightWeaponApBonus = Math.round(parseInt(r_stats.split(",")[1].replace('AP',''))/2)
                 r_mods = sil+sil_mod+rightWeaponDmg+r_bonus+parry_effect_bonus+rightWeaponApBonus
                 r_normal_dice_result = getDiceWMods(window_action_bottom,r_mods,getResult=true,text='Parowanie - Prawa ręka | Bonus do kości', d0exception=true)
-                r_normal_details = 'SIŁ'+'('+sil+')'+ ' + '+'MODS'+'('+(sil_mod+parry_effect_bonus)+')'+' + '+'WEAPON'+'('+rightWeaponDmg+')'+' + '+'BONUS'+'('+r_bonus+')'+' + '+'AP Bonus'+'('+rightWeaponApBonus+')'
+                r_normal_details = 'SIŁ'+'('+sil+')'+ ' + '+'MODS'+'('+(sil_mod+parry_effect_bonus)+')'+' + '+'WEAPON'+'('+rightWeaponDmg+')'+' + '+'BONUS'+'('+r_bonus+')'+' + '+'AP Bonus'+'('+rightWeaponApBonus+'%)'
                 window_action_bottom.onclick = function() {change_result(r_normal_details,window_action_bottom,r_mods, r_normal_dice_result)}
             }
         }
