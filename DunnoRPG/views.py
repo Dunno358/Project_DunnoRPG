@@ -1901,8 +1901,14 @@ class useItem(APIView):
 
             if char.inFight:
                 char.actionLeft -= cost
-            char, waterMsg = manageFoodAndWater(char, -1, "water")
-            char, foodMsg = manageFoodAndWater(char, -1, "food")
+
+            action_names = [single_action.split("-", 1)[0] for single_action in actions]
+            waterMsg = ""
+            foodMsg = ""
+            if not any(action_name.startswith("addWater") for action_name in action_names):
+                char, waterMsg = manageFoodAndWater(char, -1, "water")
+            if not any(action_name.startswith("addFood") for action_name in action_names):
+                char, foodMsg = manageFoodAndWater(char, -1, "food")
             char.save()
 
             if eq_item.amount == 1:
