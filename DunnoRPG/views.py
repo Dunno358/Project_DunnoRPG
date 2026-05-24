@@ -88,6 +88,19 @@ def can_character_wear_armor_weight(character, item, place):
 
     return True, ""
 
+
+def get_drunkenness_limit(character):
+    #Mocna głowa increases drunkenness limit by 1 per skill level, base limit is 3
+    strong_head_skill = models.Skills.objects.filter(
+        character=character.name,
+        skill__iexact='Mocna głowa',
+    ).first()
+
+    if strong_head_skill is None:
+        return 3
+
+    return 3 + strong_head_skill.level
+
 class charGET(ListView):
     model = models.Character
     template_name = 'home.html'
@@ -329,6 +342,7 @@ class CharacterDetails(DetailView):
         skillsRange = []
         skillsAgility = []
         skillsOther = []
+        drunkenness_limit = get_drunkenness_limit(chosen)
 
         eq_items = models.Eq.objects.all().filter(character=chosen.name)
         ammo = []
@@ -359,6 +373,11 @@ class CharacterDetails(DetailView):
                 skillsAgility.append(skill)
             else: 
                 skillsOther.append(skill)
+
+        try:
+            alcohol_level = int(chosen.alcohol)
+        except (TypeError, ValueError):
+            alcohol_level = 0
 
         types = ['Helmet','Torso','Boots','Gloves','Amulet','Other']
 
@@ -394,6 +413,8 @@ class CharacterDetails(DetailView):
         context['race_id'] = race['id']
 
         context["class"] = chosen_class
+        context['drunkenness_limit'] = drunkenness_limit
+        context['is_over_drunkenness_limit'] = alcohol_level > drunkenness_limit
         
         context['eq_weapons'] = eq_weapons_qs
         context['eq_helmets'] = eq_helmets_qs
@@ -1234,21 +1255,37 @@ def change_food_water(request, **kwargs):
     if request.method == 'POST':
         translate_stat = {
             "food": "Nasycenie",
-            "water": "Nawodnienie"
+            "water": "Nawodnienie",
+            "alcohol": "Alkohol",
         }
 
         stat_type = kwargs['stat_type']
-        if stat_type not in ["food", "water"]:
+        if stat_type not in ["food", "water", "alcohol"]:
             raise Http404("Invalid food/water stat")
 
         char = get_object_or_404(models.Character, id=kwargs['char_id'])
-        value = max(0, min(100, int(request.POST[f'{stat_type}-amount'])))
-        current_value = getattr(char, stat_type)
-        char, msg = manageFoodAndWater(char, value - current_value, stat_type)
+        value = int(request.POST[f'{stat_type}-amount'])
+        msg = ""
+
+        if stat_type == "alcohol":
+            value = max(0, value)
+            char.alcohol = value
+        else:
+            value = max(0, min(100, value))
+            current_value = getattr(char, stat_type)
+            char, msg = manageFoodAndWater(char, value - current_value, stat_type)
         char.save()
 
         if msg != "":
             messages.error(request, msg)
+        elif stat_type == "alcohol":
+            drunkenness_limit = get_drunkenness_limit(char)
+            if value > drunkenness_limit:
+                messages.error(request, "Jesteś Pijany! [Efekty Work in Progress]")
+            elif value > 0:
+                messages.warning(request, "Odczuwasz upojenie alkoholem [Efekty Work in Progress]")
+            else:
+                messages.success(request, f"Pomyślnie zmieniono wartość {translate_stat[stat_type]} na {value}")
         else:
             messages.success(request, f"Pomyślnie zmieniono wartość {translate_stat[stat_type]} na {value}%")
 
