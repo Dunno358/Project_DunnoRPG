@@ -42,6 +42,52 @@ raceSizes = {
 maxAdvs = 2
 maxBigAdvs = 1
 
+ARMOR_WEIGHT_ORDER = {
+    "light": 1,
+    "light+": 2,
+    "medium": 3,
+    "medium+": 4,
+    "heavy": 5,
+    "all": 999,
+}
+ARMOR_WEIGHT_TRANSLATE = {
+    "light": "Lekki",
+    "light+": "Lekki+",
+    "medium": "Średni",
+    "medium+": "Średni+",
+    "heavy": "Ciężki"
+}
+ARMOR_WEIGHT_LIMITED_POSITIONS = {"helmet", "torso", "boots", "gloves"}
+
+
+def can_character_wear_armor_weight(character, item, place):
+    if place.lower() not in ARMOR_WEIGHT_LIMITED_POSITIONS:
+        return True, ""
+    if (item.type or "").lower() not in ARMOR_WEIGHT_LIMITED_POSITIONS:
+        return True, ""
+
+    item_armor_weight = (item.armor_weight or "").strip().lower()
+    item_armor_rank = ARMOR_WEIGHT_ORDER.get(item_armor_weight)
+    if item_armor_rank is None:
+        return True, ""
+
+    character_class = models.Classes.objects.filter(name=character.chosen_class).first()
+    if character_class is None:
+        return True, ""
+
+    class_armor_weight = (character_class.armor_weight or "").strip().lower()
+    class_armor_rank = ARMOR_WEIGHT_ORDER.get(class_armor_weight)
+    if class_armor_rank is None:
+        return True, ""
+
+    if item_armor_rank > class_armor_rank:
+        return False, (
+            f"{character.name} nie może założyć {item.name}: typ pancerza "
+            f"{ARMOR_WEIGHT_TRANSLATE[item.armor_weight]} przekracza limit klasy {ARMOR_WEIGHT_TRANSLATE[character_class.armor_weight]}."
+        )
+
+    return True, ""
+
 class charGET(ListView):
     model = models.Character
     template_name = 'home.html'
@@ -1263,6 +1309,11 @@ def char_wear_item(request, **kwargs):
     item_id = kwargs['item_id']
     item_eq_obj = models.Eq.objects.get(character=char.name,id=item_id)
     item = models.Items.objects.get(name=item_eq_obj.name)
+
+    can_wear_armor, armor_weight_message = can_character_wear_armor_weight(char, item, place)
+    if not can_wear_armor:
+        messages.error(request, armor_weight_message)
+        return redirect('character_detail', char.id)
     
     if item.type == 'Animal':
         char.extra_capacity = item.dmgDice
@@ -1403,6 +1454,12 @@ def char_swap_item(request, **kwargs):
     it1D = get_object_or_404(models.Items, name=it1.name)
     it2 = get_object_or_404(models.Eq, id=kwargs['it2_id'])
     it2D = get_object_or_404(models.Items, name=it2.name)
+
+    armor_place = it1.position or it1.hand
+    can_wear_armor, armor_weight_message = can_character_wear_armor_weight(char, it2D, armor_place)
+    if not can_wear_armor:
+        messages.error(request, armor_weight_message)
+        return redirect('character_detail', char.id)
 
     if it1D.type.lower() == "shield" and it1.hand.lower() == "right":
         allow_class = ["barbarzyńca: droga rosomaka"]
