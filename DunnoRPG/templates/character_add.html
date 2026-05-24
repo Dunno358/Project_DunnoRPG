@@ -125,12 +125,17 @@
     }
 
     function createChar(){
-        name = document.getElementById('char-name').value
+        name = document.getElementById('char-name').value.trim()
         char_class = document.getElementById('char-class').value
         char_race = document.getElementById('char-race').value
         char_type =  document.getElementById('char-type').value
         char_owner = document.getElementById('char-owner').value
         char_exp = document.getElementById('char-exp').value
+
+        if(name == ''){
+            window.location.replace(window.location.href + '/create/missing-name')
+            return
+        }
 
         url = window.location.href + `/create/${name}/${char_class}/${char_race}/${char_type}/${char_owner}/${char_exp}`
         window.location.replace(url)

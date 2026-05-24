@@ -817,6 +817,10 @@ def skill_downgrade(request,char_id,skill_id):
     return redirect(f'/dunnorpg/character_add_skills/{char_id}/')
 def create_character(request,name,char_class,race,type,owner,exp):
     try:
+        if not name.strip():
+            messages.error(request, "Brak nazwy postaci")
+            return redirect('character_add')
+
         race =  get_object_or_404(models.Races, name=race)
         maxHP = race.hp
         size_dict = {"S": 0.5,"M": 1,"L": 2}
@@ -913,6 +917,10 @@ def create_character(request,name,char_class,race,type,owner,exp):
         messages.error(request, f"Wystąpił błąd: {e}")
         print(traceback.format_exc())
         return redirect(f'character_add')
+
+def missing_character_name(request):
+    messages.error(request, "Brak nazwy postaci")
+    return redirect('character_add')
 
 def log_as_guest(request):
     guest_user = User.objects.get(username='Guest')
