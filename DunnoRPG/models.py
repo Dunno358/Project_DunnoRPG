@@ -165,15 +165,16 @@ class Skills_Decs(models.Model):
 class Items(models.Model):
     name = models.CharField(max_length=50, null=True)
     type = models.CharField(max_length=50, null=True)
-    category = models.CharField(max_length=50, null=True)
-    on_use = models.CharField(max_length = 150, null=True)
-    use_info = models.CharField(max_length = 255, null=True)
-    use_cost = models.CharField(max_length=30, null=True) #half/full as full action and half action
-    dmg_type = models.CharField(max_length=50, null=True)
+    category = models.CharField(max_length=50, null=True, blank=True)
+    on_use = models.CharField(max_length=150, null=True, blank=True)
+    use_info = models.CharField(max_length=255, null=True, blank=True)
+    use_cost = models.CharField(max_length=30, null=True, blank=True)  # half/full as full action and half action
+    dmg_type = models.CharField(max_length=50, null=True, blank=True)
+    armor_weight = models.CharField(max_length=50, blank=True)
     rarity = models.CharField(max_length=50, null=True)
     dualHanded = models.BooleanField(default=False)
     desc = models.TextField(null=True)
-    found = models.BooleanField(default=False)
+    found = models.BooleanField(default=False) #To be deleted
     dmgDice = models.CharField(max_length=50, default="1K10") # nKx where n is number of dices and x is which dice
     dmgModifier = models.IntegerField(default=1) #for ammo
     AP = models.IntegerField(default=0)
