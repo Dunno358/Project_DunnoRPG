@@ -166,32 +166,43 @@ class Items(models.Model):
     name = models.CharField(max_length=50, null=True)
     type = models.CharField(max_length=50, null=True)
     category = models.CharField(max_length=50, null=True, blank=True)
-    on_use = models.CharField(max_length=150, null=True, blank=True)
-    use_info = models.CharField(max_length=255, null=True, blank=True)
-    use_cost = models.CharField(max_length=30, null=True, blank=True)  # half/full as full action and half action
-    dmg_type = models.CharField(max_length=50, null=True, blank=True)
-    armor_weight = models.CharField(max_length=50, blank=True)
     rarity = models.CharField(max_length=50, null=True)
     dualHanded = models.BooleanField(default=False)
     desc = models.TextField(null=True)
-    found = models.BooleanField(default=False) #To be deleted
+
+    on_use = models.CharField(max_length=150, null=True, blank=True)
+    use_info = models.CharField(max_length=255, null=True, blank=True)
+    use_cost = models.CharField(max_length=30, null=True, blank=True)  # half/full as full action and half action
+    use_amount = models.IntegerField(null=True, blank=True)
+    
+    dmg_type = models.CharField(max_length=50, null=True, blank=True)
+
+    armor_weight = models.CharField(max_length=50, blank=True)
+    
     dmgDice = models.CharField(max_length=50, default="1K10") # nKx where n is number of dices and x is which dice
     dmgModifier = models.IntegerField(default=1) #for ammo
     AP = models.IntegerField(default=0)
+
     range = models.IntegerField(default=0)
     armor = models.IntegerField(default=0)
     block = models.IntegerField(default=0)
+    weight = models.DecimalField(decimal_places=1, max_digits=50, default=1)
+    neededAccuraccy = models.IntegerField(default=6)
+    maxDurability = models.IntegerField(default=50)
+
     skill = models.TextField(blank=True)
+    grantedSkills = models.CharField(max_length=250, null=True, blank=True)
     skillStats = models.CharField(max_length=250, null=True, blank=True)
     skillEffects = models.CharField(max_length=250, null=True, blank=True)
-    weight = models.DecimalField(decimal_places=1, max_digits=50, default=1)
-    altAttack = models.CharField(max_length=250, default='None')
-    maxDurability = models.IntegerField(default=50)
-    neededAccuraccy = models.IntegerField(default=6)
-    additionalInfo = models.TextField(blank=True,null=True)
+
     effectsAfterPen = models.TextField(blank=True,null=True)
     effectsAlways = models.TextField(blank=True,null=True)
+
+    altAttack = models.CharField(max_length=250, default='None')
+    additionalInfo = models.TextField(blank=True,null=True)
+
     price = models.FloatField(default=0.0)
+    found = models.BooleanField(default=False) #To be deleted
 
     def __str__(self):
         if self.dualHanded == True:
