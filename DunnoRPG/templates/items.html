@@ -29,43 +29,115 @@
     <div class='row bg-gray border border-warning rounded'>
 
         <div class="row m-0 p-0">
-            <div class='col btn btn-dark btn-outline-warning p-2 m-1' onclick='show_or_hideById(this)'>
-                Jednoręczne 
+            <div class='col btn btn-dark btn-outline-warning p-2 m-1 item-tier-filter' data-rarity='neutral-low' onclick='filterItemsByTier(this)'>
+                T1
             </div>
 
-            <div class='col btn btn-dark btn-outline-warning p-2 m-1' onclick='show_or_hideById(this)'>
+            <div class='col btn btn-dark btn-outline-warning p-2 m-1 item-tier-filter' data-rarity='neutral-high' onclick='filterItemsByTier(this)'>
+                T2
+            </div>
+
+            <div class='col btn btn-dark btn-outline-warning p-2 m-1 item-tier-filter' data-rarity='unique' onclick='filterItemsByTier(this)'>
+                T3
+            </div>
+
+            <div class='col btn btn-dark btn-outline-warning p-2 m-1 item-tier-filter' data-rarity='magical' onclick='filterItemsByTier(this)'>
+                T4
+            </div>
+
+            <div class='col btn btn-dark btn-outline-warning p-2 m-1 item-tier-filter' data-rarity='uncommon' onclick='filterItemsByTier(this)'>
+                T5
+            </div>
+
+            <div class='col btn btn-dark btn-outline-warning p-2 m-1 item-tier-filter' data-rarity='legendary' onclick='filterItemsByTier(this)'>
+                T6
+            </div>
+        </div>
+
+        <div class="row m-0 p-0">
+            <div class='col btn btn-dark btn-outline-warning p-2 m-1 item-type-filter' data-item-type='weapon-filter-buttons' onclick='showItemTypeButtons(this)'>
+                Broń
+            </div>
+
+            <div class='col btn btn-dark btn-outline-warning p-2 m-1 item-type-filter' data-item-type='armor-filter-buttons' onclick='showItemTypeButtons(this)'>
+                Pancerz
+            </div>
+
+            <div class='col btn btn-dark btn-outline-warning p-2 m-1 item-type-filter' data-item-type='other-filter-buttons' onclick='showItemTypeButtons(this)'>
+                Inne
+            </div>
+        </div>
+
+        <div id='weapon-filter-buttons' class="row m-0 p-0 d-none item-dependent-filter">
+            <div class='col btn btn-dark btn-outline-warning p-2 m-1 item-category-filter' data-weapon-category='weapon_melee' onclick='showWeaponItemsByCategory(this)'>
+                Zwarcie
+            </div>
+
+            <div class='col btn btn-dark btn-outline-warning p-2 m-1 item-category-filter' data-weapon-category='weapon_range' onclick='showWeaponItemsByCategory(this)'>
+                Dystansowa
+            </div>
+
+            <div class='col btn btn-dark btn-outline-warning p-2 m-1 item-category-filter' data-weapon-category='weapon_gun' onclick='showWeaponItemsByCategory(this)'>
+                Prochowa
+            </div>
+
+            <div class='col btn btn-dark btn-outline-warning p-2 m-1 item-category-filter' data-weapon-category='other' onclick='showWeaponItemsByCategory(this)'>
+                Inne
+            </div>
+        </div>
+
+        <div id='weapon-hand-filter-buttons' class="row m-0 p-0 d-none item-dependent-filter">
+            <div class='col btn btn-dark btn-outline-warning p-2 m-1 weapon-hand-filter' data-dual-handed='False' onclick='filterWeaponItemsByHand(this)'>
+                Jednoręczne
+            </div>
+
+            <div class='col btn btn-dark btn-outline-warning p-2 m-1 weapon-hand-filter' data-dual-handed='True' onclick='filterWeaponItemsByHand(this)'>
                 Dwuręczne
             </div>
         </div>
 
-        <div class="row m-0 p-0">
-            <div class='col btn btn-dark btn-outline-warning p-2 m-1' onclick='show_or_hideById(this)'>
+        <div id='armor-filter-buttons' class="row m-0 p-0 d-none item-dependent-filter">
+            <div class='col btn btn-dark btn-outline-warning p-2 m-1 item-category-filter' onclick='show_or_hideById(this)'>
                 Hełmy
             </div>
 
-            <div class='col btn btn-dark btn-outline-warning p-2 m-1' onclick='show_or_hideById(this)'>
+            <div class='col btn btn-dark btn-outline-warning p-2 m-1 item-category-filter' onclick='show_or_hideById(this)'>
                 Napierśniki
             </div>
 
-            <div class='col btn btn-dark btn-outline-warning p-2 m-1' onclick='show_or_hideById(this)'>
+            <div class='col btn btn-dark btn-outline-warning p-2 m-1 item-category-filter' onclick='show_or_hideById(this)'>
                 Buty
             </div>
 
-            <div class='col btn btn-dark btn-outline-warning p-2 m-1' onclick='show_or_hideById(this)'>
+            <div class='col btn btn-dark btn-outline-warning p-2 m-1 item-category-filter' onclick='show_or_hideById(this)'>
                 Rękawice
             </div>
         </div>
 
-        <div class="row m-0 p-0">
-            <div class='col btn btn-dark btn-outline-warning p-2 m-1' onclick='show_or_hideById(this)'>
+        <div id='other-filter-buttons' class="row m-0 p-0 d-none item-dependent-filter">
+            <div class='col btn btn-dark btn-outline-warning p-2 m-1 item-category-filter' onclick='show_or_hideById(this)'>
                 Amulety
             </div>
 
-            <div class='col btn btn-dark btn-outline-warning p-2 m-1' onclick='show_or_hideById(this)'>
-                Wierzchowce
+            <div class='col btn btn-dark btn-outline-warning p-2 m-1 item-category-filter' onclick='showAnimalCategoryButtons(this)'>
+                Zwierzęta
             </div>
 
-            <div class='col btn btn-dark btn-outline-warning p-2 m-1' onclick='show_or_hideById(this)'>
+            <div class='col btn btn-dark btn-outline-warning p-2 m-1 item-category-filter' onclick='show_or_hideById(this)'>
+                Inne
+            </div>
+        </div>
+
+        <div id='animal-filter-buttons' class="row m-0 p-0 d-none item-dependent-filter">
+            <div class='col btn btn-dark btn-outline-warning p-2 m-1 animal-category-filter' data-animal-category='animal' onclick='showAnimalItemsByCategory(this)'>
+                Zwierze
+            </div>
+
+            <div class='col btn btn-dark btn-outline-warning p-2 m-1 animal-category-filter' data-animal-category='animal_armor' onclick='showAnimalItemsByCategory(this)'>
+                Pancerz
+            </div>
+
+            <div class='col btn btn-dark btn-outline-warning p-2 m-1 animal-category-filter' data-animal-category='other' onclick='showAnimalItemsByCategory(this)'>
                 Inne
             </div>
         </div>
@@ -308,16 +380,10 @@
     
 </div>
 
-<div id='Jednoręczne' class='container d-none'>
+<div id='Broń' class='container d-none'>
     {% for item in items_singlehand %}
-        <div>
+        <div class='item-list-entry weapon-list-entry' data-rarity='{{ item.rarity }}' data-category='{{ item.category|default_if_none:""|lower }}' data-dual-handed='{{ item.dualHanded }}'>
             <div class='row bg-dark bg-opacity-75 rounded m-2 p-2'>
-                {% if user.is_superuser %}
-                <a class='col-3 btn btn-danger' href='setFound-{{ item.id }}-0-{{ view.kwargs.char_id }}'>
-                    Unfound
-                </a>                
-                {% endif %}
-
                 {% if view.kwargs.char_id != 0 %}
                     <button class='col-2 text-center text-white bg-danger p-2 m-1 rounded' onclick="deleteConfirmation('{{ item.name }}', {{ view.kwargs.char_id }}, {{ item.id }})">X</button>
                 {% endif %}
@@ -325,30 +391,13 @@
                 <a class='col text-center c-gold bg-dark p-2 rounded border border-primary' href='{{ item.id }}'> 
                     <span class="{{ item.rarity }}">{{ item.name }}</span>
                 </a>
-                {% if user.is_superuser %}
-                <a class='col-3 ms-1 btn btn-success' href='setFound-{{ item.id }}-1-{{ view.kwargs.char_id }}'>
-                    {% if item.found == True %}
-                        Already found
-                    {% else %}
-                        Found
-                    {% endif %}
-                </a>  
-                {% endif %}
             </div>
         </div>
     {% endfor %}
-</div>
 
-<div id='Dwuręczne' class='container d-none'>
     {% for item in items_twohand %}
-    <div>
+    <div class='item-list-entry weapon-list-entry' data-rarity='{{ item.rarity }}' data-category='{{ item.category|default_if_none:""|lower }}' data-dual-handed='{{ item.dualHanded }}'>
         <div class='row bg-dark bg-opacity-75 rounded m-2 p-2'>
-            {% if user.is_superuser %}
-            <a class='col-3 btn btn-danger' href='setFound-{{ item.id }}-0-{{ view.kwargs.char_id }}'>
-                Unfound
-            </a>                
-            {% endif %}
-
             {% if view.kwargs.char_id != 0 %}
                 <button class='col-2 text-center text-white bg-danger p-2 m-1 rounded' onclick="deleteConfirmation('{{ item.name }}', {{ view.kwargs.char_id }}, {{ item.id }})">X</button>
             {% endif %}
@@ -356,15 +405,6 @@
             <a class='col text-center c-gold bg-dark p-2 rounded border border-primary' href='{{ item.id }}'> 
                 <span class="{{ item.rarity }}">{{ item.name }}</span>
             </a>
-            {% if user.is_superuser %}
-                <a class='col-3 ms-1 btn btn-success' href='setFound-{{ item.id }}-1-{{ view.kwargs.char_id }}'>
-                    {% if item.found == True %}
-                        Already found
-                    {% else %}
-                        Found
-                    {% endif %}
-                </a> 
-            {% endif %}
         </div>
     </div>
     {% endfor %}
@@ -372,14 +412,8 @@
 
 <div id='Hełmy' class='container d-none'>
     {% for item in items_helmet %}
-    <div>
+    <div class='item-list-entry' data-rarity='{{ item.rarity }}'>
         <div class='row bg-dark bg-opacity-75 rounded m-2 p-2'>
-            {% if user.is_superuser %}
-            <a class='col-3 btn btn-danger' href='setFound-{{ item.id }}-0-{{ view.kwargs.char_id }}'>
-                Unfound
-            </a>                
-            {% endif %}
-
             {% if view.kwargs.char_id != 0 %}
                 <button class='col-2 text-center text-white bg-danger p-2 m-1 rounded' onclick="deleteConfirmation('{{ item.name }}', {{ view.kwargs.char_id }}, {{ item.id }})">X</button>
             {% endif %}
@@ -387,15 +421,6 @@
             <a class='col text-center c-gold bg-dark p-2 rounded border border-primary' href='{{ item.id }}'> 
                 <span class="{{ item.rarity }}">{{ item.name }}</span>
             </a>
-            {% if user.is_superuser %}
-                <a class='col-3 ms-1 btn btn-success' href='setFound-{{ item.id }}-1-{{ view.kwargs.char_id }}'>
-                    {% if item.found == True %}
-                        Already found
-                    {% else %}
-                        Found
-                    {% endif %}
-                </a> 
-            {% endif %}
         </div>
     </div>
     {% endfor %}
@@ -403,14 +428,8 @@
 
 <div id='Napierśniki' class='container d-none'>
     {% for item in items_torso %}
-    <div>
+    <div class='item-list-entry' data-rarity='{{ item.rarity }}'>
         <div class='row bg-dark bg-opacity-75 rounded m-2 p-2'>
-            {% if user.is_superuser %}
-            <a class='col-3 btn btn-danger' href='setFound-{{ item.id }}-0-{{ view.kwargs.char_id }}'>
-                Unfound
-            </a>                
-            {% endif %}
-
             {% if view.kwargs.char_id != 0 %}
                 <button class='col-2 text-center text-white bg-danger p-2 m-1 rounded' onclick="deleteConfirmation('{{ item.name }}', {{ view.kwargs.char_id }}, {{ item.id }})">X</button>
             {% endif %}
@@ -418,15 +437,6 @@
             <a class='col text-center c-gold bg-dark p-2 rounded border border-primary' href='{{ item.id }}'> 
                 <span class="{{ item.rarity }}">{{ item.name }}</span>
             </a>
-            {% if user.is_superuser %}
-                <a class='col-3 ms-1 btn btn-success' href='setFound-{{ item.id }}-1-{{ view.kwargs.char_id }}'>
-                    {% if item.found == True %}
-                        Already found
-                    {% else %}
-                        Found
-                    {% endif %}
-                </a> 
-            {% endif %}
         </div>
     </div>
     {% endfor %}
@@ -434,14 +444,8 @@
 
 <div id='Buty' class='container d-none'>
     {% for item in items_boots %}
-    <div>
+    <div class='item-list-entry' data-rarity='{{ item.rarity }}'>
         <div class='row bg-dark bg-opacity-75 rounded m-2 p-2'>
-            {% if user.is_superuser %}
-            <a class='col-3 btn btn-danger' href='setFound-{{ item.id }}-0-{{ view.kwargs.char_id }}'>
-                Unfound
-            </a>                
-            {% endif %}
-
             {% if view.kwargs.char_id != 0 %}
                 <button class='col-2 text-center text-white bg-danger p-2 m-1 rounded' onclick="deleteConfirmation('{{ item.name }}', {{ view.kwargs.char_id }}, {{ item.id }})">X</button>
             {% endif %}
@@ -449,15 +453,6 @@
             <a class='col text-center c-gold bg-dark p-2 rounded border border-primary' href='{{ item.id }}'> 
                 <span class="{{ item.rarity }}">{{ item.name }}</span>
             </a>
-            {% if user.is_superuser %}
-                <a class='col-3 ms-1 btn btn-success' href='setFound-{{ item.id }}-1-{{ view.kwargs.char_id }}'>
-                    {% if item.found == True %}
-                        Already found
-                    {% else %}
-                        Found
-                    {% endif %}
-                </a> 
-            {% endif %}
         </div>
     </div>
     {% endfor %}
@@ -465,14 +460,8 @@
 
 <div id='Rękawice' class='container d-none'>
     {% for item in items_gloves %}
-    <div>
+    <div class='item-list-entry' data-rarity='{{ item.rarity }}'>
         <div class='row bg-dark bg-opacity-75 rounded m-2 p-2'>
-            {% if user.is_superuser %}
-            <a class='col-3 btn btn-danger' href='setFound-{{ item.id }}-0-{{ view.kwargs.char_id }}'>
-                Unfound
-            </a>                
-            {% endif %}
-
             {% if view.kwargs.char_id != 0 %}
                 <button class='col-2 text-center text-white bg-danger p-2 m-1 rounded' onclick="deleteConfirmation('{{ item.name }}', {{ view.kwargs.char_id }}, {{ item.id }})">X</button>
             {% endif %}
@@ -480,15 +469,6 @@
             <a class='col text-center c-gold bg-dark p-2 rounded border border-primary' href='{{ item.id }}'> 
                 <span class="{{ item.rarity }}">{{ item.name }}</span>
             </a>
-            {% if user.is_superuser %}
-                <a class='col-3 ms-1 btn btn-success' href='setFound-{{ item.id }}-1-{{ view.kwargs.char_id }}'>
-                    {% if item.found == True %}
-                        Already found
-                    {% else %}
-                        Found
-                    {% endif %}
-                </a> 
-            {% endif %}
         </div>
     </div>
     {% endfor %}
@@ -496,14 +476,8 @@
 
 <div id='Amulety' class='container d-none'>
     {% for item in items_amulets %}
-    <div>
+    <div class='item-list-entry' data-rarity='{{ item.rarity }}'>
         <div class='row bg-dark bg-opacity-75 rounded m-2 p-2'>
-            {% if user.is_superuser %}
-            <a class='col-3 btn btn-danger' href='setFound-{{ item.id }}-0-{{ view.kwargs.char_id }}'>
-                Unfound
-            </a>                
-            {% endif %}
-
             {% if view.kwargs.char_id != 0 %}
                 <button class='col-2 text-center text-white bg-danger p-2 m-1 rounded' onclick="deleteConfirmation('{{ item.name }}', {{ view.kwargs.char_id }}, {{ item.id }})">X</button>
             {% endif %}
@@ -511,15 +485,6 @@
             <a class='col text-center c-gold bg-dark p-2 rounded border border-primary' href='{{ item.id }}'> 
                 <span class="{{ item.rarity }}">{{ item.name }}</span>
             </a>
-            {% if user.is_superuser %}
-                <a class='col-3 ms-1 btn btn-success' href='setFound-{{ item.id }}-1-{{ view.kwargs.char_id }}'>
-                    {% if item.found == True %}
-                        Already found
-                    {% else %}
-                        Found
-                    {% endif %}
-                </a> 
-            {% endif %}
         </div>
     </div>
     {% endfor %}
@@ -527,14 +492,8 @@
 
 <div id='Wierzchowce' class='container d-none'>
     {% for item in animals %}
-    <div>
+    <div class='item-list-entry animal-list-entry' data-rarity='{{ item.rarity }}' data-category='{{ item.category|default_if_none:""|lower }}'>
         <div class='row bg-dark bg-opacity-75 rounded m-2 p-2'>
-            {% if user.is_superuser %}
-            <a class='col-3 btn btn-danger' href='setFound-{{ item.id }}-0-{{ view.kwargs.char_id }}'>
-                Unfound
-            </a>                
-            {% endif %}
-
             {% if view.kwargs.char_id != 0 %}
                 <button class='col-2 text-center text-white bg-danger p-2 m-1 rounded' onclick="deleteConfirmation('{{ item.name }}', {{ view.kwargs.char_id }}, {{ item.id }})">X</button>
             {% endif %}
@@ -542,15 +501,6 @@
             <a class='col text-center c-gold bg-dark p-2 rounded border border-primary' href='{{ item.id }}'> 
                 <span class="{{ item.rarity }}">{{ item.name }}</span>
             </a>
-            {% if user.is_superuser %}
-                <a class='col-3 ms-1 btn btn-success' href='setFound-{{ item.id }}-1-{{ view.kwargs.char_id }}'>
-                    {% if item.found == True %}
-                        Already found
-                    {% else %}
-                        Found
-                    {% endif %}
-                </a> 
-            {% endif %}
         </div>
     </div>
     {% endfor %}
@@ -558,14 +508,8 @@
 
 <div id='Inne' class='container d-none'>
     {% for item in items_other %}
-    <div>
+    <div class='item-list-entry' data-rarity='{{ item.rarity }}'>
         <div class='row bg-dark bg-opacity-75 rounded m-2 p-2'>
-            {% if user.is_superuser %}
-            <a class='col-3 btn btn-danger' href='setFound-{{ item.id }}-0-{{ view.kwargs.char_id }}'>
-                Unfound
-            </a>                
-            {% endif %}
-
             {% if view.kwargs.char_id != 0 %}
                 <button class='col-2 text-center text-white bg-danger p-2 m-1 rounded' onclick="deleteConfirmation('{{ item.name }}', {{ view.kwargs.char_id }}, {{ item.id }})">X</button>
             {% endif %}
@@ -573,15 +517,6 @@
             <a class='col text-center c-gold bg-dark p-2 rounded border border-primary' href='{{ item.id }}'> 
                 <span class="{{ item.rarity }}">{{ item.name }}</span>
             </a>
-            {% if user.is_superuser %}
-                <a class='col-3 ms-1 btn btn-success' href='setFound-{{ item.id }}-1-{{ view.kwargs.char_id }}'>
-                    {% if item.found == True %}
-                        Already found
-                    {% else %}
-                        Found
-                    {% endif %}
-                </a> 
-            {% endif %}
         </div>
     </div>
     {% endfor %}
@@ -592,8 +527,250 @@
     document.getElementById('tb-items').classList.remove('btn-outline-warning')
     document.getElementById('tb-items').classList.add('btn-outline-primary')
 
+    let activeItemRarityFilter = null
+    let activeWeaponCategoryFilter = null
+    let activeWeaponHandFilter = null
+    let activeAnimalCategoryFilter = null
+    const weaponCategories = ['weapon_melee', 'shield', 'weapon_range', 'weapon_gun']
+    const animalCategories = ['animal', 'animal_armor']
+    const itemCategoryIds = ['Broń', 'Hełmy', 'Napierśniki', 'Buty', 'Rękawice', 'Amulety', 'Wierzchowce', 'Inne']
+
     document.getElementById('selected-eq-add-dur').oninput = () => {
         document.getElementById('selected-eq-add-dur').setAttribute('value', document.getElementById('selected-eq-add-dur').value);
+    }
+
+    function applyItemRarityFilter(){
+        document.querySelectorAll('.item-list-entry').forEach((entry) => {
+            const matchesRarity = activeItemRarityFilter === null || entry.dataset.rarity === activeItemRarityFilter
+            const itemCategory = entry.dataset.category || ''
+            let matchesWeaponCategory = true
+            let matchesWeaponHand = true
+            let matchesAnimalCategory = true
+
+            if(entry.classList.contains('weapon-list-entry') && activeWeaponCategoryFilter !== null){
+                if(activeWeaponCategoryFilter === 'other'){
+                    matchesWeaponCategory = !weaponCategories.includes(itemCategory)
+                }
+                else if(activeWeaponCategoryFilter === 'weapon_melee'){
+                    matchesWeaponCategory = itemCategory === 'weapon_melee' || itemCategory === 'shield'
+                }
+                else{
+                    matchesWeaponCategory = itemCategory === activeWeaponCategoryFilter
+                }
+
+                if(activeWeaponHandFilter !== null){
+                    matchesWeaponHand = entry.dataset.dualHanded === activeWeaponHandFilter
+                }
+            }
+
+            if(entry.classList.contains('animal-list-entry') && activeAnimalCategoryFilter !== null){
+                if(activeAnimalCategoryFilter === 'other'){
+                    matchesAnimalCategory = !animalCategories.includes(itemCategory)
+                }
+                else{
+                    matchesAnimalCategory = itemCategory === activeAnimalCategoryFilter
+                }
+            }
+
+            if(matchesRarity && matchesWeaponCategory && matchesWeaponHand && matchesAnimalCategory){
+                entry.classList.remove('d-none')
+            }
+            else{
+                entry.classList.add('d-none')
+            }
+        })
+    }
+
+    function filterItemsByTier(instance){
+        const selectedRarity = instance.dataset.rarity
+        const isAlreadyActive = activeItemRarityFilter === selectedRarity
+
+        document.querySelectorAll('.item-tier-filter').forEach((button) => {
+            button.classList.remove('border-primary')
+            button.classList.add('border-warning')
+        })
+
+        if(isAlreadyActive){
+            activeItemRarityFilter = null
+        }
+        else{
+            activeItemRarityFilter = selectedRarity
+            instance.classList.remove('border-warning')
+            instance.classList.add('border-primary')
+        }
+
+        applyItemRarityFilter()
+    }
+
+    function showWeaponItemsByCategory(instance){
+        const selectedCategory = instance.dataset.weaponCategory
+        const weaponBlock = document.getElementById('Broń')
+        const weaponHandButtons = document.getElementById('weapon-hand-filter-buttons')
+        const isAlreadyActive = activeWeaponCategoryFilter === selectedCategory && !weaponBlock.classList.contains('d-none')
+
+        activeWeaponCategoryFilter = null
+        activeWeaponHandFilter = null
+        weaponBlock.classList.add('d-none')
+        weaponHandButtons.classList.add('d-none')
+
+        document.querySelectorAll('.item-category-filter').forEach((button) => {
+            button.classList.remove('border-primary')
+            button.classList.add('border-warning')
+        })
+
+        document.querySelectorAll('.weapon-hand-filter').forEach((button) => {
+            button.classList.remove('border-primary')
+            button.classList.add('border-warning')
+        })
+
+        document.getElementById('search-result').classList.add('d-none')
+
+        if(!isAlreadyActive){
+            activeWeaponCategoryFilter = selectedCategory
+            weaponBlock.classList.remove('d-none')
+            weaponHandButtons.classList.remove('d-none')
+            instance.classList.remove('border-warning')
+            instance.classList.add('border-primary')
+        }
+
+        applyItemRarityFilter()
+    }
+
+    function filterWeaponItemsByHand(instance){
+        const selectedHand = instance.dataset.dualHanded
+        const isAlreadyActive = activeWeaponHandFilter === selectedHand
+
+        document.querySelectorAll('.weapon-hand-filter').forEach((button) => {
+            button.classList.remove('border-primary')
+            button.classList.add('border-warning')
+        })
+
+        if(isAlreadyActive){
+            activeWeaponHandFilter = null
+        }
+        else{
+            activeWeaponHandFilter = selectedHand
+            instance.classList.remove('border-warning')
+            instance.classList.add('border-primary')
+        }
+
+        applyItemRarityFilter()
+    }
+
+    function showAnimalCategoryButtons(instance){
+        const animalButtons = document.getElementById('animal-filter-buttons')
+        const animalBlock = document.getElementById('Wierzchowce')
+        const isAlreadyActive = !animalButtons.classList.contains('d-none')
+
+        activeAnimalCategoryFilter = null
+        animalButtons.classList.add('d-none')
+        animalBlock.classList.add('d-none')
+
+        itemCategoryIds.forEach((categoryId) => {
+            const categoryBlock = document.getElementById(categoryId)
+            if(categoryBlock){
+                categoryBlock.classList.add('d-none')
+            }
+        })
+
+        document.querySelectorAll('.item-category-filter').forEach((button) => {
+            button.classList.remove('border-primary')
+            button.classList.add('border-warning')
+        })
+
+        document.querySelectorAll('.animal-category-filter').forEach((button) => {
+            button.classList.remove('border-primary')
+            button.classList.add('border-warning')
+        })
+
+        document.getElementById('search-result').classList.add('d-none')
+
+        if(!isAlreadyActive){
+            animalButtons.classList.remove('d-none')
+            instance.classList.remove('border-warning')
+            instance.classList.add('border-primary')
+        }
+
+        applyItemRarityFilter()
+    }
+
+    function showAnimalItemsByCategory(instance){
+        const selectedCategory = instance.dataset.animalCategory
+        const animalBlock = document.getElementById('Wierzchowce')
+        const isAlreadyActive = activeAnimalCategoryFilter === selectedCategory && !animalBlock.classList.contains('d-none')
+
+        activeAnimalCategoryFilter = null
+        animalBlock.classList.add('d-none')
+
+        document.querySelectorAll('.animal-category-filter').forEach((button) => {
+            button.classList.remove('border-primary')
+            button.classList.add('border-warning')
+        })
+
+        document.getElementById('search-result').classList.add('d-none')
+
+        if(!isAlreadyActive){
+            activeAnimalCategoryFilter = selectedCategory
+            animalBlock.classList.remove('d-none')
+            instance.classList.remove('border-warning')
+            instance.classList.add('border-primary')
+        }
+
+        applyItemRarityFilter()
+    }
+
+    function hideItemCategoryLists(){
+        activeWeaponCategoryFilter = null
+        activeWeaponHandFilter = null
+        activeAnimalCategoryFilter = null
+        document.getElementById('weapon-hand-filter-buttons').classList.add('d-none')
+        document.getElementById('animal-filter-buttons').classList.add('d-none')
+
+        itemCategoryIds.forEach((categoryId) => {
+            const categoryBlock = document.getElementById(categoryId)
+            if(categoryBlock){
+                categoryBlock.classList.add('d-none')
+            }
+        })
+
+        document.querySelectorAll('.item-category-filter').forEach((button) => {
+            button.classList.remove('border-primary')
+            button.classList.add('border-warning')
+        })
+
+        document.querySelectorAll('.weapon-hand-filter').forEach((button) => {
+            button.classList.remove('border-primary')
+            button.classList.add('border-warning')
+        })
+
+        document.querySelectorAll('.animal-category-filter').forEach((button) => {
+            button.classList.remove('border-primary')
+            button.classList.add('border-warning')
+        })
+    }
+
+    function showItemTypeButtons(instance){
+        const selectedButtonGroupId = instance.dataset.itemType
+        const selectedButtonGroup = document.getElementById(selectedButtonGroupId)
+        const isAlreadyActive = !selectedButtonGroup.classList.contains('d-none')
+
+        document.querySelectorAll('.item-dependent-filter').forEach((buttonGroup) => {
+            buttonGroup.classList.add('d-none')
+        })
+
+        document.querySelectorAll('.item-type-filter').forEach((button) => {
+            button.classList.remove('border-primary')
+            button.classList.add('border-warning')
+        })
+
+        document.getElementById('search-result').classList.add('d-none')
+        hideItemCategoryLists()
+
+        if(!isAlreadyActive){
+            selectedButtonGroup.classList.remove('d-none')
+            instance.classList.remove('border-warning')
+            instance.classList.add('border-primary')
+        }
     }
 
     function show_or_hideById(instance, alt=false, alt_instance=null){
@@ -607,9 +784,17 @@
         else{
             block = document.getElementById(instance.innerHTML.trim())
             document.getElementById('search-result').classList.add('d-none')
+            activeAnimalCategoryFilter = null
+            document.getElementById('animal-filter-buttons').classList.add('d-none')
+
+            document.querySelectorAll('.animal-category-filter').forEach((button) => {
+                button.classList.remove('border-primary')
+                button.classList.add('border-warning')
+            })
     
             if(block.classList.contains('d-none')){
                 block.classList.remove('d-none')
+                applyItemRarityFilter()
                 instance.classList.remove('border-warning')
                 instance.classList.add('border-primary')
             }
