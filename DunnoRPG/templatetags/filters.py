@@ -159,6 +159,41 @@ def getStaffMagicDmg(itemName, charId):
     #return dmg based on type and character int 
 
 
+ITEM_TYPE_TRANSLATIONS_PL = {
+    "amulet": "Amulet",
+    "animal": "Zwierzę",
+    "axe": "Topór",
+    "boots": "Buty",
+    "bow": "Łuk",
+    "crossbow": "Kusza",
+    "dagger": "Sztylet",
+    "gloves": "Rękawice",
+    "halberd": "Halabarda",
+    "hammer": "Młot",
+    "helmet": "Hełm",
+    "knuckles": "Kastet",
+    "longbow": "Długi łuk",
+    "lute": "Lutnia",
+    "mace": "Buzdygan",
+    "mount armor": "Pancerz wierzchowca",
+    "musket": "Muszkiet",
+    "other": "Inne",
+    "pistol": "Pistolet",
+    "saber": "Szabla",
+    "shield": "Tarcza",
+    "shortbow": "Krótki łuk",
+    "singlehand": "Jednoręczne",
+    "spear": "Włócznia",
+    "staff": "Laska",
+    "sword": "Miecz",
+    "torso": "Napierśnik",
+    "wand": "Kostur",
+}
+
+def translate_item_type_pl(item_type):
+    key = (item_type or "").strip().lower()
+    return ITEM_TYPE_TRANSLATIONS_PL.get(key, item_type)
+
 @register.filter
 def getItemType(itemName, translate="none"):
     
@@ -192,10 +227,34 @@ def getItemType(itemName, translate="none"):
     if translate=="none":
         return type
     elif translate=="pl":
-        try:
-            return translations_pl[type]
-        except:
-            return type
+        return translate_item_type_pl(type)
+
+@register.filter
+def itemTypePl(item_type):
+    translations_pl = {
+        "Helmet": "Hełm",
+        "Torso": "Napierśnik",
+        "Gloves": "Rękawice",
+        "Boots": "Buty",
+        "Shield": "Tarcza",
+        "shield": "Tarcza",
+        "Pistol": "Pistolet",
+        "Dagger": "Sztylet",
+        "Sword": "Miecz",
+    }
+    return translate_item_type_pl(item_type)
+
+@register.filter
+def armorWeightPlPlural(armor_weight):
+    translations_pl = {
+        "light": "Lekkie",
+        "light+": "Lekkie+",
+        "medium": "Średnie",
+        "medium+": "Średnie+",
+        "heavy": "Ciężkie",
+    }
+    key = (armor_weight or "").strip().lower()
+    return translations_pl.get(key, armor_weight)
 
 @register.filter
 def getItemRarity(itemName):
@@ -427,11 +486,70 @@ def textWithDefinitionStandard(text):
 
     return mark_safe("".join(parts))
 
+def _text_with_definition_html(text):
+    parts = []
+    for chunk in re.split(r'(\s+)', str(text)):
+        if not chunk or chunk.isspace():
+            parts.append(chunk)
+            continue
+
+        match = re.match(r'^\|\|([^\s.,;:!?()[\]{}"\']+)(.*)$', chunk)
+        if not match:
+            parts.append(escape(chunk))
+            continue
+
+        term, suffix = match.groups()
+        definition = definitions.get(term, '')
+        parts.append(
+            f'<span onclick=\'showInfoCard("{term}",{json.dumps(definition, ensure_ascii=False)})\' '
+            f'style="cursor:pointer;" class="text-decoration-underline">{escape(term)}</span>{escape(suffix)}'
+        )
+
+    return "".join(parts)
+
+@register.filter
+def itemSkillWithLinks(text):
+    rendered = []
+    raw_text = str(text or "")
+    cursor = 0
+
+    for match in re.finditer(r'\|\|\|(.+?)\|\|\|', raw_text):
+        rendered.append(_text_with_definition_html(raw_text[cursor:match.start()]))
+
+        skill_name = match.group(1).strip()
+        skill = models.Skills_Decs.objects.filter(name__iexact=skill_name).first()
+        if skill:
+            rendered.append(
+                f'<span class="text-info text-decoration-underline" style="cursor:pointer;" '
+                f'onclick="showIframe(\'/dunnorpg/skills/{skill.id}\')">{escape(skill_name)}</span>'
+            )
+        else:
+            rendered.append(escape(skill_name))
+
+        cursor = match.end()
+
+    rendered.append(_text_with_definition_html(raw_text[cursor:]))
+    return mark_safe("".join(rendered))
+
 @register.filter
 def beautifySplit(text, splitBy):
     text = text.replace("all", "Wszyscy")
 
     return text.replace(splitBy, ', ')
+
+@register.filter
+def classUrlsJson(text):
+    urls = {}
+    for class_name in str(text or "").split(";"):
+        class_name = class_name.strip()
+        if not class_name or class_name.lower() == "all":
+            continue
+
+        class_obj = models.Classes.objects.filter(name=class_name).first()
+        if class_obj:
+            urls[class_name] = f"/dunnorpg/info/classes/{class_obj.id}"
+
+    return mark_safe(json.dumps(urls, ensure_ascii=False))
 
 @register.filter
 def classSkillHref(text):

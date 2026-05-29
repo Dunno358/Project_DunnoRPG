@@ -6,23 +6,73 @@
 
 <div class='container mt-0'>
 
+    <div id='info-card' class="container card-body text-center c-gold border border-warning bg-dark rounded position-fixed m-0 p-0 pb-3 d-none mt-5" 
+    style="width: 98%; z-index: 5; margin-left: -0.5rem !important; margin-top: -1rem !important;">
+        <h3 class="mt-1" id="info-card-topic"></h3>
+
+        <div class="row">
+            <div class="col c-gold text-start ps-5 pe-5">
+                <span class="h6" id="info-card-content"></span>
+            </div>
+        </div>
+
+        <div class="row m-0 p-0 mt-3">
+            <div class="col">
+                <button class="btn btn-success w-100" onclick="show_or_hideById('info-card')">OK</button>
+            </div>
+        </div>
+    </div>
+
+    <div id='iframe-card' class="container position-fixed m-0 p-0 pb-3 mt-0 d-none" 
+    style="width: 98%; z-index: 5; margin-left: 0.22rem !important; margin-top: -5rem !important">
+        <div class="row">
+            <div class="col c-gold p-0">
+                <button class='btn btn-dark btn-outline-danger w-100' onclick="show_or_hideById('iframe-card')">X Zamknij podgląd umiejętności X</button>
+            </div>
+        </div>
+
+        <div class="row w-100" style="height: 35rem !important;">
+            <div class="col c-gold text-start p-0">
+                <iframe src="/dunnorpg/skills/1" class="border border-warning w-100 h-100" id="iframe"></iframe>
+            </div>
+        </div>
+    </div>
+
     <div class='row text-border-black'>
         <div class='col text-center c-gold fst-italic m-0 p-0 border-end border-bottom border-warning bg-dark bg-gradient'>
             <h2>
                 Wytrzymałość: {{ item.maxDurability }}
             </h2>
         </div>
-        <div class='col text-center c-gold fst-italic m-0 p-0 border-end border-bottom border-warning bg-dark bg-gradient'>
-            <h2>
-                Zasięg ataku: <br>{{ item.name|getItemRange }}
-            </h2>
-        </div>
+        {% if item.on_use and item.on_use != '-' %}
+            <div class='col text-center c-gold fst-italic m-0 p-0 border-end border-bottom border-warning bg-dark bg-gradient'>
+                <h2>
+                    Koszt użycia: {{ item.use_cost }}
+                </h2>
+            </div>
+        {% endif %}
+        {% if item.range != 0 %}
+            <div class='col text-center c-gold fst-italic m-0 p-0 border-end border-bottom border-warning bg-dark bg-gradient'>
+                <h2>
+                    Zasięg ataku: <br>{{ item.name|getItemRange }}
+                </h2>
+            </div>
+        {% endif %}
     </div>
 
     <div class='row text-border-black mt-2'>
         <div class='col text-center c-gold fst-italic '>
             <h1 id="item-name" class="{{ item.rarity }}">
                 {{ item.name }}
+                {% if item.additionalInfo %}
+                    <span
+                    class="text-warning fst-italic ms-1"
+                    style="cursor: pointer; -webkit-text-stroke: 1px black; text-shadow: 1px 1px 2px black;"
+                    title="Pokaż ciekawostkę"
+                    data-additional-info="{{ item.additionalInfo|escape }}"
+                    onclick="showInfoCard('Ciekawostka', this.dataset.additionalInfo)"
+                    >?</span>
+                {% endif %}
                 {% if user.is_superuser %}
                     <a href="/admin/DunnoRPG/items/{{ item.id }}/change/" class="ms-2 fa fa-link {{ item.rarity }}" target="_blank"></a>
                 {% endif %}
@@ -33,7 +83,7 @@
     <div class='row mt-2 text-border-black'>
         <div class='col text-center c-gold fst-italic m-0 p-0'>
             <h2>
-                Typ: {{ item.type }} {% if item.dualHanded %}(Dwuręczne){% endif %}
+                Typ: {{ item.type|itemTypePl }}{% if item.category == 'armor' or item.category == 'cloth' %} ({{ item.armor_weight|armorWeightPlPlural }}){% endif %} {% if item.dualHanded %}(Dwuręczne){% endif %}
             </h2>
         </div>
     </div>
@@ -41,11 +91,15 @@
     <div class='row mt-4'>
         <div class='col bg-opacity-75 text-center c-gold bg-dark border border-warning rounded ms-5 me-5 p-1 pt-2'>
             {% if item.name|isShield %}
-                <h2>Block: {{ item.block }}</h2>
+                <h2>Blok: {{ item.block }}</h2>
             {% elif item.name|isArmor %}
-                <h2>Armor: {{ item.armor }}</h2>
+                <h2>Pancerz: {{ item.armor }}</h2>
             {% elif item.type == 'Other' %}
-                <h2>Usable or valuable item</h2>
+                {% if item.on_use and item.on_use != '-' %}
+                    <h2>Możliwość użycia ({% if item.use_amount %}{{ item.use_amount }}{% else %}1{% endif %})</h2>
+                {% else %}
+                    <h2>Nie można użyć</h2>
+                {% endif %}
             {% elif item.type == 'Animal' %}
                 <h2>PŻ: {{ item.maxDurability }} | Armor: {{ item.armor }}</h2>
             {% elif item.type == 'Wand' %}
@@ -59,7 +113,7 @@
     {% if item.skill != '' %}
         <div class='row'>
             <div class='col bg-opacity-75 text-center c-gold bg-dark rounded border border-warning border-top-0 ms-5 me-5 p-1 pt-2'>
-                    {{ item.skill }}
+                    {{ item.skill|itemSkillWithLinks }}
             </div>
         </div>    
     {% endif %}
@@ -102,18 +156,24 @@
         </div>
     </div>
 
-    <div class='row text-border-black mt-2'>
-        <div class='col text-center c-gold fst-italic m-0 p-0 border-bottom border-top border-end border-warning bg-dark bg-gradient '>
-            <h2>
-                Trafienie od: <br> {{ item.neededAccuraccy }}
-            </h2>
+    {% if item.neededAccuraccy != 0 or item.dmg_type and item.dmg_type != 'None' and item.dmg_type != '-' %}
+        <div class='row text-border-black mt-2'>
+            {% if item.neededAccuraccy != 0 %}
+                <div class='col text-center c-gold fst-italic m-0 p-0 border-bottom border-top border-end border-warning bg-dark bg-gradient '>
+                    <h2>
+                        Trafienie od: <br> {{ item.neededAccuraccy }}
+                    </h2>
+                </div>
+            {% endif %}
+            {% if item.dmg_type and item.dmg_type != 'None' and item.dmg_type != '-' %}
+                <div class='col text-center c-gold fst-italic m-0 p-0 border-bottom border-top border-warning bg-dark bg-gradient'>
+                    <h2>
+                        Typ obrażeń: <br>{{ item.dmg_type }}
+                    </h2>
+                </div>
+            {% endif %}
         </div>
-        <div class='col text-center c-gold fst-italic m-0 p-0 border-bottom border-top border-warning bg-dark bg-gradient'>
-            <h2>
-                Typ obrażeń: <br>{{ item.dmg_type }}
-            </h2>
-        </div>
-    </div>
+    {% endif %}
         {% if item.altAttack != 'None' %}
             <div class='row text-border-black'>
                 <div class='col text-center c-gold fst-italic m-0 p-0 border-bottom border-top border-warning bg-dark bg-gradient'>
@@ -138,6 +198,36 @@
     function hideDesc(instance){
         document.getElementById('item_desc').classList.add('d-none')
         document.getElementById('desc-btn').classList.remove('d-none')
+    }
+
+    function showInfoCard(title, text){
+        let card = document.getElementById("info-card")
+        let topic = document.getElementById("info-card-topic")
+        let content = document.getElementById("info-card-content")
+
+        card.classList.remove("d-none")
+        topic.textContent = title
+        content.textContent = text
+    }
+
+    function show_or_hideById(id){
+        let element = document.getElementById(id)
+        if (element.classList.contains('d-none')){
+            element.classList.remove('d-none')
+        }
+        else{
+            element.classList.add('d-none')
+        }
+    }
+
+    function showIframe(skill_src){
+        if(skill_src!=''){
+            let iframe = document.getElementById("iframe")
+            let iframe_div = document.getElementById("iframe-card")
+
+            iframe.src = skill_src
+            iframe_div.classList.remove("d-none")
+        }
     }
 </script>
 
