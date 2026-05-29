@@ -34,6 +34,26 @@ style="width: 98%; z-index: 5; margin-left: 0.22rem !important; margin-top: -8re
     </div>
 </div>
 
+<div id='class-confirm-card' class="container card-body text-center c-gold border border-warning bg-dark rounded position-fixed m-0 p-0 pb-3 d-none mt-5" 
+style="width: 98%; z-index: 6; margin-left: 0.22rem !important; margin-top: -8rem !important;">
+    <h3 class="mt-1">Przejść do klasy?</h3>
+
+    <div class="row">
+        <div class="col c-gold ps-5 pe-5">
+            <span class="h5 fst-italic" id="class-confirm-name"></span>
+        </div>
+    </div>
+
+    <div class="row m-0 p-0 mt-3">
+        <div class="col">
+            <button class="btn btn-danger w-100" onclick="show_or_hideById('class-confirm-card')">Nie</button>
+        </div>
+        <div class="col">
+            <a class="btn btn-success w-100" id="class-confirm-link" href="#">Tak</a>
+        </div>
+    </div>
+</div>
+
 <div class='container'>
     <div class='row ms-3 me-3'>
         <div class='col c-gold fst-italic bg-gray opacity-75 border border-warning rounded text-center' style='font-size: 115%;'>
@@ -131,6 +151,8 @@ style="width: 98%; z-index: 5; margin-left: 0.22rem !important; margin-top: -8re
     document.title = document.getElementById('skill-name').innerHTML + " | DunnoRPG"
     document.getElementById('tb-skills').classList.remove('btn-outline-warning')
     document.getElementById('tb-skills').classList.add('btn-outline-primary')
+    const classUrls = {{ skill.restrictions|classUrlsJson }}
+
     function show(btn) {
             var lvls = ['level1','level2','level3','level4']
             element = document.getElementById(btn.innerHTML)
@@ -157,8 +179,44 @@ style="width: 98%; z-index: 5; margin-left: 0.22rem !important; margin-top: -8re
 
         card.classList.remove("d-none")
         topic.textContent = title
-        content.textContent = text
+        content.innerHTML = ""
+
+        if(title === "Dostępne dla:"){
+            let list = document.createElement("ul")
+            list.className = "d-inline-block text-start m-0"
+
+            text.split(",").map((item) => item.trim()).filter(Boolean).forEach((item) => {
+                let listItem = document.createElement("li")
+                listItem.className = "h5 fst-italic"
+
+                if(classUrls[item]){
+                    let classLink = document.createElement("span")
+                    classLink.className = "text-decoration-underline"
+                    classLink.style.cursor = "pointer"
+                    classLink.textContent = item
+                    classLink.onclick = () => showClassConfirm(item, classUrls[item])
+                    listItem.appendChild(classLink)
+                }
+                else{
+                    listItem.textContent = item
+                }
+
+                list.appendChild(listItem)
+            })
+
+            content.appendChild(list)
+        }
+        else{
+            content.textContent = text
+        }
     }
+
+    function showClassConfirm(className, classHref){
+        document.getElementById("class-confirm-name").textContent = className
+        document.getElementById("class-confirm-link").href = classHref
+        document.getElementById("class-confirm-card").classList.remove("d-none")
+    }
+
     function show_or_hideById(id){
         let element = document.getElementById(id)
         if (element.classList.contains('d-none')){
