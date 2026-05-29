@@ -5,6 +5,38 @@
 {% include 'dunnorpg/messages.html' %}
 <!-- TODO: Add checking if class armor allows for item when putting on or changing item of armor -->
 
+<div id='info-card' class="container card-body text-center c-gold border border-warning bg-dark rounded position-fixed m-0 p-0 pb-3 d-none mt-5" 
+style="width: 98%; z-index: 20; margin-left: 0.1rem !important; margin-top: -1rem !important;">
+    <h3 class="mt-1" id="info-card-topic"></h3>
+
+    <div class="row">
+        <div class="col c-gold text-start ps-5 pe-5">
+            <span class="h6" id="info-card-content"></span>
+        </div>
+    </div>
+
+    <div class="row m-0 p-0 mt-3">
+        <div class="col">
+            <button class="btn btn-success w-100" onclick="show_or_hideById('info-card')">OK</button>
+        </div>
+    </div>
+</div>
+
+<div id='iframe-card' class="container position-fixed m-0 p-0 pb-3 mt-0 d-none" 
+style="width: 98%; z-index: 20; margin-left: 1rem !important; margin-top: -5.5rem !important">
+    <div class="row">
+        <div class="col c-gold p-0">
+            <button class='btn btn-dark btn-outline-danger w-100' onclick="show_or_hideById('iframe-card')">X Zamknij podglad umiejetnosci X</button>
+        </div>
+    </div>
+
+    <div class="row w-100" style="height: 35rem !important;">
+        <div class="col c-gold text-start p-0">
+            <iframe src="/dunnorpg/skills/1" class="border border-warning w-100 h-100" id="iframe"></iframe>
+        </div>
+    </div>
+</div>
+
 <div id='add-exp-block' class='position-fixed container-fluid p-0 ms-4 d-none' style="margin-top: 7rem; width: 90%; z-index: 10;">
     <div class='row bg-dark c-gold rounded border border-warning me-1'>
         <div class='col text-center'>
@@ -509,7 +541,7 @@
                 {% if helmet.name|getSkill %}
                     <div class="row me-0 pe-0">
                         <div class="col text-justified {{ helmet.name|getItemRarity }} p-0 ps-1 pt-1">
-                            {{ helmet.name|getSkill }}
+                            {{ helmet.name|getSkill|itemSkillWithLinks }}
                         </div>
                     </div>
                     <hr class="mb-0 mt-1">
@@ -631,7 +663,7 @@
                 {% if torso.name|getSkill %}
                     <div class="row me-0 pe-0">
                         <div class="col text-justified {{ torso.name|getItemRarity }} p-0 ps-1 pt-1">
-                            {{ torso.name|getSkill }}
+                            {{ torso.name|getSkill|itemSkillWithLinks }}
                         </div>
                     </div>
                     <hr class="mb-0 mt-1">
@@ -780,7 +812,7 @@
                 {% if leftItem.name|getSkill %}
                     <div class="row me-0 pe-0">
                         <div class="col text-justified {{ leftItem.name|getItemRarity }} p-0 ps-1 pt-1">
-                            {{ leftItem.name|getSkill }}
+                            {{ leftItem.name|getSkill|itemSkillWithLinks }}
                         </div>
                     </div>
                     <hr class="mb-0 mt-1">
@@ -939,7 +971,7 @@
                 {% if rightItem.name|getSkill %}
                     <div class="row me-0 pe-0">
                         <div class="col text-justified {{ rightItem.name|getItemRarity }} p-0 ps-1 pt-1">
-                            {{ rightItem.name|getSkill }}
+                            {{ rightItem.name|getSkill|itemSkillWithLinks }}
                         </div>
                     </div>
                     <hr class="mb-0 mt-1">
@@ -1069,7 +1101,7 @@
                 {% if sideItem.name|getSkill %}
                     <div class="row me-0 pe-0">
                         <div class="col text-justified {{ sideItem.name|getItemRarity }} p-0 ps-1 pt-1">
-                            {{ sideItem.name|getSkill }}
+                            {{ sideItem.name|getSkill|itemSkillWithLinks }}
                         </div>
                     </div>
                     <hr class="mb-0 mt-1">
@@ -1196,7 +1228,7 @@
                 {% if boots.name|getSkill %}
                     <div class="row me-0 pe-0">
                         <div class="col text-justified {{ boots.name|getItemRarity }} p-0 ps-1 pt-1">
-                            {{ boots.name|getSkill }}
+                            {{ boots.name|getSkill|itemSkillWithLinks }}
                         </div>
                     </div>
                     <hr class="mb-0 mt-1">
@@ -1318,7 +1350,7 @@
                 {% if gloves.name|getSkill %}
                     <div class="row me-0 pe-0">
                         <div class="col text-justified {{ gloves.name|getItemRarity }} p-0 ps-1 pt-1">
-                            {{ gloves.name|getSkill }}
+                            {{ gloves.name|getSkill|itemSkillWithLinks }}
                         </div>
                     </div>
                     <hr class="mb-0 mt-1">
@@ -1440,7 +1472,7 @@
                 {% if amulet.name|getSkill %}
                     <div class="row me-0 pe-0">
                         <div class="col text-justified {{ amulet.name|getItemRarity }} p-0 ps-1 pt-1">
-                            {{ amulet.name|getSkill }}
+                            {{ amulet.name|getSkill|itemSkillWithLinks }}
                         </div>
                     </div>
                     <hr class="mb-0 mt-1">
@@ -1562,7 +1594,7 @@
                 {% if mount.name|getSkill %}
                     <div class="row me-0 pe-0">
                         <div class="col text-justified {{ mount.name|getItemRarity }} p-0 ps-1 pt-1">
-                            {{ mount.name|getSkill }}
+                            {{ mount.name|getSkill|itemSkillWithLinks }}
                         </div>
                     </div>
                     <hr class="mb-0 mt-1">
@@ -1684,7 +1716,7 @@
                 {% if mount_armor.name|getSkill %}
                     <div class="row me-0 pe-0">
                         <div class="col text-justified {{ mount_armor.name|getItemRarity }} p-0 ps-1 pt-1">
-                            {{ mount_armor.name|getSkill }}
+                            {{ mount_armor.name|getSkill|itemSkillWithLinks }}
                         </div>
                     </div>
                     <hr class="mb-0 mt-1">
@@ -1852,9 +1884,9 @@
                 {% endif %}
                 <div id='{{ skill.id }}' name="desc_block" class="d-none">
                     <p class='fw-bold text-center'>{{ skill.skill }} lvl.{{ skill.level }}</p>
-                    {{ skill.desc }}
+                    {{ skill.desc|itemSkillWithLinks }}
                     <br>
-                    [<span class='fst-italic'>{{ skill.level_desc }}</span>]
+                    [<span class='fst-italic'>{{ skill.level_desc|itemSkillWithLinks }}</span>]
                 </div>
             </li><br>
         {% endfor %}
@@ -1880,9 +1912,9 @@
                 {% endif %}
                 <div id='{{ skill.id }}' name="desc_block" class="d-none">
                     <p class='fw-bold text-center'>{{ skill.skill }} lvl.{{ skill.level }}</p>
-                    {{ skill.desc }}
+                    {{ skill.desc|itemSkillWithLinks }}
                     <br>
-                    [<span class='fst-italic'>{{ skill.level_desc }}</span>]
+                    [<span class='fst-italic'>{{ skill.level_desc|itemSkillWithLinks }}</span>]
                 </div>
             </li><br>
         {% endfor %}
@@ -1908,9 +1940,9 @@
                 {% endif %}
                 <div id='{{ skill.id }}' name="desc_block" class="d-none">
                     <p class='fw-bold text-center'>{{ skill.skill }} lvl.{{ skill.level }}</p>
-                    {{ skill.desc }}
+                    {{ skill.desc|itemSkillWithLinks }}
                     <br>
-                    [<span class='fst-italic'>{{ skill.level_desc }}</span>]
+                    [<span class='fst-italic'>{{ skill.level_desc|itemSkillWithLinks }}</span>]
                 </div>
             </li><br>
         {% endfor %}
@@ -1936,9 +1968,9 @@
                 {% endif %}
                 <div id='{{ skill.id }}' name="desc_block" class="d-none">
                     <p class='fw-bold text-center'>{{ skill.skill }} lvl.{{ skill.level }}</p>
-                    {{ skill.desc }}
+                    {{ skill.desc|itemSkillWithLinks }}
                     <br>
-                    [<span class='fst-italic'>{{ skill.level_desc }}</span>]
+                    [<span class='fst-italic'>{{ skill.level_desc|itemSkillWithLinks }}</span>]
                 </div>
             </li><br>
         {% endfor %}
@@ -1964,9 +1996,9 @@
                 {% endif %}
                 <div id='{{ skill.id }}' name="desc_block" class="d-none">
                     <p class='fw-bold text-center'>{{ skill.skill }} lvl.{{ skill.level }}</p>
-                    {{ skill.desc }}
+                    {{ skill.desc|itemSkillWithLinks }}
                     <br>
-                    [<span class='fst-italic'>{{ skill.level_desc }}</span>]
+                    [<span class='fst-italic'>{{ skill.level_desc|itemSkillWithLinks }}</span>]
                 </div>
             </li><br>
         {% endfor %}
@@ -2432,6 +2464,26 @@ function show_or_hideById(id){
     }
     else{
         element.classList.add('d-none')
+    }
+};
+
+function showInfoCard(title, text){
+    let card = document.getElementById("info-card")
+    let topic = document.getElementById("info-card-topic")
+    let content = document.getElementById("info-card-content")
+
+    card.classList.remove("d-none")
+    topic.textContent = title
+    content.textContent = text
+};
+
+function showIframe(skill_src){
+    if(skill_src!=''){
+        let iframe = document.getElementById("iframe")
+        let iframe_div = document.getElementById("iframe-card")
+
+        iframe.src = skill_src
+        iframe_div.classList.remove("d-none")
     }
 };
 
