@@ -2131,6 +2131,11 @@ function showMessageLegacy(text, type='success'){
 
 function showMessage(text, type='success'){
     const stack = document.getElementById('ajax-msg-stack')
+    const lastMessage = stack.lastElementChild
+    if(lastMessage && lastMessage.dataset.messageText === text && lastMessage.dataset.messageType === type){
+        return
+    }
+
     const msg = document.createElement('div')
     const isSuccess = type === 'success'
     const isWarning = type === 'warning'
@@ -2139,6 +2144,8 @@ function showMessage(text, type='success'){
 
     msg.className = `text-center rounded border bg-opacity-100 bg-gradient p-4 ps-4 pe-4 text-white w-100 ${colorClass}`
     msg.style.setProperty('color', isSuccess ? '#5effb5' : (isWarning ? '#2b2100' : '#ffe2e2'), 'important')
+    msg.dataset.messageText = text
+    msg.dataset.messageType = type
     msg.innerHTML = `${text}${closeButton}`
     stack.appendChild(msg)
 
