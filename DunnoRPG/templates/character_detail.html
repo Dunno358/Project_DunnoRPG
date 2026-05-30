@@ -3,7 +3,9 @@
 {% block content %}
 {% include 'top_bar.html' %}
 {% include 'dunnorpg/messages.html' %}
-<!-- TODO: Add checking if class armor allows for item when putting on or changing item of armor -->
+
+<div id="ajax-msg-stack" class="position-fixed d-flex flex-column align-items-center gap-2"
+style="top: 0.7rem; left: 50%; transform: translateX(-50%); z-index: 9999; width: min(90vw, 28rem);"></div>
 
 <div id='info-card' class="container card-body text-center c-gold border border-warning bg-dark rounded position-fixed m-0 p-0 pb-3 d-none mt-5" 
 style="width: 98%; z-index: 20; margin-left: 0.1rem !important; margin-top: -1rem !important;">
@@ -369,14 +371,14 @@ style="width: 98%; z-index: 20; margin-left: 1rem !important; margin-top: -5.5re
 
         <div class="row mt-2 m-0 p-0">
             <div class="col rounded p-1 bg-gray bg-gradient border border-warning m-2 p-1 h6 pb-0" style="min-width: 0;">
-                <form method="post" action="change-food-water/water" class="d-inline-flex align-items-center justify-content-center flex-nowrap">
+                <form id="water-form" method="post" action="change-food-water/water" class="d-inline-flex align-items-center justify-content-center flex-nowrap" onsubmit="changeFoodWater(event, 'water')">
                     {% csrf_token %}
                     <span class="fw-bold {% if value.water > 20 %}text-success{% else %}text-danger text-decoration-underline{% endif %}">Napojenie:</span>
                     <input type="number" min="0" max="100" id="water-val" class="fw-bold text-center border-0 ms-1 {% if value.water > 20 %}text-success{% else %}text-danger text-decoration-underline{% endif %}" style="width: 2.7rem; background: transparent;" value="{{ value.water }}" name="water-amount"><span class="fw-bold {% if value.water > 20 %}text-success{% else %}text-danger text-decoration-underline{% endif %}">%</span>
                 </form>
             </div>
             <div class="col rounded p-1 bg-gray bg-gradient border border-warning m-2 p-1 h6 pb-0" style="min-width: 0;"> 
-                <form class='' method="post" action="change-health">
+                <form id="hp-form" class='' method="post" action="change-health" onsubmit="changeHealth(event)">
                     {% csrf_token %}
                     <span class="text-white-50">Życie:</span>
                     <input type='number' id='hp-val' class='c-gold text-center bg-gray bg-gradient border-0 h6' style='width: 6vw' value='{{ value.HP }}' name="hp">/{{ value.fullHP }}
@@ -386,7 +388,7 @@ style="width: 98%; z-index: 20; margin-left: 1rem !important; margin-top: -5.5re
 
         <div class="row m-0 p-0">
             <div class="col rounded bg-gray bg-gradient border border-warning m-2 p-2 h6" style="min-width: 0;">
-                <form method="post" action="change-food-water/food" class="d-inline-flex align-items-center justify-content-center flex-nowrap">
+                <form id="food-form" method="post" action="change-food-water/food" class="d-inline-flex align-items-center justify-content-center flex-nowrap" onsubmit="changeFoodWater(event, 'food')">
                     {% csrf_token %}
                     <span class="fw-bold {% if value.food > 20 %}text-success{% else %}text-danger text-decoration-underline{% endif %}">Nasycenie:</span>
                     <input type="number" min="0" max="100" id="food-val" class="fw-bold text-center border-0 ms-1 {% if value.food > 20 %}text-success{% else %}text-danger text-decoration-underline{% endif %}" style="width: 2.7rem; background: transparent;" value="{{ value.food }}" name="food-amount"><span class="fw-bold {% if value.food > 20 %}text-success{% else %}text-danger text-decoration-underline{% endif %}">%</span>
@@ -400,10 +402,10 @@ style="width: 98%; z-index: 20; margin-left: 1rem !important; margin-top: -5.5re
 
         <div class="row m-0 p-0">
             <div class="col rounded bg-gray bg-gradient border border-warning m-2 p-2 h6" style="min-width: 0;">
-                <form method="post" action="change-coins">
+                <form id="coins-form" method="post" action="change-coins" onsubmit="changeCoins(event)">
                     {% csrf_token %}
                     <span class="text-white-50">Monety:</span>
-                    <input type='number' min="0" id='coins' class='c-gold text-center bg-gray bg-gradient border-0 h6' style='width: 18vw' value='{{ value.coins }}' name="coins-amount">
+                    <input type='text' inputmode="decimal" id='coins' class='c-gold text-center bg-gray bg-gradient border-0 h6' style='width: 18vw' value='{{ value.coins }}' name="coins-amount">
                 </form>
             </div>
             {% if value.alcohol != "0" and value.alcohol != 0 %}
@@ -2059,6 +2061,22 @@ catchErrorForValueChanges('alcohol-val')
 durs = ['helmet-dur-gm','torso-dur-gm','leftItem-dur-gm','rightItem-dur-gm','sideItem-dur-gm','boots-dur-gm','gloves-dur-gm']
 durs.forEach(catchErrorForValueChanges)
 
+function initAjaxInput(inputId, formId){
+    const input = document.getElementById(inputId)
+    input.dataset.lastSubmittedValue = input.value
+    input.addEventListener('change', () => {
+        if(input.value === input.dataset.lastSubmittedValue){
+            return
+        }
+        document.getElementById(formId).requestSubmit()
+    })
+}
+
+initAjaxInput('hp-val', 'hp-form')
+initAjaxInput('coins', 'coins-form')
+initAjaxInput('water-val', 'water-form')
+initAjaxInput('food-val', 'food-form')
+
 function showSkill(instance){
     if(instance.innerHTML == "Check skill"){
         instance.innerHTML = instance.title
@@ -2077,6 +2095,229 @@ function makeChangeToRequest(field_id, model, field){
 //Test Function
 //makeChangeToRequest('coins','Character','coins')
 //makeChangeToRequest('hp-val','Character','hp')
+
+function showMessageLegacy(text, type='success'){
+    const msg = document.getElementById('ajax-msg')
+    const isSuccess = type === 'success'
+    const isWarning = type === 'warning'
+    const closeButton = isSuccess ? '' : '<br><button type="button" class="m-2 btn btn-sm w-50 p-3 border border-light text-light rounded" style="background: maroon;" onclick="this.parentElement.classList.add(\'d-none\')"><b>Okej</b></button>'
+    const colorClass = isSuccess ? 'bg-success border-success' : (isWarning ? 'bg-warning border-warning' : 'bg-danger border-danger')
+
+    clearTimeout(window.ajaxMsgTimeout)
+    msg.className = `position-fixed text-center rounded border bg-opacity-100 bg-gradient p-4 ps-4 pe-4 text-white ${colorClass}`
+    msg.style.top = '0.7rem'
+    msg.style.left = '50%'
+    msg.style.transform = 'translateX(-50%)'
+    msg.style.zIndex = '9999'
+    msg.style.minWidth = '21rem'
+    msg.style.maxWidth = '90vw'
+    msg.style.setProperty('color', isSuccess ? '#5effb5' : (isWarning ? '#2b2100' : '#ffe2e2'), 'important')
+    msg.innerHTML = `${text}${closeButton}`
+
+    if(isSuccess){
+        window.ajaxMsgTimeout = setTimeout(() => {
+            msg.classList.add('d-none')
+        }, 3000)
+    }
+    return
+    const title = type === 'success' ? 'Sukces' : 'Błąd'
+    if(document.getElementById('info-card')){
+        showInfoCard(title, text)
+        return
+    }
+
+    alert(`${title}: ${text}`)
+}
+
+function showMessage(text, type='success'){
+    const stack = document.getElementById('ajax-msg-stack')
+    const msg = document.createElement('div')
+    const isSuccess = type === 'success'
+    const isWarning = type === 'warning'
+    const closeButton = isSuccess ? '' : '<br><button type="button" class="m-2 btn btn-sm w-50 p-3 border border-light text-light rounded" style="background: maroon;" onclick="this.parentElement.remove()"><b>Okej</b></button>'
+    const colorClass = isSuccess ? 'bg-success border-success' : (isWarning ? 'bg-warning border-warning' : 'bg-danger border-danger')
+
+    msg.className = `text-center rounded border bg-opacity-100 bg-gradient p-4 ps-4 pe-4 text-white w-100 ${colorClass}`
+    msg.style.setProperty('color', isSuccess ? '#5effb5' : (isWarning ? '#2b2100' : '#ffe2e2'), 'important')
+    msg.innerHTML = `${text}${closeButton}`
+    stack.appendChild(msg)
+
+    if(isSuccess){
+        setTimeout(() => {
+            msg.remove()
+        }, 3000)
+    }
+}
+
+function showMessages(messages){
+    messages.forEach((message) => {
+        showMessage(message.text || message.message || '', message.type || message.message_type || 'success')
+    })
+}
+
+async function changeHealth(event){
+    event.preventDefault()
+
+    const form = event.currentTarget
+    const hpInput = document.getElementById('hp-val')
+    if(form.dataset.submitting === 'true' || hpInput.value === hpInput.dataset.lastSubmittedValue){
+        return
+    }
+    form.dataset.submitting = 'true'
+
+    try{
+        const response = await fetch(form.action, {
+            method: 'POST',
+            body: new FormData(form),
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+            },
+        })
+        const data = await response.json()
+
+        if(!response.ok){
+            throw new Error(data.error || 'Nie udało się zmienić Życia.')
+        }
+
+        hpInput.value = data.hp
+        hpInput.setAttribute('value', data.hp)
+        hpInput.dataset.lastSubmittedValue = String(data.hp)
+        if(data.messages){
+            showMessages(data.messages)
+        }
+        else{
+            showMessage(data.message || 'Pomyślnie zmieniono Życie.', 'success')
+        }
+    }
+    catch(error){
+        showMessage(error.message, 'error')
+    }
+    finally{
+        form.dataset.submitting = 'false'
+    }
+}
+
+async function changeCoins(event){
+    event.preventDefault()
+
+    const form = event.currentTarget
+    const coinsInput = document.getElementById('coins')
+    const coinsRaw = coinsInput.value.trim().replace(',', '.')
+    const coinsValue = Number(coinsRaw)
+    if(form.dataset.submitting === 'true' || coinsInput.value === coinsInput.dataset.lastSubmittedValue){
+        return
+    }
+
+    if(!/^\d+(\.\d)?$/.test(coinsRaw) || Number.isNaN(coinsValue) || coinsValue < 0){
+        showMessage('Monety muszą być liczbą większą lub równą 0 i mieć maksymalnie jedno miejsce po przecinku.', 'error')
+        return
+    }
+    form.dataset.submitting = 'true'
+
+    try{
+        const response = await fetch(form.action, {
+            method: 'POST',
+            body: new FormData(form),
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+            },
+        })
+        const data = await response.json()
+
+        if(!response.ok){
+            throw new Error(data.error || 'Nie udało się zmienić Monet.')
+        }
+
+        coinsInput.value = data.coins
+        coinsInput.setAttribute('value', data.coins)
+        coinsInput.dataset.lastSubmittedValue = String(data.coins)
+        if(data.messages){
+            showMessages(data.messages)
+        }
+        else{
+            showMessage(data.message || 'Pomyślnie zmieniono Monety.', 'success')
+        }
+    }
+    catch(error){
+        showMessage(error.message, 'error')
+    }
+    finally{
+        form.dataset.submitting = 'false'
+    }
+}
+
+function updateFoodWaterState(statType, value){
+    const input = document.getElementById(`${statType}-val`)
+    const form = document.getElementById(`${statType}-form`)
+    const isSafe = Number(value) > 20
+
+    input.value = value
+    input.setAttribute('value', value)
+
+    form.querySelectorAll('span, input').forEach((element) => {
+        element.classList.remove('text-success', 'text-danger', 'text-decoration-underline')
+        if(isSafe){
+            element.classList.add('text-success')
+        }
+        else{
+            element.classList.add('text-danger', 'text-decoration-underline')
+        }
+    })
+}
+
+async function changeFoodWater(event, statType){
+    event.preventDefault()
+
+    const form = event.currentTarget
+    const input = document.getElementById(`${statType}-val`)
+    const rawValue = input.value.trim()
+    const value = Number(input.value)
+    if(form.dataset.submitting === 'true' || input.value === input.dataset.lastSubmittedValue){
+        return
+    }
+
+    if(rawValue === '' || !Number.isInteger(value) || value < 0 || value > 100){
+        showMessage('Wartość musi być liczbą całkowitą od 0 do 100.', 'error')
+        return
+    }
+    form.dataset.submitting = 'true'
+
+    try{
+        const response = await fetch(form.action, {
+            method: 'POST',
+            body: new FormData(form),
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+            },
+        })
+        const data = await response.json()
+
+        if(!response.ok){
+            throw new Error(data.error || 'Nie udało się zmienić wartości.')
+        }
+
+        updateFoodWaterState(data.stat_type, data.value)
+        input.dataset.lastSubmittedValue = String(data.value)
+        if(data.hp !== undefined){
+            const hpInput = document.getElementById('hp-val')
+            hpInput.value = data.hp
+            hpInput.setAttribute('value', data.hp)
+            hpInput.dataset.lastSubmittedValue = String(data.hp)
+        }
+        if(data.messages){
+            showMessages(data.messages)
+        }
+        else{
+            showMessage(data.message || 'Pomyślnie zmieniono wartość.', data.message_type || 'success')
+        }
+    }
+    catch(error){
+        showMessage(error.message, 'error')
+    }
+    finally{
+        form.dataset.submitting = 'false'
+    }
+}
 
 function swapItem(id1, block_id){
     chid = document.getElementById('char-name').getAttribute('name')

@@ -25,6 +25,7 @@ from django.contrib.auth.decorators import user_passes_test
 import traceback
 import json
 import math
+import re
 from pathlib import Path
 
 from DunnoRPG.serializers import (CharacterSerializer, ItemSerializer,
@@ -1232,10 +1233,33 @@ def end_round_infight(request, **kwargs):
 
 def change_coins(request, **kwargs):
     if request.method == 'POST':
-        char = get_object_or_404(models.Character, id=kwargs['char_id'])
-        char.coins = request.POST['coins-amount']
-        char.save()
-        return redirect('character_detail', char.id) 
+        try:
+            char = get_object_or_404(models.Character, id=kwargs['char_id'])
+            coins_raw = request.POST['coins-amount'].strip().replace(',', '.')
+            if not re.match(r'^\d+(\.\d)?$', coins_raw):
+                raise ValueError("Monety mogą mieć maksymalnie jedno miejsce po przecinku")
+
+            coins = float(coins_raw)
+            if coins < 0:
+                raise ValueError("Monety nie mogą być mniejsze niż 0")
+
+            char.coins = coins
+            char.save()
+
+            coins_display = f"{char.coins:g}"
+            msg = f"Pomyślnie zmieniono Monety na {coins_display}"
+            if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+                return JsonResponse({"message": msg, "coins": coins_display}, status=200)
+
+            messages.success(request, msg)
+            return redirect('character_detail', char.id)
+        except Exception as e:
+            msg = f"Błąd zmiany Monet: {e}"
+            if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+                return JsonResponse({"error": msg}, status=400)
+
+            messages.error(request, msg)
+            return redirect('character_detail', kwargs['char_id'])
     
 def change_action_amount(request, **kwargs):
     if request.method == 'POST':
@@ -1247,50 +1271,92 @@ def change_action_amount(request, **kwargs):
 
 def change_health(request, **kwargs):  
     if request.method == 'POST':
-        char = get_object_or_404(models.Character, id=kwargs['char_id'])
-        char.HP = request.POST['hp']
-        char.save()
-        return redirect('character_detail', char.id) 
+        try:
+            char = get_object_or_404(models.Character, id=kwargs['char_id'])
+            char.HP = int(request.POST['hp'])
+            char.save()
+
+            msg = f"Pomyślnie zmieniono Życie na {char.HP}"
+            if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+                return JsonResponse({"message": msg, "hp": char.HP}, status=200)
+
+            messages.success(request, msg)
+            return redirect('character_detail', char.id)
+        except Exception as e:
+            msg = f"Błąd zmiany Życia: {e}"
+            if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+                return JsonResponse({"error": msg}, status=400)
+
+            messages.error(request, msg)
+            return redirect('character_detail', kwargs['char_id'])
 
 def change_food_water(request, **kwargs):
     if request.method == 'POST':
-        translate_stat = {
-            "food": "Nasycenie",
-            "water": "Nawodnienie",
-            "alcohol": "Alkohol",
-        }
+        try:
+            translate_stat = {
+                "food": "Nasycenie",
+                "water": "Nawodnienie",
+                "alcohol": "Alkohol",
+            }
 
-        stat_type = kwargs['stat_type']
-        if stat_type not in ["food", "water", "alcohol"]:
-            raise Http404("Invalid food/water stat")
+            stat_type = kwargs['stat_type']
+            if stat_type not in ["food", "water", "alcohol"]:
+                raise Http404("Invalid food/water stat")
 
-        char = get_object_or_404(models.Character, id=kwargs['char_id'])
-        value = int(request.POST[f'{stat_type}-amount'])
-        msg = ""
+            char = get_object_or_404(models.Character, id=kwargs['char_id'])
+            value = int(request.POST[f'{stat_type}-amount'])
+            msg = ""
+            msg_type = "success"
 
-        if stat_type == "alcohol":
-            value = max(0, value)
-            char.alcohol = value
-        else:
-            value = max(0, min(100, value))
-            current_value = getattr(char, stat_type)
-            char, msg = manageFoodAndWater(char, value - current_value, stat_type)
-        char.save()
-
-        if msg != "":
-            messages.error(request, msg)
-        elif stat_type == "alcohol":
-            drunkenness_limit = get_drunkenness_limit(char)
-            if value > drunkenness_limit:
-                messages.error(request, "Jesteś Pijany! [Efekty Work in Progress]")
-            elif value > 0:
-                messages.warning(request, "Odczuwasz upojenie alkoholem [Efekty Work in Progress]")
+            if stat_type == "alcohol":
+                value = max(0, value)
+                char.alcohol = value
             else:
-                messages.success(request, f"Pomyślnie zmieniono wartość {translate_stat[stat_type]} na {value}")
-        else:
-            messages.success(request, f"Pomyślnie zmieniono wartość {translate_stat[stat_type]} na {value}%")
+                value = max(0, min(100, value))
+                current_value = getattr(char, stat_type)
+                char, msg = manageFoodAndWater(char, value - current_value, stat_type)
+            char.save()
 
-        return redirect('character_detail', char.id)
+            if msg != "":
+                msg_type = "error"
+                final_msg = msg
+            elif stat_type == "alcohol":
+                drunkenness_limit = get_drunkenness_limit(char)
+                if value > drunkenness_limit:
+                    msg_type = "error"
+                    final_msg = "Jesteś Pijany! [Efekty Work in Progress]"
+                elif value > 0:
+                    msg_type = "warning"
+                    final_msg = "Odczuwasz upojenie alkoholem [Efekty Work in Progress]"
+                else:
+                    final_msg = f"Pomyślnie zmieniono wartość {translate_stat[stat_type]} na {value}"
+            else:
+                final_msg = f"Pomyślnie zmieniono wartość {translate_stat[stat_type]} na {getattr(char, stat_type)}%"
+
+            if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+                return JsonResponse({
+                    "message": final_msg,
+                    "message_type": msg_type,
+                    "stat_type": stat_type,
+                    "value": getattr(char, stat_type),
+                    "hp": char.HP,
+                }, status=200)
+
+            if msg_type == "error":
+                messages.error(request, final_msg)
+            elif msg_type == "warning":
+                messages.warning(request, final_msg)
+            else:
+                messages.success(request, final_msg)
+
+            return redirect('character_detail', char.id)
+        except Exception as e:
+            msg = f"Błąd zmiany wartości: {e}"
+            if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+                return JsonResponse({"error": msg}, status=400)
+
+            messages.error(request, msg)
+            return redirect('character_detail', kwargs['char_id'])
 
 def manageExp(char, exp):
     msg = ''
