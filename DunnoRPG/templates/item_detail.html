@@ -156,9 +156,9 @@
         </div>
     </div>
 
-    {% if item.neededAccuraccy != 0 or item.dmg_type and item.dmg_type != 'None' and item.dmg_type != '-' %}
+    {% if item.neededAccuraccy != 0 and item.category == 'weapon' or item.dmg_type and item.dmg_type != 'None' and item.dmg_type != '-' %}
         <div class='row text-border-black mt-2'>
-            {% if item.neededAccuraccy != 0 %}
+            {% if item.neededAccuraccy != 0 and item.category == 'weapon' %}
                 <div class='col text-center c-gold fst-italic m-0 p-0 border-bottom border-top border-end border-warning bg-dark bg-gradient '>
                     <h2>
                         Trafienie od: <br> {{ item.neededAccuraccy }}
