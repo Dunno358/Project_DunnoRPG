@@ -167,7 +167,7 @@ class SkillUpgradeTest(TestCase):
         
         messages = list(get_messages(response.wsgi_request))
         self.assertEqual(messages, []) #no error messages
-        
+
         #Melee skill
         url = reverse('skill_upgrade', args=[self.character.id, self.normal_skill.id])
         response = self.client.post(url)   
@@ -251,7 +251,95 @@ class SkillUpgradeTest(TestCase):
         self.client.login(username='testuser', password='testpass') 
         response = self.client.post(reverse('skill_upgrade', args=[self.character.id, 100]))
         self.assertEqual(response.status_code, 404)
-        
+
+class SkillAddTest(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(username='testuser', password='testpass')
+        self.character = models.Character.objects.create(
+            owner='testuser',
+            name='testcharacter1',
+            race='Human',
+            size='M',
+            HP=25,
+            fullHP=25,
+            INT=5,
+            SIŁ=5,
+            ZRE=5,
+            CHAR=5,
+            CEL=5,
+            points_left=5,
+        )
+        self.skill_desc = models.Skills_Decs.objects.create(
+            name='Testowy skill',
+            category='Melee',
+            desc='TestDesc',
+            level1='l1desc',
+            level2='l2desc',
+            level3='l3desc',
+            cost='1',
+            useAmount=1,
+        )
+
+    def test_add_lvl_three_skill_spends_three_points(self):
+        self.client.login(username='testuser', password='testpass')
+
+        url = reverse('skill_add', args=[self.character.id, self.skill_desc.id, 3])
+        response = self.client.get(url)
+
+        self.assertEqual(response.status_code, 302)
+
+        added_skill = models.Skills.objects.get(character=self.character.name, skill=self.skill_desc.name)
+        self.assertEqual(added_skill.level, 3)
+
+        self.character.refresh_from_db()
+        self.assertEqual(self.character.points_left, 2)
+
+class CreateCharacterRaceSkillsTest(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(username='testuser', password='testpass')
+        self.client.login(username='testuser', password='testpass')
+        self.skill_desc = models.Skills_Decs.objects.create(
+            name='Kradzież życia',
+            category='Melee',
+            desc='TestDesc',
+            level1='l1desc',
+            cost='1',
+            useAmount=1,
+        )
+        self.race = models.Races.objects.create(
+            name='Wampir',
+            size='M',
+            hp=16,
+            statPlus='0;0;0;0;0;0',
+            statMinus='0;0;0;0;0;0',
+            Skills='1Kradzież życia',
+            points_limit=10,
+            desc='Test race',
+            weaponsBonus=1,
+            weaponsPreffered='Sword',
+        )
+        self.char_class = models.Classes.objects.create(
+            name='Test class',
+            skills='',
+            effects='',
+            mods='',
+            hp_mod='0',
+        )
+
+    def test_create_character_grants_race_skill(self):
+        url = reverse(
+            'character_create',
+            args=['Nosfer', self.char_class.name, self.race.name, 'Player', self.user.username, 0]
+        )
+        response = self.client.get(url)
+
+        self.assertEqual(response.status_code, 302)
+
+        skill = models.Skills.objects.get(character='Nosfer', skill=self.skill_desc.name)
+        self.assertEqual(skill.level, 1)
+        self.assertEqual(skill.category, '1free')
+        self.assertEqual(skill.source, 'natural_free')
+
 class SkillDowngradeTest(TestCase):
     def setUp(self):
         self.user = User.objects.create_user(username='testuser', password='testpass')
