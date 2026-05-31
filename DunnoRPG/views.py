@@ -41,6 +41,47 @@ raceSizes = {
     "L": 2
 }
 
+def parse_free_skill(skill):
+    skill = (skill or "").strip()
+    if not skill:
+        return None
+    if "-" in skill:
+        parts = skill.split("-")
+        lvl = parts.pop()
+        skill_name = "-".join(parts)
+    elif skill[0].isdigit():
+        lvl = skill[0]
+        skill_name = skill[1:]
+    elif skill[-1].isdigit():
+        lvl = skill[-1]
+        skill_name = skill[:-1]
+    else:
+        return None
+    if not skill_name:
+        return None
+    return skill_name, int(lvl)
+
+def grant_free_skill(owner, character_name, skill):
+    parsed_skill = parse_free_skill(skill)
+    if parsed_skill is None:
+        return
+
+    skill_name, skill_lvl = parsed_skill
+    if models.Skills.objects.filter(owner=owner, character=character_name, skill=skill_name).exists():
+        return
+
+    skill_desc = get_object_or_404(models.Skills_Decs, name=skill_name)
+    models.Skills.objects.create(
+        owner=owner,
+        character=character_name,
+        skill=skill_name,
+        category=f"{skill_lvl}free",
+        level=skill_lvl,
+        desc=skill_desc.desc,
+        uses_left=skill_desc.useAmount,
+        source="natural_free"
+    )
+
 maxAdvs = 2
 maxBigAdvs = 1
 
@@ -735,8 +776,9 @@ def skill_add(request,char_id,skill_id,lvl):
             reqOK = False
 
     if reqOK:
-        if int(character.points_left) < int(skill_details.cost):
-            messages.error(request, f'Brak wolnych punkcików. Potrzeba {skill_details.cost} a ty masz {character.points_left}. We se najpierw trochę zdobądź a potem zawracaj mi interes.')
+        skill_cost = lvl * int(skill_details.cost)
+        if int(character.points_left) < skill_cost:
+            messages.error(request, f'Brak wolnych punkcików. Potrzeba {skill_cost} a ty masz {character.points_left}. We se najpierw trochę zdobądź a potem zawracaj mi interes.')
             reqOK = False
 
     if reqOK:
@@ -750,7 +792,7 @@ def skill_add(request,char_id,skill_id,lvl):
             uses_left = skill_details.useAmount
         )
 
-        character.points_left -= int(skill_details.cost)
+        character.points_left -= skill_cost
         character.save()
 
     return redirect(f'/dunnorpg/character_add_skills/{char_id}/')
@@ -770,6 +812,10 @@ def skill_delete(request,char_id,skill_id):
     skill = get_object_or_404(models.Skills, id=skill_id)
     skill_details = get_object_or_404(models.Skills_Decs, name=skill.skill)
     character = get_object_or_404(models.Character, id=char_id)
+
+    if skill.source == "natural_free":
+        messages.error(request, f'{skill.skill} jest darmową umiejętnością z rasy lub klasy i nie można jej usunąć.')
+        return redirect(f'/dunnorpg/character_add_skills/{char_id}/')
     
     character.points_left += skill.level*int(skill_details.cost)
     character.save()
@@ -851,7 +897,8 @@ def create_character(request,name,char_class,race,type,owner,exp):
         char_class = get_object_or_404(models.Classes, name=char_class)
         class_mods = char_class.mods.split(";")
         class_hp_mod = int(char_class.hp_mod or 0)
-        class_skills = char_class.skills.split(";")
+        class_skills = [skill for skill in char_class.skills.split(";") if skill]
+        race_skills = [skill for skill in race.Skills.split(";") if skill]
         class_effects = char_class.effects.split(";")
         class_mods = char_class.mods.split(";")
 
@@ -899,24 +946,15 @@ def create_character(request,name,char_class,race,type,owner,exp):
             points_left=race.points_limit,
             weaponBonus=race.weaponsBonus,
             preferredWeapons=race.weaponsPreffered,
-            unlikedWeapons=race.weaponsUnliked,
             extra_capacity=0,
             mutation = "-"
         )
 
         for skill in class_skills:
-            skill_name = skill[:-1]
-            skill_lvl = skill[len(skill)-1]
-            skill_desc = get_object_or_404(models.Skills_Decs, name=skill_name)
-            models.Skills.objects.create(
-                owner = owner,
-                character = name,
-                skill = skill_name,
-                category = f"{skill_lvl}free",
-                level = skill_lvl,
-                desc = skill_desc.desc,
-                uses_left = skill_desc.useAmount
-            )
+            grant_free_skill(owner, name, skill)
+
+        for skill in race_skills:
+            grant_free_skill(owner, name, skill)
 
         for effect in class_effects: #Effects are to be overhauled
             eff_name = effect[:-2]
@@ -2089,12 +2127,13 @@ class RaceView(DetailView):
         context = super().get_context_data(**kwargs)
         chosen_race = self.get_object()
 
-        chosen_race.Skills = chosen_race.Skills.split(";")
+        chosen_race.Skills = [skill for skill in chosen_race.Skills.split(";") if skill]
         for skill in chosen_race.Skills:
             try:
                 index = chosen_race.Skills.index(skill)
-                lvl = skill[0]
-                chosen_race.Skills[index] = f"{skill[1:]}-{lvl}"
+                if "-" not in skill and skill[0].isdigit():
+                    lvl = skill[0]
+                    chosen_race.Skills[index] = f"{skill[1:]}-{lvl}"
             except:
                 pass
         
@@ -2113,27 +2152,30 @@ class RaceView(DetailView):
                 pass
         """
 
-        chosen_race.statPlus = chosen_race.statPlus.split(";")
-        chosen_race.statPlus = [
-            f"INT(+{chosen_race.statPlus[0]})",
-            f"SIŁ(+{chosen_race.statPlus[1]})",
-            f"ZRE(+{chosen_race.statPlus[2]})",
-            f"CHAR(+{chosen_race.statPlus[3]})",
-            f"CEL(+{chosen_race.statPlus[4]})",
-            f"SPO(+{chosen_race.statPlus[5]})"
-        ]
-        chosen_race.statMinus = chosen_race.statMinus.split(";")
-        chosen_race.statMinus = [
-            f"INT(-{chosen_race.statMinus[0]})",
-            f"SIŁ(-{chosen_race.statMinus[1]})",
-            f"ZRE(-{chosen_race.statMinus[2]})",
-            f"CHAR(-{chosen_race.statMinus[3]})",
-            f"CEL(-{chosen_race.statMinus[4]})",
-            f"SPO(-{chosen_race.statMinus[5]})"
-        ]
+        stat_names = ["INT", "SIŁ", "ZRE", "CHAR", "CEL", "SPO"]
+        stat_plus = chosen_race.statPlus.split(";")
+        stat_minus = chosen_race.statMinus.split(";")
+        chosen_race.stats = []
+        for index, stat_name in enumerate(stat_names):
+            plus = int(stat_plus[index]) if index < len(stat_plus) and stat_plus[index] else 0
+            minus = int(stat_minus[index]) if index < len(stat_minus) and stat_minus[index] else 0
+            value = plus - minus
+            if value > 0:
+                display = f"+{value}"
+                css_class = "text-success"
+            elif value < 0:
+                display = str(value)
+                css_class = "text-danger"
+            else:
+                display = "0"
+                css_class = "text-secondary"
+            chosen_race.stats.append({
+                "name": stat_name,
+                "value": display,
+                "css_class": css_class,
+            })
 
-        chosen_race.weaponsPreffered = chosen_race.weaponsPreffered.split(";")
-        chosen_race.weaponsUnliked = chosen_race.weaponsUnliked.split(";")
+        chosen_race.weaponsPreffered = [weapon for weapon in (chosen_race.weaponsPreffered or "").split(";") if weapon]
 
         context['race'] = chosen_race
 
@@ -2389,7 +2431,8 @@ class GMPanel(FormView):
         return context
     
     def form_valid(self, form):
-        override = form['override'].value()
+        override = form.cleaned_data.get('override')
+        equip_item = form.cleaned_data.get('equip_item')
         form_data = form.save(commit=False)
         
         character = models.Character.objects.get(pk=form_data.character)
@@ -2399,7 +2442,8 @@ class GMPanel(FormView):
         item = models.Items.objects.get(pk=form_data.name)
         form_data.name = item.name
         form_data.type = item.type
-        form_data.weight = item.weight*form_data.amount
+        item_weight = item.weight * form_data.amount
+        form_data.weight = item_weight
         
         if not override:
             if character.SIŁ > 0:
@@ -2444,10 +2488,48 @@ class GMPanel(FormView):
                 else:
                     current_weight += eq_item.weight 
                 
-            item_weight = item.weight * form_data.amount
             if current_weight + item_weight > max_weight:
                 messages.error(self.request, 'Not enough space.')
                 return redirect('gm_panel')
+
+        equipped = False
+        if equip_item:
+            target_hand = ""
+            target_position = ""
+            item_category = (item.category or "").lower()
+            if form_data.amount == 1 and item_category in ["armor", "cloth", "armor_elegant"]:
+                target_position = item.type
+                equipped = not models.CharItems.objects.filter(
+                    character=character.name,
+                    position=target_position
+                ).exists()
+            elif form_data.amount == 1 and item_category == "weapon":
+                if not models.CharItems.objects.filter(character=character.name, hand="Left").exists():
+                    target_hand = "Left"
+                    equipped = True
+                elif not models.CharItems.objects.filter(character=character.name, hand="Right").exists():
+                    target_hand = "Right"
+                    equipped = True
+
+            if equipped:
+                models.CharItems.objects.create(
+                    owner=character.owner,
+                    character=character.name,
+                    category=item.category,
+                    on_use=item.on_use,
+                    use_cost=item.use_cost,
+                    effectsafterpen=item.effectsAfterPen,
+                    effectsall=item.effectsAlways,
+                    name=item.name,
+                    durability=form_data.durability,
+                    hand=target_hand,
+                    position=target_position,
+                    reloaded=True,
+                )
+                messages.success(self.request, f"{item.name} equipped to {character.name}.")
+                return super().form_valid(form)
+
+            messages.warning(self.request, f"Nie udało się założyć {item.name} postaci {character.name}")
         
         try:
             existing_item = get_object_or_404(models.Eq, name=item.name, character=character.name, durability=form_data.durability)
