@@ -246,7 +246,7 @@
                     <a href='upgrade/{{ skill.id }}' class='mt-1 btn btn-sm btn-outline-warning w-25 ms-2'>+</a>
                     <p class='m-1 mt-2'>{{ skill.skill }} | lvl. {{ skill.level }} 
 
-                    {% if skill.category != '1free' %}
+                    {% if skill.source != 'natural_free' %}
                     <a href='delete/{{ skill.id }}' class='ms-2 btn btn-dark btn-outline-danger'>Usuń</a>               
                     {% endif %}
                     </p>
