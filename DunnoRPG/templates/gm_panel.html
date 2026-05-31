@@ -79,16 +79,17 @@
 </div>
 
 <div id='eq-add-item' class='container bg-dark rounded border border-primary mt-3'>
-    <div class='row text-center c-gold mt-1'><h2>Add item to player EQ</h2></div>
+    <div class='row text-center c-gold mt-1'><h2>Dodaj przedmiot</h2></div>
     <form method='POST'>
     {% csrf_token %}
-        <div class='row m-2 p-2 c-gold'>
+        <div class='row m-2 p-2 c-gold justify-content-center text-center'>
             {% for field in form %}
-                <div class="col">
-                    <b>{{ field.label_tag }}</b> {{ field }} 
+                <div class="col-12 col-md-8 mb-2">
+                    <b class="d-block mb-1">{{ field.label_tag }}</b>
+                    {{ field }} 
                 </div>
             {% endfor %}
-            <input class="col-2 btn btn-sm btn-success m-2" type="submit" value="Add"></input>
+            <input class="col-12 col-md-4 btn btn-sm btn-success m-2" type="submit" value="Add"></input>
         </div>
     </form>
 </div>

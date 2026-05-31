@@ -43,29 +43,34 @@ class CharacterSkillsForm(forms.ModelForm):
         ]
         
 class AddEqItemForm(forms.ModelForm):
-    character = forms.ChoiceField(choices=[],label='',widget=forms.Select(attrs={
+    character = forms.ChoiceField(choices=[],label='Postać',widget=forms.Select(attrs={
         'class': 'text-center bg-dark rounded border border-warning c-gold p-1 m-1'
     }))
     
-    name = forms.ChoiceField(choices=[],label='',widget=forms.Select(attrs={
+    name = forms.ChoiceField(choices=[],label='Przedmiot',widget=forms.Select(attrs={
         'class': 'text-center bg-dark rounded border border-info c-gold p-1 m-1'
     }))  
     
-    durability = forms.IntegerField(label='dur',widget=forms.NumberInput(attrs={
+    durability = forms.IntegerField(label='Wytrzymałość',widget=forms.NumberInput(attrs={
         'class': 'text-center bg-dark c-gold rounded border border-info m-1',
         'value': 50,
         'min': 1
     }))  
     
-    amount = forms.IntegerField(label='amount',widget=forms.NumberInput(attrs={
+    amount = forms.IntegerField(label='Ilość',widget=forms.NumberInput(attrs={
         'class': 'text-center bg-dark c-gold rounded border border-info m-1 w-75',
         'value': 1,
         'min': 1
     }))  
     
-    override = forms.BooleanField(required=False,label='override_weight',widget=forms.CheckboxInput(attrs={
+    override = forms.BooleanField(required=False,label='Ignoruj wagę',widget=forms.CheckboxInput(attrs={
         'class': '',
         'name': 'override'
+    }))
+
+    equip_item = forms.BooleanField(required=False,label='Załóż na postać',widget=forms.CheckboxInput(attrs={
+        'class': '',
+        'name': 'equip_item'
     }))
 
     def __init__(self, *args, **kwargs):
@@ -81,7 +86,7 @@ class AddEqItemForm(forms.ModelForm):
     
     class Meta: 
         model = Eq
-        fields = ['character','name','durability','amount']
+        fields = ['character','name','durability','amount','override','equip_item']
 
 """
 class AddEffectForm(forms.ModelForm):
