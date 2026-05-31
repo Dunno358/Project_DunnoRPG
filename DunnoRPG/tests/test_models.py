@@ -23,8 +23,7 @@ class CharacterModelTest(TestCase):
             CEL=2,
             points_left=5,
             weaponBonus=2,
-            preferredWeapons='Sword;Bow',
-            unlikedWeapons='Axe'            
+            preferredWeapons='Sword;Bow'
         )
         
     def test_objects_str_representation(self):
@@ -52,7 +51,6 @@ class CharacterModelTest(TestCase):
         self.assertEqual(character.points_left, 5)
         self.assertEqual(character.weaponBonus, 2)
         self.assertEqual(character.preferredWeapons, 'Sword;Bow')
-        self.assertEqual(character.unlikedWeapons, 'Axe')
         
     def test_update(self):
         character = models.Character.objects.get(name='Character 1')
@@ -92,6 +90,5 @@ class CharacterModelTest(TestCase):
                 CEL=2,
                 points_left=5,
                 weaponBonus=2,
-                preferredWeapons='Sword;Bow',
-                unlikedWeapons='Axe'
+                preferredWeapons='Sword;Bow'
             )            

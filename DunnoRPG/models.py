@@ -52,7 +52,6 @@ class Character(models.Model):
     anonimity = models.IntegerField(default=0) # boost to staying anonymous when someone tries to recognize you
     weaponBonus = models.IntegerField(null=True)
     preferredWeapons = models.TextField(null=True, blank=True)
-    unlikedWeapons = models.TextField(null=True, blank=True)
     extra_capacity = models.IntegerField(default=0)
     city_bargains = models.TextField(blank=True, null=True) #city_id-item_id-price_for_this_specific_player | so failed bargaining has an effect and not an option to refresh bargain
     notes = models.TextField(blank=True, null=True)
@@ -89,9 +88,9 @@ class Races(models.Model):
     Skills = models.CharField(max_length=255,blank=True)
     points_limit = models.IntegerField(null=True)
     desc = models.TextField(blank=True)
+    mobilityChange = models.IntegerField(default=0)
     weaponsBonus = models.IntegerField(null=True)
     weaponsPreffered = models.CharField(max_length=255,blank=True,null=True)
-    weaponsUnliked = models.CharField(max_length=255,blank=True,null=True)
     def __str__(self):
         return self.name
 
@@ -130,6 +129,8 @@ class Skills(models.Model):
     level = models.IntegerField(null=True)
     desc = models.TextField(blank=True)
     uses_left = models.IntegerField(default=1)
+    added_lvl_info = models.CharField(max_length=255, blank=True) #info how much lvls are added via item skill
+    source = models.CharField(max_length=255, default="natural") #natural or item or class
 
     def __str__(self):
         return f"{self.character}: {self.skill} lvl.{self.level}"
