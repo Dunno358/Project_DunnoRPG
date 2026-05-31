@@ -10,6 +10,40 @@
 
     <div class='container mt-0'>
 
+        <div id='info-card' class="container card-body text-center c-gold border border-warning bg-dark rounded position-fixed m-0 p-0 pb-3 d-none mt-5" 
+        style="width: 98%; z-index: 5; margin-left: -1.3rem !important;">
+            <h3 class="mt-1" id="info-card-topic"></h3>
+
+            <div class="row">
+                <div class="col c-gold text-start ps-5 pe-5">
+                    <span class="h6" id="info-card-content"></span>
+                </div>
+            </div>
+
+            <div class="row m-0 p-0 mt-3">
+                <div class="col">
+                    <button class="btn btn-success w-100" onclick="show_or_hideById('info-card')">OK</button>
+                </div>
+            </div>
+        </div>
+
+        <div id='iframe-card' class="container position-fixed m-0 p-0 pb-3 mt-0 d-none" 
+        style="width: 100%; z-index: 5; margin-left: -0.8rem !important;margin-top: -8rem !important">
+    
+            <div class="row">
+                <div class="col c-gold p-0">
+                    <button class='btn btn-dark btn-outline-danger w-100' onclick="show_or_hideById('iframe-card')">X Zamknij podgląd umiejętności X</button>
+                </div>
+            </div>
+
+            <div class="row w-100" style="height: 35rem !important;">
+                <div class="col c-gold text-start p-0">
+                    <iframe src="/dunnorpg/skills/1" class="border border-warning w-100 h-100" id="iframe"></iframe>
+                </div>
+            </div>
+
+        </div>
+
         <div class="row">
             <div class="col c-gold">
                 <a class='btn btn-dark btn-outline-danger w-100' href={% url 'races' %}><- Powrót do listy ras</a>
@@ -19,23 +53,46 @@
 
     <div class='row text-border-black mt-3'>
         <div class='col text-center c-gold fst-italic'>
-            <h1 id="race-name">{{ race.name }}</h1>
+            <h1 id="race-name">
+                {{ race.name }}
+                <span
+                class="text-warning fst-italic ms-1"
+                style="cursor: pointer; -webkit-text-stroke: 1px black; text-shadow: 1px 1px 2px black;"
+                title="Pokaż opis"
+                data-desc="{{ race.desc|escape }}"
+                onclick="showInfoCard('Opis rasy', this.dataset.desc)"
+                >?</span>
+            </h1>
         </div>
     </div>
 
-    <div id='race_desc' class='mt-3'>
-        <div class='row'>
-            <div class='col bg-opacity-75 text-center c-gold bg-dark border border-warning rounded ms-5 me-5 p-2 fst-italic'>
-                {{ race.desc }}
+    <div class='row text-border-black'>
+        <div class='col text-center c-gold fst-italic'>
+            <h4 class='mb-0'>Rozmiar:</h4>
+            <h4>{{ race.size }}</h4>
+        </div>
+        <div class='col text-center c-gold fst-italic'>
+            <h4 class='mb-0'>Punkty:</h4>
+            <h4>{{ race.points_limit }}</h4>
+        </div>
+    </div>
+
+    {% if race.Skills %}
+        <div class='row mt-4'>
+            <div class='col bg-opacity-75 text-center c-gold bg-dark border border-warning rounded ms-5 me-5 p-3'>
+                <h5 class='mb-3'>Umiejętności</h5>
+                <ul class="list-group">
+                    {% for skill in race.Skills %}
+                        <li class="h5 list-group-item bg-dark">
+                            <span class="c-gold text-decoration-underline" style="cursor: pointer;" onclick="showIframe('{{ skill|classSkillHref }}')">
+                                {{ skill|beautifyClassFreeSkill }}
+                            </span>
+                        </li>
+                    {% endfor %}
+                </ul>
             </div>
         </div>
-    </div>
-
-    <div class='row mt-4'>
-        <div class='col bg-opacity-75 text-center c-gold bg-dark border border-warning rounded ms-5 me-5 p-1 pt-2'>
-                <h5>Umiejętności: {% for race in race.Skills %} {{ race }}{% if not forloop.last %}, {% endif %} {% endfor %}</h5>
-        </div>
-    </div>
+    {% endif %}
 
     <!-- <div class='row'>
         <div class='col bg-opacity-75 text-center c-gold bg-dark rounded border border-warning border-top-0 ms-5 me-5 p-1 pt-2'>
@@ -44,24 +101,38 @@
     </div>    -->    
 
     <div class='row mt-4'>
-        <div class='col bg-opacity-75 text-center c-gold bg-dark border border-warning rounded ms-5 me-5 p-1 pt-2'>
-                <h5>(Dodatnie) Statystyki: {% for stat in race.statPlus %} {{ stat }}{% if not forloop.last %}, {% endif %} {% endfor %}</h5>
-        </div>
-        <div class='col bg-opacity-75 text-center c-gold bg-dark border border-warning rounded ms-5 me-5 p-1 pt-2'>
-                <h5>(Ujemne) Statystyki: {% for stat in race.statMinus %} {{ stat }}{% if not forloop.last %}, {% endif %} {% endfor %}</h5>
+        <div class='col bg-opacity-75 c-gold bg-dark border border-warning rounded ms-5 me-5 p-3'>
+            <h5 class='text-center mb-3'>Statystyki</h5>
+            <div class='row fw-bold border-bottom border-warning pb-1 mb-1 text-center'>
+                <div class='col'>Statystyka</div>
+                <div class='col'>Modyfikator</div>
+            </div>
+            {% for stat in race.stats %}
+                <div class='row text-center py-1 {% if not forloop.last %}border-bottom border-secondary{% endif %}'>
+                    <div class='col'>{{ stat.name }}</div>
+                    <div class='col fw-bold {{ stat.css_class }}'>{{ stat.value }}</div>
+                </div>
+            {% endfor %}
         </div>
     </div>
 
-    <div class='row mt-4'>
-        <div class='col bg-opacity-75 text-center c-gold bg-dark border border-warning rounded ms-5 me-5 p-1 pt-2'>
-                <h5>(+{{ race.weaponsBonus }}) Preferowane bronie: {% for weapon in race.weaponsPreffered %} {{ weapon|title }}{% if not forloop.last %}, {% endif %} {% endfor %}</h5>
+    {% if race.weaponsPreffered %}
+        <div class='row mt-4'>
+            <div class='col bg-opacity-75 c-gold bg-dark border border-warning rounded ms-5 me-5 p-3'>
+                <h5
+                class='text-center text-decoration-underline mb-3'
+                style="cursor: pointer;"
+                onclick="showInfoCard('Preferowane bronie', 'Bonus dotyczy tylko celności i obrażeń ataków oraz reakcji z użyciem tych typów broni.')"
+                >Preferowane bronie</h5>
+                {% for weapon in race.weaponsPreffered %}
+                    <div class='row text-center py-1 {% if not forloop.last %}border-bottom border-secondary{% endif %}'>
+                        <div class='col fw-bold text-success'>+{{ race.weaponsBonus }}</div>
+                        <div class='col'>{{ weapon|itemTypePl }}</div>
+                    </div>
+                {% endfor %}
+            </div>
         </div>
-    </div>
-    <div class='row mt-4'>
-        <div class='col bg-opacity-75 text-center c-gold bg-dark border border-warning rounded ms-5 me-5 p-1 pt-2'>
-                <h5>(-{{ race.weaponsBonus }}) Nielubiane bronie: {% for weapon in race.weaponsUnliked %} {{ weapon|title }}{% if not forloop.last %}, {% endif %} {% endfor %}</h5>
-        </div>
-    </div>
+    {% endif %}
 
     <div class="row mt-4">
         <div class="col"></div>
@@ -70,16 +141,30 @@
 </div>
 
 <script>
-    document.title = document.getElementById("class-name").innerHTML + " | DunnoRPG"
+    document.title = "{{ race.name|escapejs }} | DunnoRPG"
 
-    function showDesc(){
-        document.getElementById('desc-btn').classList.add('d-none')
-        document.getElementById('class_desc').classList.remove('d-none')
+    function showInfoCard(title, text){
+        let card = document.getElementById("info-card")
+        let topic = document.getElementById("info-card-topic")
+        let content = document.getElementById("info-card-content")
+
+        card.classList.remove("d-none")
+        topic.textContent = title
+        content.textContent = text
     }
 
-    function hideDesc(instance){
-        document.getElementById('class_desc').classList.add('d-none')
-        document.getElementById('desc-btn').classList.remove('d-none')
+    function show_or_hideById(id){
+        document.getElementById(id).classList.toggle('d-none')
+    }
+
+    function showIframe(skill_src){
+        if(skill_src!=''){
+            let iframe = document.getElementById("iframe")
+            let iframe_div = document.getElementById("iframe-card")
+
+            iframe.src = skill_src
+            iframe_div.classList.remove("d-none")
+        }
     }
 </script>
 
