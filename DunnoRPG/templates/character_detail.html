@@ -25,14 +25,14 @@ style="width: 98%; z-index: 20; margin-left: 0.1rem !important; margin-top: -1re
 </div>
 
 <div id='iframe-card' class="container position-fixed m-0 p-0 pb-3 mt-0 d-none" 
-style="width: 98%; z-index: 20; margin-left: 1rem !important; margin-top: -5.5rem !important">
-    <div class="row">
+style="width: 98%; z-index: 20; margin-left: 0.22rem !important; margin-top: -5rem !important">
+    <div class="row m-0">
         <div class="col c-gold p-0">
             <button class='btn btn-dark btn-outline-danger w-100' onclick="show_or_hideById('iframe-card')">X Zamknij podglad umiejetnosci X</button>
         </div>
     </div>
 
-    <div class="row w-100" style="height: 35rem !important;">
+    <div class="row w-100 m-0" style="height: 35rem !important;">
         <div class="col c-gold text-start p-0">
             <iframe src="/dunnorpg/skills/1" class="border border-warning w-100 h-100" id="iframe"></iframe>
         </div>
@@ -408,15 +408,13 @@ style="width: 98%; z-index: 20; margin-left: 1rem !important; margin-top: -5.5re
                     <input type='text' inputmode="decimal" id='coins' class='c-gold text-center bg-gray bg-gradient border-0 h6' style='width: 18vw' value='{{ value.coins }}' name="coins-amount">
                 </form>
             </div>
-            {% if value.alcohol != "0" and value.alcohol != 0 %}
-                <div class="col rounded bg-gray bg-gradient border border-warning m-2 p-2 h6" style="min-width: 0;">
-                    <form method="post" action="change-food-water/alcohol" class="d-inline-flex align-items-center justify-content-center flex-nowrap">
-                        {% csrf_token %}
-                        <span class="{% if is_over_drunkenness_limit %}text-danger text-decoration-underline{% endif %}" {% if not is_over_drunkenness_limit %}style="color: orange;"{% endif %}>Alkohol:</span>
-                        <input type="number" min="0" id="alcohol-val" class="{% if is_over_drunkenness_limit %}text-danger text-decoration-underline{% endif %} text-center bg-gray bg-gradient border-0 h6 ms-1" {% if is_over_drunkenness_limit %}style="width: 4rem"{% else %}style="width: 4rem; color: orange;"{% endif %} value="{{ value.alcohol }}" name="alcohol-amount">
-                    </form>
-                </div>
-            {% endif %}
+            <div class="col rounded bg-gray bg-gradient border border-warning m-2 p-2 h6" style="min-width: 0;">
+                <form id="alcohol-form" method="post" action="change-food-water/alcohol" class="d-inline-flex align-items-center justify-content-center flex-nowrap" onsubmit="changeFoodWater(event, 'alcohol')">
+                    {% csrf_token %}
+                    <span class="{% if is_over_drunkenness_limit %}text-danger text-decoration-underline{% elif value.alcohol == '0' or value.alcohol == 0 %}text-success{% endif %}" {% if not is_over_drunkenness_limit and value.alcohol != '0' and value.alcohol != 0 %}style="color: orange;"{% endif %}>Alkohol:</span>
+                    <input type="number" min="0" id="alcohol-val" class="{% if is_over_drunkenness_limit %}text-danger text-decoration-underline{% elif value.alcohol == '0' or value.alcohol == 0 %}text-success{% endif %} text-center bg-gray bg-gradient border-0 h6 ms-1" {% if is_over_drunkenness_limit %}style="width: 4rem"{% elif value.alcohol == '0' or value.alcohol == 0 %}style="width: 4rem"{% else %}style="width: 4rem; color: orange;"{% endif %} value="{{ value.alcohol }}" name="alcohol-amount">
+                </form>
+            </div>
         </div>
 
         <div class="row m-0 p-0 mt-1">
@@ -1852,9 +1850,6 @@ style="width: 98%; z-index: 20; margin-left: 1rem !important; margin-top: -5.5re
         <li onclick="show_or_hideById(this.attributes['name'].value)" name='ef{{ effect.id }}' class='fw-bold fst-italic'>
             {{ effect.name }} | Pozostało: {% if effect.time > 100 %}?{% else %}{{ effect.time }}{% endif %}
 
-            {% if user.is_superuser %}
-            <a href="/admin/DunnoRPG/effects/{{ effect.id }}/change/" class="ms-2 fa fa-link" target="_blank"></a>
-            {% endif %}
         </li>
         <p id='ef{{ effect.id }}' class='d-none'>{{ effect.desc }}</p>
         {% endfor %}
@@ -1862,149 +1857,84 @@ style="width: 98%; z-index: 20; margin-left: 1rem !important; margin-top: -5.5re
     </div>
     
 
-    <div name='Skills' style='' class="row m-0 p-0 position-absolute d-none rounded container col card-body c-gold border border-warning bg-dark">
-        <p class="text-center fw-bold">Skills: </p>
-        <ul class=''>
+    <div name='Skills' style='' class="row m-2 p-2 position-absolute d-none rounded container col card-body c-gold border border-warning bg-dark">
+        <p class="text-center fw-bold h4 mb-2">Umiejętności</p>
+        <ul class='m-0 p-0'>
 
+        {% if skillsMagical %}
         <div class='row' onclick=showOrHideBlock(this,"skillsMagical")>
-            <p class='col text-center  rounded bg-gray border border-warning p-1'>
-                Magical
+            <p class='col text-center  rounded bg-gray border border-warning p-1 mb-0'>
+                Magia
             </p>
         </div>
         <div id='skillsMagical'>
         {% for skill in skillsMagical %}
-            <li class='text-center'>
-                <a class='c-gold fst-italic' href='/dunnorpg/skills/{{ skill.original_id }}'>{{ skill.skill }} lvl.{{ skill.level }}</a>
-                <button onclick="show_block(this)" name="{{ skill.id }}" type='button' class='fst-italic ms-2 rounded-circle border border-warning btn btn-sm btn-warning btn-outline-dark c-gold'>i</button>
-                {% if skill.max_uses != None %}
-                    <span>({{ skill.uses_left }}/{{ skill.max_uses }})</span>
-                    <a class='text-danger h6' href='use-skill/{{ skill.id }}'>Use</a>
 
-                    {% if user.is_superuser %}
-                    <a href="/admin/DunnoRPG/skills/{{ skill.id }}/change/" class="ms-2 fa fa-link" target="_blank"></a>
-                    {% endif %}
-                {% endif %}
-                <div id='{{ skill.id }}' name="desc_block" class="d-none">
-                    <p class='fw-bold text-center'>{{ skill.skill }} lvl.{{ skill.level }}</p>
-                    {{ skill.desc|itemSkillWithLinks }}
-                    <br>
-                    [<span class='fst-italic'>{{ skill.level_desc|itemSkillWithLinks }}</span>]
-                </div>
-            </li><br>
+            {% include 'dunnorpg/owned_skill_block.html' %}
         {% endfor %}
-        </div>
 
+        </div>
+        {% endif %}
+
+        {% if skillsMelee %}
         <div class='row' onclick=showOrHideBlock(this,"skillsMelee")>
-            <p class='col text-center  rounded bg-gray border border-warning p-1'>
-                Melee
+            <p class='col text-center  rounded bg-gray border border-warning p-1 mb-0'>
+                Zwarcie
             </p>
         </div>
         <div id='skillsMelee'>
         {% for skill in skillsMelee %}
-            <li class='text-center'>
-                <a class='c-gold fst-italic' href='/dunnorpg/skills/{{ skill.original_id }}'>{{ skill.skill }} lvl.{{ skill.level }}</a>
-                <button onclick="show_block(this)" name="{{ skill.id }}" type='button' class='fst-italic ms-2 rounded-circle border border-warning btn btn-sm btn-warning btn-outline-dark c-gold'>i</button>
-                {% if skill.max_uses != None %}
-                    <span>({{ skill.uses_left }}/{{ skill.max_uses }})</span>
-                    <a class='text-danger h6' href='use-skill/{{ skill.id }}'>Use</a>
 
-                    {% if user.is_superuser %}
-                    <a href="/admin/DunnoRPG/skills/{{ skill.id }}/change/" class="ms-2 fa fa-link" target="_blank"></a>
-                    {% endif %}
-                {% endif %}
-                <div id='{{ skill.id }}' name="desc_block" class="d-none">
-                    <p class='fw-bold text-center'>{{ skill.skill }} lvl.{{ skill.level }}</p>
-                    {{ skill.desc|itemSkillWithLinks }}
-                    <br>
-                    [<span class='fst-italic'>{{ skill.level_desc|itemSkillWithLinks }}</span>]
-                </div>
-            </li><br>
+            {% include 'dunnorpg/owned_skill_block.html' %}
         {% endfor %}
-        </div>
 
+        </div>
+        {% endif %}
+
+        {% if skillsRange %}
         <div class='row' onclick=showOrHideBlock(this,"skillsRange")>
-            <p class='col text-center  rounded bg-gray border border-warning p-1'>
-                Range
+            <p class='col text-center  rounded bg-gray border border-warning p-1 mb-0'>
+                Dystansowe
             </p>
         </div>
         <div id='skillsRange'>
         {% for skill in skillsRange %}
-            <li class='text-center'>
-                <a class='c-gold fst-italic' href='/dunnorpg/skills/{{ skill.original_id }}'>{{ skill.skill }} lvl.{{ skill.level }}</a>
-                <button onclick="show_block(this)" name="{{ skill.id }}" type='button' class='fst-italic ms-2 rounded-circle border border-warning btn btn-sm btn-warning btn-outline-dark c-gold'>i</button>
-                {% if skill.max_uses != None %}
-                    <span>({{ skill.uses_left }}/{{ skill.max_uses }})</span>
-                    <a class='text-danger h6' href='use-skill/{{ skill.id }}'>Use</a>
 
-                    {% if user.is_superuser %}
-                    <a href="/admin/DunnoRPG/skills/{{ skill.id }}/change/" class="ms-2 fa fa-link" target="_blank"></a>
-                    {% endif %}
-                {% endif %}
-                <div id='{{ skill.id }}' name="desc_block" class="d-none">
-                    <p class='fw-bold text-center'>{{ skill.skill }} lvl.{{ skill.level }}</p>
-                    {{ skill.desc|itemSkillWithLinks }}
-                    <br>
-                    [<span class='fst-italic'>{{ skill.level_desc|itemSkillWithLinks }}</span>]
-                </div>
-            </li><br>
+            {% include 'dunnorpg/owned_skill_block.html' %}
         {% endfor %}
-        </div>
 
+        </div>
+        {% endif %}
+
+        {% if skillsAgility %}
         <div class='row' onclick=showOrHideBlock(this,"skillsAgility")>
-            <p class='col text-center  rounded bg-gray border border-warning p-1'>
-                Agility
+            <p class='col text-center  rounded bg-gray border border-warning p-1 mb-0'>
+                Zwinność
             </p>
         </div>
         <div id='skillsAgility'>
         {% for skill in skillsAgility %}
-            <li class='text-center'>
-                <a class='c-gold fst-italic' href='/dunnorpg/skills/{{ skill.original_id }}'>{{ skill.skill }} lvl.{{ skill.level }}</a>
-                <button onclick="show_block(this)" name="{{ skill.id }}" type='button' class='fst-italic ms-2 rounded-circle border border-warning btn btn-sm btn-warning btn-outline-dark c-gold'>i</button>
-                {% if skill.max_uses != None %}
-                    <span>({{ skill.uses_left }}/{{ skill.max_uses }})</span>
-                    <a class='text-danger h6' href='use-skill/{{ skill.id }}'>Use</a>
 
-                    {% if user.is_superuser %}
-                    <a href="/admin/DunnoRPG/skills/{{ skill.id }}/change/" class="ms-2 fa fa-link" target="_blank"></a>
-                    {% endif %}
-                {% endif %}
-                <div id='{{ skill.id }}' name="desc_block" class="d-none">
-                    <p class='fw-bold text-center'>{{ skill.skill }} lvl.{{ skill.level }}</p>
-                    {{ skill.desc|itemSkillWithLinks }}
-                    <br>
-                    [<span class='fst-italic'>{{ skill.level_desc|itemSkillWithLinks }}</span>]
-                </div>
-            </li><br>
+            {% include 'dunnorpg/owned_skill_block.html' %}
         {% endfor %}
-        </div>
 
+        </div>
+        {% endif %}
+
+        {% if skillsOther %}
         <div class='row' onclick=showOrHideBlock(this,"skillsOther")>
-            <p class='col text-center  rounded bg-gray border border-warning p-1'>
-                Other
+            <p class='col text-center  rounded bg-gray border border-warning p-1 mb-0'>
+                Inne
             </p>
         </div>
         <div id='skillsOther'>
         {% for skill in skillsOther %}
-            <li class='text-center'>
-                <a class='c-gold fst-italic' href='/dunnorpg/skills/{{ skill.original_id }}'>{{ skill.skill }} lvl.{{ skill.level }}</a>
-                <button onclick="show_block(this)" name="{{ skill.id }}" type='button' class='fst-italic ms-2 rounded-circle border border-warning btn btn-sm btn-warning btn-outline-dark c-gold'>i</button>
-                {% if skill.max_uses != None %}
-                    <span>({{ skill.uses_left }}/{{ skill.max_uses }})</span>
-                    <a class='text-danger h6' href='use-skill/{{ skill.id }}'>Use</a>
 
-                    {% if user.is_superuser %}
-                    <a href="/admin/DunnoRPG/skills/{{ skill.id }}/change/" class="ms-2 fa fa-link" target="_blank"></a>
-                    {% endif %}
-                {% endif %}
-                <div id='{{ skill.id }}' name="desc_block" class="d-none">
-                    <p class='fw-bold text-center'>{{ skill.skill }} lvl.{{ skill.level }}</p>
-                    {{ skill.desc|itemSkillWithLinks }}
-                    <br>
-                    [<span class='fst-italic'>{{ skill.level_desc|itemSkillWithLinks }}</span>]
-                </div>
-            </li><br>
+            {% include 'dunnorpg/owned_skill_block.html' %}
         {% endfor %}
+
         </div>
+        {% endif %}
 
         <ul>
     </div>
@@ -2076,6 +2006,10 @@ initAjaxInput('hp-val', 'hp-form')
 initAjaxInput('coins', 'coins-form')
 initAjaxInput('water-val', 'water-form')
 initAjaxInput('food-val', 'food-form')
+initAjaxInput('alcohol-val', 'alcohol-form')
+document.querySelectorAll('[id^="skill-uses-val-"]').forEach((input) => {
+    initAjaxInput(input.id, `skill-uses-form-${input.id.replace('skill-uses-val-', '')}`)
+})
 
 function showSkill(instance){
     if(instance.innerHTML == "Check skill"){
@@ -2256,6 +2190,30 @@ async function changeCoins(event){
 function updateFoodWaterState(statType, value){
     const input = document.getElementById(`${statType}-val`)
     const form = document.getElementById(`${statType}-form`)
+    if(statType === 'alcohol'){
+        const numericValue = Number(value)
+        const isOverLimit = numericValue > Number('{{ drunkenness_limit }}')
+
+        input.value = value
+        input.setAttribute('value', value)
+
+        form.querySelectorAll('span, input').forEach((element) => {
+            element.classList.remove('text-success', 'text-danger', 'text-decoration-underline')
+            if(isOverLimit){
+                element.classList.add('text-danger', 'text-decoration-underline')
+                element.style.color = ''
+            }
+            else if(numericValue === 0){
+                element.classList.add('text-success')
+                element.style.color = ''
+            }
+            else{
+                element.style.color = 'orange'
+            }
+        })
+        return
+    }
+
     const isSafe = Number(value) > 20
 
     input.value = value
@@ -2279,11 +2237,12 @@ async function changeFoodWater(event, statType){
     const input = document.getElementById(`${statType}-val`)
     const rawValue = input.value.trim()
     const value = Number(input.value)
+    const isAlcohol = statType === 'alcohol'
     if(form.dataset.submitting === 'true' || input.value === input.dataset.lastSubmittedValue){
         return
     }
 
-    if(rawValue === '' || !Number.isInteger(value) || value < 0 || value > 100){
+    if(rawValue === '' || !Number.isInteger(value) || value < 0 || (!isAlcohol && value > 100)){
         showMessage('Wartość musi być liczbą całkowitą od 0 do 100.', 'error')
         return
     }
@@ -2317,6 +2276,52 @@ async function changeFoodWater(event, statType){
         else{
             showMessage(data.message || 'Pomyślnie zmieniono wartość.', data.message_type || 'success')
         }
+    }
+    catch(error){
+        showMessage(error.message, 'error')
+    }
+    finally{
+        form.dataset.submitting = 'false'
+    }
+}
+
+async function changeSkillUses(event, skillId){
+    event.preventDefault()
+
+    const form = event.currentTarget
+    const input = document.getElementById(`skill-uses-val-${skillId}`)
+    const rawValue = input.value.trim()
+    const value = Number(input.value)
+
+    if(form.dataset.submitting === 'true' || input.value === input.dataset.lastSubmittedValue){
+        return
+    }
+
+    if(rawValue === '' || !Number.isInteger(value) || value < 0){
+        showMessage('Liczba użyć musi być liczbą całkowitą większą lub równą 0.', 'error')
+        return
+    }
+
+    form.dataset.submitting = 'true'
+
+    try{
+        const response = await fetch(form.action, {
+            method: 'POST',
+            body: new FormData(form),
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+            },
+        })
+        const data = await response.json()
+
+        if(!response.ok){
+            throw new Error(data.error || 'Nie udało się zmienić liczby użyć.')
+        }
+
+        input.value = data.uses_left
+        input.setAttribute('value', data.uses_left)
+        input.dataset.lastSubmittedValue = String(data.uses_left)
+        showMessage(data.message || 'Pomyślnie zmieniono liczbę użyć.', 'success')
     }
     catch(error){
         showMessage(error.message, 'error')

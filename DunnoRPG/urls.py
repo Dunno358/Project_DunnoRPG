@@ -16,6 +16,7 @@ urlpatterns = [
     path('character_detail/<int:char_id>/change-food-water/<str:stat_type>', views.change_food_water, name='change_food_water'),
     path('character_detail/<int:char_id>/add-exp/<exp>', views.add_exp, name='add_exp'),
     path('character_detail/<int:char_id>/use-skill/<int:skill_id>', views.char_use_skill, name='use_skill'),
+    path('character_detail/<int:char_id>/change-skill-uses/<int:skill_id>', views.change_skill_uses, name='change_skill_uses'),
     path('character_detail/<int:char_id>/move_eq-<int:item_id>', views.MoveItemToEq.as_view(), name='move_item_to_eq'),
     path('character_detail/<int:char_id>/take_dur-<int:item_id>', views.TakeItemDurFromAttack.as_view(), name='take_attack_dur_from_item'),
     path('character_detail/<int:char_id>/take_ammo-<int:item_id>-<int:item_amount>', views.TakeAmmoFromAttack.as_view(), name='take_ammo_from_attack'),

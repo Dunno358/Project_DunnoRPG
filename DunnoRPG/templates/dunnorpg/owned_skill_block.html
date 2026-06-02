@@ -1,0 +1,47 @@
+{% load filters %}
+
+<div class='w-100 bg-gray bg-gradient border border-warning rounded m-0 p-2 mt-2 mb-1'>
+    <div class="row m-0 p-0">
+        <div class="col m-0 p-0 h5 text-center">
+            <a class='c-gold fst-italic text-decoration-none' href='#' onclick="showIframe('/dunnorpg/skills/{{ skill.original_id }}'); return false;">
+                {{ skill.skill }}
+            </a>
+        </div>
+    </div>
+
+    <hr class="border-warning m-0 mt-1 mb-1">
+
+    <div class="row m-0 p-0 mt-1">
+        <div class="col m-0 p-0 text-center text-white-50">
+            {{ skill.level_desc|itemSkillWithLinks }}
+        </div>
+    </div>
+
+    <hr class="border-warning m-0 mt-1 mb-1">
+
+    <div class="row m-0 p-0 mt-2 align-items-center fw-bold">
+        <div class="col-2 m-0 p-0 text-center">
+            Lvl {{ skill.level }}
+        </div>
+        <div class="col m-0 p-0 text-center border-start border-warning">
+            {% if skill.max_uses != None %}
+                Liczba użyć:
+                {% if skill.uses_left == 1000 or skill.max_uses == 1000 %}
+                    <span class="fa-solid fa-infinity"></span>
+                {% else %}
+                    <form id="skill-uses-form-{{ skill.id }}" method="post" action="change-skill-uses/{{ skill.id }}" class="d-inline" onsubmit="changeSkillUses(event, '{{ skill.id }}')">
+                        {% csrf_token %}
+                        <input id="skill-uses-val-{{ skill.id }}" name="uses-left" type="number" min="0" max="{{ skill.max_uses }}" value="{{ skill.uses_left }}" class="text-end border-0 fw-bold c-gold bg-transparent" style="width: 2.4rem;">
+                    </form>/{{ skill.max_uses }}
+                {% endif %}
+            {% else %}
+                Bez limitu użyć
+            {% endif %}
+        </div>
+        <div class="col-3 m-0 p-0 text-center border-start border-warning">
+            {% if skill.max_uses != None %}
+                <a class='btn btn-sm w-75 fw-bold {% if skill.uses_left > 0 %}btn-success{% else %}btn-danger{% endif %}' style="color: #c6ffce;" href='use-skill/{{ skill.id }}'>Użyj</a>
+            {% endif %}
+        </div>
+    </div>
+</div>

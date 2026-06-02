@@ -71,6 +71,7 @@ def grant_free_skill(owner, character_name, skill):
         return
 
     skill_desc = get_object_or_404(models.Skills_Decs, name=skill_name)
+    max_uses = getattr(skill_desc, f"useslvl{skill_lvl}", None)
     models.Skills.objects.create(
         owner=owner,
         character=character_name,
@@ -78,7 +79,7 @@ def grant_free_skill(owner, character_name, skill):
         category=f"{skill_lvl}free",
         level=skill_lvl,
         desc=skill_desc.desc,
-        uses_left=skill_desc.useAmount,
+        uses_left=max_uses or 0,
         source="natural_free"
     )
 
@@ -789,7 +790,7 @@ def skill_add(request,char_id,skill_id,lvl):
             category = skill_details.category,
             level = lvl,
             desc = getattr(skill_details, f"level{lvl}"),
-            uses_left = skill_details.useAmount
+            uses_left = getattr(skill_details, f"useslvl{lvl}", None) or 0
         )
 
         character.points_left -= skill_cost
@@ -848,6 +849,7 @@ def skill_upgrade(request,char_id,skill_id):
             if points_ok:        
                 skill.level += 1
                 skill.desc = skill_details['desc']+' '+skill_details[f"level{skill.level}"]
+                skill.uses_left = skill_details[f"useslvl{skill.level}"] or 0
                 skill.save()
 
                 character_object.points_left -= int(skill_details['cost'])
@@ -875,6 +877,7 @@ def skill_downgrade(request,char_id,skill_id):
     if not_min_lvl:
         skill.level -= 1
         skill.desc = skill_details['desc']+' '+skill_details[f"level{skill.level}"]
+        skill.uses_left = skill_details[f"useslvl{skill.level}"] or 0
         skill.save()
         
         if skill_details['category'] != 'Magical':
@@ -1550,6 +1553,47 @@ def char_use_skill(request, **kwargs):
     else:
         messages.error(request, f'No uses left for {skill.skill}.')
     return redirect('character_detail', char.id)
+
+def change_skill_uses(request, **kwargs):
+    if request.method != 'POST':
+        return JsonResponse({"error": "Invalid request method"}, status=405)
+
+    try:
+        char = get_object_or_404(models.Character, id=kwargs['char_id'])
+        skill = get_object_or_404(
+            models.Skills,
+            id=kwargs['skill_id'],
+            owner=char.owner,
+            character=char.name,
+        )
+        skill_desc = get_object_or_404(models.Skills_Decs, name=skill.skill)
+        max_uses = getattr(skill_desc, f"useslvl{skill.level}", None)
+        if max_uses is None:
+            raise ValueError("Ta umiejętność nie ma limitu użyć")
+
+        uses_left = int(request.POST['uses-left'])
+        if uses_left < 0:
+            raise ValueError("Liczba użyć nie może być mniejsza niż 0")
+        if max_uses != 1000 and uses_left > max_uses:
+            raise ValueError(f"Liczba użyć nie może być większa niż {max_uses}")
+
+        skill.uses_left = uses_left
+        skill.save()
+        msg = f"Pomyślnie zmieniono liczbę użyć {skill.skill} na {uses_left}"
+
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+            return JsonResponse({"message": msg, "uses_left": uses_left}, status=200)
+
+        messages.success(request, msg)
+        return redirect('character_detail', char.id)
+    except Exception as e:
+        msg = f"Błąd zmiany liczby użyć: {e}"
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+            return JsonResponse({"error": msg}, status=400)
+
+        messages.error(request, msg)
+        return redirect('character_detail', kwargs['char_id'])
+
 def reset_skills(request,mode):
     for skill in models.Skills.objects.all():
         try:
