@@ -1233,7 +1233,7 @@ def change_char_details(request, **kwargs):
         char.points_left = int(data['points'])
         char.type = (data.get('type') or 'Player').strip() or 'Player'
         char.model_url = data['url']
-        char.size = int(data['size'])
+        char.size = f"{float(data['size']):g}"
         char.save()
 
         return JsonResponse({"message": "Pomyślnie zmieniono dane"}, status=200)
