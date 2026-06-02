@@ -52,6 +52,15 @@
 
     <div class="row m-0 p-0 mt-3">
         <div class="col-5 m-0 p-0 text-end">
+            <span class="text-white-50">Typ postaci:</span>
+        </div>
+        <div class="col">
+            <input class="w-100 text-center border border-warning bg-gray text-white-50 rounded" id="adv-type" type="text" value="{{ character.type|default:'Player' }}" />
+        </div>
+    </div>
+
+    <div class="row m-0 p-0 mt-3">
+        <div class="col-5 m-0 p-0 text-end">
             <span class="text-white-50">Podgląd postaci:</span>
         </div>
         <div class="col">
@@ -338,6 +347,7 @@
         req_body = {
             "maxHP": document.getElementById("adv-maxhp").value,
             "points": document.getElementById("adv-points").value,
+            "type": document.getElementById("adv-type").value,
             "url": document.getElementById("adv-url").value,
             "size": document.getElementById("adv-size").value
         }
