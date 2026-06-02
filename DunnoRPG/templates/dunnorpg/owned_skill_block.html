@@ -44,4 +44,24 @@
             {% endif %}
         </div>
     </div>
+
+    <hr class="border-warning m-0 mt-1 mb-1">
+
+    <div class="row m-0 p-0 mt-1 fw-bold text-white-50">
+        {% if skill.use_cost != None %}
+            <div class="col m-0 p-0 text-center">Koszt: {{ skill.use_cost }}</div>
+        {% endif %}
+        {% if skill.range %}
+            <div class="col m-0 p-0 text-center border-start border-warning">Zasięg: {{ skill.range }}</div>
+        {% endif %}
+        {% if skill.required_cel %}
+            <div class="col m-0 p-0 text-center border-start border-warning">CEL: {{ skill.required_cel }}</div>
+        {% endif %}
+        {% if skill.dice %}
+            <div class="col m-0 p-0 text-center border-start border-warning">{{ skill.dice }}</div>
+        {% endif %}
+        {% if skill.ap %}
+            <div class="col m-0 p-0 text-center border-start border-warning">AP: {{ skill.ap }}</div>
+        {% endif %}
+    </div>
 </div>

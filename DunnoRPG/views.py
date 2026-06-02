@@ -407,6 +407,11 @@ class CharacterDetails(DetailView):
             skill['original_desc'] = skill_description['desc']
             skill['level_desc'] = skill_description[f"level{skill['level']}"]
             skill['max_uses'] = skill_description[f"useslvl{skill['level']}"]
+            skill['use_cost'] = skill_description['use_cost']
+            skill['range'] = skill_description['range']
+            skill['required_cel'] = skill_description['requiredCel']
+            skill['dice'] = skill_description['dice']
+            skill['ap'] = skill_description['ap']
             if skill_description['category'].lower() == 'magical': 
                 skillsMagical.append(skill)
             elif skill_description['category'].lower() == 'melee': 

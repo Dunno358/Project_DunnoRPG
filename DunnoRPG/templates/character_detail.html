@@ -289,7 +289,7 @@ style="width: 98%; z-index: 20; margin-left: 0.22rem !important; margin-top: -5r
         </div>
 
         <div class='col-4 m-0 p-1 btn btn-dark btn-outline-warning border border-warning rounded' id='Skills' onclick="show_or_hideByName(this)">
-            <span class='fas fa-meteor'></span><br>Umiejętności
+            <span class='fas fa-meteor' id="skills-tab-icon"></span><br>Umiejętności
         </div>
 
         <div class='col-3 m-0 p-1 btn btn-dark btn-outline-warning border border-warning rounded' id='Effects' onclick="show_or_hideByName(this)">
@@ -2698,6 +2698,9 @@ function show_or_hideByName(instance, changeColor=false, directId=false){
 
         instance.classList.add('btn-outline-primary')
         instance.classList.add('border-primary')
+        if(instance.id === 'Skills'){
+            document.getElementById('skills-tab-icon').classList.add('fa-spin')
+        }
     }
     else{
         element.classList.add('d-none')
@@ -2707,6 +2710,9 @@ function show_or_hideByName(instance, changeColor=false, directId=false){
 
         instance.classList.add('btn-outline-warning')
         instance.classList.add('border-warning')
+        if(instance.id === 'Skills'){
+            document.getElementById('skills-tab-icon').classList.remove('fa-spin')
+        }
     }
 };
 
