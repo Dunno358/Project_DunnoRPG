@@ -75,6 +75,14 @@ def getItemWeight(itemName):
 
 @register.filter
 def getArmorWeightType(itemName):
+    armor_weight_labels = {
+        "light": "Lekkie",
+        "light+": "Lekkie+",
+        "medium": "Średnie",
+        "medium+": "Średnie+",
+        "heavy": "Ciężkie",
+    }
+
     types = { #first index for light armor, second for medium and above is heavy armor
     "Helmet": [1.5, 2.5],
     "Torso": [4,7],
@@ -87,6 +95,10 @@ def getArmorWeightType(itemName):
     item = get_object_or_404(models.Items, name=itemName)
     weight = item.weight
     type = item.type
+    armor_weight = (item.armor_weight or "").strip().lower()
+
+    if armor_weight in armor_weight_labels:
+        return armor_weight_labels[armor_weight]
 
     if type not in types:
         return "Broń"
