@@ -306,8 +306,7 @@ style="width: 98%; z-index: 20; margin-left: 0.22rem !important; margin-top: -5r
         <p id='effects-attack'>{{ value.name|getEffectsBonus:"attack" }}</p>
         <p id='effects-parry'>{{ value.name|getEffectsBonus:"parry" }}</p>
         <p id='effects-dodge'>{{ value.name|getEffectsBonus:"dodge" }}</p>
-        <p id='weapon-weight-mod'>0</p>
-        <p id='shield-weight-mod'>0</p>
+        <p id='shield-weight'>0</p>
         <p id='amulet-attack-mod'>{{ value.name|getAmuletAttackBonus }}</p>
         <p id='armor-weight'>{{ value.name|getArmorWeight }}kg</p>
     </div>
@@ -394,7 +393,7 @@ style="width: 98%; z-index: 20; margin-left: 0.22rem !important; margin-top: -5r
                     <input type="number" min="0" max="100" id="food-val" class="fw-bold text-center border-0 ms-1 {% if value.food > 20 %}text-success{% else %}text-danger text-decoration-underline{% endif %}" style="width: 2.7rem; background: transparent;" value="{{ value.food }}" name="food-amount"><span class="fw-bold {% if value.food > 20 %}text-success{% else %}text-danger text-decoration-underline{% endif %}">%</span>
                 </form>
             </div>
-            <div class="col rounded bg-gray bg-gradient border border-warning m-2 p-2 h6" style="min-width: 0;">
+            <div class="col rounded bg-gray bg-gradient border border-warning m-2 p-2 h6" style="min-width: 0; cursor: pointer;" onclick="showArmorPenaltyInfo()">
                 <span class="text-white-50">Kara:</span> 
                 -<span id='armor-mod'></span> ZRE
             </div>
@@ -2390,36 +2389,25 @@ function calculateGettingHit(){
 function getWeaponMod(){
     let l_item = document.getElementById('l-weight')
     let l_item_full = document.getElementById('l_weapon')
-    let l_weight = 0
     let l_weight_shield = 0   
     try{
-        if(l_item_full.getAttribute("name").toLowerCase()!="shield"){
-            l_weight = parseFloat(document.getElementById('l-weight').innerHTML)
-        }else{
+        if(l_item_full.getAttribute("name").toLowerCase()=="shield"){
             l_weight_shield = parseFloat(document.getElementById('l-weight').innerHTML)
         }
     }catch(error){console.log(error)}
 
     let r_item = document.getElementById('r-weight')
     let r_item_full = document.getElementById('r_weapon')
-    let r_weight = 0
     let r_weight_shield = 0
     try{
-        if(r_item_full.getAttribute("name").toLowerCase()!="shield"){
-            r_weight = parseFloat(document.getElementById('r-weight').innerHTML)
-        }else{
+        if(r_item_full.getAttribute("name").toLowerCase()=="shield"){
             r_weight_shield = parseFloat(document.getElementById('r-weight').innerHTML)
         }
     }catch(error){console.log(error)}
 
-    sil = parseInt(document.getElementById('stat-SIŁ').innerHTML)
-    mod = (r_weight+l_weight)-sil
-    mod = parseInt(mod/2)
+    shieldWeight = r_weight_shield+l_weight_shield
 
-    modShield = parseInt((r_weight_shield+l_weight_shield)/4)
-
-    document.getElementById('weapon-weight-mod').innerHTML = mod
-    document.getElementById('shield-weight-mod').innerHTML = modShield
+    document.getElementById('shield-weight').innerHTML = shieldWeight
 }
 getWeaponMod()
 
@@ -2475,10 +2463,9 @@ function isHit(hand, dualHanded=false){
     cel = parseInt(document.getElementById('stat-CEL').innerHTML)
     cel_mod = parseInt(document.getElementById('stat-CEL-mod').innerHTML)
     armor_mod = parseInt(document.getElementById('armor-mod').innerHTML) 
-    weight_mod = parseInt(document.getElementById('weapon-weight-mod').innerHTML)
     additional_bonus = parseInt(document.getElementById('dice-bonus-cel').value)
 
-    cel_mods = additional_bonus+cel+cel_mod+cel_effect_bonus-weight_mod
+    cel_mods = additional_bonus+cel+cel_mod+cel_effect_bonus
 
     if(count_armor){
         cel_mods -= armor_mod
@@ -2633,8 +2620,9 @@ function gatherAttackInfo(hand, item_id){
 }
 
 function getArmorMod(){
-    armor_weight = parseInt(document.getElementById('armor-weight').innerHTML)
-    mod = armor_weight/4
+    armor_weight = parseFloat(document.getElementById('armor-weight').innerHTML)
+    shield_weight = parseFloat(document.getElementById('shield-weight').innerHTML)
+    mod = (armor_weight+shield_weight)/6
     mod = parseInt(mod)
     try{
         if(document.getElementById('char-class').innerHTML.trim() == 'Berserker'){
@@ -2736,6 +2724,22 @@ function showInfoCard(title, text){
     content.textContent = text
 };
 
+function formatWeight(value){
+    return Number.isInteger(value) ? value : value.toFixed(1)
+}
+
+function showArmorPenaltyInfo(){
+    let armorWeight = parseFloat(document.getElementById('armor-weight').innerHTML) || 0
+    let shieldWeight = parseFloat(document.getElementById('shield-weight').innerHTML) || 0
+    let totalWeight = armorWeight + shieldWeight
+    let armorMod = parseInt(document.getElementById('armor-mod').innerHTML) || 0
+
+    showInfoCard(
+        'Kara',
+        `Kara wynosi -1 ZRE za każde 6kg łącznej wagi pancerza i tarczy. Obecnie: -${armorMod} ZRE (${formatWeight(armorWeight)}kg pancerz + ${formatWeight(shieldWeight)}kg tarcza = ${formatWeight(totalWeight)}kg).`
+    )
+}
+
 function showIframe(skill_src){
     if(skill_src!=''){
         let iframe = document.getElementById("iframe")
@@ -2789,15 +2793,14 @@ function show_result_at_window(action){
         zre = parseInt(document.getElementById('stat-ZRE').innerHTML)
         zre_mod = parseInt(document.getElementById('stat-ZRE-mod').innerHTML) 
         armor_mod = parseInt(document.getElementById('armor-mod').innerHTML) 
-        weight_mod = document.getElementById('shield-weight-mod').innerHTML
-        dodge_mods = zre+zre_mod+dodge_effect_bonus-armor_mod-weight_mod
+        dodge_mods = zre+zre_mod+dodge_effect_bonus-armor_mod
 
         window_action_top.innerHTML = ''
         window_action_top.onclick = ''
 
         dice_result = getDiceWMods(window_action_top,dodge_mods,getResult=true,text="Unik | Bonus do wyniku kości")
 
-        details = 'ZRE'+'('+zre+')'+ ' + '+'MODS'+'('+(zre_mod+dodge_effect_bonus)+')'+ ' + '+'ARMOR'+'('+(-armor_mod)+')'+' - SHIELD WEIGHT('+weight_mod+')'
+        details = 'ZRE'+'('+zre+')'+ ' + '+'MODS'+'('+(zre_mod+dodge_effect_bonus)+')'+ ' + '+'ARMOR'+'('+(-armor_mod)+')'
         window_action_top.onclick = function() {change_result(details,window_action,dodge_mods, dice_result)}
     }
     else if(action == "Overwatch")
@@ -2830,9 +2833,7 @@ function show_result_at_window(action){
         zre = parseInt(document.getElementById('stat-ZRE').innerHTML)
         zre_mod = parseInt(document.getElementById('stat-ZRE-mod').innerHTML) 
         armor_mod = parseInt(document.getElementById('armor-mod').innerHTML) 
-        weight_mod = document.getElementById('shield-weight-mod').innerHTML
-
-        full_zre = parseInt(zre+zre_mod+-armor_mod-weight_mod)
+        full_zre = parseInt(zre+zre_mod+-armor_mod)
         bonus_move = full_zre/3
         full_move = Math.ceil(4+bonus_move) //4 + 1 for every 3 ZRE
 

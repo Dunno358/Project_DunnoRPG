@@ -716,15 +716,16 @@ def getArmorWeight(charName):
     boots = models.CharItems.objects.filter(character=charName, position='Boots').first()
     gloves = models.CharItems.objects.filter(character=charName, position='Gloves').first()
     amulets = models.CharItems.objects.filter(character=charName, position='Amulet').first()
-    items = [helmet,torso,boots,gloves,amulets]  
+    items = [helmet,torso,boots,gloves,amulets]
     
     weight = 0
 
     types = { #first index for light armor, second for medium and above is heavy armor
-    "Helmet": [1.5, 2.5],
-    "Torso": [4,7],
-    "Boots": [0.5, 1.1],
-    "Gloves": [1, 2]
+    "helmet": [1.5, 2.5],
+    "torso": [4,7],
+    "boots": [0.5, 1.1],
+    "gloves": [1, 2],
+    "amulet": [1, 2],
     }
 
     ignore_classes = {
@@ -739,7 +740,7 @@ def getArmorWeight(charName):
         try:
             item_desc = models.Items.objects.filter(name=item.name).first()
 
-            type = types[f"{item_desc.type}"]
+            type = types[f"{item_desc.type.lower()}"]
             if item_desc.weight < type[0]:
                 wg_type = "light"
             elif item_desc.weight < type[1]:
