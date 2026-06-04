@@ -4,14 +4,6 @@
 {% include 'dunnorpg/messages.html' %}
 <meta name="csrf-token" content="{{ csrf_token }}"> 
 
-<div class='container mt-0'>
-    <div class="row">
-        <div class="col c-gold">
-            <a class='btn btn-dark btn-outline-danger w-100' href="{% url 'character_detail' character.id %}"><- Powrót do postaci</a>
-        </div>
-    </div>
-</div>
-
 <form method="post" action="change_owner" id='choose-new-owner' class='d-none position-fixed container-fluid'>
     {% csrf_token %}
     <div class='row bg-dark c-gold rounded border border-warning mt-5 m-2'>
@@ -212,11 +204,34 @@
 
         <div class="row text-center fs-5 p-2 col bg-gray text-center m-0">
             <div class="col">
-                <select class="text-center w-100 border border-warning bg-dark text-white-50 rounded" id="skill-choose-name" onchange="skillChanged()"> 
+                <input type="hidden" id="skill-choose-name" value="{% if available_skills %}{{ available_skills.0.id }}{% endif %}">
+                <select class="d-none d-md-block text-center w-100 border border-warning bg-dark text-white-50 rounded p-2" id="skill-choose-name-select" onchange="chooseSkillFromSelect(this)"> 
                     {% for skill in available_skills %}
                         <option value="{{ skill.id }}">{{ skill.name }}</option>
                     {% endfor %}
                 </select>
+                <button
+                    type="button"
+                    id="skill-choose-dropdown-toggle"
+                    class="d-md-none btn btn-dark border border-warning text-white-50 w-100"
+                    onclick="toggleSkillDropdown()"
+                >
+                    {% if available_skills %}{{ available_skills.0.name }}{% endif %}
+                </button>
+                <div id="skill-choose-dropdown-menu" class="d-none d-md-none w-100 border border-warning bg-dark rounded overflow-auto mt-1" style="max-height: 45vh;">
+                    {% for skill in available_skills %}
+                        <button
+                            type="button"
+                            name="skill-choice"
+                            class="btn btn-dark {% if forloop.first %}border-primary{% else %}border-warning{% endif %} text-white-50 w-100 m-0 rounded-0"
+                            data-skill-id="{{ skill.id }}"
+                            data-skill-name="{{ skill.name }}"
+                            onclick="chooseSkill(this)"
+                        >
+                            {{ skill.name }}
+                        </button>
+                    {% endfor %}
+                </div>
             </div>
         </div> 
 
@@ -225,7 +240,7 @@
                 <b>Poziom:</b>
             </div>
             <div class="col">
-                <select class="text-center w-100 border border-warning bg-dark text-white-50 rounded" id="skill-choose-lvl">
+                <select class="text-center w-100 border border-warning bg-dark text-white-50 rounded p-2" id="skill-choose-lvl">
                     <option value="1">1</option>
                     <option value="2">2</option>
                     <option value="3">3</option>
@@ -273,6 +288,14 @@
     </div class='row'>
  </div>
 
+<div class='container mt-4 mb-4'>
+    <div class="row">
+        <div class="col c-gold">
+            <a class='btn btn-dark btn-outline-danger w-100' href="{% url 'character_detail' character.id %}"><- Powrót do postaci</a>
+        </div>
+    </div>
+</div>
+
  {{ stats_descriptions|json_script:"stats-descriptions" }}
 
  <script>
@@ -298,6 +321,30 @@
         let id = select.value
 
         iframe.src = `/dunnorpg/skills/${id}`
+    }
+
+    function chooseSkill(button){
+        document.getElementById("skill-choose-name").value = button.dataset.skillId
+        document.getElementById("skill-choose-dropdown-toggle").textContent = button.dataset.skillName
+        document.getElementById("skill-choose-dropdown-menu").classList.add("d-none")
+
+        for (const skillButton of document.getElementsByName("skill-choice")) {
+            skillButton.classList.remove("border-primary")
+            skillButton.classList.add("border-warning")
+        }
+
+        button.classList.remove("border-warning")
+        button.classList.add("border-primary")
+        skillChanged()
+    }
+
+    function chooseSkillFromSelect(select){
+        document.getElementById("skill-choose-name").value = select.value
+        skillChanged()
+    }
+
+    function toggleSkillDropdown(){
+        document.getElementById("skill-choose-dropdown-menu").classList.toggle("d-none")
     }
 
     function changeToIframe(reverse=false){

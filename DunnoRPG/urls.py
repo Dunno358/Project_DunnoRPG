@@ -44,6 +44,7 @@ urlpatterns = [
     path('character_add_skills/<int:char_id>/change_adv', views.change_char_details, name='change_char_details'),
 
     path('char-delete/<int:char_id>', views.DeleteCharacter.as_view(), name='delete_character'),
+    path('char-copy/<int:char_id>', views.CopyCharacter.as_view(), name='copy_character'),
     
     path('items/ch<int:char_id>', views.ItemsView.as_view(), name='items'),
     path('items/<int:char_id>del<int:obj_id>-<int:amount>', views.del_eq_item, name='del_eq_item'),

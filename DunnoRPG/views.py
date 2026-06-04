@@ -145,6 +145,31 @@ def get_drunkenness_limit(character):
 
     return 3 + strong_head_skill.level
 
+def get_next_character_copy_name(character_name):
+    character_name = (character_name or "").strip()
+    match = re.match(r"^(.*?)(?:\s+(\d+))?$", character_name)
+    if match and match.group(2):
+        base_name = match.group(1).strip()
+        next_number = int(match.group(2)) + 1
+    else:
+        base_name = character_name
+        next_number = 2
+
+    while True:
+        candidate = f"{base_name} {next_number}".strip()
+        if not models.Character.objects.filter(name=candidate).exists():
+            return candidate
+        next_number += 1
+
+def copy_model_instance(instance, **overrides):
+    data = {
+        field.name: getattr(instance, field.name)
+        for field in instance._meta.fields
+        if field.name != "id"
+    }
+    data.update(overrides)
+    return instance.__class__.objects.create(**data)
+
 class charGET(ListView):
     model = models.Character
     template_name = 'home.html'
@@ -178,6 +203,10 @@ class charGET(ListView):
         context['selected_type'] = selected_type
         context['character_types'] = sorted(base_qs.values_list('type', flat=True).distinct())
         context['characters_count'] = self.get_queryset().count()
+        context['copy_default_names'] = {
+            character.id: get_next_character_copy_name(character.name)
+            for character in context['characters']
+        }
 
         return context
     
@@ -205,6 +234,50 @@ class DeleteCharacter(APIView):
             models.Skills.objects.filter(owner=request.user ,character=character.name).delete()
             models.Effects.objects.filter(owner=request.user ,character=character.name).delete()
             character.delete()
+
+        return redirect('/dunnorpg')
+
+class CopyCharacter(APIView):
+    def post(self, request, char_id):
+        character = get_object_or_404(models.Character, id=char_id)
+        if not request.user.is_superuser and character.owner != request.user.username:
+            raise Http404('Invalid character')
+
+        new_name = (request.POST.get("name") or "").strip()
+        if not new_name:
+            messages.error(request, "Brak nazwy postaci")
+            return redirect('/dunnorpg')
+
+        max_name_length = models.Character._meta.get_field("name").max_length
+        if len(new_name) > max_name_length:
+            messages.error(request, f"Nazwa postaci może mieć maksymalnie {max_name_length} znaków")
+            return redirect('/dunnorpg')
+
+        if models.Character.objects.filter(name=new_name).exists():
+            messages.error(request, "Postać o takiej nazwie już istnieje")
+            return redirect('/dunnorpg')
+
+        related_models = [
+            models.Skills,
+            models.Eq,
+            models.CharItems,
+            models.Effects,
+            models.Mods,
+        ]
+
+        with transaction.atomic():
+            new_character = copy_model_instance(character, name=new_name)
+            for related_model in related_models:
+                related_objects = related_model.objects.filter(character=character.name)
+                if any(field.name == "owner" for field in related_model._meta.fields):
+                    related_objects = related_objects.filter(owner=character.owner)
+
+                for related_object in related_objects:
+                    copy_model_instance(
+                        related_object,
+                        owner=new_character.owner,
+                        character=new_character.name,
+                    )
 
         return redirect('/dunnorpg')
 

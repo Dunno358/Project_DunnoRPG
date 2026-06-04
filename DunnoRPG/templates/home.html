@@ -1,16 +1,39 @@
 {% extends 'master.html' %}
+{% load filters %}
 
 {% block content %}
 
 {% if user.is_authenticated %}
   {% include 'top_bar.html' %}
 
-<div id='del-confirm' class='d-none position-fixed container-fluid'>
+<div id='del-confirm' class='d-none position-fixed container-fluid' style='z-index: 1050;'>
   <div class='row bg-dark c-gold rounded border border-warning mt-5 ms-5 me-5'>
     <div class='col text-center'>
       <h2 id='del-confirm-title' class='m-2 mt-5 fst-150'>Jesteś pewien?</h2>
       <a onclick='this.parentNode.parentNode.parentNode.classList.add("d-none")' class='btn btn-lg btn-outline-danger m-1 mb-5'>Nie</a>
       <a href='char-delete/' id='del-confirm-positive' class='btn btn-lg btn-outline-success m-1 mb-5'>Tak</a>
+    </div>
+  </div>
+</div>
+
+<div id='copy-confirm' class='d-none position-fixed container-fluid' style='z-index: 1050;'>
+  <div class='row bg-dark c-gold rounded border border-warning mt-5 ms-5 me-5'>
+    <div class='col text-center'>
+      <h2 id='copy-confirm-title' class='m-2 mt-5 fst-150'>Kopiuj postac</h2>
+      <form method='post' id='copy-confirm-form' action=''>
+        {% csrf_token %}
+        <input
+          id='copy-character-name'
+          name='name'
+          class='w-75 text-center rounded bg-gray c-gold border border-warning p-2 m-2'
+          maxlength='50'
+          required
+        >
+        <div>
+          <a onclick='this.parentNode.parentNode.parentNode.parentNode.parentNode.classList.add("d-none")' class='btn btn-lg btn-outline-danger m-1 mb-5'>Anuluj</a>
+          <button type='submit' class='btn btn-lg btn-outline-success m-1 mb-5'>Kopiuj</button>
+        </div>
+      </form>
     </div>
   </div>
 </div>
@@ -39,25 +62,33 @@
 
     <div class="row">
         {% for character in characters %}
-          <div class="col m-4 p-3 border border-warning bg-gray c-gold rounded text-center">
+          <div class="col m-4 p-3 border border-warning bg-gray c-gold rounded text-center position-relative">
+            <a
+              onclick="charDeleteConfirmation('Usunąć {{ character.name }}?',{{ character.id }})"
+              class="position-absolute top-0 start-0 m-2 text-danger"
+              title="Usuń"
+              style="cursor: pointer;"
+            >
+              <span class="fa-solid fa-trash"></span>
+            </a>
             <dl>
               {% if user.is_superuser %}
-                <dt>Owner:</dt>
+                <dt>Właściciel:</dt>
                   <dd>{{ character.owner }}</dd>
-                <dt>Character:</dt>
+                <dt>Postać:</dt>
                   <dd>{{ character.name }}</dd>
               {% else %}
-              <dt>Character:</dt>
+              <dt>Postać:</dt>
                 <dd>{{ character.name }}</dd>
               <dt>Race:</dt>
                 <dd>{{ character.race }}</dd>
               {% endif %}
             </dl>
               <div name='char_card_btns'>
-                <a onclick="charDeleteConfirmation('Usunąć {{ character.name }}?',{{ character.id }})" class="btn btn-sm btn-dark btn-outline-danger m-1">Delete</a>
-                <a class="btn btn-sm btn-dark btn-outline-primary m-1" href="{% url 'character_add_skills' character.id %}">Edit</a>
+                <a onclick="charCopyConfirmation('{{ character.name|escapejs }}', {{ character.id }}, '{{ copy_default_names|dict_get:character.id|escapejs }}')" class="btn btn-sm btn-dark m-1" style="border-color: #8b5cf6; color: #c4b5fd;">Kopiuj</a>
+                <a class="btn btn-sm btn-dark btn-outline-primary m-1" href="{% url 'character_add_skills' character.id %}">Edytuj</a>
                 <div class='container'>
-                  <a class="btn btn-dark btn-outline-warning m-1" href="{% url 'character_detail' character.id %}">Choose</a>
+                  <a class="btn btn-dark btn-outline-warning m-1" href="{% url 'character_detail' character.id %}">Wybierz</a>
                 </div>
               </div>
           </div>        
@@ -100,6 +131,14 @@
 
     document.getElementById('del-confirm-positive').href = 'char-delete/'+id
     document.getElementById('del-confirm').classList.remove('d-none')
+  }
+  function charCopyConfirmation(characterName, id, defaultName){
+    document.getElementById('copy-confirm-title').innerHTML = 'Kopiuj ' + characterName
+    document.getElementById('copy-confirm-form').action = 'char-copy/' + id
+    document.getElementById('copy-character-name').value = defaultName
+    document.getElementById('copy-confirm').classList.remove('d-none')
+    document.getElementById('copy-character-name').focus()
+    document.getElementById('copy-character-name').select()
   }
 </script>
 

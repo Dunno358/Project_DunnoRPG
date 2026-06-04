@@ -37,7 +37,7 @@
 
             <div class="row mt-3">
                 <div class="col">
-                    <input class="w-100 text-center rounded" id="char-name" placeholder="Nazwa postaci">
+                    <input class="w-100 text-center rounded p-2" id="char-name" placeholder="Nazwa postaci">
                 </div>
             </div>
 
@@ -49,7 +49,7 @@
             </div>
             <div class="row">
                 <div class="col">
-                    <select class="w-100 text-center border border-warning bg-dark text-white-50 rounded" id="char-race">
+                    <select class="w-100 text-center border border-warning bg-dark text-white-50 rounded p-2" id="char-race">
                         {% for race in races %}
                             <option value="{{ race.name }}">{{ race.name }}</option>
                         {% endfor %}
@@ -65,11 +65,33 @@
             </div>
             <div class="row">
                 <div class="col">
-                    <select class="w-100 text-center border border-warning bg-dark text-white-50 rounded" id="char-class">
+                    <input type="hidden" id="char-class" value="{% if classes %}{{ classes.0.name }}{% endif %}">
+                    <select class="d-none d-md-block w-100 text-center border border-warning bg-dark text-white-50 rounded p-2" id="char-class-select" onchange="chooseClassFromSelect(this)">
                         {% for class in classes %}
                             <option value="{{ class.name }}">{{ class.name }}</option>
                         {% endfor %}
                     </select>
+                    <button
+                        type="button"
+                        id="char-class-dropdown-toggle"
+                        class="d-md-none btn btn-dark border border-warning text-white-50 w-100"
+                        onclick="toggleClassDropdown()"
+                    >
+                        {% if classes %}{{ classes.0.name }}{% endif %}
+                    </button>
+                    <div id="char-class-dropdown-menu" class="d-none d-md-none w-100 border border-warning bg-dark rounded overflow-auto mt-1" style="max-height: 45vh;">
+                        {% for class in classes %}
+                            <button
+                                type="button"
+                                name="class-choice"
+                                class="btn btn-dark {% if forloop.first %}border-primary{% else %}border-warning{% endif %} text-white-50 w-100 m-0 rounded-0"
+                                data-class-name="{{ class.name }}"
+                                onclick="chooseClass(this)"
+                            >
+                                {{ class.name }}
+                            </button>
+                        {% endfor %}
+                    </div>
                 </div>
             </div>
 
@@ -80,7 +102,7 @@
             </div>
             <div class="row">
                 <div class="col">
-                    <input class="w-100 text-center border border-warning bg-dark text-white-50 rounded" id="char-type" type="text" value="Player"
+                    <input class="w-100 text-center border border-warning bg-dark text-white-50 rounded p-2" id="char-type" type="text" value="Player"
                     {% if not user.is_superuser %}disabled{% endif %}/>
                 </div>
             </div>
@@ -92,7 +114,7 @@
             </div>
             <div class="row">
                 <div class="col">
-                    <input class="w-100 text-center border border-warning bg-dark text-white-50 rounded" id="char-owner" type="text" value="{{ user }}"
+                    <input class="w-100 text-center border border-warning bg-dark text-white-50 rounded p-2" id="char-owner" type="text" value="{{ user }}"
                     {% if not user.is_superuser %}disabled{% endif %}/>
                 </div>
             </div>
@@ -104,7 +126,7 @@
             </div>
             <div class="row">
                 <div class="col">
-                    <input class="w-100 text-center border border-warning bg-dark text-white-50 rounded" id="char-exp" type="number" value="0"
+                    <input class="w-100 text-center border border-warning bg-dark text-white-50 rounded p-2" id="char-exp" type="number" value="0"
                     {% if not user.is_superuser %}disabled{% endif %}/>
                 </div>
             </div>
@@ -139,6 +161,28 @@
 
         url = window.location.href + `/create/${name}/${char_class}/${char_race}/${char_type}/${char_owner}/${char_exp}`
         window.location.replace(url)
+    }
+
+    function chooseClass(button){
+        document.getElementById('char-class').value = button.dataset.className
+        document.getElementById('char-class-dropdown-toggle').innerHTML = button.dataset.className
+        document.getElementById('char-class-dropdown-menu').classList.add('d-none')
+
+        for (const classButton of document.getElementsByName('class-choice')) {
+            classButton.classList.remove('border-primary')
+            classButton.classList.add('border-warning')
+        }
+
+        button.classList.remove('border-warning')
+        button.classList.add('border-primary')
+    }
+
+    function chooseClassFromSelect(select){
+        document.getElementById('char-class').value = select.value
+    }
+
+    function toggleClassDropdown(){
+        document.getElementById('char-class-dropdown-menu').classList.toggle('d-none')
     }
 
 </script>
