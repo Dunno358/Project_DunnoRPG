@@ -78,7 +78,7 @@
                         <div class="row-3" style="height: 4vh;">
                             <div class="col h-100">
                                 <button class="w-100 h-100 text-center btn btn-sm btn-success d-flex align-items-center justify-content-center rounded-0" 
-                                onclick="buyItem('{{ item }}','{{ item|getDescId }}')">
+                                onclick="buyItem('{{ item }}','{{ item|getDescId }}','{{ item.durability_percent }}')">
                                     Zakup
                                 </button>
                             </div>
@@ -120,7 +120,7 @@
                         <div class="row-3" style="height: 5.2vh;">
                             <div class="col h-100">
                                 <button class="w-100 h-100 text-center btn btn-sm btn-success d-flex align-items-center justify-content-center rounded-0" 
-                                onclick="buyItem('{{ item }}','{{ item|getDescId }}')">
+                                onclick="buyItem('{{ item }}','{{ item|getDescId }}','{{ item.durability_percent }}')">
                                     Zakup
                                 </button>
                             </div>
@@ -165,7 +165,7 @@
                         <div class="row-3" style="height: 4vh;">
                             <div class="col h-100">
                                 <button class="w-100 h-100 text-center btn btn-sm btn-success d-flex align-items-center justify-content-center rounded-0" 
-                                onclick="buyItem('{{ item }}','{{ item|getDescId }}')">
+                                onclick="buyItem('{{ item }}','{{ item|getDescId }}','{{ item.durability_percent }}')">
                                     Zakup
                                 </button>
                             </div>
@@ -209,7 +209,7 @@
                         <div class="row-3" style="height: 4vh;">
                             <div class="col h-100">
                                 <button class="w-100 h-100 text-center btn btn-sm btn-success d-flex align-items-center justify-content-center rounded-0" 
-                                onclick="buyItem('{{ item }}','{{ item|getDescId }}')">
+                                onclick="buyItem('{{ item }}','{{ item|getDescId }}','{{ item.durability_percent }}')">
                                     Zakup
                                 </button>
                             </div>
@@ -253,7 +253,7 @@
                         <div class="row-3" style="height: 4vh;">
                             <div class="col h-100">
                                 <button class="w-100 h-100 text-center btn btn-sm btn-success d-flex align-items-center justify-content-center rounded-0" 
-                                onclick="buyItem('{{ item }}','{{ item|getDescId }}')">
+                                onclick="buyItem('{{ item }}','{{ item|getDescId }}','{{ item.durability_percent }}')">
                                     Zakup
                                 </button>
                             </div>
@@ -297,7 +297,7 @@
                         <div class="row-3" style="height: 5.2vh;">
                             <div class="col h-100">
                                 <button class="w-100 h-100 text-center btn btn-sm btn-success d-flex align-items-center justify-content-center rounded-0" 
-                                onclick="buyItem('{{ item }}','{{ item|getDescId }}')">
+                                onclick="buyItem('{{ item }}','{{ item|getDescId }}','{{ item.durability_percent }}')">
                                     Zakup
                                 </button>
                             </div>
@@ -340,7 +340,7 @@
                         <div class="row-3" style="height: 5.2vh;">
                             <div class="col h-100">
                                 <button class="w-100 h-100 text-center btn btn-sm btn-success d-flex align-items-center justify-content-center rounded-0" 
-                                onclick="buyItem('{{ item }}','{{ item|getDescId }}')">
+                                onclick="buyItem('{{ item }}','{{ item|getDescId }}','{{ item.durability_percent }}')">
                                     Zakup
                                 </button>
                             </div>
@@ -383,7 +383,7 @@
                         <div class="row-3" style="height: 5.2vh;">
                             <div class="col h-100">
                                 <button class="w-100 h-100 text-center btn btn-sm btn-success d-flex align-items-center justify-content-center rounded-0" 
-                                onclick="buyItem('{{ item }}','{{ item|getDescId }}')">
+                                onclick="buyItem('{{ item }}','{{ item|getDescId }}','{{ item.durability_percent }}')">
                                     Zakup
                                 </button>
                             </div>
@@ -426,7 +426,7 @@
                         <div class="row-3" style="height: 5.2vh;">
                             <div class="col h-100">
                                 <button class="w-100 h-100 text-center btn btn-sm btn-success d-flex align-items-center justify-content-center rounded-0" 
-                                onclick="buyItem('{{ item }}','{{ item|getDescId }}')">
+                                onclick="buyItem('{{ item }}','{{ item|getDescId }}','{{ item.durability_percent }}')">
                                     Zakup
                                 </button>
                             </div>
@@ -513,7 +513,7 @@
     document.getElementById('tb-city').classList.add('btn-outline-primary')
     
 
-    function buyItem(item,item_id){
+    function buyItem(item,item_id,item_durability){
         document.getElementById('char-to-buy').classList.remove('d-none')
         document.getElementById('Item-amount').value = 1
         let add_txt = document.getElementById('Item-additional')
@@ -527,17 +527,19 @@
         item_line = document.getElementById('Item')
         item_line.innerHTML = item
         item_line.setAttribute('name', item_id)
+        item_line.setAttribute('durability', item_durability)
 
     }
 
     function confirmBuy(){
         let item = document.getElementById('Item');
         let item_id = item.getAttribute('name');
+        let item_durability = item.getAttribute('durability');
         let char_id = document.getElementById('choosing_char_select').value;
     
         let amount = document.getElementById('Item-amount').value
     
-        window.location.href = "buyitem-" + item_id + "-" + char_id + "-" + amount;
+        window.location.href = "buyitem-" + item_id + "-" + char_id + "-" + amount + "?durability=" + encodeURIComponent(item_durability);
     }
 
     function heal(char_id){

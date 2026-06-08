@@ -2759,6 +2759,21 @@ def get_city_armor_weight_order(item):
         return ARMOR_WEIGHT_ORDER["medium"]
     return ARMOR_WEIGHT_ORDER["heavy"]
 
+class CityShopItem(str):
+    def __new__(cls, name, durability_percent, sale_index):
+        obj = str.__new__(cls, name)
+        obj.durability_percent = durability_percent
+        obj.sale_index = sale_index
+        return obj
+
+    def __hash__(self):
+        return hash((str(self), self.durability_percent, self.sale_index))
+
+    def __eq__(self, other):
+        if isinstance(other, CityShopItem):
+            return self.sale_index == other.sale_index
+        return str.__eq__(self, other)
+
 class CityView(ListView):
     model = models.Cities
     template_name = 'city.html'
@@ -2800,8 +2815,9 @@ class CityView(ListView):
             city_armors = {}
             armor_weight_orders = {}
             city_categories = {}
+            armor_shop_categories = ["armor", "cloth", "armor_elegant"]
             
-            for item in items:
+            for sale_index, item in enumerate(items):
                 item_name, durability, amount = parse_city_item_entry(item)
 
                 if int(amount) == 0:
@@ -2819,44 +2835,49 @@ class CityView(ListView):
                         item.found = True
                         item.save()
 
-                    amounts[item.name] = amount
-                    durabilities[item.name] = item_durability
+                    shop_item = CityShopItem(item.name, durability, sale_index)
+
+                    amounts[shop_item] = amount
+                    durabilities[shop_item] = item_durability
                     durability_percent = durability / 100
-                    durability_percents[item.name] = f"{durability:.0f}%"
-                    city_prices[item.name] = f"{item.price * 2 * durability_percent:.1f}"
-                    city_armors[item.name] = math.ceil(item.armor * durability_percent) if item.armor else item.armor
-                    armor_weight_orders[item.name] = get_city_armor_weight_order(item)
-                    city_categories[item.name] = (item.category or "").strip().lower()
-                    if item.type == 'Amulet':
-                        amulets.append(item.name)
+                    durability_percents[shop_item] = f"{durability:.0f}%"
+                    city_prices[shop_item] = f"{item.price * 2 * durability_percent:.1f}"
+                    city_armors[shop_item] = math.ceil(item.armor * durability_percent) if item.armor else item.armor
+                    armor_weight_orders[shop_item] = get_city_armor_weight_order(item)
+                    item_category = (item.category or "").strip().lower()
+                    city_categories[shop_item] = item_category
+                    if item_category in armor_shop_categories:
+                        all_armor.append(shop_item)
+                    elif item.type == 'Amulet':
+                        amulets.append(shop_item)
                     elif item.type == 'Other':
                         if item.name.split(' ')[0] in ['Eliksir','Mikstura']:
-                            potions.append(item.name)
+                            potions.append(shop_item)
                         else:   
-                            other.append(item.name)
+                            other.append(shop_item)
                     elif item.type == 'Animal' or item.type.lower() == 'mount armor':
-                        animals.append(item.name)
+                        animals.append(shop_item)
                     else:
                         if item.type in armor_types:
                             if item.type=="Helmet":
-                                helmets.append(item.name)
+                                helmets.append(shop_item)
                             elif item.type=="Torso":
-                                torsos.append(item.name)
+                                torsos.append(shop_item)
                             elif item.type=="Gloves":
-                                gloves.append(item.name)
+                                gloves.append(shop_item)
                             elif item.type=="Boots":
-                                boots.append(item.name)
+                                boots.append(shop_item)
                         else:
                             if item.dualHanded:
                                 if item.type in twohands.keys():
-                                    twohands[item.type].append(item.name)
+                                    twohands[item.type].append(shop_item)
                                 else:
-                                    twohands[item.type] = [item.name]
+                                    twohands[item.type] = [shop_item]
                             else:
                                 if item.type in singles.keys():
-                                    singles[item.type].append(item.name)
+                                    singles[item.type].append(shop_item)
                                 else:
-                                    singles[item.type] = [item.name]          
+                                    singles[item.type] = [shop_item]          
             
 
             for tw_items in twohands.values():
@@ -2867,8 +2888,7 @@ class CityView(ListView):
                 weaponry_singlehand += sn_items
             #weaponry_singlehand.append(item.name)
 
-            helmets.sort(); torsos.sort(); gloves.sort(); boots.sort()
-            all_armor = helmets+torsos+gloves+boots
+            all_armor += helmets+torsos+gloves+boots
             all_armor.sort(key=lambda item_name: (armor_weight_orders.get(item_name, ARMOR_WEIGHT_ORDER["all"]), item_name))
             armor = [item_name for item_name in all_armor if city_categories.get(item_name) == "armor"]
             cloth = [item_name for item_name in all_armor if city_categories.get(item_name) == "cloth"]
@@ -2909,12 +2929,18 @@ class BuyItem(APIView):
         item_amount = int(kwargs['amount'])
         item_durability = item.maxDurability
         item_durability_percent = 100
+        requested_durability = request.GET.get("durability")
+        try:
+            requested_durability = int(requested_durability) if requested_durability is not None else None
+        except ValueError:
+            requested_durability = None
         available_amount = 0
 
         for ct_item in city.items.split(";"):
             ct_item_name, ct_item_durability, amount = parse_city_item_entry(ct_item)
-            if ct_item_name == item.name:
-                item_durability_percent = 100 if ct_item_durability is None else ct_item_durability
+            ct_item_durability_percent = 100 if ct_item_durability is None else ct_item_durability
+            if ct_item_name == item.name and (requested_durability is None or requested_durability == ct_item_durability_percent):
+                item_durability_percent = ct_item_durability_percent
                 item_durability = get_durability_from_percent(item_durability_percent, item.maxDurability)
                 available_amount = amount
                 break
@@ -2993,7 +3019,8 @@ class BuyItem(APIView):
                 city_items = city.items.split(";")
                 for ct_item in city_items:
                     ct_item_name, ct_item_durability, amount = parse_city_item_entry(ct_item)
-                    if ct_item_name == item.name:
+                    ct_item_durability_percent = 100 if ct_item_durability is None else ct_item_durability
+                    if ct_item_name == item.name and (requested_durability is None or requested_durability == ct_item_durability_percent):
                         index = city_items.index(ct_item)
                         if ct_item_durability is None:
                             ct_item_durability = 100
