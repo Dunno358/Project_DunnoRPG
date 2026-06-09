@@ -14,7 +14,7 @@ class ItemEffectMessage:
 EMPTY_BOTTLE_ACTIONS = {"addHP_Potion", "addWater_Bottle"}
 
 
-def apply_item_use_effects(char, actions, cost, manage_food_and_water):
+def apply_item_use_effects(char, actions, cost, manage_food_and_water, sync_alcohol_mods=None):
     messages = []
 
     for single_action in actions:
@@ -39,6 +39,14 @@ def apply_item_use_effects(char, actions, cost, manage_food_and_water):
                 "success",
                 f"Dodano {amount} napojenia, wykorzystano {cost}/{char.actionLeft-cost} akcji",
             ))
+        elif action_name.startswith("addAlcohol"):
+            previous_alcohol_level = add_alcohol(char, amount)
+            if sync_alcohol_mods is not None:
+                sync_alcohol_mods(char, previous_alcohol_level)
+            messages.append(ItemEffectMessage(
+                "success",
+                f"Dodano {amount} alkoholu, wykorzystano {cost}/{char.actionLeft-cost} akcji",
+            ))
 
     add_empty_bottle_if_needed(char, actions)
 
@@ -55,6 +63,16 @@ def add_hp(char, amount):
 
     char.exp += 1
     return used_amount
+
+
+def add_alcohol(char, amount):
+    try:
+        alcohol_level = int(char.alcohol)
+    except (TypeError, ValueError):
+        alcohol_level = 0
+
+    char.alcohol = max(0, alcohol_level + amount)
+    return alcohol_level
 
 
 def add_empty_bottle_if_needed(char, actions):

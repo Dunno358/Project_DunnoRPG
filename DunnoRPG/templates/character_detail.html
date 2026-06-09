@@ -410,8 +410,8 @@ style="width: 98%; z-index: 20; margin-left: 0.22rem !important; margin-top: -5r
             <div class="col rounded bg-gray bg-gradient border border-warning m-2 p-2 h6" style="min-width: 0;">
                 <form id="alcohol-form" method="post" action="change-food-water/alcohol" class="d-inline-flex align-items-center justify-content-center flex-nowrap" onsubmit="changeFoodWater(event, 'alcohol')">
                     {% csrf_token %}
-                    <span class="{% if is_over_drunkenness_limit %}text-danger text-decoration-underline{% elif value.alcohol == '0' or value.alcohol == 0 %}text-success{% endif %}" {% if not is_over_drunkenness_limit and value.alcohol != '0' and value.alcohol != 0 %}style="color: orange;"{% endif %}>Alkohol:</span>
-                    <input type="number" min="0" id="alcohol-val" class="{% if is_over_drunkenness_limit %}text-danger text-decoration-underline{% elif value.alcohol == '0' or value.alcohol == 0 %}text-success{% endif %} text-center bg-gray bg-gradient border-0 h6 ms-1" {% if is_over_drunkenness_limit %}style="width: 4rem"{% elif value.alcohol == '0' or value.alcohol == 0 %}style="width: 4rem"{% else %}style="width: 4rem; color: orange;"{% endif %} value="{{ value.alcohol }}" name="alcohol-amount">
+                    <span onclick="showAlcoholInfo()" class="{% if is_over_drunkenness_limit %}text-danger text-decoration-underline{% elif value.alcohol == '0' or value.alcohol == 0 %}text-success{% endif %}" {% if not is_over_drunkenness_limit and value.alcohol != '0' and value.alcohol != 0 %}style="color: orange; cursor: pointer;"{% else %}style="cursor: pointer;"{% endif %}>Alkohol:</span>
+                    <input type="number" min="0" id="alcohol-val" class="{% if is_over_drunkenness_limit %}text-danger text-decoration-underline{% elif value.alcohol == '0' or value.alcohol == 0 %}text-success{% endif %} text-center bg-gray bg-gradient border-0 h6 ms-1" {% if is_over_drunkenness_limit %}style="width: 4rem"{% elif value.alcohol == '0' or value.alcohol == 0 %}style="width: 4rem"{% else %}style="width: 4rem; color: orange;"{% endif %} value="{{ value.alcohol }}" name="alcohol-amount" data-drunkenness-limit="{{ drunkenness_limit }}" data-alcohol-state="{{ alcohol_state }}">
                 </form>
             </div>
         </div>
@@ -2186,15 +2186,20 @@ async function changeCoins(event){
     }
 }
 
-function updateFoodWaterState(statType, value){
+function updateFoodWaterState(statType, value, data = {}){
     const input = document.getElementById(`${statType}-val`)
     const form = document.getElementById(`${statType}-form`)
     if(statType === 'alcohol'){
         const numericValue = Number(value)
-        const isOverLimit = numericValue > Number('{{ drunkenness_limit }}')
+        const drunkennessLimit = Number(data.drunkenness_limit ?? input.dataset.drunkennessLimit)
+        const isOverLimit = numericValue > drunkennessLimit
 
         input.value = value
         input.setAttribute('value', value)
+        input.dataset.drunkennessLimit = String(drunkennessLimit)
+        if(data.alcohol_state){
+            input.dataset.alcoholState = data.alcohol_state
+        }
 
         form.querySelectorAll('span, input').forEach((element) => {
             element.classList.remove('text-success', 'text-danger', 'text-decoration-underline')
@@ -2261,7 +2266,7 @@ async function changeFoodWater(event, statType){
             throw new Error(data.error || 'Nie udało się zmienić wartości.')
         }
 
-        updateFoodWaterState(data.stat_type, data.value)
+        updateFoodWaterState(data.stat_type, data.value, data)
         input.dataset.lastSubmittedValue = String(data.value)
         if(data.hp !== undefined){
             const hpInput = document.getElementById('hp-val')
@@ -2721,6 +2726,7 @@ function showInfoCard(title, text){
 
     card.classList.remove("d-none")
     topic.textContent = title
+    content.style.whiteSpace = 'pre-line'
     content.textContent = text
 };
 
@@ -2737,6 +2743,26 @@ function showArmorPenaltyInfo(){
     showInfoCard(
         'Kara',
         `Kara wynosi -1 ZRE za każde 6kg łącznej wagi pancerza i tarczy. Obecnie: -${armorMod} ZRE (${formatWeight(armorWeight)}kg pancerz + ${formatWeight(shieldWeight)}kg tarcza = ${formatWeight(totalWeight)}kg).`
+    )
+}
+
+function showAlcoholInfo(){
+    const alcoholInput = document.getElementById('alcohol-val')
+    const alcoholLevel = alcoholInput.value || '0'
+    const drunkennessLimit = alcoholInput.dataset.drunkennessLimit || '{{ drunkenness_limit }}'
+    const numericAlcoholLevel = Number(alcoholLevel)
+    const numericDrunkennessLimit = Number(drunkennessLimit)
+    let alcoholState = alcoholInput.dataset.alcoholState || '{{ alcohol_state }}'
+    if(numericAlcoholLevel > numericDrunkennessLimit){
+        alcoholState = 'Pijany'
+    }
+    else if(numericAlcoholLevel > 0){
+        alcoholState = 'Podpity'
+    }
+
+    showInfoCard(
+        'Alkohol',
+        `Obecnie: ${alcoholLevel}\nLimit: ${drunkennessLimit}\nStan: ${alcoholState}`
     )
 }
 

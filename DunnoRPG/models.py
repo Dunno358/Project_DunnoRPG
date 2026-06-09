@@ -67,6 +67,7 @@ class Mods(models.Model):
     character = models.CharField(max_length=50, null=True)
     field = models.CharField(max_length=10, default='INT')
     value = models.IntegerField(default=0)
+    source = models.CharField(max_length=255, null=True, blank=True)
 
     def __str__(self):
         return f"{self.character} | {self.field}: {self.value}"
@@ -238,6 +239,8 @@ class Effects(models.Model):
     desc = models.TextField(blank=True)
     time = models.IntegerField(default=0)
     category = models.CharField(max_length = 15, default="Informacyjne")
+    works_for = models.CharField(max_length=255, blank=True, null=True)
+    source = models.CharField(max_length=255, blank=True, null=True)
 
     def __str__(self):
         return f"{self.character}: {self.name} ({self.time})"

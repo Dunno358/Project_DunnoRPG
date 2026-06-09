@@ -145,6 +145,167 @@ def get_drunkenness_limit(character):
 
     return 3 + strong_head_skill.level
 
+ALCOHOL_MODS = (
+    ("SIŁ", 1),
+    ("CHAR", 1),
+    ("CEL", -2),
+)
+ALCOHOL_DRUNK_MODS = (
+    ("SIŁ", 2),
+    ("CEL", -4),
+)
+ALCOHOL_LITE_SOURCE = "alcohol-lite"
+ALCOHOL_DRUNK_SOURCE = "alcohol"
+ALCOHOL_HANGOVER_SOURCE = "alcohol-hangover"
+ALCOHOL_DRUNK_EFFECTS = (
+    ("Utrudnienie", "Jesteś pijany", 1000, "Aktywne", "Reakcja"),
+    ("Nierówny krok", "Jesteś pijany", 1000, "Aktywne", "Mobility-M1"),
+)
+ALCOHOL_HANGOVER_EFFECTS = (
+    ("Utrudnienie", "Masz kaca", 1, "Aktywne", "Akcja"),
+    ("Utrudnienie", "Masz kaca", 1, "Aktywne", "Reakcja"),
+    ("Nierówny krok", "Masz kaca", 1000, "Aktywne", "Mobility-M1"),
+)
+
+def get_alcohol_state(character, alcohol_level=None, drunkenness_limit=None):
+    if alcohol_level is None:
+        try:
+            alcohol_level = int(character.alcohol)
+        except (TypeError, ValueError):
+            alcohol_level = 0
+    if drunkenness_limit is None:
+        drunkenness_limit = get_drunkenness_limit(character)
+
+    if alcohol_level > drunkenness_limit:
+        return "Pijany"
+    if alcohol_level > 0:
+        return "Podpity"
+    if models.Effects.objects.filter(
+        owner=character.owner,
+        character=character.name,
+        source=ALCOHOL_HANGOVER_SOURCE,
+    ).exists():
+        return "Kac"
+    return "Trzeźwy"
+
+def sync_alcohol_mods(character, previous_alcohol_level=None):
+    try:
+        alcohol_level = int(character.alcohol)
+    except (TypeError, ValueError):
+        alcohol_level = 0
+    if previous_alcohol_level is None:
+        previous_alcohol_level = alcohol_level
+    else:
+        try:
+            previous_alcohol_level = int(previous_alcohol_level)
+        except (TypeError, ValueError):
+            previous_alcohol_level = 0
+
+    drunkenness_limit = get_drunkenness_limit(character)
+    alcohol_lite_mods = models.Mods.objects.filter(
+        owner=character.owner,
+        character=character.name,
+        source=ALCOHOL_LITE_SOURCE,
+    )
+    alcohol_drunk_mods = models.Mods.objects.filter(
+        owner=character.owner,
+        character=character.name,
+        source=ALCOHOL_DRUNK_SOURCE,
+    )
+    alcohol_drunk_effect_names = [effect[0] for effect in ALCOHOL_DRUNK_EFFECTS]
+    alcohol_drunk_effects = models.Effects.objects.filter(
+        owner=character.owner,
+        character=character.name,
+        name__in=alcohol_drunk_effect_names,
+        desc="Jesteś pijany",
+        category="Aktywne",
+        source=ALCOHOL_DRUNK_SOURCE,
+    )
+
+    if alcohol_level <= 0:
+        alcohol_lite_mods.delete()
+        alcohol_drunk_mods.delete()
+        models.Effects.objects.filter(
+            owner=character.owner,
+            character=character.name,
+            source__in=[ALCOHOL_LITE_SOURCE, ALCOHOL_DRUNK_SOURCE],
+        ).delete()
+        if previous_alcohol_level > drunkenness_limit:
+            for name, desc, time, category, works_for in ALCOHOL_HANGOVER_EFFECTS:
+                effect, _ = models.Effects.objects.get_or_create(
+                    owner=character.owner,
+                    character=character.name,
+                    name=name,
+                    desc=desc,
+                    category=category,
+                    works_for=works_for,
+                    source=ALCOHOL_HANGOVER_SOURCE,
+                    defaults={
+                        "time": time,
+                    },
+                )
+                if effect.time != time:
+                    effect.time = time
+                    effect.save()
+        return
+
+    if alcohol_level > drunkenness_limit:
+        alcohol_lite_mods.delete()
+        wanted_drunk_mods = set(ALCOHOL_DRUNK_MODS)
+        for mod in alcohol_drunk_mods:
+            if (mod.field, mod.value) not in wanted_drunk_mods:
+                mod.delete()
+
+        for field, value in ALCOHOL_DRUNK_MODS:
+            if not alcohol_drunk_mods.filter(field=field, value=value).exists():
+                models.Mods.objects.create(
+                    owner=character.owner,
+                    character=character.name,
+                    field=field,
+                    value=value,
+                    source=ALCOHOL_DRUNK_SOURCE,
+                )
+
+        for name, desc, time, category, works_for in ALCOHOL_DRUNK_EFFECTS:
+            effect, _ = models.Effects.objects.get_or_create(
+                owner=character.owner,
+                character=character.name,
+                name=name,
+                desc=desc,
+                category=category,
+                source=ALCOHOL_DRUNK_SOURCE,
+                defaults={
+                    "time": time,
+                    "works_for": works_for,
+                },
+            )
+            if effect.time != time or effect.works_for != works_for:
+                effect.time = time
+                effect.works_for = works_for
+                effect.save()
+        return
+
+    alcohol_drunk_mods.delete()
+    alcohol_drunk_effects.delete()
+    if alcohol_level >= drunkenness_limit:
+        alcohol_lite_mods.delete()
+        return
+
+    wanted_mods = set(ALCOHOL_MODS)
+    for mod in alcohol_lite_mods:
+        if (mod.field, mod.value) not in wanted_mods:
+            mod.delete()
+
+    for field, value in ALCOHOL_MODS:
+        if not alcohol_lite_mods.filter(field=field, value=value).exists():
+            models.Mods.objects.create(
+                owner=character.owner,
+                character=character.name,
+                field=field,
+                value=value,
+                source=ALCOHOL_LITE_SOURCE,
+            )
+
 def get_next_character_copy_name(character_name):
     character_name = (character_name or "").strip()
     match = re.match(r"^(.*?)(?:\s+(\d+))?$", character_name)
@@ -536,6 +697,7 @@ class CharacterDetails(DetailView):
 
         context["class"] = chosen_class
         context['drunkenness_limit'] = drunkenness_limit
+        context['alcohol_state'] = get_alcohol_state(chosen, alcohol_level, drunkenness_limit)
         context['is_over_drunkenness_limit'] = alcohol_level > drunkenness_limit
         
         context['eq_weapons'] = eq_weapons_qs
@@ -1429,6 +1591,7 @@ def change_food_water(request, **kwargs):
             msg_type = "success"
 
             if stat_type == "alcohol":
+                previous_alcohol_level = char.alcohol
                 value = max(0, value)
                 char.alcohol = value
             else:
@@ -1436,6 +1599,8 @@ def change_food_water(request, **kwargs):
                 current_value = getattr(char, stat_type)
                 char, msg = manageFoodAndWater(char, value - current_value, stat_type)
             char.save()
+            if stat_type == "alcohol":
+                sync_alcohol_mods(char, previous_alcohol_level)
 
             if msg != "":
                 msg_type = "error"
@@ -1444,22 +1609,29 @@ def change_food_water(request, **kwargs):
                 drunkenness_limit = get_drunkenness_limit(char)
                 if value > drunkenness_limit:
                     msg_type = "error"
-                    final_msg = "Jesteś Pijany! [Efekty Work in Progress]"
+                    final_msg = "Jesteś pijany!"
                 elif value > 0:
                     msg_type = "warning"
-                    final_msg = "Odczuwasz upojenie alkoholem [Efekty Work in Progress]"
+                    final_msg = "Odczuwasz upojenie alkoholem"
                 else:
                     final_msg = f"Pomyślnie zmieniono wartość {translate_stat[stat_type]} na {value}"
             else:
                 final_msg = f"Pomyślnie zmieniono wartość {translate_stat[stat_type]} na {getattr(char, stat_type)}%"
 
             if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+                extra_data = {}
+                if stat_type == "alcohol":
+                    extra_data = {
+                        "drunkenness_limit": get_drunkenness_limit(char),
+                        "alcohol_state": get_alcohol_state(char),
+                    }
                 return JsonResponse({
                     "message": final_msg,
                     "message_type": msg_type,
                     "stat_type": stat_type,
                     "value": getattr(char, stat_type),
                     "hp": char.HP,
+                    **extra_data,
                 }, status=200)
 
             if msg_type == "error":
@@ -2122,7 +2294,7 @@ class useItem(APIView):
                 messages.error(request,f'Nie posiadasz wystarczająco akcji! Wymagane {cost} a dostępne {char.actionLeft}.')
                 return redirect(f'/dunnorpg/items/ch{char_id}')
 
-            char, effect_messages = apply_item_use_effects(char, actions, cost, manageFoodAndWater)
+            char, effect_messages = apply_item_use_effects(char, actions, cost, manageFoodAndWater, sync_alcohol_mods)
             for effect_message in effect_messages:
                 getattr(messages, effect_message.level)(request, effect_message.text)
 
