@@ -83,7 +83,7 @@
     <div class='row mt-2 text-border-black'>
         <div class='col text-center c-gold fst-italic m-0 p-0'>
             <h2>
-                Typ: {{ item.type|itemTypePl }}{% if item.category == 'armor' or item.category == 'cloth' or item.category == 'armor_elegant' %} ({{ item.armor_weight|armorWeightPlPlural }}){% endif %} {% if item.dualHanded %}(Dwuręczne){% endif %}
+                Typ: {{ item.type|itemTypePl }}{% if item.armor_weight and item.category == 'armor' or item.armor_weight and item.category == 'cloth' or item.armor_weight and item.category == 'armor_elegant' or item.armor_weight and item.type == 'Amulet' %} ({{ item.armor_weight|armorWeightPlPlural }}){% endif %} {% if item.dualHanded %}(Dwuręczne){% endif %}
             </h2>
         </div>
     </div>
