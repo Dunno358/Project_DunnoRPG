@@ -177,6 +177,8 @@ class Items(models.Model):
     use_cost = models.CharField(max_length=30, null=True, blank=True)  # half/full as full action and half action
     use_amount = models.IntegerField(null=True, blank=True)
     
+    ammo_type = models.CharField(max_length=50, null=True, blank=True)
+    
     dmg_type = models.CharField(max_length=50, null=True, blank=True)
 
     armor_weight = models.CharField(max_length=50, blank=True)
