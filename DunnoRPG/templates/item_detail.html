@@ -83,7 +83,7 @@
     <div class='row mt-2 text-border-black'>
         <div class='col text-center c-gold fst-italic m-0 p-0'>
             <h2>
-                Typ: {{ item.type|itemTypePl }}{% if item.armor_weight and item.category == 'armor' or item.armor_weight and item.category == 'cloth' or item.armor_weight and item.category == 'armor_elegant' or item.armor_weight and item.type == 'Amulet' %} ({{ item.armor_weight|armorWeightPlPlural }}){% endif %} {% if item.dualHanded %}(Dwuręczne){% endif %}
+                Typ: {{ item.type|itemTypePl }}{% if item.armor_weight %} ({{ item.armor_weight|armorWeightPlPlural }}){% endif %} {% if item.dualHanded %}(Dwuręczne){% endif %}
             </h2>
         </div>
     </div>
@@ -102,8 +102,6 @@
                 {% endif %}
             {% elif item.type == 'Animal' %}
                 <h2>PŻ: {{ item.maxDurability }} | Armor: {{ item.armor }}</h2>
-            {% elif item.type == 'Wand' %}
-                <h2>{{ item.name|getStaffMagicDmg:0 }}</h2>
             {% else %}
                 <h2>{{ item.dmgDice }}, AP: {{ item.AP }}% <!-- 1K{% if item.diceBonus >= 0 %}+{% endif %}{{ item.diceBonus }}, {{ item.AP }}AP --></h2>
             {% endif %}
@@ -156,7 +154,7 @@
         </div>
     </div>
 
-    {% if item.neededAccuraccy != 0 and item.category == 'weapon' or item.dmg_type and item.dmg_type != 'None' and item.dmg_type != '-' %}
+    {% if item.neededAccuraccy != 0 and item.category == 'weapon' or item.dmg_type and item.dmg_type != 'None' and item.dmg_type != '-' or item.ammo_type and item.ammo_type != 'None' and item.ammo_type != '-' %}
         <div class='row text-border-black mt-2'>
             {% if item.neededAccuraccy != 0 and item.category == 'weapon' %}
                 <div class='col text-center c-gold fst-italic m-0 p-0 border-bottom border-top border-end border-warning bg-dark bg-gradient '>
@@ -169,6 +167,13 @@
                 <div class='col text-center c-gold fst-italic m-0 p-0 border-bottom border-top border-warning bg-dark bg-gradient'>
                     <h2>
                         Typ obrażeń: <br>{{ item.dmg_type }}
+                    </h2>
+                </div>
+            {% endif %}
+            {% if item.ammo_type and item.ammo_type != 'None' and item.ammo_type != '-' %}
+                <div class='col text-center c-gold fst-italic m-0 p-0 border-bottom border-top border-warning bg-dark bg-gradient'>
+                    <h2>
+                        Amunicja: <br>{{ item.ammo_type|ammoTypePl }}
                     </h2>
                 </div>
             {% endif %}

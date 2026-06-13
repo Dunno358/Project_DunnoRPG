@@ -269,6 +269,16 @@ def armorWeightPlPlural(armor_weight):
     return translations_pl.get(key, armor_weight)
 
 @register.filter
+def ammoTypePl(ammo_type):
+    translations_pl = {
+        "bullet": "Kule",
+        "arrow": "Strzały",
+        "bolt": "Bełty",
+    }
+    key = (ammo_type or "").strip().lower()
+    return translations_pl.get(key, ammo_type)
+
+@register.filter
 def getItemRarity(itemName):
     try:
         return models.Items.objects.filter(name=itemName).get().rarity
