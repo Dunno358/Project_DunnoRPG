@@ -96,6 +96,45 @@
             </div>
         </div>
 
+        <div id='weapon-type-filter-separator' class="row m-0 p-0 d-none item-dependent-filter">
+            <div class="col px-3">
+                <hr class="border border-warning opacity-75 m-2">
+            </div>
+        </div>
+
+        <div id='weapon-melee-type-filter-buttons' class="row m-0 p-0 d-none item-dependent-filter weapon-type-filter-buttons">
+            <div class='col btn btn-dark btn-outline-warning p-2 m-1 weapon-type-filter' data-weapon-type='sword' onclick='filterWeaponItemsByType(this)'>Miecz</div>
+            <div class='col btn btn-dark btn-outline-warning p-2 m-1 weapon-type-filter' data-weapon-type='katana' onclick='filterWeaponItemsByType(this)'>Katana</div>
+            <div class='col btn btn-dark btn-outline-warning p-2 m-1 weapon-type-filter' data-weapon-type='rapier' onclick='filterWeaponItemsByType(this)'>Rapier</div>
+            <div class='col btn btn-dark btn-outline-warning p-2 m-1 weapon-type-filter' data-weapon-type='saber' onclick='filterWeaponItemsByType(this)'>Szabla</div>
+            <div class='col btn btn-dark btn-outline-warning p-2 m-1 weapon-type-filter' data-weapon-type='axe' onclick='filterWeaponItemsByType(this)'>Topór</div>
+            <div class='col btn btn-dark btn-outline-warning p-2 m-1 weapon-type-filter' data-weapon-type='mace' onclick='filterWeaponItemsByType(this)'>Buława</div>
+            <div class='col btn btn-dark btn-outline-warning p-2 m-1 weapon-type-filter' data-weapon-type='hammer' onclick='filterWeaponItemsByType(this)'>Młot</div>
+            <div class='col btn btn-dark btn-outline-warning p-2 m-1 weapon-type-filter' data-weapon-type='pickaxe' onclick='filterWeaponItemsByType(this)'>Kilof</div>
+            <div class='col btn btn-dark btn-outline-warning p-2 m-1 weapon-type-filter' data-weapon-type='dagger' onclick='filterWeaponItemsByType(this)'>Sztylet</div>
+            <div class='col btn btn-dark btn-outline-warning p-2 m-1 weapon-type-filter' data-weapon-type='spear' onclick='filterWeaponItemsByType(this)'>Włócznia</div>
+            <div class='col btn btn-dark btn-outline-warning p-2 m-1 weapon-type-filter' data-weapon-type='halberd' onclick='filterWeaponItemsByType(this)'>Halabarda</div>
+            <div class='col btn btn-dark btn-outline-warning p-2 m-1 weapon-type-filter' data-weapon-type='staff' onclick='filterWeaponItemsByType(this)'>Laska</div>
+            <div class='col btn btn-dark btn-outline-warning p-2 m-1 weapon-type-filter' data-weapon-type='knuckles' onclick='filterWeaponItemsByType(this)'>Kastet</div>
+            <div class='col btn btn-dark btn-outline-warning p-2 m-1 weapon-type-filter' data-weapon-type='shield' onclick='filterWeaponItemsByType(this)'>Tarcza</div>
+            <div class='col btn btn-dark btn-outline-warning p-2 m-1 weapon-type-filter' data-weapon-type='other' onclick='filterWeaponItemsByType(this)'>Inne</div>
+        </div>
+
+        <div id='weapon-range-type-filter-buttons' class="row m-0 p-0 d-none item-dependent-filter weapon-type-filter-buttons">
+            <div class='col btn btn-dark btn-outline-warning p-2 m-1 weapon-type-filter' data-weapon-type='bow' onclick='filterWeaponItemsByType(this)'>Łuk</div>
+            <div class='col btn btn-dark btn-outline-warning p-2 m-1 weapon-type-filter' data-weapon-type='shortbow' onclick='filterWeaponItemsByType(this)'>Krótki łuk</div>
+            <div class='col btn btn-dark btn-outline-warning p-2 m-1 weapon-type-filter' data-weapon-type='longbow' onclick='filterWeaponItemsByType(this)'>Długi łuk</div>
+            <div class='col btn btn-dark btn-outline-warning p-2 m-1 weapon-type-filter' data-weapon-type='crossbow' onclick='filterWeaponItemsByType(this)'>Kusza</div>
+            <div class='col btn btn-dark btn-outline-warning p-2 m-1 weapon-type-filter' data-weapon-type='other' onclick='filterWeaponItemsByType(this)'>Inne</div>
+        </div>
+
+        <div id='weapon-gun-type-filter-buttons' class="row m-0 p-0 d-none item-dependent-filter weapon-type-filter-buttons">
+            <div class='col btn btn-dark btn-outline-warning p-2 m-1 weapon-type-filter' data-weapon-type='pistol' onclick='filterWeaponItemsByType(this)'>Pistolet</div>
+            <div class='col btn btn-dark btn-outline-warning p-2 m-1 weapon-type-filter' data-weapon-type='musket' onclick='filterWeaponItemsByType(this)'>Muszkiet</div>
+            <div class='col btn btn-dark btn-outline-warning p-2 m-1 weapon-type-filter' data-weapon-type='strzelba' onclick='filterWeaponItemsByType(this)'>Strzelba</div>
+            <div class='col btn btn-dark btn-outline-warning p-2 m-1 weapon-type-filter' data-weapon-type='other' onclick='filterWeaponItemsByType(this)'>Inne</div>
+        </div>
+
         <div id='armor-filter-buttons' class="row m-0 p-0 d-none item-dependent-filter">
             <div class='col btn btn-dark btn-outline-warning p-2 m-1 item-category-filter' onclick='show_or_hideById(this)'>
                 Hełmy
@@ -382,7 +421,7 @@
 
 <div id='Broń' class='container d-none'>
     {% for item in items_singlehand %}
-        <div class='item-list-entry weapon-list-entry' data-rarity='{{ item.rarity }}' data-category='{{ item.category|default_if_none:""|lower }}' data-dual-handed='{{ item.dualHanded }}'>
+        <div class='item-list-entry weapon-list-entry' data-rarity='{{ item.rarity }}' data-category='{{ item.category|default_if_none:""|lower }}' data-weapon-type='{{ item.type|default_if_none:""|lower }}' data-dual-handed='{{ item.dualHanded }}'>
             <div class='row bg-dark bg-opacity-75 rounded m-2 p-2'>
                 {% if view.kwargs.char_id != 0 %}
                     <button class='col-2 text-center text-white bg-danger p-2 m-1 rounded' onclick="deleteConfirmation('{{ item.name }}', {{ view.kwargs.char_id }}, {{ item.id }})">X</button>
@@ -396,7 +435,7 @@
     {% endfor %}
 
     {% for item in items_twohand %}
-    <div class='item-list-entry weapon-list-entry' data-rarity='{{ item.rarity }}' data-category='{{ item.category|default_if_none:""|lower }}' data-dual-handed='{{ item.dualHanded }}'>
+    <div class='item-list-entry weapon-list-entry' data-rarity='{{ item.rarity }}' data-category='{{ item.category|default_if_none:""|lower }}' data-weapon-type='{{ item.type|default_if_none:""|lower }}' data-dual-handed='{{ item.dualHanded }}'>
         <div class='row bg-dark bg-opacity-75 rounded m-2 p-2'>
             {% if view.kwargs.char_id != 0 %}
                 <button class='col-2 text-center text-white bg-danger p-2 m-1 rounded' onclick="deleteConfirmation('{{ item.name }}', {{ view.kwargs.char_id }}, {{ item.id }})">X</button>
@@ -529,9 +568,15 @@
 
     let activeItemRarityFilter = null
     let activeWeaponCategoryFilter = null
+    let activeWeaponTypeFilter = null
     let activeWeaponHandFilter = null
     let activeAnimalCategoryFilter = null
     const weaponCategories = ['weapon_melee', 'shield', 'weapon_range', 'weapon_gun']
+    const weaponTypesByCategory = {
+        weapon_melee: ['sword', 'katana', 'rapier', 'saber', 'axe', 'mace', 'hammer', 'pickaxe', 'dagger', 'spear', 'halberd', 'staff', 'knuckles', 'shield'],
+        weapon_range: ['bow', 'shortbow', 'longbow', 'crossbow'],
+        weapon_gun: ['pistol', 'musket', 'strzelba'],
+    }
     const animalCategories = ['animal', 'animal_armor']
     const itemCategoryIds = ['Broń', 'Hełmy', 'Napierśniki', 'Buty', 'Rękawice', 'Amulety', 'Wierzchowce', 'Inne']
 
@@ -544,6 +589,7 @@
             const matchesRarity = activeItemRarityFilter === null || entry.dataset.rarity === activeItemRarityFilter
             const itemCategory = entry.dataset.category || ''
             let matchesWeaponCategory = true
+            let matchesWeaponType = true
             let matchesWeaponHand = true
             let matchesAnimalCategory = true
 
@@ -558,9 +604,22 @@
                     matchesWeaponCategory = itemCategory === activeWeaponCategoryFilter
                 }
 
-                if(activeWeaponHandFilter !== null){
-                    matchesWeaponHand = entry.dataset.dualHanded === activeWeaponHandFilter
+            }
+
+            if(entry.classList.contains('weapon-list-entry') && activeWeaponTypeFilter !== null){
+                const itemWeaponType = entry.dataset.weaponType || ''
+                const categoryTypes = weaponTypesByCategory[activeWeaponCategoryFilter] || []
+
+                if(activeWeaponTypeFilter === 'other'){
+                    matchesWeaponType = !categoryTypes.includes(itemWeaponType)
                 }
+                else{
+                    matchesWeaponType = itemWeaponType === activeWeaponTypeFilter
+                }
+            }
+
+            if(entry.classList.contains('weapon-list-entry') && activeWeaponHandFilter !== null){
+                matchesWeaponHand = entry.dataset.dualHanded === activeWeaponHandFilter
             }
 
             if(entry.classList.contains('animal-list-entry') && activeAnimalCategoryFilter !== null){
@@ -572,7 +631,7 @@
                 }
             }
 
-            if(matchesRarity && matchesWeaponCategory && matchesWeaponHand && matchesAnimalCategory){
+            if(matchesRarity && matchesWeaponCategory && matchesWeaponType && matchesWeaponHand && matchesAnimalCategory){
                 entry.classList.remove('d-none')
             }
             else{
@@ -602,6 +661,87 @@
         applyItemRarityFilter()
     }
 
+    function weaponEntryMatchesCategory(entry, selectedCategory){
+        const itemCategory = entry.dataset.category || ''
+
+        if(selectedCategory === 'other'){
+            return !weaponCategories.includes(itemCategory)
+        }
+        else if(selectedCategory === 'weapon_melee'){
+            return itemCategory === 'weapon_melee' || itemCategory === 'shield'
+        }
+        else{
+            return itemCategory === selectedCategory
+        }
+    }
+
+    function getWeaponTypeButtonGroupId(selectedCategory){
+        return `weapon-${selectedCategory.replace('weapon_', '')}-type-filter-buttons`
+    }
+
+    function hideWeaponTypeButtons(){
+        document.getElementById('weapon-type-filter-separator').classList.add('d-none')
+        document.querySelectorAll('.weapon-type-filter-buttons').forEach((buttonGroup) => {
+            buttonGroup.classList.add('d-none')
+        })
+    }
+
+    function resetWeaponTypeButtons(){
+        document.querySelectorAll('.weapon-type-filter').forEach((button) => {
+            button.classList.remove('border-primary')
+            button.classList.add('border-warning')
+            button.classList.remove('d-none')
+        })
+    }
+
+    function showAvailableWeaponTypeButtons(){
+        hideWeaponTypeButtons()
+
+        if(activeWeaponCategoryFilter === null || activeWeaponHandFilter === null){
+            return
+        }
+
+        const buttonGroup = document.getElementById(getWeaponTypeButtonGroupId(activeWeaponCategoryFilter))
+        if(!buttonGroup){
+            return
+        }
+
+        const configuredTypes = weaponTypesByCategory[activeWeaponCategoryFilter] || []
+        const availableTypes = new Set()
+        let hasOtherType = false
+
+        document.querySelectorAll('.weapon-list-entry').forEach((entry) => {
+            if(!weaponEntryMatchesCategory(entry, activeWeaponCategoryFilter)){
+                return
+            }
+
+            if(entry.dataset.dualHanded !== activeWeaponHandFilter){
+                return
+            }
+
+            const itemWeaponType = entry.dataset.weaponType || ''
+            if(configuredTypes.includes(itemWeaponType)){
+                availableTypes.add(itemWeaponType)
+            }
+            else{
+                hasOtherType = true
+            }
+        })
+
+        let hasVisibleButton = false
+        buttonGroup.querySelectorAll('.weapon-type-filter').forEach((button) => {
+            const buttonType = button.dataset.weaponType
+            const shouldShow = buttonType === 'other' ? hasOtherType : availableTypes.has(buttonType)
+            button.classList.toggle('d-none', !shouldShow)
+            hasVisibleButton = hasVisibleButton || shouldShow
+        })
+
+        if(hasVisibleButton){
+            document.getElementById('weapon-type-filter-separator').classList.remove('d-none')
+            buttonGroup.classList.remove('d-none')
+        }
+    }
+
     function showWeaponItemsByCategory(instance){
         const selectedCategory = instance.dataset.weaponCategory
         const weaponBlock = document.getElementById('Broń')
@@ -609,14 +749,18 @@
         const isAlreadyActive = activeWeaponCategoryFilter === selectedCategory && !weaponBlock.classList.contains('d-none')
 
         activeWeaponCategoryFilter = null
+        activeWeaponTypeFilter = null
         activeWeaponHandFilter = null
         weaponBlock.classList.add('d-none')
         weaponHandButtons.classList.add('d-none')
+        hideWeaponTypeButtons()
 
         document.querySelectorAll('.item-category-filter').forEach((button) => {
             button.classList.remove('border-primary')
             button.classList.add('border-warning')
         })
+
+        resetWeaponTypeButtons()
 
         document.querySelectorAll('.weapon-hand-filter').forEach((button) => {
             button.classList.remove('border-primary')
@@ -636,9 +780,34 @@
         applyItemRarityFilter()
     }
 
+    function filterWeaponItemsByType(instance){
+        const selectedType = instance.dataset.weaponType
+        const isAlreadyActive = activeWeaponTypeFilter === selectedType
+
+        document.querySelectorAll('.weapon-type-filter').forEach((button) => {
+            button.classList.remove('border-primary')
+            button.classList.add('border-warning')
+        })
+
+        if(isAlreadyActive){
+            activeWeaponTypeFilter = null
+        }
+        else{
+            activeWeaponTypeFilter = selectedType
+            instance.classList.remove('border-warning')
+            instance.classList.add('border-primary')
+        }
+
+        applyItemRarityFilter()
+    }
+
     function filterWeaponItemsByHand(instance){
         const selectedHand = instance.dataset.dualHanded
         const isAlreadyActive = activeWeaponHandFilter === selectedHand
+
+        activeWeaponTypeFilter = null
+        hideWeaponTypeButtons()
+        resetWeaponTypeButtons()
 
         document.querySelectorAll('.weapon-hand-filter').forEach((button) => {
             button.classList.remove('border-primary')
@@ -652,6 +821,7 @@
             activeWeaponHandFilter = selectedHand
             instance.classList.remove('border-warning')
             instance.classList.add('border-primary')
+            showAvailableWeaponTypeButtons()
         }
 
         applyItemRarityFilter()
@@ -721,10 +891,14 @@
 
     function hideItemCategoryLists(){
         activeWeaponCategoryFilter = null
+        activeWeaponTypeFilter = null
         activeWeaponHandFilter = null
         activeAnimalCategoryFilter = null
         document.getElementById('weapon-hand-filter-buttons').classList.add('d-none')
         document.getElementById('animal-filter-buttons').classList.add('d-none')
+        document.querySelectorAll('.weapon-type-filter-buttons').forEach((buttonGroup) => {
+            buttonGroup.classList.add('d-none')
+        })
 
         itemCategoryIds.forEach((categoryId) => {
             const categoryBlock = document.getElementById(categoryId)
@@ -739,6 +913,11 @@
         })
 
         document.querySelectorAll('.weapon-hand-filter').forEach((button) => {
+            button.classList.remove('border-primary')
+            button.classList.add('border-warning')
+        })
+
+        document.querySelectorAll('.weapon-type-filter').forEach((button) => {
             button.classList.remove('border-primary')
             button.classList.add('border-warning')
         })
