@@ -566,7 +566,7 @@
     document.getElementById('tb-items').classList.remove('btn-outline-warning')
     document.getElementById('tb-items').classList.add('btn-outline-primary')
 
-    let activeItemRarityFilter = null
+    let activeItemRarityFilters = []
     let activeWeaponCategoryFilter = null
     let activeWeaponTypeFilter = null
     let activeWeaponHandFilter = null
@@ -586,7 +586,7 @@
 
     function applyItemRarityFilter(){
         document.querySelectorAll('.item-list-entry').forEach((entry) => {
-            const matchesRarity = activeItemRarityFilter === null || entry.dataset.rarity === activeItemRarityFilter
+            const matchesRarity = activeItemRarityFilters.length === 0 || activeItemRarityFilters.includes(entry.dataset.rarity)
             const itemCategory = entry.dataset.category || ''
             let matchesWeaponCategory = true
             let matchesWeaponType = true
@@ -642,18 +642,15 @@
 
     function filterItemsByTier(instance){
         const selectedRarity = instance.dataset.rarity
-        const isAlreadyActive = activeItemRarityFilter === selectedRarity
-
-        document.querySelectorAll('.item-tier-filter').forEach((button) => {
-            button.classList.remove('border-primary')
-            button.classList.add('border-warning')
-        })
+        const isAlreadyActive = activeItemRarityFilters.includes(selectedRarity)
 
         if(isAlreadyActive){
-            activeItemRarityFilter = null
+            activeItemRarityFilters = activeItemRarityFilters.filter((rarity) => rarity !== selectedRarity)
+            instance.classList.remove('border-primary')
+            instance.classList.add('border-warning')
         }
         else{
-            activeItemRarityFilter = selectedRarity
+            activeItemRarityFilters.push(selectedRarity)
             instance.classList.remove('border-warning')
             instance.classList.add('border-primary')
         }
