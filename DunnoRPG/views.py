@@ -104,6 +104,24 @@ ARMOR_WEIGHT_TRANSLATE = {
 ARMOR_WEIGHT_LIMITED_POSITIONS = {"helmet", "torso", "boots", "gloves"}
 
 
+def get_character_max_weight(character):
+    return max(5, 15 + (character.SIŁ * 5) + character.extra_capacity)
+
+
+def get_character_current_weight(character):
+    current_weight = 0
+    for item in models.Eq.objects.filter(character=character.name):
+        current_weight += item.weight
+
+    for item in models.CharItems.objects.filter(character=character.name):
+        if item.name:
+            item_desc = models.Items.objects.filter(name=item.name).first()
+            if item_desc:
+                current_weight += item_desc.weight
+
+    return current_weight
+
+
 def can_character_wear_armor_weight(character, item, place):
     if place.lower() not in ARMOR_WEIGHT_LIMITED_POSITIONS:
         return True, ""
@@ -811,23 +829,14 @@ class MoveItemToEq(APIView):
         
         char = get_object_or_404(models.Character, name=item.character)
         
-        eq_weight = 0
-        eq = models.Eq.objects.filter(character=item.character)
-        for obj in eq:
-            eq_weight += obj.weight
+        eq_weight = get_character_current_weight(char)
             
         if item_desc.type == 'Animal':
             char.extra_capacity = 0
             char.save()
             
-        if char.SIŁ > 0:
-            max_weight = char.SIŁ*5+char.extra_capacity
-        elif char.SIŁ < 0:
-            max_weight = 3+(char.SIŁ*0.5)+char.extra_capacity
-        else:
-            max_weight = 3+char.extra_capacity           
-
-        if eq_weight+item_desc.weight <= max_weight:
+        max_weight = get_character_max_weight(char)
+        if eq_weight <= max_weight:
             if item_desc.type != "Mount Armor":
                 models.Eq.objects.create(
                     owner = item.owner,
@@ -1302,47 +1311,8 @@ def give_item(request, **kwargs):
         itemDesc = get_object_or_404(models.Items, name=eq_item.name)
 
         if given_amount <= eq_item.amount:
-            if to_char.SIŁ > 0:
-                max_weight = to_char.SIŁ*5+to_char.extra_capacity
-            elif to_char.SIŁ <0:
-                max_weight = 3+(to_char.SIŁ*0.5)+to_char.extra_capacity
-            else:
-                max_weight = 3+to_char.extra_capacity
-                                                
-            current_weight = 0
-            for item in models.Eq.objects.filter(character=to_char.name):
-                if "strzała" in item.name.lower():
-                    try:
-                        if models.CharItems.objects.filter(character=to_char.name, hand="Side").first().name=="Kolczan":
-                            pass
-                        else:
-                            current_weight += item.weight 
-                    except:
-                        current_weight += item.weight 
-                elif "pocisk" in item.name.lower():
-                    try:
-                        allowed_items = ["Pas na amunicje","Zmodyfikowana Lustrzana Tarcza"]
-                        init_hands = [
-                            models.CharItems.objects.filter(character=to_char.name, hand="Left").first(),
-                            models.CharItems.objects.filter(character=to_char.name, hand="Right").first(),
-                            models.CharItems.objects.filter(character=to_char.name, hand="Side").first()
-                            ]
-                        hands = []
-                        for hand in init_hands:
-                            try:
-                                hands.append(hand.name)
-                            except:
-                                pass
-                        canPassWeight = any(item in allowed_items for item in hands)
-                        if canPassWeight:
-                            pass
-                        else:
-                            current_weight += item.weight 
-                    except:
-                        print(traceback.format_exc())
-                        current_weight += item.weight 
-                else:
-                    current_weight += item.weight 
+            max_weight = get_character_max_weight(to_char)
+            current_weight = get_character_current_weight(to_char)
 
             if itemDesc.weight * given_amount + current_weight <= max_weight:
                 models.Eq.objects.create(
@@ -1926,50 +1896,11 @@ def char_swap_item(request, **kwargs):
                 messages.error(request, 'Dual-handed weapon must be added to left hand when right hand is empty.')
                 return redirect('character_detail', char.id)
 
-    if char.SIŁ > 0:
-        max_weight = char.SIŁ*5+char.extra_capacity
-    elif char.SIŁ <0:
-        max_weight = 3+(char.SIŁ*0.5)+char.extra_capacity
-    else:
-        max_weight = 3+char.extra_capacity
-                                        
-    current_weight = 0
-    for item in models.Eq.objects.filter(character=char.name):
-        if "strzała" in item.name.lower():
-            try:
-                if models.CharItems.objects.filter(character=char.name, hand="Side").first().name=="Kolczan":
-                    pass
-                else:
-                    current_weight += item.weight 
-            except:
-                current_weight += item.weight 
-        elif "pocisk" in item.name.lower():
-            try:
-                allowed_items = ["Pas na amunicje","Zmodyfikowana Lustrzana Tarcza"]
-                init_hands = [
-                    models.CharItems.objects.filter(character=char.name, hand="Left").first(),
-                    models.CharItems.objects.filter(character=char.name, hand="Right").first(),
-                    models.CharItems.objects.filter(character=char.name, hand="Side").first()
-                    ]
-                hands = []
-                for hand in init_hands:
-                    try:
-                        hands.append(hand.name)
-                    except:
-                        pass
-                canPassWeight = any(item in allowed_items for item in hands)
-                if canPassWeight:
-                    pass
-                else:
-                    current_weight += item.weight 
-            except:
-                print(traceback.format_exc())
-                current_weight += item.weight 
-        else:
-            current_weight += item.weight       
+    max_weight = get_character_max_weight(char)
+    current_weight = get_character_current_weight(char)
 
-    if it1D.weight-it2D.weight+current_weight > max_weight:
-        messages.error(request, f'Not enough space in equipment for {it1D.name}, {(it1D.weight-it2D.weight+current_weight)-max_weight}kg too heavy :(')
+    if current_weight > max_weight:
+        messages.error(request, f'Not enough space in equipment for {it2D.name}, {current_weight-max_weight}kg too heavy :(')
         return redirect('character_detail', char.id)
 
     if it1D.type != "Mount Armor":
@@ -2140,37 +2071,59 @@ class ItemsView(ListView):
             self.twohand = []
             self.animals = []
             self.armor_dict = {'helmet': [], 'torso': [], 'boots': [], 'gloves': [], 'amulets': [], 'other': []}
-            
+
+            def add_character_item(item_desc, durability, amount=1, eq_id=None, equipped=False):
+                item_data = {
+                    'id': item_desc.id,
+                    'eq_id': eq_id,
+                    'rarity': item_desc.rarity,
+                    'found': item_desc.found,
+                    'name': item_desc.name,
+                    'dur': durability,
+                    'amount': amount,
+                    'max_dur': item_desc.maxDurability,
+                    'type': item_desc.type,
+                    'price': item_desc.price,
+                    'on_use': item_desc.on_use,
+                    'use_cost': item_desc.use_cost,
+                    'use_info': item_desc.use_info,
+                    'equipped': equipped,
+                }
+                queryset.append(item_data)
+
+                category_data = item_desc.__dict__ | {
+                    'dur': durability,
+                    'amount': amount,
+                    'max_dur': item_desc.maxDurability,
+                    'eq_id': eq_id,
+                    'equipped': equipped,
+                }
+                armor_category = {
+                    'helmet': 'helmet',
+                    'torso': 'torso',
+                    'boots': 'boots',
+                    'gloves': 'gloves',
+                    'amulet': 'amulets',
+                    'other': 'other',
+                }.get(item_desc.type.lower())
+                if armor_category:
+                    self.armor_dict[armor_category].append(category_data)
+                else:
+                    if item_desc.type == 'Animal':
+                        self.animals.append(category_data)
+                    elif item_desc.dualHanded == False:
+                        self.singlehand.append(category_data)
+                    else:
+                        self.twohand.append(category_data)
+
             for item in models.Eq.objects.filter(character=self.character.name):
                 item_obj = get_object_or_404(models.Items, name=item.name)
-                queryset.append({
-                                'id': item_obj.id,
-                                'eq_id': item.id, 
-                                'rarity': item_obj.rarity, 
-                                'found': item_obj.found, 
-                                'name': item.name, 
-                                'dur': item.durability, 
-                                'amount': item.amount, 
-                                'max_dur': item_obj.maxDurability,
-                                'type': item_obj.type,
-                                'price': item_obj.price,
-                                "on_use": item_obj.on_use,
-                                "use_cost": item_obj.use_cost ,
-                                "use_info": item_obj.use_info
-                                }
-                                )
-                
-                if item_obj.type.lower() in self.armor_dict.keys():
-                    for item_type in self.armor_dict:
-                        if item_obj.type.lower() == item_type:
-                            self.armor_dict[item_type].append(item_obj.__dict__ | {'dur': item.durability, 'max_dur': item_obj.maxDurability})
-                else:
-                    if item_obj.type == 'Animal':
-                        self.animals.append(item_obj.__dict__ | {'dur': item.durability, 'max_dur': item_obj.maxDurability})
-                    elif item_obj.dualHanded == False:
-                        self.singlehand.append(item_obj.__dict__ | {'dur': item.durability, 'max_dur': item_obj.maxDurability})
-                    else:
-                        self.twohand.append(item_obj.__dict__ | {'dur': item.durability, 'max_dur': item_obj.maxDurability})
+                add_character_item(item_obj, item.durability, item.amount, item.id)
+
+            for item in models.CharItems.objects.filter(character=self.character.name):
+                if item.name:
+                    item_obj = get_object_or_404(models.Items, name=item.name)
+                    add_character_item(item_obj, item.durability, equipped=True)
         return queryset
     
     def get_context_data(self, **kwargs):
@@ -2198,16 +2151,8 @@ class ItemsView(ListView):
                     context[names[x]] = models.Items.objects.filter(type=types[x], found=True).order_by('rarity')
         else:
             
-            items_weight = 0
-            for item in models.Eq.objects.filter(character=self.character.name):
-                items_weight += item.weight
-            
-            if self.character.SIŁ > 0:
-                max_weight = self.character.SIŁ*5+self.character.extra_capacity
-            elif self.character.SIŁ < 0:
-                max_weight = 3+(self.character.SIŁ*0.5)+self.character.extra_capacity
-            else:
-                max_weight = 3+self.character.extra_capacity
+            items_weight = get_character_current_weight(self.character)
+            max_weight = get_character_max_weight(self.character)
             
             charisma = self.character.CHAR
             for mod in models.Mods.objects.filter(character=self.character.name, field="CHAR"):
@@ -2556,47 +2501,8 @@ class RequestHandling(APIView):
                                     char = get_object_or_404(models.Character, id=rq_object.char_id)
                                     itemDesc = models.Items.objects.get(id=rq_object.object1_id)
 
-                                    if char.SIŁ > 0:
-                                        max_weight = char.SIŁ*5+char.extra_capacity
-                                    elif char.SIŁ <0:
-                                        max_weight = 3+(char.SIŁ*0.5)+char.extra_capacity
-                                    else:
-                                        max_weight = 3+char.extra_capacity
-                                        
-                                    current_weight = 0
-                                    for item in models.Eq.objects.filter(character=char.name):
-                                        if "strzała" in item.name.lower():
-                                            try:
-                                                if models.CharItems.objects.filter(character=char.name, hand="Side").first().name=="Kolczan":
-                                                    pass
-                                                else:
-                                                    current_weight += item.weight 
-                                            except:
-                                                current_weight += item.weight 
-                                        elif "pocisk" in item.name.lower():
-                                            try:
-                                                allowed_items = ["Pas na amunicje","Zmodyfikowana Lustrzana Tarcza"]
-                                                init_hands = [
-                                                    models.CharItems.objects.filter(character=char.name, hand="Left").first(),
-                                                    models.CharItems.objects.filter(character=char.name, hand="Right").first(),
-                                                    models.CharItems.objects.filter(character=char.name, hand="Side").first()
-                                                    ]
-                                                hands = []
-                                                for hand in init_hands:
-                                                    try:
-                                                        hands.append(hand.name)
-                                                    except:
-                                                        pass
-                                                canPassWeight = any(item in allowed_items for item in hands)
-                                                if canPassWeight:
-                                                    pass
-                                                else:
-                                                    current_weight += item.weight 
-                                            except:
-                                                print(traceback.format_exc())
-                                                current_weight += item.weight 
-                                        else:
-                                            current_weight += item.weight 
+                                    max_weight = get_character_max_weight(char)
+                                    current_weight = get_character_current_weight(char)
 
                                     if current_weight+itemDesc.weight <= max_weight:
                                         models.Eq.objects.create(
@@ -2638,47 +2544,8 @@ class RequestHandling(APIView):
                                 char = get_object_or_404(models.Character, id=rq.char_id)
                                 itemDesc = models.Items.objects.get(id=rq.object1_id)
                                 
-                                if char.SIŁ > 0:
-                                    max_weight = char.SIŁ*5+char.extra_capacity
-                                elif char.SIŁ <0:
-                                    max_weight = 3+(char.SIŁ*0.5)+char.extra_capacity
-                                else:
-                                    max_weight = 3+char.extra_capacity
-                                    
-                                current_weight = 0
-                                for item in models.Eq.objects.filter(character=char.name):
-                                    if "strzała" in item.name.lower():
-                                        try:
-                                            if models.CharItems.objects.filter(character=char.name, hand="Side").first().name=="Kolczan":
-                                                pass
-                                            else:
-                                                current_weight += item.weight 
-                                        except:
-                                            current_weight += item.weight 
-                                    elif "pocisk" in item.name.lower():
-                                        try:
-                                            allowed_items = ["Pas na amunicje","Zmodyfikowana Lustrzana Tarcza"]
-                                            init_hands = [
-                                                models.CharItems.objects.filter(character=char.name, hand="Left").first(),
-                                                models.CharItems.objects.filter(character=char.name, hand="Right").first(),
-                                                models.CharItems.objects.filter(character=char.name, hand="Side").first()
-                                                ]
-                                            hands = []
-                                            for hand in init_hands:
-                                                try:
-                                                    hands.append(hand.name)
-                                                except:
-                                                    pass
-                                            canPassWeight = any(item in allowed_items for item in hands)
-                                            if canPassWeight:
-                                                pass
-                                            else:
-                                                current_weight += item.weight 
-                                        except:
-                                            print(traceback.format_exc())
-                                            current_weight += item.weight 
-                                    else:
-                                        current_weight += item.weight 
+                                max_weight = get_character_max_weight(char)
+                                current_weight = get_character_current_weight(char)
 
                                 if current_weight+itemDesc.weight <= max_weight:
                                     models.Eq.objects.create(
@@ -2741,48 +2608,9 @@ class GMPanel(FormView):
         form_data.weight = item_weight
         
         if not override:
-            if character.SIŁ > 0:
-                max_weight = character.SIŁ*5+character.extra_capacity
-            elif character.SIŁ < 0:
-                max_weight = 3 + (character.SIŁ*0.5)+character.extra_capacity
-            else:
-                max_weight = 3+character.extra_capacity
-                
-            current_weight = 0
-            for eq_item in models.Eq.objects.filter(character=character.name):
-                if "strzała" in eq_item.name.lower():
-                    try:
-                        if models.CharItems.objects.filter(character=character.name, hand="Side").first().name=="Kolczan":
-                            pass
-                        else:
-                            current_weight += eq_item.weight 
-                    except:
-                        current_weight += eq_item.weight 
-                elif "pocisk" in eq_item.name.lower():
-                    try:
-                        allowed_items = ["Pas na amunicje","Zmodyfikowana Lustrzana Tarcza"]
-                        init_hands = [
-                            models.CharItems.objects.filter(character=self.character.name, hand="Left").first(),
-                            models.CharItems.objects.filter(character=self.character.name, hand="Right").first(),
-                            models.CharItems.objects.filter(character=self.character.name, hand="Side").first()
-                            ]
-                        hands = []
-                        for hand in init_hands:
-                            try:
-                                hands.append(hand.name)
-                            except:
-                                pass
-                        canPassWeight = any(item in allowed_items for item in hands)
-                        if canPassWeight:
-                            pass
-                        else:
-                            current_weight += eq_item.weight 
-                    except:
-                        print(traceback.format_exc())
-                        current_weight += eq_item.weight 
-                else:
-                    current_weight += eq_item.weight 
-                
+            max_weight = get_character_max_weight(character)
+            current_weight = get_character_current_weight(character)
+
             if current_weight + item_weight > max_weight:
                 messages.error(self.request, 'Not enough space.')
                 return redirect('gm_panel')
@@ -3124,47 +2952,8 @@ class BuyItem(APIView):
         if item_amount > available_amount:
             item_amount = available_amount
 
-        if character.SIŁ > 0:
-            max_weight = character.SIŁ*5+character.extra_capacity
-        elif character.SIŁ < 0:
-            max_weight = 3+(character.SIŁ*0.5)+character.extra_capacity
-        else:
-            max_weight = 3 +character.extra_capacity
-            
-        current_weight = 0
-        for eq_item in models.Eq.objects.filter(character=character.name):
-            if "strzała" in eq_item.name.lower():
-                try:
-                    if models.CharItems.objects.filter(character=character.name, hand="Side").first().name=="Kolczan":
-                        pass
-                    else:
-                        current_weight += eq_item.weight 
-                except:
-                    current_weight += eq_item.weight 
-            elif "pocisk" in eq_item.name.lower():
-                try:
-                    allowed_items = ["Pas na amunicje","Zmodyfikowana Lustrzana Tarcza"]
-                    init_hands = [
-                        models.CharItems.objects.filter(character=self.character.name, hand="Left").first(),
-                        models.CharItems.objects.filter(character=self.character.name, hand="Right").first(),
-                        models.CharItems.objects.filter(character=self.character.name, hand="Side").first()
-                        ]
-                    hands = []
-                    for hand in init_hands:
-                        try:
-                            hands.append(hand.name)
-                        except:
-                            pass
-                    canPassWeight = any(item in allowed_items for item in hands)
-                    if canPassWeight:
-                        pass
-                    else:
-                        current_weight += eq_item.weight 
-                except:
-                    print(traceback.format_exc())
-                    current_weight += eq_item.weight 
-            else:
-                current_weight += eq_item.weight  
+        max_weight = get_character_max_weight(character)
+        current_weight = get_character_current_weight(character)
 
         if current_weight+item.weight*item_amount <= max_weight:
             durability_percent = item_durability_percent / 100

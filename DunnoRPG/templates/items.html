@@ -199,7 +199,7 @@
     <div class='row mt-2'>
         <div class="col-3"></div>
         <h1 class='col c-gold text-center' style='-webkit-text-stroke: 1px black;'>
-            {{ current_weight }}/{{ max_weight }}kg
+            Udźwig: {{ current_weight }}/{{ max_weight }}kg
         </h1>
         <div class="col-3 text-start ps-0 ms-0">
             <button class="btn btn-primary p-2" onclick="document.getElementById('give-item-main').classList.remove('d-none')">
@@ -346,7 +346,7 @@
     <div>
         <div class='row bg-dark bg-opacity-75 rounded m-2 p-2'>
 
-            {% if view.kwargs.char_id != 0 %}
+            {% if view.kwargs.char_id != 0 and not item.equipped %}
                 <button class='col-2 text-center text-white bg-danger p-2 m-1 rounded' onclick="deleteConfirmation('{{ item.name }}', {{ view.kwargs.char_id }}, {{ item.id }})">X</button>
             {% endif %}
             
@@ -357,18 +357,18 @@
                 {% if item.rarity == 'unique' %}style='color: #0ec800;'{% endif %}
                 {% if item.rarity == 'magical' %}style='color: #4a76c7;'{% endif %}
                 {% if item.rarity == 'uncommon' %}style='color: #b401b4;'{% endif %} 
-                >{{ item.name }} 
+                >{% if item.equipped %}<span class="text-info">[Założone]</span> {% endif %}{{ item.name }}
                 {% if item.dur and item.type != 'Other' and item.type != 'Amulet' %}({{ item.dur }}/{{ item.max_dur }}){% endif %}
                 {% if item.dur %} x{{ item.amount }}{% endif %}
                 </span>
             </a>
-            {% if view.kwargs.char_id != 0 %}
+            {% if view.kwargs.char_id != 0 and not item.equipped %}
                 <button class='col-2 text-center text-white bg-success p-2 m-1 rounded'
                 onclick="sellConfirmation('{{ view.kwargs.char_id }}','{{ item.eq_id }}','{{ item.price }}','{{ item.dur }}','{{ item.max_dur }}','{{ item.name }}', '{{ item.amount }}', '{{ charisma }}')">
                 Sell</button>
             {% endif %}
                 <div class="row m-0 mt-1 p-0">
-                    {% if view.kwargs.char_id != 0 and item.on_use and item.on_use != '-' %}
+                    {% if view.kwargs.char_id != 0 and not item.equipped and item.on_use and item.on_use != '-' %}
                         <div class="col m-0 p-0">
                             <a class='btn btn-success w-100' href='useItem-{{ item.id }}-{{ view.kwargs.char_id }}'>
                                 Użyj {% if item.use_info %}[{{ item.use_info }}]{% endif %}
@@ -423,12 +423,12 @@
     {% for item in items_singlehand %}
         <div class='item-list-entry weapon-list-entry' data-rarity='{{ item.rarity }}' data-category='{{ item.category|default_if_none:""|lower }}' data-weapon-type='{{ item.type|default_if_none:""|lower }}' data-dual-handed='{{ item.dualHanded }}'>
             <div class='row bg-dark bg-opacity-75 rounded m-2 p-2'>
-                {% if view.kwargs.char_id != 0 %}
+                {% if view.kwargs.char_id != 0 and not item.equipped %}
                     <button class='col-2 text-center text-white bg-danger p-2 m-1 rounded' onclick="deleteConfirmation('{{ item.name }}', {{ view.kwargs.char_id }}, {{ item.id }})">X</button>
                 {% endif %}
                 
                 <a class='col text-center c-gold bg-dark p-2 rounded border border-primary' href='{{ item.id }}'> 
-                    <span class="{{ item.rarity }}">{{ item.name }}</span>
+                    <span class="{{ item.rarity }}">{% if item.equipped %}<span class="text-info">[Założone]</span> {% endif %}{{ item.name }}</span>
                 </a>
             </div>
         </div>
@@ -437,12 +437,12 @@
     {% for item in items_twohand %}
     <div class='item-list-entry weapon-list-entry' data-rarity='{{ item.rarity }}' data-category='{{ item.category|default_if_none:""|lower }}' data-weapon-type='{{ item.type|default_if_none:""|lower }}' data-dual-handed='{{ item.dualHanded }}'>
         <div class='row bg-dark bg-opacity-75 rounded m-2 p-2'>
-            {% if view.kwargs.char_id != 0 %}
+            {% if view.kwargs.char_id != 0 and not item.equipped %}
                 <button class='col-2 text-center text-white bg-danger p-2 m-1 rounded' onclick="deleteConfirmation('{{ item.name }}', {{ view.kwargs.char_id }}, {{ item.id }})">X</button>
             {% endif %}
             
             <a class='col text-center c-gold bg-dark p-2 rounded border border-primary' href='{{ item.id }}'> 
-                <span class="{{ item.rarity }}">{{ item.name }}</span>
+                <span class="{{ item.rarity }}">{% if item.equipped %}<span class="text-info">[Założone]</span> {% endif %}{{ item.name }}</span>
             </a>
         </div>
     </div>
@@ -453,12 +453,12 @@
     {% for item in items_helmet %}
     <div class='item-list-entry' data-rarity='{{ item.rarity }}'>
         <div class='row bg-dark bg-opacity-75 rounded m-2 p-2'>
-            {% if view.kwargs.char_id != 0 %}
+            {% if view.kwargs.char_id != 0 and not item.equipped %}
                 <button class='col-2 text-center text-white bg-danger p-2 m-1 rounded' onclick="deleteConfirmation('{{ item.name }}', {{ view.kwargs.char_id }}, {{ item.id }})">X</button>
             {% endif %}
             
             <a class='col text-center c-gold bg-dark p-2 rounded border border-primary' href='{{ item.id }}'> 
-                <span class="{{ item.rarity }}">{{ item.name }}</span>
+                <span class="{{ item.rarity }}">{% if item.equipped %}<span class="text-info">[Założone]</span> {% endif %}{{ item.name }}</span>
             </a>
         </div>
     </div>
@@ -469,12 +469,12 @@
     {% for item in items_torso %}
     <div class='item-list-entry' data-rarity='{{ item.rarity }}'>
         <div class='row bg-dark bg-opacity-75 rounded m-2 p-2'>
-            {% if view.kwargs.char_id != 0 %}
+            {% if view.kwargs.char_id != 0 and not item.equipped %}
                 <button class='col-2 text-center text-white bg-danger p-2 m-1 rounded' onclick="deleteConfirmation('{{ item.name }}', {{ view.kwargs.char_id }}, {{ item.id }})">X</button>
             {% endif %}
             
             <a class='col text-center c-gold bg-dark p-2 rounded border border-primary' href='{{ item.id }}'> 
-                <span class="{{ item.rarity }}">{{ item.name }}</span>
+                <span class="{{ item.rarity }}">{% if item.equipped %}<span class="text-info">[Założone]</span> {% endif %}{{ item.name }}</span>
             </a>
         </div>
     </div>
@@ -485,12 +485,12 @@
     {% for item in items_boots %}
     <div class='item-list-entry' data-rarity='{{ item.rarity }}'>
         <div class='row bg-dark bg-opacity-75 rounded m-2 p-2'>
-            {% if view.kwargs.char_id != 0 %}
+            {% if view.kwargs.char_id != 0 and not item.equipped %}
                 <button class='col-2 text-center text-white bg-danger p-2 m-1 rounded' onclick="deleteConfirmation('{{ item.name }}', {{ view.kwargs.char_id }}, {{ item.id }})">X</button>
             {% endif %}
             
             <a class='col text-center c-gold bg-dark p-2 rounded border border-primary' href='{{ item.id }}'> 
-                <span class="{{ item.rarity }}">{{ item.name }}</span>
+                <span class="{{ item.rarity }}">{% if item.equipped %}<span class="text-info">[Założone]</span> {% endif %}{{ item.name }}</span>
             </a>
         </div>
     </div>
@@ -501,12 +501,12 @@
     {% for item in items_gloves %}
     <div class='item-list-entry' data-rarity='{{ item.rarity }}'>
         <div class='row bg-dark bg-opacity-75 rounded m-2 p-2'>
-            {% if view.kwargs.char_id != 0 %}
+            {% if view.kwargs.char_id != 0 and not item.equipped %}
                 <button class='col-2 text-center text-white bg-danger p-2 m-1 rounded' onclick="deleteConfirmation('{{ item.name }}', {{ view.kwargs.char_id }}, {{ item.id }})">X</button>
             {% endif %}
             
             <a class='col text-center c-gold bg-dark p-2 rounded border border-primary' href='{{ item.id }}'> 
-                <span class="{{ item.rarity }}">{{ item.name }}</span>
+                <span class="{{ item.rarity }}">{% if item.equipped %}<span class="text-info">[Założone]</span> {% endif %}{{ item.name }}</span>
             </a>
         </div>
     </div>
@@ -517,12 +517,12 @@
     {% for item in items_amulets %}
     <div class='item-list-entry' data-rarity='{{ item.rarity }}'>
         <div class='row bg-dark bg-opacity-75 rounded m-2 p-2'>
-            {% if view.kwargs.char_id != 0 %}
+            {% if view.kwargs.char_id != 0 and not item.equipped %}
                 <button class='col-2 text-center text-white bg-danger p-2 m-1 rounded' onclick="deleteConfirmation('{{ item.name }}', {{ view.kwargs.char_id }}, {{ item.id }})">X</button>
             {% endif %}
             
             <a class='col text-center c-gold bg-dark p-2 rounded border border-primary' href='{{ item.id }}'> 
-                <span class="{{ item.rarity }}">{{ item.name }}</span>
+                <span class="{{ item.rarity }}">{% if item.equipped %}<span class="text-info">[Założone]</span> {% endif %}{{ item.name }}</span>
             </a>
         </div>
     </div>
@@ -533,12 +533,12 @@
     {% for item in animals %}
     <div class='item-list-entry animal-list-entry' data-rarity='{{ item.rarity }}' data-category='{{ item.category|default_if_none:""|lower }}'>
         <div class='row bg-dark bg-opacity-75 rounded m-2 p-2'>
-            {% if view.kwargs.char_id != 0 %}
+            {% if view.kwargs.char_id != 0 and not item.equipped %}
                 <button class='col-2 text-center text-white bg-danger p-2 m-1 rounded' onclick="deleteConfirmation('{{ item.name }}', {{ view.kwargs.char_id }}, {{ item.id }})">X</button>
             {% endif %}
             
             <a class='col text-center c-gold bg-dark p-2 rounded border border-primary' href='{{ item.id }}'> 
-                <span class="{{ item.rarity }}">{{ item.name }}</span>
+                <span class="{{ item.rarity }}">{% if item.equipped %}<span class="text-info">[Założone]</span> {% endif %}{{ item.name }}</span>
             </a>
         </div>
     </div>
@@ -549,12 +549,12 @@
     {% for item in items_other %}
     <div class='item-list-entry' data-rarity='{{ item.rarity }}'>
         <div class='row bg-dark bg-opacity-75 rounded m-2 p-2'>
-            {% if view.kwargs.char_id != 0 %}
+            {% if view.kwargs.char_id != 0 and not item.equipped %}
                 <button class='col-2 text-center text-white bg-danger p-2 m-1 rounded' onclick="deleteConfirmation('{{ item.name }}', {{ view.kwargs.char_id }}, {{ item.id }})">X</button>
             {% endif %}
             
             <a class='col text-center c-gold bg-dark p-2 rounded border border-primary' href='{{ item.id }}'> 
-                <span class="{{ item.rarity }}">{{ item.name }}</span>
+                <span class="{{ item.rarity }}">{% if item.equipped %}<span class="text-info">[Założone]</span> {% endif %}{{ item.name }}</span>
             </a>
         </div>
     </div>
