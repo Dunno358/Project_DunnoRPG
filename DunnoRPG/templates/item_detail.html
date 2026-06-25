@@ -38,7 +38,24 @@
         </div>
     </div>
 
-    {% if item.category|slice:":7" == 'weapon_' %}
+    {% if item.type == 'Animal' %}
+        <div class='row text-border-black'>
+            <div class='col text-center c-gold fst-italic m-0 p-0 border-end border-bottom border-warning bg-dark bg-gradient'>
+                <h2>
+                    Rozmiar:<br>
+                    {% if item.size == 0.5 %}Mały
+                    {% elif item.size == 1 %}Średni
+                    {% elif item.size == 1.5 %}Duży
+                    {% else %}{{ item.size }}{% endif %}
+                </h2>
+            </div>
+            <div class='col text-center c-gold fst-italic m-0 p-0 border-bottom border-warning bg-dark bg-gradient'>
+                <h2>
+                    Zasięg ruchu:<br>{{ item.mobility }}
+                </h2>
+            </div>
+        </div>
+    {% elif item.category|slice:":7" == 'weapon_' %}
         <div class='row text-border-black'>
             <div class='col text-center c-gold fst-italic m-0 p-0 border-end border-bottom border-warning bg-dark bg-gradient'>
                 <h2>
@@ -137,7 +154,7 @@
                     <h2>Nie można użyć</h2>
                 {% endif %}
             {% elif item.type == 'Animal' %}
-                <h2>PŻ: {{ item.maxDurability }} | Armor: {{ item.armor }}</h2>
+                <h2>PŻ: {{ item.maxDurability }} | Pancerz: {{ item.armor }}</h2>
             {% else %}
                 <h2>{{ item.dmgDice }}, AP: {{ item.AP }}% <!-- 1K{% if item.diceBonus >= 0 %}+{% endif %}{{ item.diceBonus }}, {{ item.AP }}AP --></h2>
             {% endif %}
