@@ -102,19 +102,31 @@ ARMOR_WEIGHT_TRANSLATE = {
     "heavy": "Ciężki"
 }
 ARMOR_WEIGHT_LIMITED_POSITIONS = {"helmet", "torso", "boots", "gloves"}
+MOUNT_ATTACHMENT_POSITIONS = {"Mount_armor", "Mount_saddle", "Mount_horseshoes"}
+MOUNT_ATTACHMENT_CATEGORIES = {
+    "Mount_armor": {"animal_armor"},
+    "Mount_saddle": {"animal_saddle"},
+    "Mount_horseshoes": {"animal_horseshoes"},
+}
+MOUNT_ITEM_CATEGORIES = {"animal", "animal_armor", "animal_saddle", "animal_horseshoes"}
 
 
 def get_character_max_weight(character):
+    has_mount = models.CharItems.objects.filter(character=character.name, position="Mount").exists()
     item_capacity = 0
     for item in models.Eq.objects.filter(character=character.name):
         item_desc = models.Items.objects.filter(name=item.name).first()
         if item_desc:
+            if (item_desc.category or "").lower() == "animal_saddle":
+                continue
             item_capacity += item_desc.extra_capacity * item.amount
 
     for item in models.CharItems.objects.filter(character=character.name):
         if item.name:
             item_desc = models.Items.objects.filter(name=item.name).first()
             if item_desc:
+                if (item_desc.category or "").lower() == "animal_saddle" and not has_mount:
+                    continue
                 item_capacity += item_desc.extra_capacity
 
     return max(10, 30 + (character.SIŁ * 7.5) + character.extra_capacity + item_capacity)
@@ -132,6 +144,38 @@ def get_character_current_weight(character):
                 current_weight += item_desc.weight
 
     return current_weight
+
+
+def move_char_item_to_eq(char_item):
+    item_desc = get_object_or_404(models.Items, name=char_item.name)
+    eq_item = models.Eq.objects.filter(
+        character=char_item.character,
+        name=char_item.name,
+        durability=char_item.durability,
+    ).first()
+
+    if eq_item:
+        eq_item.amount += 1
+        eq_item.weight += item_desc.weight
+        eq_item.save()
+    else:
+        models.Eq.objects.create(
+            owner=char_item.owner,
+            character=char_item.character,
+            name=char_item.name,
+            type=item_desc.type,
+            weight=item_desc.weight,
+            durability=char_item.durability,
+        )
+
+    if item_desc.skillEffects != None:
+        for effect in item_desc.skillEffects.split(';'):
+            effect = effect.split("-")
+            active_effect = models.Effects.objects.filter(character=char_item.character, name=effect[0]).first()
+            if active_effect:
+                active_effect.delete()
+
+    char_item.delete()
 
 
 def can_character_wear_armor_weight(character, item, place):
@@ -700,7 +744,18 @@ class CharacterDetails(DetailView):
         eq_boots_qs = models.Eq.objects.filter(character=chosen.name, type='Boots').order_by('name')
         eq_amulets_qs = models.Eq.objects.filter(character=chosen.name, type='Amulet').order_by('name')
         eq_mounts_qs = models.Eq.objects.filter(character=chosen.name, type='Animal').order_by('name')
-        eq_mounts_armor_qs = models.Eq.objects.filter(character=chosen.name, type='Mount Armor').order_by('name')
+        eq_mounts_armor_qs = models.Eq.objects.filter(
+            Q(type='Mount Armor') | Q(name__in=models.Items.objects.filter(category='animal_armor').values_list('name', flat=True)),
+            character=chosen.name,
+        ).order_by('name')
+        eq_mounts_horseshoes_qs = models.Eq.objects.filter(
+            character=chosen.name,
+            name__in=models.Items.objects.filter(category='animal_horseshoes').values_list('name', flat=True)
+        ).order_by('name')
+        eq_mounts_saddles_qs = models.Eq.objects.filter(
+            character=chosen.name,
+            name__in=models.Items.objects.filter(category='animal_saddle').values_list('name', flat=True)
+        ).order_by('name')
         eq_weapons_qs = models.Eq.objects.filter(character=chosen.name).exclude(type__in=types).order_by('name')
         
         context['helmet'] = models.CharItems.objects.filter(character=serializer.data['name'], position='Helmet').first()
@@ -710,6 +765,8 @@ class CharacterDetails(DetailView):
         context['amulet'] = models.CharItems.objects.filter(character=serializer.data['name'], position='Amulet').first()
         context['mount'] = models.CharItems.objects.filter(character=serializer.data['name'], position='Mount').first()
         context['mount_armor'] = models.CharItems.objects.filter(character=serializer.data['name'], position='Mount_armor').first()
+        context['mount_horseshoes'] = models.CharItems.objects.filter(character=serializer.data['name'], position='Mount_horseshoes').first()
+        context['mount_saddle'] = models.CharItems.objects.filter(character=serializer.data['name'], position='Mount_saddle').first()
         context['leftItem'] = models.CharItems.objects.filter(character=serializer.data['name'], hand='Left').first()
         context['rightItem'] = models.CharItems.objects.filter(character=serializer.data['name'], hand='Right').first()
         context['sideItem'] = models.CharItems.objects.filter(character=serializer.data['name'], hand='Side').first()
@@ -738,6 +795,8 @@ class CharacterDetails(DetailView):
         context['eq_amulets'] = eq_amulets_qs
         context['eq_mounts'] = eq_mounts_qs
         context['eq_mounts_armor'] = eq_mounts_armor_qs
+        context['eq_mounts_horseshoes'] = eq_mounts_horseshoes_qs
+        context['eq_mounts_saddles'] = eq_mounts_saddles_qs
 
         return context 
     
@@ -837,7 +896,6 @@ class TakeAmmoFromAttack(APIView):
 class MoveItemToEq(APIView):
     def get(self, request, *args, **kwargs):
         item = get_object_or_404(models.CharItems, id=kwargs['item_id'])
-        item_desc = get_object_or_404(models.Items, name=item.name)
         
         char = get_object_or_404(models.Character, name=item.character)
         
@@ -845,22 +903,11 @@ class MoveItemToEq(APIView):
             
         max_weight = get_character_max_weight(char)
         if eq_weight <= max_weight:
-            if item_desc.type != "Mount Armor":
-                models.Eq.objects.create(
-                    owner = item.owner,
-                    character = item.character,
-                    name = item.name,
-                    type = item_desc.type,
-                    weight = item_desc.weight,
-                    durability = item.durability
-                )
+            if item.position == "Mount":
+                for attachment in models.CharItems.objects.filter(character=char.name, position__in=MOUNT_ATTACHMENT_POSITIONS):
+                    move_char_item_to_eq(attachment)
 
-            if item_desc.skillEffects != None:
-                for effect in item_desc.skillEffects.split(';'):
-                    effect = effect.split("-")
-                    models.Effects.objects.filter(character=char.name, name=effect[0]).first().delete()
-
-            item.delete()
+            move_char_item_to_eq(item)
         else:
             messages.error(request, f"Not enough space in {char.name}'s equipment for '{item.name}' ({eq_weight}/{max_weight}kg)")
 
@@ -1691,6 +1738,21 @@ def char_wear_item(request, **kwargs):
     item_id = kwargs['item_id']
     item_eq_obj = models.Eq.objects.get(character=char.name,id=item_id)
     item = models.Items.objects.get(name=item_eq_obj.name)
+    item_category = (item.category or "").lower()
+
+    if place in MOUNT_ATTACHMENT_POSITIONS:
+        if not models.CharItems.objects.filter(character=char.name, position="Mount").exists():
+            messages.error(request, "Najpierw załóż wierzchowca.")
+            return redirect('character_detail', char.id)
+
+        allowed_categories = MOUNT_ATTACHMENT_CATEGORIES.get(place, set())
+        if item_category not in allowed_categories and not (place == "Mount_armor" and item.type == "Mount Armor"):
+            messages.error(request, "Ten przedmiot nie pasuje do wybranego slotu wierzchowca.")
+            return redirect('character_detail', char.id)
+
+    if place == "Mount" and item.type != "Animal":
+        messages.error(request, "W tym slocie można założyć tylko wierzchowca.")
+        return redirect('character_detail', char.id)
 
     can_wear_armor, armor_weight_message = can_character_wear_armor_weight(char, item, place)
     if not can_wear_armor:
@@ -1763,8 +1825,7 @@ def char_wear_item(request, **kwargs):
                 curr_effect.time = 100
                 curr_effect.save()
 
-    if item.type != "Mount Armor":
-        item_eq_obj.delete()
+    item_eq_obj.delete()
     return redirect('character_detail', char.id)
 def char_use_skill(request, **kwargs):
     char = get_object_or_404(models.Character, id=kwargs['char_id'])
@@ -1875,6 +1936,16 @@ def char_swap_item(request, **kwargs):
     it2D = get_object_or_404(models.Items, name=it2.name)
 
     armor_place = it1.position or it1.hand
+    if armor_place in MOUNT_ATTACHMENT_POSITIONS:
+        if not models.CharItems.objects.filter(character=char.name, position="Mount").exists():
+            messages.error(request, "Najpierw załóż wierzchowca.")
+            return redirect('character_detail', char.id)
+
+        allowed_categories = MOUNT_ATTACHMENT_CATEGORIES.get(armor_place, set())
+        if (it2D.category or "").lower() not in allowed_categories and not (armor_place == "Mount_armor" and it2D.type == "Mount Armor"):
+            messages.error(request, "Ten przedmiot nie pasuje do wybranego slotu wierzchowca.")
+            return redirect('character_detail', char.id)
+
     can_wear_armor, armor_weight_message = can_character_wear_armor_weight(char, it2D, armor_place)
     if not can_wear_armor:
         messages.error(request, armor_weight_message)
@@ -1907,15 +1978,14 @@ def char_swap_item(request, **kwargs):
         messages.error(request, f'Not enough space in equipment for {it2D.name}, {current_weight-max_weight}kg too heavy :(')
         return redirect('character_detail', char.id)
 
-    if it1D.type != "Mount Armor":
-        models.Eq.objects.create(
-            owner=char.owner,
-            character=char.name,
-            name=it1.name,
-            type=it1D.type,
-            weight=it1D.weight,
-            durability=it1.durability
-        )
+    models.Eq.objects.create(
+        owner=char.owner,
+        character=char.name,
+        name=it1.name,
+        type=it1D.type,
+        weight=it1D.weight,
+        durability=it1.durability
+    )
 
     if it1D.skillEffects != None:
         for effect in it1D.skillEffects.split(';'):
@@ -1937,8 +2007,7 @@ def char_swap_item(request, **kwargs):
                 time = effect[2]
             )    
     
-    if it2D.type != "Mount Armor":
-        it2.delete()
+    it2.delete()
     
     return redirect('character_detail', char.id)
 @user_passes_test(lambda u: u.is_superuser)
@@ -2110,7 +2179,7 @@ class ItemsView(ListView):
                 if armor_category:
                     self.armor_dict[armor_category].append(category_data)
                 else:
-                    if item_desc.type == 'Animal':
+                    if item_desc.type == 'Animal' or item_desc.type == 'Mount Armor' or (item_desc.category or "").lower() in MOUNT_ITEM_CATEGORIES:
                         self.animals.append(category_data)
                     elif item_desc.dualHanded == False:
                         self.singlehand.append(category_data)
@@ -2137,13 +2206,16 @@ class ItemsView(ListView):
             if self.request.user.is_superuser:
                 context['items_singlehand'] = models.Items.objects.filter(dualHanded=False).order_by('rarity').exclude(type__in=types)
                 context['items_twohand'] = models.Items.objects.filter(dualHanded=True).order_by('rarity')   
-                context['animals'] =  models.Items.objects.filter(type='Animal').order_by('rarity')
-                context['animals'] |=  models.Items.objects.filter(type='Mount Armor').order_by('rarity')
+                context['animals'] =  models.Items.objects.filter(
+                    Q(type='Animal') | Q(type='Mount Armor') | Q(category__in=MOUNT_ITEM_CATEGORIES)
+                ).order_by('rarity')
             else:
                 context['items_singlehand'] = models.Items.objects.filter(dualHanded=False, found=True).order_by('rarity').exclude(type__in=types)
                 context['items_twohand'] = models.Items.objects.filter(dualHanded=True, found=True) .order_by('rarity')
-                context['animals'] =  models.Items.objects.filter(type='Animal', found=True).order_by('rarity')
-                context['animals'] |=  models.Items.objects.filter(type='Mount Armor', found=True).order_by('rarity')
+                context['animals'] =  models.Items.objects.filter(
+                    Q(type='Animal') | Q(type='Mount Armor') | Q(category__in=MOUNT_ITEM_CATEGORIES),
+                    found=True
+                ).order_by('rarity')
             
             for x in range(len(names)):
                 if self.request.user.is_superuser:

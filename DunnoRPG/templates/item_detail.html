@@ -155,6 +155,12 @@
                 {% endif %}
             {% elif item.type == 'Animal' %}
                 <h2>PŻ: {{ item.maxDurability }} | Pancerz: {{ item.armor }}</h2>
+            {% elif item.category == 'animal_horseshoes' or item.category == 'animal_saddle' %}
+                {% if item.on_use and item.on_use != '-' %}
+                    <h2>Możliwość użycia ({% if item.use_amount %}{{ item.use_amount }}{% else %}1{% endif %})</h2>
+                {% else %}
+                    <h2>Wyposażenie wierzchowca</h2>
+                {% endif %}
             {% else %}
                 <h2>{{ item.dmgDice }}, AP: {{ item.AP }}% <!-- 1K{% if item.diceBonus >= 0 %}+{% endif %}{{ item.diceBonus }}, {{ item.AP }}AP --></h2>
             {% endif %}
@@ -199,12 +205,13 @@
             <h5>Cena: {{ item.price }}</h5>
         </div>
         <div class='col bg-dark p-2 border border-warning rounded ms-2 me-2'>
-            {% if item.type == 'Animal' %}
-            <h5>Dostępny ekwipunek: +{{ item.extra_capacity }}kg</h5>
-            {% else %}
             <h5>Waga: {{ item.weight }}kg</h5>
-            {% endif %}
         </div>
+        {% if item.extra_capacity > 0 %}
+        <div class='col bg-dark p-2 border border-warning rounded ms-2 me-2'>
+            <h5>Dodatkowy udźwig: +{{ item.extra_capacity }}kg</h5>
+        </div>
+        {% endif %}
     </div>
 
     {% if item.ammo_type and item.ammo_type != 'None' and item.ammo_type != '-' %}

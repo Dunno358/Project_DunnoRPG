@@ -1686,6 +1686,7 @@ style="width: 98%; z-index: 20; margin-left: 0.22rem !important; margin-top: -5r
                 
         {% endif %}
 
+        {% if mount %}
         {% if mount_armor %}
             <form name='head' method='post' action='changedur-{{ mount_armor.id }}' class='row mt-2 border border-warning rounded bg-gray m-0 p-0'>
                 {% csrf_token %}
@@ -1798,6 +1799,190 @@ style="width: 98%; z-index: 20; margin-left: 0.22rem !important; margin-top: -5r
 
             </div>
                 
+        {% endif %}
+
+        {% if mount_horseshoes %}
+            <form name='head' method='post' action='changedur-{{ mount_horseshoes.id }}' class='row mt-2 border border-warning rounded bg-gray m-0 p-0'>
+                {% csrf_token %}
+                <div class="row c-gold me-0 pe-0">
+                    <div class="col-7 h6 text-start pt-2 ps-1 pb-0 pe-0">
+                        <span class="text-white-50">Wytrzymałość:</span>
+                        <input value="{{ mount_horseshoes.durability }}" class="bg-gray border-0 c-gold p-0 m-0 h6 text-end" style="width: 15%" name="dur"/>
+                        /{{ mount_horseshoes.name|getMaxDurability }}
+                    </div>
+                    <div class="col h6 text-end p-2 pb-0 border-start border-warning">
+                        Podkowy
+                    </div>
+                </div>
+
+                <div class="row me-0 pe-0">
+                    <div class="col text-center">
+                        <a href='/dunnorpg/items/{{ mount_horseshoes.name|getDescId }}' class="{{ mount_horseshoes.name|getItemRarity }} h4">
+                            {{ mount_horseshoes.name }}
+                        </a>
+                        {% if user.is_superuser %}
+                            <a href="/admin/DunnoRPG/charitems/{{ mount_horseshoes.id }}/change/" class="fa fa-link" target="_blank"></a>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <hr class="mb-0 mt-1">
+                <div class="row ps-0 ms-1 me-0 pe-0">
+                    <div class="col-3 border-end border-warning p-3 h6 mb-0 d-flex align-items-center justify-content-center">
+                        <span class="text-white-50"></span> <span class="c-gold ms-1">{{ mount_horseshoes.name|getItemWeight }}kg</span>
+                    </div>
+                    <div class="col-4 border-end border-warning h6 mb-0 d-flex align-items-center justify-content-center">
+                        <a class="btn btn-info p-3 pt-2 pb-2 text-white" onclick='show_or_hideById("mount_horseshoes-swap")'>Zmień</a>
+                    </div>
+                    <div class="col h6 mb-0 d-flex align-items-center justify-content-center">
+                        <a class="btn btn-danger p-3 pt-2 pb-2 text-white" href='move_eq-{{ mount_horseshoes.id }}'>Odłóż</a>
+                    </div>
+                </div>
+
+                <div id='mount_horseshoes-swap' class='d-none row text-end m-0 p-0 mt-2 mb-2'>
+                    <div class="col-8">
+                        <select class='w-100 p-2 ms-2 text-center border border-warning bg-dark text-white-50 rounded'>
+                            {% for item in eq_mounts_horseshoes %}
+                                <option id='{{ item.id }}' name={{ item.durability }} value='{{ item.name }}'>
+                                    {{ item.name }}
+                                    ({{ item.durability }}/{{ item.name|getMaxDurability }})
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col text-start">
+                        <a onclick="swapItem('{{ mount_horseshoes.id }}', 'mount_horseshoes-swap')" class='btn w-75 btn-success'>Zamień</a>
+                    </div>
+                </div>
+            </form>
+        {% elif eq_mounts_horseshoes %}
+            <div name='head' class='row mt-2 border border-warning rounded bg-gray m-0 p-0'>
+                <div class="row c-gold me-0 pe-0">
+                    <div class="col h6 text-start p-2 pb-0 ms-1">
+                        Podkowy - Brak
+                    </div>
+                </div>
+                <div class="row me-0 pe-0">
+                    <div class="col text-center">
+                        <a href='' class="c-gold h4">Brak podków</a>
+                    </div>
+                </div>
+                <hr class="mb-0 mt-1">
+                <div class="row ps-0 ms-1 me-0 pe-0">
+                    <div class="col border-end border-warning mb-0 d-flex align-items-center justify-content-center">
+                        <a class="text-light h5 btn btn-info m-2 w-75" onclick='show_or_hideById("mount_horseshoes-add")'>Załóż</a>
+                    </div>
+                </div>
+                <div id='mount_horseshoes-add' class='d-none row text-end m-0 p-0 mt-2 mb-2'>
+                    <div class="col-8">
+                        <select class='w-100 p-2 ms-2 text-center border border-warning bg-dark text-white-50 rounded'>
+                            {% for item in eq_mounts_horseshoes %}
+                                <option id='{{ item.id }}' value='{{ item.name }}'>
+                                    {{ item.name }}
+                                    ({{ item.durability }}/{{ item.name|getMaxDurability }})
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col text-start">
+                        <a onclick="wearItem('Mount_horseshoes', 'mount_horseshoes-add')" class='btn w-75 btn-success'>OK</a>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+
+        {% if mount_saddle %}
+            <form name='head' method='post' action='changedur-{{ mount_saddle.id }}' class='row mt-2 border border-warning rounded bg-gray m-0 p-0'>
+                {% csrf_token %}
+                <div class="row c-gold me-0 pe-0">
+                    <div class="col-7 h6 text-start pt-2 ps-1 pb-0 pe-0">
+                        <span class="text-white-50">Wytrzymałość:</span>
+                        <input value="{{ mount_saddle.durability }}" class="bg-gray border-0 c-gold p-0 m-0 h6 text-end" style="width: 15%" name="dur"/>
+                        /{{ mount_saddle.name|getMaxDurability }}
+                    </div>
+                    <div class="col h6 text-end p-2 pb-0 border-start border-warning">
+                        Dodatek
+                    </div>
+                </div>
+
+                <div class="row me-0 pe-0">
+                    <div class="col text-center">
+                        <a href='/dunnorpg/items/{{ mount_saddle.name|getDescId }}' class="{{ mount_saddle.name|getItemRarity }} h4">
+                            {{ mount_saddle.name }}
+                        </a>
+                        {% if user.is_superuser %}
+                            <a href="/admin/DunnoRPG/charitems/{{ mount_saddle.id }}/change/" class="fa fa-link" target="_blank"></a>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <hr class="mb-0 mt-1">
+                <div class="row ps-0 ms-1 me-0 pe-0">
+                    <div class="col-3 border-end border-warning p-3 h6 mb-0 d-flex align-items-center justify-content-center">
+                        <span class="text-white-50">Udźwig:</span> <span class="c-gold ms-1">+{{ mount_saddle.name|getItemExtraCapacity }}kg</span>
+                    </div>
+                    <div class="col-3 border-end border-warning p-3 h6 mb-0 d-flex align-items-center justify-content-center">
+                        <span class="text-white-50"></span> <span class="c-gold ms-1">{{ mount_saddle.name|getItemWeight }}kg</span>
+                    </div>
+                    <div class="col-3 border-end border-warning h6 mb-0 d-flex align-items-center justify-content-center">
+                        <a class="btn btn-info p-3 pt-2 pb-2 text-white" onclick='show_or_hideById("mount_saddle-swap")'>Zmień</a>
+                    </div>
+                    <div class="col-3 h6 mb-0 d-flex align-items-center justify-content-center">
+                        <a class="btn btn-danger p-3 pt-2 pb-2 text-white" href='move_eq-{{ mount_saddle.id }}'>Odłóż</a>
+                    </div>
+                </div>
+
+                <div id='mount_saddle-swap' class='d-none row text-end m-0 p-0 mt-2 mb-2'>
+                    <div class="col-8">
+                        <select class='w-100 p-2 ms-2 text-center border border-warning bg-dark text-white-50 rounded'>
+                            {% for item in eq_mounts_saddles %}
+                                <option id='{{ item.id }}' name={{ item.durability }} value='{{ item.name }}'>
+                                    {{ item.name }}
+                                    ({{ item.durability }}/{{ item.name|getMaxDurability }})
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col text-start">
+                        <a onclick="swapItem('{{ mount_saddle.id }}', 'mount_saddle-swap')" class='btn w-75 btn-success'>Zamień</a>
+                    </div>
+                </div>
+            </form>
+        {% elif eq_mounts_saddles %}
+            <div name='head' class='row mt-2 border border-warning rounded bg-gray m-0 p-0'>
+                <div class="row c-gold me-0 pe-0">
+                    <div class="col h6 text-start p-2 pb-0 ms-1">
+                        Dodatek - Brak
+                    </div>
+                </div>
+                <div class="row me-0 pe-0">
+                    <div class="col text-center">
+                        <a href='' class="c-gold h4">Brak dodatku</a>
+                    </div>
+                </div>
+                <hr class="mb-0 mt-1">
+                <div class="row ps-0 ms-1 me-0 pe-0">
+                    <div class="col border-end border-warning mb-0 d-flex align-items-center justify-content-center">
+                        <a class="text-light h5 btn btn-info m-2 w-75" onclick='show_or_hideById("mount_saddle-add")'>Załóż</a>
+                    </div>
+                </div>
+                <div id='mount_saddle-add' class='d-none row text-end m-0 p-0 mt-2 mb-2'>
+                    <div class="col-8">
+                        <select class='w-100 p-2 ms-2 text-center border border-warning bg-dark text-white-50 rounded'>
+                            {% for item in eq_mounts_saddles %}
+                                <option id='{{ item.id }}' value='{{ item.name }}'>
+                                    {{ item.name }}
+                                    ({{ item.durability }}/{{ item.name|getMaxDurability }})
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col text-start">
+                        <a onclick="wearItem('Mount_saddle', 'mount_saddle-add')" class='btn w-75 btn-success'>OK</a>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
         {% endif %}
 
         <div class="row mt-3 mb-3 m-0 p-0 text-danger">

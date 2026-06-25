@@ -74,6 +74,10 @@ def getItemWeight(itemName):
     return get_object_or_404(models.Items, name=itemName).weight
 
 @register.filter
+def getItemExtraCapacity(itemName):
+    return get_object_or_404(models.Items, name=itemName).extra_capacity
+
+@register.filter
 def getArmorWeightType(itemName):
     armor_weight_labels = {
         "light": "Lekkie",
