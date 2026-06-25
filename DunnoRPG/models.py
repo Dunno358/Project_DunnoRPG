@@ -199,7 +199,7 @@ class Items(models.Model):
     skillStats = models.CharField(max_length=250, null=True, blank=True)
     skillEffects = models.CharField(max_length=250, null=True, blank=True)
 
-    size = models.IntegerField(default=1)
+    size = models.FloatField(default=1)
     extra_capacity = models.IntegerField(default=0)
     mobility = models.IntegerField(default=0)
 

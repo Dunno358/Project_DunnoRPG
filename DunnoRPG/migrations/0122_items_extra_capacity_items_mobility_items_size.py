@@ -23,6 +23,6 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='items',
             name='size',
-            field=models.IntegerField(default=1),
+            field=models.FloatField(default=1),
         ),
     ]
