@@ -105,7 +105,7 @@ ARMOR_WEIGHT_LIMITED_POSITIONS = {"helmet", "torso", "boots", "gloves"}
 
 
 def get_character_max_weight(character):
-    return max(5, 15 + (character.SIŁ * 5) + character.extra_capacity)
+    return max(10, 30 + (character.SIŁ * 7.5) + character.extra_capacity)
 
 
 def get_character_current_weight(character):
