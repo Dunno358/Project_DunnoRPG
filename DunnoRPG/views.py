@@ -105,7 +105,19 @@ ARMOR_WEIGHT_LIMITED_POSITIONS = {"helmet", "torso", "boots", "gloves"}
 
 
 def get_character_max_weight(character):
-    return max(10, 30 + (character.SIŁ * 7.5) + character.extra_capacity)
+    item_capacity = 0
+    for item in models.Eq.objects.filter(character=character.name):
+        item_desc = models.Items.objects.filter(name=item.name).first()
+        if item_desc:
+            item_capacity += item_desc.extra_capacity * item.amount
+
+    for item in models.CharItems.objects.filter(character=character.name):
+        if item.name:
+            item_desc = models.Items.objects.filter(name=item.name).first()
+            if item_desc:
+                item_capacity += item_desc.extra_capacity
+
+    return max(10, 30 + (character.SIŁ * 7.5) + character.extra_capacity + item_capacity)
 
 
 def get_character_current_weight(character):
@@ -830,10 +842,6 @@ class MoveItemToEq(APIView):
         char = get_object_or_404(models.Character, name=item.character)
         
         eq_weight = get_character_current_weight(char)
-            
-        if item_desc.type == 'Animal':
-            char.extra_capacity = 0
-            char.save()
             
         max_weight = get_character_max_weight(char)
         if eq_weight <= max_weight:
@@ -1689,10 +1697,6 @@ def char_wear_item(request, **kwargs):
         messages.error(request, armor_weight_message)
         return redirect('character_detail', char.id)
     
-    if item.type == 'Animal':
-        char.extra_capacity = item.dmgDice
-        char.save()
-     
     wolverin_barbarian = 'barbarzyńca: droga rosomaka'
     paladin = 'paladyn: przysięga miecza'
     
@@ -1917,9 +1921,6 @@ def char_swap_item(request, **kwargs):
         for effect in it1D.skillEffects.split(';'):
             effect = effect.split("-")
             models.Effects.objects.filter(character=char.name, name=effect[0]).first().delete()
-    
-    if it2D.type == 'Animal':
-        char.extra_capacity = it2D.dmgDice
     
     it1.name = it2.name
     it1.durability = it2.durability
