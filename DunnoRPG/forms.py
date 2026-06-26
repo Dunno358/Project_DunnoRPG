@@ -73,6 +73,11 @@ class AddEqItemForm(forms.ModelForm):
         'name': 'equip_item'
     }))
 
+    additional_description = forms.CharField(required=False,label='Dodatkowy opis',widget=forms.Textarea(attrs={
+        'class': 'text-center bg-dark c-gold rounded border border-info m-1 w-100',
+        'rows': 3
+    }))
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['character'].choices = [
@@ -86,7 +91,7 @@ class AddEqItemForm(forms.ModelForm):
     
     class Meta: 
         model = Eq
-        fields = ['character','name','durability','amount','override','equip_item']
+        fields = ['character','name','durability','amount','additional_description','override','equip_item']
 
 """
 class AddEffectForm(forms.ModelForm):

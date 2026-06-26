@@ -350,7 +350,7 @@
                 <button class='col-2 text-center text-white bg-danger p-2 m-1 rounded' onclick="deleteConfirmation('{{ item.name }}', {{ view.kwargs.char_id }}, {{ item.id }})">X</button>
             {% endif %}
             
-            <a class='col text-center c-gold bg-dark p-2 rounded border border-primary' href='{{ item.id }}'> 
+            <a class='col text-center c-gold bg-dark p-2 rounded border border-primary' href='{{ item.id }}{% if item.eq_id %}?ref=eq;{{ item.eq_id }}{% elif item.char_item_id %}?ref=char;{{ item.char_item_id }}{% endif %}'>
                 <span
                 {% if item.rarity == 'neutral-low' or item.rarity == 'start-weapon' %}style='color: dimgray;'{% endif %}
                 {% if item.rarity == 'neutral-high' %}style='color: silver;'{% endif %}
@@ -427,7 +427,7 @@
                     <button class='col-2 text-center text-white bg-danger p-2 m-1 rounded' onclick="deleteConfirmation('{{ item.name }}', {{ view.kwargs.char_id }}, {{ item.id }})">X</button>
                 {% endif %}
                 
-                <a class='col text-center c-gold bg-dark p-2 rounded border border-primary' href='{{ item.id }}'> 
+                <a class='col text-center c-gold bg-dark p-2 rounded border border-primary' href='{{ item.id }}{% if item.eq_id %}?ref=eq;{{ item.eq_id }}{% elif item.char_item_id %}?ref=char;{{ item.char_item_id }}{% endif %}'>
                     <span class="{{ item.rarity }}">{% if item.equipped %}<span class="text-info">[Założone]</span> {% endif %}{{ item.name }}</span>
                 </a>
             </div>
@@ -441,7 +441,7 @@
                 <button class='col-2 text-center text-white bg-danger p-2 m-1 rounded' onclick="deleteConfirmation('{{ item.name }}', {{ view.kwargs.char_id }}, {{ item.id }})">X</button>
             {% endif %}
             
-            <a class='col text-center c-gold bg-dark p-2 rounded border border-primary' href='{{ item.id }}'> 
+            <a class='col text-center c-gold bg-dark p-2 rounded border border-primary' href='{{ item.id }}{% if item.eq_id %}?ref=eq;{{ item.eq_id }}{% elif item.char_item_id %}?ref=char;{{ item.char_item_id }}{% endif %}'>
                 <span class="{{ item.rarity }}">{% if item.equipped %}<span class="text-info">[Założone]</span> {% endif %}{{ item.name }}</span>
             </a>
         </div>
@@ -457,7 +457,7 @@
                 <button class='col-2 text-center text-white bg-danger p-2 m-1 rounded' onclick="deleteConfirmation('{{ item.name }}', {{ view.kwargs.char_id }}, {{ item.id }})">X</button>
             {% endif %}
             
-            <a class='col text-center c-gold bg-dark p-2 rounded border border-primary' href='{{ item.id }}'> 
+            <a class='col text-center c-gold bg-dark p-2 rounded border border-primary' href='{{ item.id }}{% if item.eq_id %}?ref=eq;{{ item.eq_id }}{% elif item.char_item_id %}?ref=char;{{ item.char_item_id }}{% endif %}'>
                 <span class="{{ item.rarity }}">{% if item.equipped %}<span class="text-info">[Założone]</span> {% endif %}{{ item.name }}</span>
             </a>
         </div>
@@ -473,7 +473,7 @@
                 <button class='col-2 text-center text-white bg-danger p-2 m-1 rounded' onclick="deleteConfirmation('{{ item.name }}', {{ view.kwargs.char_id }}, {{ item.id }})">X</button>
             {% endif %}
             
-            <a class='col text-center c-gold bg-dark p-2 rounded border border-primary' href='{{ item.id }}'> 
+            <a class='col text-center c-gold bg-dark p-2 rounded border border-primary' href='{{ item.id }}{% if item.eq_id %}?ref=eq;{{ item.eq_id }}{% elif item.char_item_id %}?ref=char;{{ item.char_item_id }}{% endif %}'>
                 <span class="{{ item.rarity }}">{% if item.equipped %}<span class="text-info">[Założone]</span> {% endif %}{{ item.name }}</span>
             </a>
         </div>
@@ -489,7 +489,7 @@
                 <button class='col-2 text-center text-white bg-danger p-2 m-1 rounded' onclick="deleteConfirmation('{{ item.name }}', {{ view.kwargs.char_id }}, {{ item.id }})">X</button>
             {% endif %}
             
-            <a class='col text-center c-gold bg-dark p-2 rounded border border-primary' href='{{ item.id }}'> 
+            <a class='col text-center c-gold bg-dark p-2 rounded border border-primary' href='{{ item.id }}{% if item.eq_id %}?ref=eq;{{ item.eq_id }}{% elif item.char_item_id %}?ref=char;{{ item.char_item_id }}{% endif %}'>
                 <span class="{{ item.rarity }}">{% if item.equipped %}<span class="text-info">[Założone]</span> {% endif %}{{ item.name }}</span>
             </a>
         </div>
@@ -505,7 +505,7 @@
                 <button class='col-2 text-center text-white bg-danger p-2 m-1 rounded' onclick="deleteConfirmation('{{ item.name }}', {{ view.kwargs.char_id }}, {{ item.id }})">X</button>
             {% endif %}
             
-            <a class='col text-center c-gold bg-dark p-2 rounded border border-primary' href='{{ item.id }}'> 
+            <a class='col text-center c-gold bg-dark p-2 rounded border border-primary' href='{{ item.id }}{% if item.eq_id %}?ref=eq;{{ item.eq_id }}{% elif item.char_item_id %}?ref=char;{{ item.char_item_id }}{% endif %}'>
                 <span class="{{ item.rarity }}">{% if item.equipped %}<span class="text-info">[Założone]</span> {% endif %}{{ item.name }}</span>
             </a>
         </div>
@@ -521,7 +521,7 @@
                 <button class='col-2 text-center text-white bg-danger p-2 m-1 rounded' onclick="deleteConfirmation('{{ item.name }}', {{ view.kwargs.char_id }}, {{ item.id }})">X</button>
             {% endif %}
             
-            <a class='col text-center c-gold bg-dark p-2 rounded border border-primary' href='{{ item.id }}'> 
+            <a class='col text-center c-gold bg-dark p-2 rounded border border-primary' href='{{ item.id }}{% if item.eq_id %}?ref=eq;{{ item.eq_id }}{% elif item.char_item_id %}?ref=char;{{ item.char_item_id }}{% endif %}'>
                 <span class="{{ item.rarity }}">{% if item.equipped %}<span class="text-info">[Założone]</span> {% endif %}{{ item.name }}</span>
             </a>
         </div>
@@ -537,7 +537,7 @@
                 <button class='col-2 text-center text-white bg-danger p-2 m-1 rounded' onclick="deleteConfirmation('{{ item.name }}', {{ view.kwargs.char_id }}, {{ item.id }})">X</button>
             {% endif %}
             
-            <a class='col text-center c-gold bg-dark p-2 rounded border border-primary' href='{{ item.id }}'> 
+            <a class='col text-center c-gold bg-dark p-2 rounded border border-primary' href='{{ item.id }}{% if item.eq_id %}?ref=eq;{{ item.eq_id }}{% elif item.char_item_id %}?ref=char;{{ item.char_item_id }}{% endif %}'>
                 <span class="{{ item.rarity }}">{% if item.equipped %}<span class="text-info">[Założone]</span> {% endif %}{{ item.name }}</span>
             </a>
         </div>
@@ -553,7 +553,7 @@
                 <button class='col-2 text-center text-white bg-danger p-2 m-1 rounded' onclick="deleteConfirmation('{{ item.name }}', {{ view.kwargs.char_id }}, {{ item.id }})">X</button>
             {% endif %}
             
-            <a class='col text-center c-gold bg-dark p-2 rounded border border-primary' href='{{ item.id }}'> 
+            <a class='col text-center c-gold bg-dark p-2 rounded border border-primary' href='{{ item.id }}{% if item.eq_id %}?ref=eq;{{ item.eq_id }}{% elif item.char_item_id %}?ref=char;{{ item.char_item_id }}{% endif %}'>
                 <span class="{{ item.rarity }}">{% if item.equipped %}<span class="text-info">[Założone]</span> {% endif %}{{ item.name }}</span>
             </a>
         </div>

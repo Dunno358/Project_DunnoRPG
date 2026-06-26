@@ -152,6 +152,7 @@ def move_char_item_to_eq(char_item):
         character=char_item.character,
         name=char_item.name,
         durability=char_item.durability,
+        additional_description=char_item.additional_description,
     ).first()
 
     if eq_item:
@@ -166,6 +167,7 @@ def move_char_item_to_eq(char_item):
             type=item_desc.type,
             weight=item_desc.weight,
             durability=char_item.durability,
+            additional_description=char_item.additional_description,
         )
 
     if item_desc.skillEffects != None:
@@ -1377,7 +1379,8 @@ def give_item(request, **kwargs):
                     type=eq_item.type,
                     weight=eq_item.weight*given_amount,
                     durability=eq_item.durability,
-                    amount=given_amount
+                    amount=given_amount,
+                    additional_description=eq_item.additional_description,
                 )
 
                 messages.success(request, f"Transferred {eq_item.name} to {to_char.name}.")
@@ -1439,7 +1442,8 @@ def swap_side_to_hand(request, **kwargs):
                 type = rightItemDesc.type,
                 weight = rightItemDesc.weight,
                 durability = rightItem.durability,
-                amount = 1
+                amount = 1,
+                additional_description = rightItem.additional_description
             )
             rightItem.delete()
 
@@ -1792,7 +1796,8 @@ def char_wear_item(request, **kwargs):
                 name = item.name,
                 durability = item_eq_obj.durability,
                 hand = place.capitalize(),
-                position = ''
+                position = '',
+                additional_description = item_eq_obj.additional_description
                 )
         else:
             models.CharItems.objects.create(
@@ -1801,11 +1806,13 @@ def char_wear_item(request, **kwargs):
                 name = item.name,
                 durability = item_eq_obj.durability,
                 hand = '',
-                position = place.capitalize()
+                position = place.capitalize(),
+                additional_description = item_eq_obj.additional_description
                 )            
     else:
         charItObj.name = item.name
         charItObj.durability = item_eq_obj.durability
+        charItObj.additional_description = item_eq_obj.additional_description
         charItObj.save()  
 
     if item.skillEffects != None:
@@ -1984,7 +1991,8 @@ def char_swap_item(request, **kwargs):
         name=it1.name,
         type=it1D.type,
         weight=it1D.weight,
-        durability=it1.durability
+        durability=it1.durability,
+        additional_description=it1.additional_description,
     )
 
     if it1D.skillEffects != None:
@@ -1994,6 +2002,7 @@ def char_swap_item(request, **kwargs):
     
     it1.name = it2.name
     it1.durability = it2.durability
+    it1.additional_description = it2.additional_description
     it1.save()
 
     if it2D.skillEffects != None:
@@ -2142,10 +2151,11 @@ class ItemsView(ListView):
             self.animals = []
             self.armor_dict = {'helmet': [], 'torso': [], 'boots': [], 'gloves': [], 'amulets': [], 'other': []}
 
-            def add_character_item(item_desc, durability, amount=1, eq_id=None, equipped=False):
+            def add_character_item(item_desc, durability, amount=1, eq_id=None, char_item_id=None, equipped=False):
                 item_data = {
                     'id': item_desc.id,
                     'eq_id': eq_id,
+                    'char_item_id': char_item_id,
                     'rarity': item_desc.rarity,
                     'found': item_desc.found,
                     'name': item_desc.name,
@@ -2166,6 +2176,7 @@ class ItemsView(ListView):
                     'amount': amount,
                     'max_dur': item_desc.maxDurability,
                     'eq_id': eq_id,
+                    'char_item_id': char_item_id,
                     'equipped': equipped,
                 }
                 armor_category = {
@@ -2193,7 +2204,7 @@ class ItemsView(ListView):
             for item in models.CharItems.objects.filter(character=self.character.name):
                 if item.name:
                     item_obj = get_object_or_404(models.Items, name=item.name)
-                    add_character_item(item_obj, item.durability, equipped=True)
+                    add_character_item(item_obj, item.durability, char_item_id=item.id, equipped=True)
         return queryset
     
     def get_context_data(self, **kwargs):
@@ -2268,6 +2279,22 @@ class ItemDetailView(DetailView):
     def get_context_data(self,**kwargs):
         context = super().get_context_data(**kwargs)
         item = self.get_object()
+        additional_description = ''
+        ref = self.request.GET.get('ref', '')
+
+        try:
+            ref_type, ref_id = ref.split(';', 1)
+            if ref_type == 'eq':
+                referenced_item = models.Eq.objects.filter(id=ref_id, name=item.name).first()
+            elif ref_type == 'char':
+                referenced_item = models.CharItems.objects.filter(id=ref_id, name=item.name).first()
+            else:
+                referenced_item = None
+
+            if referenced_item:
+                additional_description = referenced_item.additional_description
+        except ValueError:
+            pass
 
         types = {
             "Helmet": [1.5, 2.5],
@@ -2289,6 +2316,7 @@ class ItemDetailView(DetailView):
         if weight_type != '':
             context['weight_type'] = weight_type
         context['item'] = item
+        context['additional_description'] = additional_description
 
         return context
 
@@ -2721,6 +2749,7 @@ class GMPanel(FormView):
                     hand=target_hand,
                     position=target_position,
                     reloaded=True,
+                    additional_description=form_data.additional_description,
                 )
                 messages.success(self.request, f"{item.name} equipped to {character.name}.")
                 return super().form_valid(form)
@@ -2728,7 +2757,13 @@ class GMPanel(FormView):
             messages.warning(self.request, f"Nie udało się założyć {item.name} postaci {character.name}")
         
         try:
-            existing_item = get_object_or_404(models.Eq, name=item.name, character=character.name, durability=form_data.durability)
+            existing_item = get_object_or_404(
+                models.Eq,
+                name=item.name,
+                character=character.name,
+                durability=form_data.durability,
+                additional_description=form_data.additional_description,
+            )
             existing_item.amount += form_data.amount
             existing_item.weight += item_weight
             existing_item.save()

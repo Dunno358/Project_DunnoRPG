@@ -527,7 +527,7 @@ style="width: 98%; z-index: 20; margin-left: 0.22rem !important; margin-top: -5r
 
                 <div class="row me-0 pe-0">
                     <div class="col text-center">
-                        <a href='/dunnorpg/items/{{ helmet.name|getDescId }}' class="{{ helmet.name|getItemRarity }} h4">
+                        <a href='/dunnorpg/items/{{ helmet.name|getDescId }}?ref=char;{{ helmet.id }}' class="{{ helmet.name|getItemRarity }} h4">
                             {{ helmet.name }} {{ helmet.name|getDurabilityPercent:helmet.durability }} 
                             {% if user.is_superuser %}
                                 <a href="/admin/DunnoRPG/charitems/{{ helmet.id }}/change/" class="fa fa-link" target="_blank"></a>
@@ -649,7 +649,7 @@ style="width: 98%; z-index: 20; margin-left: 0.22rem !important; margin-top: -5r
 
                 <div class="row me-0 pe-0">
                     <div class="col text-center">
-                        <a href='/dunnorpg/items/{{ torso.name|getDescId }}' class="{{ torso.name|getItemRarity }} h4">
+                        <a href='/dunnorpg/items/{{ torso.name|getDescId }}?ref=char;{{ torso.id }}' class="{{ torso.name|getItemRarity }} h4">
                             {{ torso.name }} {{ torso.name|getDurabilityPercent:torso.durability }} 
                             {% if user.is_superuser %}
                                 <a href="/admin/DunnoRPG/charitems/{{ torso.id }}/change/" class="fa fa-link" target="_blank"></a>
@@ -798,7 +798,7 @@ style="width: 98%; z-index: 20; margin-left: 0.22rem !important; margin-top: -5r
 
                 <div class="row me-0 pe-0">
                     <div class="col text-center">
-                        <a href='/dunnorpg/items/{{ leftItem.name|getDescId }}' class="{{ leftItem.name|getItemRarity }} h4">
+                        <a href='/dunnorpg/items/{{ leftItem.name|getDescId }}?ref=char;{{ leftItem.id }}' class="{{ leftItem.name|getItemRarity }} h4">
                             {{ leftItem.name }} <span id="l-dur-perc">{{ leftItem.name|getDurabilityPercent:leftItem.durability }}</span> 
                             {% if user.is_superuser %}
                                 <a href="/admin/DunnoRPG/charitems/{{ leftItem.id }}/change/" class="fa fa-link" target="_blank"></a>
@@ -957,7 +957,7 @@ style="width: 98%; z-index: 20; margin-left: 0.22rem !important; margin-top: -5r
 
                 <div class="row me-0 pe-0">
                     <div class="col text-center">
-                        <a href='/dunnorpg/items/{{ rightItem.name|getDescId }}' class="{{ rightItem.name|getItemRarity }} h4">
+                        <a href='/dunnorpg/items/{{ rightItem.name|getDescId }}?ref=char;{{ rightItem.id }}' class="{{ rightItem.name|getItemRarity }} h4">
                             {{ rightItem.name }} <span id="r-dur-perc">{{ rightItem.name|getDurabilityPercent:rightItem.durability }}</span> 
                             {% if user.is_superuser %}
                                 <a href="/admin/DunnoRPG/charitems/{{ rightItem.id }}/change/" class="fa fa-link" target="_blank"></a>
@@ -1087,7 +1087,7 @@ style="width: 98%; z-index: 20; margin-left: 0.22rem !important; margin-top: -5r
 
                 <div class="row me-0 pe-0">
                     <div class="col text-center">
-                        <a href='/dunnorpg/items/{{ sideItem.name|getDescId }}' class="{{ sideItem.name|getItemRarity }} h4">
+                        <a href='/dunnorpg/items/{{ sideItem.name|getDescId }}?ref=char;{{ sideItem.id }}' class="{{ sideItem.name|getItemRarity }} h4">
                             {{ sideItem.name }} {{ sideItem.name|getDurabilityPercent:sideItem.durability }} 
                             {% if user.is_superuser %}
                                 <a href="/admin/DunnoRPG/charitems/{{ sideItem.id }}/change/" class="fa fa-link" target="_blank"></a>
@@ -1214,7 +1214,7 @@ style="width: 98%; z-index: 20; margin-left: 0.22rem !important; margin-top: -5r
 
                 <div class="row me-0 pe-0">
                     <div class="col text-center">
-                        <a href='/dunnorpg/items/{{ boots.name|getDescId }}' class="{{ boots.name|getItemRarity }} h4">
+                        <a href='/dunnorpg/items/{{ boots.name|getDescId }}?ref=char;{{ boots.id }}' class="{{ boots.name|getItemRarity }} h4">
                             {{ boots.name }} {{ boots.name|getDurabilityPercent:boots.durability }} 
                             {% if user.is_superuser %}
                                 <a href="/admin/DunnoRPG/charitems/{{ boots.id }}/change/" class="fa fa-link" target="_blank"></a>
@@ -1336,7 +1336,7 @@ style="width: 98%; z-index: 20; margin-left: 0.22rem !important; margin-top: -5r
 
                 <div class="row me-0 pe-0">
                     <div class="col text-center">
-                        <a href='/dunnorpg/items/{{ gloves.name|getDescId }}' class="{{ gloves.name|getItemRarity }} h4">
+                        <a href='/dunnorpg/items/{{ gloves.name|getDescId }}?ref=char;{{ gloves.id }}' class="{{ gloves.name|getItemRarity }} h4">
                             {{ gloves.name }} {{ gloves.name|getDurabilityPercent:gloves.durability }} 
                             {% if user.is_superuser %}
                                 <a href="/admin/DunnoRPG/charitems/{{ gloves.id }}/change/" class="fa fa-link" target="_blank"></a>
@@ -1458,7 +1458,7 @@ style="width: 98%; z-index: 20; margin-left: 0.22rem !important; margin-top: -5r
 
                 <div class="row me-0 pe-0">
                     <div class="col text-center">
-                        <a href='/dunnorpg/items/{{ amulet.name|getDescId }}' class="{{ amulet.name|getItemRarity }} h4">
+                        <a href='/dunnorpg/items/{{ amulet.name|getDescId }}?ref=char;{{ amulet.id }}' class="{{ amulet.name|getItemRarity }} h4">
                             {{ amulet.name }}
                         </a>
                         {% if user.is_superuser %}
@@ -1580,7 +1580,7 @@ style="width: 98%; z-index: 20; margin-left: 0.22rem !important; margin-top: -5r
 
                 <div class="row me-0 pe-0">
                     <div class="col text-center">
-                        <a href='/dunnorpg/items/{{ mount.name|getDescId }}' class="{{ mount.name|getItemRarity }} h4">
+                        <a href='/dunnorpg/items/{{ mount.name|getDescId }}?ref=char;{{ mount.id }}' class="{{ mount.name|getItemRarity }} h4">
                             {{ mount.name }}
                         </a>
                         {% if user.is_superuser %}
@@ -1703,7 +1703,7 @@ style="width: 98%; z-index: 20; margin-left: 0.22rem !important; margin-top: -5r
 
                 <div class="row me-0 pe-0">
                     <div class="col text-center">
-                        <a href='/dunnorpg/items/{{ mount_armor.name|getDescId }}' class="{{ mount_armor.name|getItemRarity }} h4">
+                        <a href='/dunnorpg/items/{{ mount_armor.name|getDescId }}?ref=char;{{ mount_armor.id }}' class="{{ mount_armor.name|getItemRarity }} h4">
                             {{ mount_armor.name }}
                         </a>
                         {% if user.is_superuser %}
@@ -1817,7 +1817,7 @@ style="width: 98%; z-index: 20; margin-left: 0.22rem !important; margin-top: -5r
 
                 <div class="row me-0 pe-0">
                     <div class="col text-center">
-                        <a href='/dunnorpg/items/{{ mount_horseshoes.name|getDescId }}' class="{{ mount_horseshoes.name|getItemRarity }} h4">
+                        <a href='/dunnorpg/items/{{ mount_horseshoes.name|getDescId }}?ref=char;{{ mount_horseshoes.id }}' class="{{ mount_horseshoes.name|getItemRarity }} h4">
                             {{ mount_horseshoes.name }}
                         </a>
                         {% if user.is_superuser %}
@@ -1907,7 +1907,7 @@ style="width: 98%; z-index: 20; margin-left: 0.22rem !important; margin-top: -5r
 
                 <div class="row me-0 pe-0">
                     <div class="col text-center">
-                        <a href='/dunnorpg/items/{{ mount_saddle.name|getDescId }}' class="{{ mount_saddle.name|getItemRarity }} h4">
+                        <a href='/dunnorpg/items/{{ mount_saddle.name|getDescId }}?ref=char;{{ mount_saddle.id }}' class="{{ mount_saddle.name|getItemRarity }} h4">
                             {{ mount_saddle.name }}
                         </a>
                         {% if user.is_superuser %}

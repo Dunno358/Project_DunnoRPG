@@ -121,6 +121,7 @@ class Eq(models.Model):
     durability = models.IntegerField(default=50)
     amount = models.IntegerField(default=1)
     reloaded = models.BooleanField(default=True)
+    additional_description = models.TextField(blank=True)
 
 class Skills(models.Model):
     owner = models.CharField(max_length=50)
@@ -230,6 +231,7 @@ class CharItems(models.Model):
     hand = models.CharField(max_length = 10, default='Left', null=True, blank=True)
     position = models.CharField(max_length = 20, null=True, blank=True)
     reloaded = models.BooleanField(default=True)
+    additional_description = models.TextField(blank=True)
 
     def __str__(self):
         max_durability = get_object_or_404(Items, name=self.name).maxDurability

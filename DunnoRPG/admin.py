@@ -10,7 +10,7 @@ admin.site.register(models.Character)
 admin.site.register(models.Mods)
 
 class EqAdmin(admin.ModelAdmin):
-    list_display = ("character", "name", "weight", "durability", "amount")
+    list_display = ("character", "name", "weight", "durability", "amount", "additional_description")
     def get_queryset(self, request):
         qs = super().get_queryset(request)
         return qs.order_by('character')  
@@ -39,7 +39,7 @@ class ItemsAdmin(admin.ModelAdmin):
 admin.site.register(models.Items, ItemsAdmin)
 
 class CharItemsAdmin(admin.ModelAdmin):
-    list_display = ("character", "name", 'durability', 'maxDurability', 'hand', 'position')
+    list_display = ("character", "name", 'durability', 'maxDurability', 'hand', 'position', 'additional_description')
     def get_queryset(self, request):
         qs = super().get_queryset(request)
         return qs.order_by('character','name')
