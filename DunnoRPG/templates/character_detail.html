@@ -393,6 +393,23 @@ style="width: 98%; z-index: 20; margin-left: 0.22rem !important; margin-top: -5r
                     <input type="number" min="0" max="100" id="food-val" class="fw-bold text-center border-0 ms-1 {% if value.food > 20 %}text-success{% else %}text-danger text-decoration-underline{% endif %}" style="width: 2.7rem; background: transparent;" value="{{ value.food }}" name="food-amount"><span class="fw-bold {% if value.food > 20 %}text-success{% else %}text-danger text-decoration-underline{% endif %}">%</span>
                 </form>
             </div>
+            <div class="col rounded bg-gray bg-gradient border border-warning m-2 p-2 h6" style="min-width: 0;">
+                <form id="barrier-form" method="post" action="change-barrier" onsubmit="changeBarrier(event)">
+                    {% csrf_token %}
+                    <span class="text-white-50">Bariera:</span>
+                    <input type="number" min="0" id="barrier-val" class="c-gold text-center bg-gray bg-gradient border-0 h6" style="width: 4rem" value="{{ value.barrier }}" name="barrier">
+                </form>
+            </div>
+        </div>
+
+        <div class="row m-0 p-0">
+            <div class="col rounded bg-gray bg-gradient border border-warning m-2 p-2 h6" style="min-width: 0;">
+                <form id="alcohol-form" method="post" action="change-food-water/alcohol" class="d-inline-flex align-items-center justify-content-center flex-nowrap" onsubmit="changeFoodWater(event, 'alcohol')">
+                    {% csrf_token %}
+                    <span onclick="showAlcoholInfo()" class="{% if is_over_drunkenness_limit %}text-danger text-decoration-underline{% elif value.alcohol == '0' or value.alcohol == 0 %}text-success{% endif %}" {% if not is_over_drunkenness_limit and value.alcohol != '0' and value.alcohol != 0 %}style="color: orange; cursor: pointer;"{% else %}style="cursor: pointer;"{% endif %}>Alkohol:</span>
+                    <input type="number" min="0" id="alcohol-val" class="{% if is_over_drunkenness_limit %}text-danger text-decoration-underline{% elif value.alcohol == '0' or value.alcohol == 0 %}text-success{% endif %} text-center bg-gray bg-gradient border-0 h6 ms-1" {% if is_over_drunkenness_limit %}style="width: 4rem"{% elif value.alcohol == '0' or value.alcohol == 0 %}style="width: 4rem"{% else %}style="width: 4rem; color: orange;"{% endif %} value="{{ value.alcohol }}" name="alcohol-amount" data-drunkenness-limit="{{ drunkenness_limit }}" data-alcohol-state="{{ alcohol_state }}">
+                </form>
+            </div>
             <div class="col rounded bg-gray bg-gradient border border-warning m-2 p-2 h6" style="min-width: 0; cursor: pointer;" onclick="showArmorPenaltyInfo()">
                 <span class="text-white-50">Kara:</span> 
                 -<span id='armor-mod'></span> ZRE
@@ -405,13 +422,6 @@ style="width: 98%; z-index: 20; margin-left: 0.22rem !important; margin-top: -5r
                     {% csrf_token %}
                     <span class="text-white-50">Monety:</span>
                     <input type='text' inputmode="decimal" id='coins' class='c-gold text-center bg-gray bg-gradient border-0 h6' style='width: 18vw' value='{{ value.coins }}' name="coins-amount">
-                </form>
-            </div>
-            <div class="col rounded bg-gray bg-gradient border border-warning m-2 p-2 h6" style="min-width: 0;">
-                <form id="alcohol-form" method="post" action="change-food-water/alcohol" class="d-inline-flex align-items-center justify-content-center flex-nowrap" onsubmit="changeFoodWater(event, 'alcohol')">
-                    {% csrf_token %}
-                    <span onclick="showAlcoholInfo()" class="{% if is_over_drunkenness_limit %}text-danger text-decoration-underline{% elif value.alcohol == '0' or value.alcohol == 0 %}text-success{% endif %}" {% if not is_over_drunkenness_limit and value.alcohol != '0' and value.alcohol != 0 %}style="color: orange; cursor: pointer;"{% else %}style="cursor: pointer;"{% endif %}>Alkohol:</span>
-                    <input type="number" min="0" id="alcohol-val" class="{% if is_over_drunkenness_limit %}text-danger text-decoration-underline{% elif value.alcohol == '0' or value.alcohol == 0 %}text-success{% endif %} text-center bg-gray bg-gradient border-0 h6 ms-1" {% if is_over_drunkenness_limit %}style="width: 4rem"{% elif value.alcohol == '0' or value.alcohol == 0 %}style="width: 4rem"{% else %}style="width: 4rem; color: orange;"{% endif %} value="{{ value.alcohol }}" name="alcohol-amount" data-drunkenness-limit="{{ drunkenness_limit }}" data-alcohol-state="{{ alcohol_state }}">
                 </form>
             </div>
         </div>
@@ -2191,6 +2201,7 @@ initAjaxInput('coins', 'coins-form')
 initAjaxInput('water-val', 'water-form')
 initAjaxInput('food-val', 'food-form')
 initAjaxInput('alcohol-val', 'alcohol-form')
+initAjaxInput('barrier-val', 'barrier-form')
 document.querySelectorAll('[id^="skill-uses-val-"]').forEach((input) => {
     initAjaxInput(input.id, `skill-uses-form-${input.id.replace('skill-uses-val-', '')}`)
 })
@@ -2313,6 +2324,50 @@ async function changeHealth(event){
         else{
             showMessage(data.message || 'Pomyślnie zmieniono Życie.', 'success')
         }
+    }
+    catch(error){
+        showMessage(error.message, 'error')
+    }
+    finally{
+        form.dataset.submitting = 'false'
+    }
+}
+
+async function changeBarrier(event){
+    event.preventDefault()
+
+    const form = event.currentTarget
+    const barrierInput = document.getElementById('barrier-val')
+    const rawValue = barrierInput.value.trim()
+    const value = Number(rawValue)
+    if(form.dataset.submitting === 'true' || barrierInput.value === barrierInput.dataset.lastSubmittedValue){
+        return
+    }
+
+    if(rawValue === '' || !Number.isInteger(value) || value < 0){
+        showMessage('Bariera musi być liczbą całkowitą większą lub równą 0.', 'error')
+        return
+    }
+    form.dataset.submitting = 'true'
+
+    try{
+        const response = await fetch(form.action, {
+            method: 'POST',
+            body: new FormData(form),
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+            },
+        })
+        const data = await response.json()
+
+        if(!response.ok){
+            throw new Error(data.error || 'Nie udało się zmienić Bariery.')
+        }
+
+        barrierInput.value = data.barrier
+        barrierInput.setAttribute('value', data.barrier)
+        barrierInput.dataset.lastSubmittedValue = String(data.barrier)
+        showMessage(data.message || 'Pomyślnie zmieniono Barierę.', 'success')
     }
     catch(error){
         showMessage(error.message, 'error')

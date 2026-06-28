@@ -43,6 +43,15 @@
 
     <div class="row m-0 p-0 mt-3">
         <div class="col-5 m-0 p-0 text-end">
+            <span class="text-white-50">Bariera:</span>
+        </div>
+        <div class="col">
+            <input class="w-100 text-center border border-warning bg-gray text-white-50 rounded" id="adv-barrier" type="number" value="{{ character.barrier }}" />
+        </div>
+    </div>
+
+    <div class="row m-0 p-0 mt-3">
+        <div class="col-5 m-0 p-0 text-end">
             <span class="text-white-50">Dostępne punkty:</span>
         </div>
         <div class="col">
@@ -401,6 +410,7 @@
 
         req_body = {
             "maxHP": document.getElementById("adv-maxhp").value,
+            "barrier": document.getElementById("adv-barrier").value,
             "points": document.getElementById("adv-points").value,
             "type": document.getElementById("adv-type").value,
             "url": document.getElementById("adv-url").value,

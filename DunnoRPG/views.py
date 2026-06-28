@@ -26,6 +26,7 @@ import traceback
 import json
 import math
 import re
+from urllib.parse import urlencode
 from pathlib import Path
 
 from DunnoRPG.serializers import (CharacterSerializer, ItemSerializer,
@@ -407,6 +408,17 @@ def copy_model_instance(instance, **overrides):
     data.update(overrides)
     return instance.__class__.objects.create(**data)
 
+def redirect_to_characters(request):
+    if 'character_type' in request.GET:
+        query = urlencode({'character_type': request.GET.get('character_type')})
+        return redirect(f'/dunnorpg?{query}')
+
+    if 'character_type' in request.POST:
+        query = urlencode({'character_type': request.POST.get('character_type')})
+        return redirect(f'/dunnorpg?{query}')
+
+    return redirect('/dunnorpg')
+
 class charGET(ListView):
     model = models.Character
     template_name = 'home.html'
@@ -472,7 +484,7 @@ class DeleteCharacter(APIView):
             models.Effects.objects.filter(owner=request.user ,character=character.name).delete()
             character.delete()
 
-        return redirect('/dunnorpg')
+        return redirect_to_characters(request)
 
 class CopyCharacter(APIView):
     def post(self, request, char_id):
@@ -483,16 +495,16 @@ class CopyCharacter(APIView):
         new_name = (request.POST.get("name") or "").strip()
         if not new_name:
             messages.error(request, "Brak nazwy postaci")
-            return redirect('/dunnorpg')
+            return redirect_to_characters(request)
 
         max_name_length = models.Character._meta.get_field("name").max_length
         if len(new_name) > max_name_length:
             messages.error(request, f"Nazwa postaci może mieć maksymalnie {max_name_length} znaków")
-            return redirect('/dunnorpg')
+            return redirect_to_characters(request)
 
         if models.Character.objects.filter(name=new_name).exists():
             messages.error(request, "Postać o takiej nazwie już istnieje")
-            return redirect('/dunnorpg')
+            return redirect_to_characters(request)
 
         related_models = [
             models.Skills,
@@ -516,7 +528,7 @@ class CopyCharacter(APIView):
                         character=new_character.name,
                     )
 
-        return redirect('/dunnorpg')
+        return redirect_to_characters(request)
 
 class EditCharacterView(APIView):
     template_name = 'character_add_skills.html'
@@ -1502,6 +1514,7 @@ def change_char_details(request, **kwargs):
         char = get_object_or_404(models.Character, id=kwargs['char_id'])
 
         char.fullHP = int(data['maxHP'])
+        char.barrier = int(data['barrier'])
         char.points_left = int(data['points'])
         char.type = (data.get('type') or 'Player').strip() or 'Player'
         char.model_url = data['url']
@@ -1595,6 +1608,31 @@ def change_health(request, **kwargs):
             return redirect('character_detail', char.id)
         except Exception as e:
             msg = f"Błąd zmiany Życia: {e}"
+            if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+                return JsonResponse({"error": msg}, status=400)
+
+            messages.error(request, msg)
+            return redirect('character_detail', kwargs['char_id'])
+
+def change_barrier(request, **kwargs):
+    if request.method == 'POST':
+        try:
+            char = get_object_or_404(models.Character, id=kwargs['char_id'])
+            barrier = int(request.POST['barrier'])
+            if barrier < 0:
+                raise ValueError("Bariera nie może być mniejsza niż 0")
+
+            char.barrier = barrier
+            char.save()
+
+            msg = f"Pomyślnie zmieniono Barierę na {char.barrier}"
+            if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+                return JsonResponse({"message": msg, "barrier": char.barrier}, status=200)
+
+            messages.success(request, msg)
+            return redirect('character_detail', char.id)
+        except Exception as e:
+            msg = f"Błąd zmiany Bariery: {e}"
             if request.headers.get('x-requested-with') == 'XMLHttpRequest':
                 return JsonResponse({"error": msg}, status=400)
 

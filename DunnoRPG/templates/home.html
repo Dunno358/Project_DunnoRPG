@@ -129,12 +129,12 @@
   function charDeleteConfirmation(text='Jesteś pewien?',id){
     document.getElementById('del-confirm-title').innerHTML = text
 
-    document.getElementById('del-confirm-positive').href = 'char-delete/'+id
+    document.getElementById('del-confirm-positive').href = 'char-delete/' + id + window.location.search
     document.getElementById('del-confirm').classList.remove('d-none')
   }
   function charCopyConfirmation(characterName, id, defaultName){
     document.getElementById('copy-confirm-title').innerHTML = 'Kopiuj ' + characterName
-    document.getElementById('copy-confirm-form').action = 'char-copy/' + id
+    document.getElementById('copy-confirm-form').action = 'char-copy/' + id + window.location.search
     document.getElementById('copy-character-name').value = defaultName
     document.getElementById('copy-confirm').classList.remove('d-none')
     document.getElementById('copy-character-name').focus()
