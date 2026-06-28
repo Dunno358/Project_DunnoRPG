@@ -1816,8 +1816,8 @@ def char_wear_item(request, **kwargs):
     else:
         if place == "Right" and char.chosen_class.lower() not in allowed_classes:
             leftItem = models.CharItems.objects.filter(character=char.name, hand="Left").first()
-            leftItemDesc = get_object_or_404(models.Items, name=leftItem.name)
-            if leftItemDesc.dualHanded:
+            leftItemDesc = get_object_or_404(models.Items, name=leftItem.name) if leftItem else None
+            if leftItemDesc and leftItemDesc.dualHanded:
                 allowed_types = ["shield"]
                 if item.type.lower() not in allowed_types:
                     messages.error(request, 'You can only add shield to this type of weapon!')

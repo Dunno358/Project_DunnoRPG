@@ -261,6 +261,13 @@ style="width: 98%; z-index: 20; margin-left: 0.22rem !important; margin-top: -5r
 {% endif %}
 
 <div class="container-fluid bg-dark bg-opacity-75 m-0 p-0">
+    <div class="row w-100 m-0 pt-1 pb-1">
+        <div class="col text-center">
+            <a class="btn btn-primary text-white w-100" href="{% url 'character_add_skills' chosen_character.0.id %}">
+                Edycja
+            </a>
+        </div>
+    </div>
     <div class="row w-100 m-0 pt-1 pb-1 text-info">
         <div class="col text-center">
             <button class="btn w-100 h-100 {% if chosen_character.0.inFight %}btn-secondary{% else %}btn-success{% endif %}" id="outside-fight" onclick="maybeChangeFight(this)">
@@ -1065,7 +1072,7 @@ style="width: 98%; z-index: 20; margin-left: 0.22rem !important; margin-top: -5r
                         </select>
                     </div>
                     <div class="col text-start">
-                        <a onclick="wearItem('Left', 'rightItem-add')" class='btn w-75 btn-success'>OK</a>
+                        <a onclick="wearItem('Right', 'rightItem-add')" class='btn w-75 btn-success'>OK</a>
                     </div>
                 </div> 
 
