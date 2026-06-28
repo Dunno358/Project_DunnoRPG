@@ -773,7 +773,7 @@ style="width: 98%; z-index: 20; margin-left: 0.22rem !important; margin-top: -5r
         </div>
 
 
-        <span id="l-name">{{ leftItem.name }}</span>
+        <span id="l-name" class="d-none">{{ leftItem.name }}</span>
         {% if value.name|handNotAllowed:'left' %}
             <div name='head' class='row mt-2 border border-warning rounded bg-gray m-0 p-0'>
                 <div class="row c-gold me-0 pe-0">
@@ -932,7 +932,7 @@ style="width: 98%; z-index: 20; margin-left: 0.22rem !important; margin-top: -5r
             <div class="col-4 p-0 m-0"><hr class="bg-danger mt-4"></div>
         </div>
 
-        <span id="r-name">{{ rightItem.name }}</span>
+        <span id="r-name" class="d-none">{{ rightItem.name }}</span>
         {% if value.name|handNotAllowed:'right' %}
             <div name='head' class='row mt-2 border border-warning rounded bg-gray m-0 p-0'>
                 <div class="row c-gold me-0 pe-0">
