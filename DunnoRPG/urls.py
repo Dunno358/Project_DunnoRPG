@@ -59,6 +59,7 @@ urlpatterns = [
     path('gmpanel/', views.GMPanel.as_view(), name='gm_panel'),
     path('gmpanel/end_round', views.end_round, name='end_round'),
     path('gmpanel/add_effect', views.AddEffect.as_view(), name='add_effect'),
+    path('gmpanel/add_mutation', views.add_mutation, name='add_mutation'),
     path('gmpanel/reset-skills/<str:mode>', views.reset_skills, name='reset_skills'),
     
     path('info/', views.Info.as_view(), name='info'),

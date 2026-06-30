@@ -1415,6 +1415,9 @@ def give_item(request, **kwargs):
     from_char = get_object_or_404(models.Character, id=kwargs['from_char'])
     to_char = get_object_or_404(models.Character, id=kwargs['to_char'])
     given_amount = kwargs['amount']
+    if (to_char.type or "").lower() != "player" and not request.user.is_superuser:
+        messages.error(request, f"Cannot transfer to {to_char.name}.")
+        return redirect(f"/dunnorpg/items/ch{from_char.id}")
     if kwargs["item_id"]!=0:
         eq_item = get_object_or_404(models.Eq, id=kwargs['item_id'])
         itemDesc = get_object_or_404(models.Items, name=eq_item.name)
@@ -2388,7 +2391,7 @@ class ItemsView(ListView):
                 unobtainable_item_names = models.Items.objects.filter(unobtainable=True).values_list('name', flat=True)
                 player_items = player_items.exclude(name__in=unobtainable_item_names)
             context['player_items'] = player_items.values()
-            context['characters'] = models.Character.objects.filter(hidden=False).values()
+            context['characters'] = models.Character.objects.filter(hidden=False, type__iexact='Player').values()
             context['character'] = self.character
         return context
 
@@ -2804,6 +2807,29 @@ class AddEffect(APIView):
             messages.warning(request, f'Added {effect.name} to {char.name}.')
         return redirect('gm_panel')
 
+def add_mutation(request):
+    if not request.user.is_superuser:
+        return redirect('gm_panel')
+
+    if request.method == 'POST':
+        character = get_object_or_404(models.Character, id=request.POST.get('character'), type__iexact='Player')
+        mutation = get_object_or_404(models.Mutations, id=request.POST.get('mutation'))
+        current_mutations = [
+            mutation_name.strip()
+            for mutation_name in (character.mutation or "").split(";")
+            if mutation_name.strip() and mutation_name.strip() != "-"
+        ]
+
+        if mutation.name in current_mutations:
+            messages.warning(request, f"{character.name} already has mutation {mutation.name}.")
+        else:
+            current_mutations.append(mutation.name)
+            character.mutation = ";".join(current_mutations)
+            character.save()
+            messages.success(request, f"Added mutation {mutation.name} to {character.name}.")
+
+    return redirect('gm_panel')
+
 class GMPanel(FormView):
     model = models.Requests
     template_name = 'gm_panel.html'
@@ -2813,6 +2839,8 @@ class GMPanel(FormView):
         context = super().get_context_data(**kwargs)
 
         context['requests'] = models.Requests.objects.all()
+        context['player_characters'] = models.Character.objects.filter(hidden=False, type__iexact='Player').order_by('name')
+        context['mutations'] = models.Mutations.objects.order_by('name')
         #context['effect_form'] = AddEffectForm
 
         return context
