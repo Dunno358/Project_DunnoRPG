@@ -28,7 +28,7 @@ style="width: 98%; z-index: 20; margin-left: 0.1rem !important; margin-top: -1re
 style="width: 98%; z-index: 20; margin-left: 0.22rem !important; margin-top: -5rem !important">
     <div class="row m-0">
         <div class="col c-gold p-0">
-            <button class='btn btn-dark btn-outline-danger w-100' onclick="show_or_hideById('iframe-card')">X Zamknij podglad umiejetnosci X</button>
+            <button class='btn btn-dark btn-outline-danger w-100' onclick="show_or_hideById('iframe-card')">X Zamknij podglad X</button>
         </div>
     </div>
 
@@ -245,6 +245,28 @@ style="width: 98%; z-index: 20; margin-left: 0.22rem !important; margin-top: -5r
 
 {% if chosen_character.0.inFight %}
     <div class="container bg-dark bg-opacity-75 pb-3">
+        {% if chosen_character.0.counterName %}
+            <div class="row align-items-center">
+                <div class="col-1"></div>
+                <div class="col-6 text-end mt-1">
+                    <span class="h-100 c-gold fw-bold">{{ chosen_character.0.counterName }}:</span> 
+                </div>
+                <div class="col-4 text-start ps-0 mt-1 pe-0">
+                    <span class="d-block w-100 h-100 text-center c-gold bg-dark rounded bg-gradient border border-secondary">{{ chosen_character.0.counter }}</span>
+                </div>
+            </div>
+        {% endif %}
+        {% if chosen_character.0.counterName2 %}
+            <div class="row align-items-center">
+                <div class="col-1"></div>
+                <div class="col-6 text-end mt-1">
+                    <span class="h-100 c-gold fw-bold">{{ chosen_character.0.counterName2 }}:</span> 
+                </div>
+                <div class="col-4 text-start ps-0 mt-1 pe-0">
+                    <span class="d-block w-100 h-100 text-center c-gold bg-dark rounded bg-gradient border border-secondary">{{ chosen_character.0.counter2 }}</span>
+                </div>
+            </div>
+        {% endif %}
         <div class="row align-items-center">
             <div class="col-1"></div>
             <div class="col-6 text-end mt-1">
@@ -364,7 +386,8 @@ style="width: 98%; z-index: 20; margin-left: 0.22rem !important; margin-top: -5r
             <div class="col text-center p-0 m-0 h5 ">
             {% if value.chosen_class %}
                 jako <a 
-                href='/dunnorpg/info/classes/{{ class.id }}'
+                href='javascript:void(0)'
+                onclick="showIframe('/dunnorpg/info/classes/{{ class.id }}')"
                 class='c-gold fst-italic' id='char-class'
                 >
                     {% if value.chosen_class != 'None' %}
@@ -544,20 +567,20 @@ style="width: 98%; z-index: 20; margin-left: 0.22rem !important; margin-top: -5r
 
                 <div class="row me-0 pe-0">
                     <div class="col text-center">
-                        <a href='/dunnorpg/items/{{ helmet.name|getDescId }}?ref=char;{{ helmet.id }}' class="{{ helmet.name|getItemRarity }} h4">
+                        <a href='javascript:void(0)' onclick="showIframe('/dunnorpg/items/{{ helmet.name|getDescId }}?ref=char;{{ helmet.id }}')" class="{{ helmet.name|getItemRarity }} h4">
                             {{ helmet.name }} {{ helmet.name|getDurabilityPercent:helmet.durability }} 
                             {% if user.is_superuser %}
-                                <a href="/admin/DunnoRPG/charitems/{{ helmet.id }}/change/" class="fa fa-link" target="_blank"></a>
+                                <a href="/admin/DunnoRPG/charitems/{{ helmet.id }}/change/" class="fa fa-link" target="_blank" onclick="event.stopPropagation()"></a>
                             {% endif %}
                         </a>
                     </div>
                 </div>
 
                 <hr class="mb-0 mt-1">
-                {% if helmet.name|getSkill %}
+                {% if helmet.name|getVisibleSkill:user %}
                     <div class="row me-0 pe-0">
                         <div class="col text-justified {{ helmet.name|getItemRarity }} p-0 ps-1 pt-1">
-                            {{ helmet.name|getSkill|itemSkillWithLinks }}
+                            {{ helmet.name|getVisibleSkill:user|itemSkillWithLinks }}
                         </div>
                     </div>
                     <hr class="mb-0 mt-1">
@@ -666,20 +689,20 @@ style="width: 98%; z-index: 20; margin-left: 0.22rem !important; margin-top: -5r
 
                 <div class="row me-0 pe-0">
                     <div class="col text-center">
-                        <a href='/dunnorpg/items/{{ torso.name|getDescId }}?ref=char;{{ torso.id }}' class="{{ torso.name|getItemRarity }} h4">
+                        <a href='javascript:void(0)' onclick="showIframe('/dunnorpg/items/{{ torso.name|getDescId }}?ref=char;{{ torso.id }}')" class="{{ torso.name|getItemRarity }} h4">
                             {{ torso.name }} {{ torso.name|getDurabilityPercent:torso.durability }} 
                             {% if user.is_superuser %}
-                                <a href="/admin/DunnoRPG/charitems/{{ torso.id }}/change/" class="fa fa-link" target="_blank"></a>
+                                <a href="/admin/DunnoRPG/charitems/{{ torso.id }}/change/" class="fa fa-link" target="_blank" onclick="event.stopPropagation()"></a>
                             {% endif %}
                         </a>
                     </div>
                 </div>
 
                 <hr class="mb-0 mt-1">
-                {% if torso.name|getSkill %}
+                {% if torso.name|getVisibleSkill:user %}
                     <div class="row me-0 pe-0">
                         <div class="col text-justified {{ torso.name|getItemRarity }} p-0 ps-1 pt-1">
-                            {{ torso.name|getSkill|itemSkillWithLinks }}
+                            {{ torso.name|getVisibleSkill:user|itemSkillWithLinks }}
                         </div>
                     </div>
                     <hr class="mb-0 mt-1">
@@ -815,20 +838,20 @@ style="width: 98%; z-index: 20; margin-left: 0.22rem !important; margin-top: -5r
 
                 <div class="row me-0 pe-0">
                     <div class="col text-center">
-                        <a href='/dunnorpg/items/{{ leftItem.name|getDescId }}?ref=char;{{ leftItem.id }}' class="{{ leftItem.name|getItemRarity }} h4">
+                        <a href='javascript:void(0)' onclick="showIframe('/dunnorpg/items/{{ leftItem.name|getDescId }}?ref=char;{{ leftItem.id }}')" class="{{ leftItem.name|getItemRarity }} h4">
                             {{ leftItem.name }} <span id="l-dur-perc">{{ leftItem.name|getDurabilityPercent:leftItem.durability }}</span> 
                             {% if user.is_superuser %}
-                                <a href="/admin/DunnoRPG/charitems/{{ leftItem.id }}/change/" class="fa fa-link" target="_blank"></a>
+                                <a href="/admin/DunnoRPG/charitems/{{ leftItem.id }}/change/" class="fa fa-link" target="_blank" onclick="event.stopPropagation()"></a>
                             {% endif %}
                         </a>
                     </div>
                 </div>
 
                 <hr class="mb-0 mt-1">
-                {% if leftItem.name|getSkill %}
+                {% if leftItem.name|getVisibleSkill:user %}
                     <div class="row me-0 pe-0">
                         <div class="col text-justified {{ leftItem.name|getItemRarity }} p-0 ps-1 pt-1">
-                            {{ leftItem.name|getSkill|itemSkillWithLinks }}
+                            {{ leftItem.name|getVisibleSkill:user|itemSkillWithLinks }}
                         </div>
                     </div>
                     <hr class="mb-0 mt-1">
@@ -974,20 +997,20 @@ style="width: 98%; z-index: 20; margin-left: 0.22rem !important; margin-top: -5r
 
                 <div class="row me-0 pe-0">
                     <div class="col text-center">
-                        <a href='/dunnorpg/items/{{ rightItem.name|getDescId }}?ref=char;{{ rightItem.id }}' class="{{ rightItem.name|getItemRarity }} h4">
+                        <a href='javascript:void(0)' onclick="showIframe('/dunnorpg/items/{{ rightItem.name|getDescId }}?ref=char;{{ rightItem.id }}')" class="{{ rightItem.name|getItemRarity }} h4">
                             {{ rightItem.name }} <span id="r-dur-perc">{{ rightItem.name|getDurabilityPercent:rightItem.durability }}</span> 
                             {% if user.is_superuser %}
-                                <a href="/admin/DunnoRPG/charitems/{{ rightItem.id }}/change/" class="fa fa-link" target="_blank"></a>
+                                <a href="/admin/DunnoRPG/charitems/{{ rightItem.id }}/change/" class="fa fa-link" target="_blank" onclick="event.stopPropagation()"></a>
                             {% endif %}
                         </a>
                     </div>
                 </div>
 
                 <hr class="mb-0 mt-1">
-                {% if rightItem.name|getSkill %}
+                {% if rightItem.name|getVisibleSkill:user %}
                     <div class="row me-0 pe-0">
                         <div class="col text-justified {{ rightItem.name|getItemRarity }} p-0 ps-1 pt-1">
-                            {{ rightItem.name|getSkill|itemSkillWithLinks }}
+                            {{ rightItem.name|getVisibleSkill:user|itemSkillWithLinks }}
                         </div>
                     </div>
                     <hr class="mb-0 mt-1">
@@ -1104,20 +1127,20 @@ style="width: 98%; z-index: 20; margin-left: 0.22rem !important; margin-top: -5r
 
                 <div class="row me-0 pe-0">
                     <div class="col text-center">
-                        <a href='/dunnorpg/items/{{ sideItem.name|getDescId }}?ref=char;{{ sideItem.id }}' class="{{ sideItem.name|getItemRarity }} h4">
+                        <a href='javascript:void(0)' onclick="showIframe('/dunnorpg/items/{{ sideItem.name|getDescId }}?ref=char;{{ sideItem.id }}')" class="{{ sideItem.name|getItemRarity }} h4">
                             {{ sideItem.name }} {{ sideItem.name|getDurabilityPercent:sideItem.durability }} 
                             {% if user.is_superuser %}
-                                <a href="/admin/DunnoRPG/charitems/{{ sideItem.id }}/change/" class="fa fa-link" target="_blank"></a>
+                                <a href="/admin/DunnoRPG/charitems/{{ sideItem.id }}/change/" class="fa fa-link" target="_blank" onclick="event.stopPropagation()"></a>
                             {% endif %}
                         </a>
                     </div>
                 </div>
 
                 <hr class="mb-0 mt-1">
-                {% if sideItem.name|getSkill %}
+                {% if sideItem.name|getVisibleSkill:user %}
                     <div class="row me-0 pe-0">
                         <div class="col text-justified {{ sideItem.name|getItemRarity }} p-0 ps-1 pt-1">
-                            {{ sideItem.name|getSkill|itemSkillWithLinks }}
+                            {{ sideItem.name|getVisibleSkill:user|itemSkillWithLinks }}
                         </div>
                     </div>
                     <hr class="mb-0 mt-1">
@@ -1231,20 +1254,20 @@ style="width: 98%; z-index: 20; margin-left: 0.22rem !important; margin-top: -5r
 
                 <div class="row me-0 pe-0">
                     <div class="col text-center">
-                        <a href='/dunnorpg/items/{{ boots.name|getDescId }}?ref=char;{{ boots.id }}' class="{{ boots.name|getItemRarity }} h4">
+                        <a href='javascript:void(0)' onclick="showIframe('/dunnorpg/items/{{ boots.name|getDescId }}?ref=char;{{ boots.id }}')" class="{{ boots.name|getItemRarity }} h4">
                             {{ boots.name }} {{ boots.name|getDurabilityPercent:boots.durability }} 
                             {% if user.is_superuser %}
-                                <a href="/admin/DunnoRPG/charitems/{{ boots.id }}/change/" class="fa fa-link" target="_blank"></a>
+                                <a href="/admin/DunnoRPG/charitems/{{ boots.id }}/change/" class="fa fa-link" target="_blank" onclick="event.stopPropagation()"></a>
                             {% endif %}
                         </a>
                     </div>
                 </div>
 
                 <hr class="mb-0 mt-1">
-                {% if boots.name|getSkill %}
+                {% if boots.name|getVisibleSkill:user %}
                     <div class="row me-0 pe-0">
                         <div class="col text-justified {{ boots.name|getItemRarity }} p-0 ps-1 pt-1">
-                            {{ boots.name|getSkill|itemSkillWithLinks }}
+                            {{ boots.name|getVisibleSkill:user|itemSkillWithLinks }}
                         </div>
                     </div>
                     <hr class="mb-0 mt-1">
@@ -1353,20 +1376,20 @@ style="width: 98%; z-index: 20; margin-left: 0.22rem !important; margin-top: -5r
 
                 <div class="row me-0 pe-0">
                     <div class="col text-center">
-                        <a href='/dunnorpg/items/{{ gloves.name|getDescId }}?ref=char;{{ gloves.id }}' class="{{ gloves.name|getItemRarity }} h4">
+                        <a href='javascript:void(0)' onclick="showIframe('/dunnorpg/items/{{ gloves.name|getDescId }}?ref=char;{{ gloves.id }}')" class="{{ gloves.name|getItemRarity }} h4">
                             {{ gloves.name }} {{ gloves.name|getDurabilityPercent:gloves.durability }} 
                             {% if user.is_superuser %}
-                                <a href="/admin/DunnoRPG/charitems/{{ gloves.id }}/change/" class="fa fa-link" target="_blank"></a>
+                                <a href="/admin/DunnoRPG/charitems/{{ gloves.id }}/change/" class="fa fa-link" target="_blank" onclick="event.stopPropagation()"></a>
                             {% endif %}
                         </a>
                     </div>
                 </div>
 
                 <hr class="mb-0 mt-1">
-                {% if gloves.name|getSkill %}
+                {% if gloves.name|getVisibleSkill:user %}
                     <div class="row me-0 pe-0">
                         <div class="col text-justified {{ gloves.name|getItemRarity }} p-0 ps-1 pt-1">
-                            {{ gloves.name|getSkill|itemSkillWithLinks }}
+                            {{ gloves.name|getVisibleSkill:user|itemSkillWithLinks }}
                         </div>
                     </div>
                     <hr class="mb-0 mt-1">
@@ -1475,20 +1498,20 @@ style="width: 98%; z-index: 20; margin-left: 0.22rem !important; margin-top: -5r
 
                 <div class="row me-0 pe-0">
                     <div class="col text-center">
-                        <a href='/dunnorpg/items/{{ amulet.name|getDescId }}?ref=char;{{ amulet.id }}' class="{{ amulet.name|getItemRarity }} h4">
+                        <a href='javascript:void(0)' onclick="showIframe('/dunnorpg/items/{{ amulet.name|getDescId }}?ref=char;{{ amulet.id }}')" class="{{ amulet.name|getItemRarity }} h4">
                             {{ amulet.name }}
                         </a>
                         {% if user.is_superuser %}
-                            <a href="/admin/DunnoRPG/charitems/{{ amulet.id }}/change/" class="fa fa-link" target="_blank"></a>
+                            <a href="/admin/DunnoRPG/charitems/{{ amulet.id }}/change/" class="fa fa-link" target="_blank" onclick="event.stopPropagation()"></a>
                         {% endif %}
                     </div>
                 </div>
 
                 <hr class="mb-0 mt-1">
-                {% if amulet.name|getSkill %}
+                {% if amulet.name|getVisibleSkill:user %}
                     <div class="row me-0 pe-0">
                         <div class="col text-justified {{ amulet.name|getItemRarity }} p-0 ps-1 pt-1">
-                            {{ amulet.name|getSkill|itemSkillWithLinks }}
+                            {{ amulet.name|getVisibleSkill:user|itemSkillWithLinks }}
                         </div>
                     </div>
                     <hr class="mb-0 mt-1">
@@ -1597,20 +1620,20 @@ style="width: 98%; z-index: 20; margin-left: 0.22rem !important; margin-top: -5r
 
                 <div class="row me-0 pe-0">
                     <div class="col text-center">
-                        <a href='/dunnorpg/items/{{ mount.name|getDescId }}?ref=char;{{ mount.id }}' class="{{ mount.name|getItemRarity }} h4">
+                        <a href='javascript:void(0)' onclick="showIframe('/dunnorpg/items/{{ mount.name|getDescId }}?ref=char;{{ mount.id }}')" class="{{ mount.name|getItemRarity }} h4">
                             {{ mount.name }}
                         </a>
                         {% if user.is_superuser %}
-                            <a href="/admin/DunnoRPG/charitems/{{ mount.id }}/change/" class="fa fa-link" target="_blank"></a>
+                            <a href="/admin/DunnoRPG/charitems/{{ mount.id }}/change/" class="fa fa-link" target="_blank" onclick="event.stopPropagation()"></a>
                         {% endif %}
                     </div>
                 </div>
 
                 <hr class="mb-0 mt-1">
-                {% if mount.name|getSkill %}
+                {% if mount.name|getVisibleSkill:user %}
                     <div class="row me-0 pe-0">
                         <div class="col text-justified {{ mount.name|getItemRarity }} p-0 ps-1 pt-1">
-                            {{ mount.name|getSkill|itemSkillWithLinks }}
+                            {{ mount.name|getVisibleSkill:user|itemSkillWithLinks }}
                         </div>
                     </div>
                     <hr class="mb-0 mt-1">
@@ -1720,20 +1743,20 @@ style="width: 98%; z-index: 20; margin-left: 0.22rem !important; margin-top: -5r
 
                 <div class="row me-0 pe-0">
                     <div class="col text-center">
-                        <a href='/dunnorpg/items/{{ mount_armor.name|getDescId }}?ref=char;{{ mount_armor.id }}' class="{{ mount_armor.name|getItemRarity }} h4">
+                        <a href='javascript:void(0)' onclick="showIframe('/dunnorpg/items/{{ mount_armor.name|getDescId }}?ref=char;{{ mount_armor.id }}')" class="{{ mount_armor.name|getItemRarity }} h4">
                             {{ mount_armor.name }}
                         </a>
                         {% if user.is_superuser %}
-                            <a href="/admin/DunnoRPG/charitems/{{ mount_armor.id }}/change/" class="fa fa-link" target="_blank"></a>
+                            <a href="/admin/DunnoRPG/charitems/{{ mount_armor.id }}/change/" class="fa fa-link" target="_blank" onclick="event.stopPropagation()"></a>
                         {% endif %}
                     </div>
                 </div>
 
                 <hr class="mb-0 mt-1">
-                {% if mount_armor.name|getSkill %}
+                {% if mount_armor.name|getVisibleSkill:user %}
                     <div class="row me-0 pe-0">
                         <div class="col text-justified {{ mount_armor.name|getItemRarity }} p-0 ps-1 pt-1">
-                            {{ mount_armor.name|getSkill|itemSkillWithLinks }}
+                            {{ mount_armor.name|getVisibleSkill:user|itemSkillWithLinks }}
                         </div>
                     </div>
                     <hr class="mb-0 mt-1">
@@ -1834,11 +1857,11 @@ style="width: 98%; z-index: 20; margin-left: 0.22rem !important; margin-top: -5r
 
                 <div class="row me-0 pe-0">
                     <div class="col text-center">
-                        <a href='/dunnorpg/items/{{ mount_horseshoes.name|getDescId }}?ref=char;{{ mount_horseshoes.id }}' class="{{ mount_horseshoes.name|getItemRarity }} h4">
+                        <a href='javascript:void(0)' onclick="showIframe('/dunnorpg/items/{{ mount_horseshoes.name|getDescId }}?ref=char;{{ mount_horseshoes.id }}')" class="{{ mount_horseshoes.name|getItemRarity }} h4">
                             {{ mount_horseshoes.name }}
                         </a>
                         {% if user.is_superuser %}
-                            <a href="/admin/DunnoRPG/charitems/{{ mount_horseshoes.id }}/change/" class="fa fa-link" target="_blank"></a>
+                            <a href="/admin/DunnoRPG/charitems/{{ mount_horseshoes.id }}/change/" class="fa fa-link" target="_blank" onclick="event.stopPropagation()"></a>
                         {% endif %}
                     </div>
                 </div>
@@ -1924,11 +1947,11 @@ style="width: 98%; z-index: 20; margin-left: 0.22rem !important; margin-top: -5r
 
                 <div class="row me-0 pe-0">
                     <div class="col text-center">
-                        <a href='/dunnorpg/items/{{ mount_saddle.name|getDescId }}?ref=char;{{ mount_saddle.id }}' class="{{ mount_saddle.name|getItemRarity }} h4">
+                        <a href='javascript:void(0)' onclick="showIframe('/dunnorpg/items/{{ mount_saddle.name|getDescId }}?ref=char;{{ mount_saddle.id }}')" class="{{ mount_saddle.name|getItemRarity }} h4">
                             {{ mount_saddle.name }}
                         </a>
                         {% if user.is_superuser %}
-                            <a href="/admin/DunnoRPG/charitems/{{ mount_saddle.id }}/change/" class="fa fa-link" target="_blank"></a>
+                            <a href="/admin/DunnoRPG/charitems/{{ mount_saddle.id }}/change/" class="fa fa-link" target="_blank" onclick="event.stopPropagation()"></a>
                         {% endif %}
                     </div>
                 </div>

@@ -42,6 +42,17 @@ raceSizes = {
     "L": 2
 }
 
+CLASS_COUNTERS = {
+    "Rębacz": "Impet",
+    "Juggernaut": "Napór",
+    "Berserker": "Szał",
+    "Kapłan bitewny Sigmara": "Zapał",
+    "Snajper": "Znacznik Obserwacji",
+    "Strzelec wyborowy": "Rytm Strzelecki",
+    "Opętany Strzelec": "Znacznik Opętania",
+    "Piromanta": "Żar",
+}
+
 def parse_free_skill(skill):
     skill = (skill or "").strip()
     if not skill:
@@ -1247,6 +1258,7 @@ def create_character(request,name,char_class,race,type,owner,exp):
         race_skills = [skill for skill in race.Skills.split(";") if skill]
         class_effects = char_class.effects.split(";")
         class_mods = char_class.mods.split(";")
+        counter_name = CLASS_COUNTERS.get(char_class.name, "")
 
         if type=="":
             type="Player"
@@ -1293,6 +1305,7 @@ def create_character(request,name,char_class,race,type,owner,exp):
             weaponBonus=race.weaponsBonus,
             preferredWeapons=race.weaponsPreffered,
             extra_capacity=0,
+            counterName=counter_name,
             mutation = "-"
         )
 

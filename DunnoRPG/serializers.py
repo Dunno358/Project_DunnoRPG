@@ -6,6 +6,20 @@ class ItemSerializer(serializers.ModelSerializer):
         model = models.Items
         fields = '__all__'
 
+    def get_fields(self):
+        fields = super().get_fields()
+        request = self.context.get('request')
+        if not request or not request.user.is_superuser:
+            fields.pop('hiddenSkill', None)
+        return fields
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        request = self.context.get('request')
+        if not request or not request.user.is_superuser:
+            data.pop('hiddenSkill', None)
+        return data
+
 class CharacterSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Character

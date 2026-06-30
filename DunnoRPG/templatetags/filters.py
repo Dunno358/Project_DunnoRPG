@@ -309,6 +309,21 @@ def getSkill(itemName):
         return False
 
 @register.filter
+def getVisibleSkill(itemName, user):
+    try:
+        item = models.Items.objects.filter(name=itemName).get()
+        skill = item.skill or ""
+        hidden_skill = item.hiddenSkill or ""
+
+        if getattr(user, "is_superuser", False) and hidden_skill:
+            if skill:
+                return f"{skill} | {hidden_skill}"
+            return hidden_skill
+        return skill
+    except:
+        return False
+
+@register.filter
 def getSkillAndDesc(itemName):
     try:
         limit = 80
@@ -317,6 +332,27 @@ def getSkillAndDesc(itemName):
         desc = row.desc
 
         if not skill or skill == "":
+            full = desc
+        else:
+            full = f"{skill} | {desc}"
+
+        if len(full)>limit:
+            return full[:limit]+"..."
+        return full
+
+    except Exception as e:
+        print(e)
+        return False
+
+@register.filter
+def getVisibleSkillAndDesc(itemName, user):
+    try:
+        limit = 80
+        row = models.Items.objects.filter(name=itemName).get()
+        skill = getVisibleSkill(itemName, user)
+        desc = row.desc
+
+        if not skill:
             full = desc
         else:
             full = f"{skill} | {desc}"

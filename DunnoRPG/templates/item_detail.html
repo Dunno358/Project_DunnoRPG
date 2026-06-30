@@ -167,10 +167,10 @@
         </div>
     </div>
 
-    {% if item.skill != '' %}
+    {% if item.skill != '' or user.is_superuser and item.hiddenSkill %}
         <div class='row'>
             <div class='col bg-opacity-75 text-center c-gold bg-dark rounded border border-warning border-top-0 ms-1 me-1 p-1 pt-2'>
-                    {{ item.skill|itemSkillWithLinks }}
+                    {{ item.skill|itemSkillWithLinks }}{% if user.is_superuser and item.hiddenSkill %}{% if item.skill %} | {% endif %}{{ item.hiddenSkill|itemSkillWithLinks }}{% endif %}
             </div>
         </div>    
     {% endif %}

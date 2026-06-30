@@ -196,6 +196,7 @@ class Items(models.Model):
     maxDurability = models.IntegerField(default=50)
 
     skill = models.TextField(blank=True)
+    hiddenSkill = models.TextField(blank=True)
     grantedSkills = models.CharField(max_length=250, null=True, blank=True)
     skillStats = models.CharField(max_length=250, null=True, blank=True)
     skillEffects = models.CharField(max_length=250, null=True, blank=True)
