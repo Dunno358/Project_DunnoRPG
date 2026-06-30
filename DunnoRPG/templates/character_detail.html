@@ -252,7 +252,10 @@ style="width: 98%; z-index: 20; margin-left: 0.22rem !important; margin-top: -5r
                     <span class="h-100 c-gold fw-bold">{{ chosen_character.0.counterName }}:</span> 
                 </div>
                 <div class="col-4 text-start ps-0 mt-1 pe-0">
-                    <span class="d-block w-100 h-100 text-center c-gold bg-dark rounded bg-gradient border border-secondary">{{ chosen_character.0.counter }}</span>
+                    <form id="counter-form" method="post" action="change-counter/counter" onsubmit="changeCounter(event, 'counter')">
+                        {% csrf_token %}
+                        <input id='counter-val' name='counter' type="number" min="0" step="1" class="w-100 h-100 text-center c-gold bg-dark rounded bg-gradient" value="{{ chosen_character.0.counter }}"/>
+                    </form>
                 </div>
             </div>
         {% endif %}
@@ -263,7 +266,10 @@ style="width: 98%; z-index: 20; margin-left: 0.22rem !important; margin-top: -5r
                     <span class="h-100 c-gold fw-bold">{{ chosen_character.0.counterName2 }}:</span> 
                 </div>
                 <div class="col-4 text-start ps-0 mt-1 pe-0">
-                    <span class="d-block w-100 h-100 text-center c-gold bg-dark rounded bg-gradient border border-secondary">{{ chosen_character.0.counter2 }}</span>
+                    <form id="counter2-form" method="post" action="change-counter/counter2" onsubmit="changeCounter(event, 'counter2')">
+                        {% csrf_token %}
+                        <input id='counter2-val' name='counter2' type="number" min="0" step="1" class="w-100 h-100 text-center c-gold bg-dark rounded bg-gradient" value="{{ chosen_character.0.counter2 }}"/>
+                    </form>
                 </div>
             </div>
         {% endif %}
@@ -2217,6 +2223,9 @@ durs.forEach(catchErrorForValueChanges)
 
 function initAjaxInput(inputId, formId){
     const input = document.getElementById(inputId)
+    if(!input){
+        return
+    }
     input.dataset.lastSubmittedValue = input.value
     input.addEventListener('change', () => {
         if(input.value === input.dataset.lastSubmittedValue){
@@ -2235,6 +2244,8 @@ initAjaxInput('barrier-val', 'barrier-form')
 document.querySelectorAll('[id^="skill-uses-val-"]').forEach((input) => {
     initAjaxInput(input.id, `skill-uses-form-${input.id.replace('skill-uses-val-', '')}`)
 })
+initAjaxInput('counter-val', 'counter-form')
+initAjaxInput('counter2-val', 'counter2-form')
 
 function showSkill(instance){
     if(instance.innerHTML == "Check skill"){
@@ -2596,6 +2607,52 @@ async function changeSkillUses(event, skillId){
         input.setAttribute('value', data.uses_left)
         input.dataset.lastSubmittedValue = String(data.uses_left)
         showMessage(data.message || 'Pomyślnie zmieniono liczbę użyć.', 'success')
+    }
+    catch(error){
+        showMessage(error.message, 'error')
+    }
+    finally{
+        form.dataset.submitting = 'false'
+    }
+}
+
+async function changeCounter(event, counterField){
+    event.preventDefault()
+
+    const form = event.currentTarget
+    const input = document.getElementById(`${counterField}-val`)
+    const rawValue = input.value.trim()
+    const value = Number(rawValue)
+
+    if(form.dataset.submitting === 'true' || input.value === input.dataset.lastSubmittedValue){
+        return
+    }
+
+    if(rawValue === '' || !Number.isInteger(value) || value < 0){
+        showMessage('Licznik musi byÄ‡ liczbÄ… caĹ‚kowitÄ… wiÄ™kszÄ… lub rĂłwnÄ… 0.', 'error')
+        return
+    }
+
+    form.dataset.submitting = 'true'
+
+    try{
+        const response = await fetch(form.action, {
+            method: 'POST',
+            body: new FormData(form),
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+            },
+        })
+        const data = await response.json()
+
+        if(!response.ok){
+            throw new Error(data.error || 'Nie udaĹ‚o siÄ™ zmieniÄ‡ licznika.')
+        }
+
+        input.value = data.value
+        input.setAttribute('value', data.value)
+        input.dataset.lastSubmittedValue = String(data.value)
+        showMessage(data.message || 'PomyĹ›lnie zmieniono licznik.', 'success')
     }
     catch(error){
         showMessage(error.message, 'error')

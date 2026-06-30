@@ -1158,6 +1158,8 @@ def enter_or_leave_fight(request,char_id):
     if character.inFight:
         character.inFight = False
         character.actionLeft = 1.0
+        character.counter = 0
+        character.counter2 = 0
     else:
         character.inFight = True
     character.save()
@@ -1630,6 +1632,45 @@ def change_action_amount(request, **kwargs):
         char.actionLeft = float(request.POST['actions-amount'])
         char.save()
         return redirect('character_detail', char.id) 
+
+def change_counter(request, **kwargs):
+    if request.method != 'POST':
+        return JsonResponse({"error": "Invalid request method"}, status=405)
+
+    counter_field = kwargs.get('counter_field')
+    fields = {
+        "counter": ("counter", "counterName"),
+        "counter2": ("counter2", "counterName2"),
+    }
+
+    if counter_field not in fields:
+        return JsonResponse({"error": "Nieprawidłowy licznik."}, status=400)
+
+    try:
+        char = get_object_or_404(models.Character, id=kwargs['char_id'])
+        value_raw = request.POST.get(counter_field, '').strip()
+        if not re.match(r'^\d+$', value_raw):
+            raise ValueError("Licznik musi być liczbą całkowitą większą lub równą 0")
+
+        value = int(value_raw)
+        value_field, name_field = fields[counter_field]
+        counter_name = getattr(char, name_field) or "Licznik"
+        setattr(char, value_field, value)
+        char.save()
+
+        msg = f"Pomyślnie zmieniono {counter_name} na {value}"
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+            return JsonResponse({"message": msg, "counter_field": counter_field, "value": value}, status=200)
+
+        messages.success(request, msg)
+        return redirect('character_detail', char.id)
+    except Exception as e:
+        msg = f"Błąd zmiany licznika: {e}"
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+            return JsonResponse({"error": msg}, status=400)
+
+        messages.error(request, msg)
+        return redirect('character_detail', kwargs['char_id'])
 
 def change_health(request, **kwargs):  
     if request.method == 'POST':
