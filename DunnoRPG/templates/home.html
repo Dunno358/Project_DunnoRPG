@@ -29,6 +29,16 @@
           maxlength='50'
           required
         >
+        <div class='h6 m-1'>Ilosc kopii</div>
+        <input
+          id='copy-character-amount'
+          name='amount'
+          type='number'
+          min='1'
+          value='1'
+          class='w-25 text-center rounded bg-gray c-gold border border-warning p-2 m-2'
+          required
+        >
         <div>
           <a onclick='this.parentNode.parentNode.parentNode.parentNode.parentNode.classList.add("d-none")' class='btn btn-lg btn-outline-danger m-1 mb-5'>Anuluj</a>
           <button type='submit' class='btn btn-lg btn-outline-success m-1 mb-5'>Kopiuj</button>
@@ -136,6 +146,7 @@
     document.getElementById('copy-confirm-title').innerHTML = 'Kopiuj ' + characterName
     document.getElementById('copy-confirm-form').action = 'char-copy/' + id + window.location.search
     document.getElementById('copy-character-name').value = defaultName
+    document.getElementById('copy-character-amount').value = 1
     document.getElementById('copy-confirm').classList.remove('d-none')
     document.getElementById('copy-character-name').focus()
     document.getElementById('copy-character-name').select()

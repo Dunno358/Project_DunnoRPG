@@ -497,6 +497,15 @@ class CopyCharacter(APIView):
             messages.error(request, "Brak nazwy postaci")
             return redirect_to_characters(request)
 
+        try:
+            amount = int(request.POST.get("amount") or 1)
+        except ValueError:
+            amount = 1
+
+        if amount < 1:
+            messages.error(request, "Ilość kopii musi być większa od 0")
+            return redirect_to_characters(request)
+
         max_name_length = models.Character._meta.get_field("name").max_length
         if len(new_name) > max_name_length:
             messages.error(request, f"Nazwa postaci może mieć maksymalnie {max_name_length} znaków")
@@ -505,6 +514,16 @@ class CopyCharacter(APIView):
         if models.Character.objects.filter(name=new_name).exists():
             messages.error(request, "Postać o takiej nazwie już istnieje")
             return redirect_to_characters(request)
+
+        copy_names = []
+        next_name = new_name
+        for _ in range(amount):
+            if len(next_name) > max_name_length:
+                messages.error(request, f"Nazwa postaci może mieć maksymalnie {max_name_length} znaków")
+                return redirect_to_characters(request)
+
+            copy_names.append(next_name)
+            next_name = get_next_character_copy_name(next_name)
 
         related_models = [
             models.Skills,
@@ -515,18 +534,24 @@ class CopyCharacter(APIView):
         ]
 
         with transaction.atomic():
-            new_character = copy_model_instance(character, name=new_name)
-            for related_model in related_models:
-                related_objects = related_model.objects.filter(character=character.name)
-                if any(field.name == "owner" for field in related_model._meta.fields):
-                    related_objects = related_objects.filter(owner=character.owner)
+            copied_names = []
+            for copy_name in copy_names:
+                new_character = copy_model_instance(character, name=copy_name)
+                copied_names.append(new_character.name)
 
-                for related_object in related_objects:
-                    copy_model_instance(
-                        related_object,
-                        owner=new_character.owner,
-                        character=new_character.name,
-                    )
+                for related_model in related_models:
+                    related_objects = related_model.objects.filter(character=character.name)
+                    if any(field.name == "owner" for field in related_model._meta.fields):
+                        related_objects = related_objects.filter(owner=character.owner)
+
+                    for related_object in related_objects:
+                        copy_model_instance(
+                            related_object,
+                            owner=new_character.owner,
+                            character=new_character.name,
+                        )
+
+        messages.success(request, f"Skopiowano postać {amount} razy: {', '.join(copied_names)}")
 
         return redirect_to_characters(request)
 
