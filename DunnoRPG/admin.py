@@ -9,6 +9,13 @@ admin.site.register(models.Character)
 
 admin.site.register(models.Mods)
 
+class MutationsAdmin(admin.ModelAdmin):
+    list_display = ("name", "effect")
+    def get_queryset(self, request):
+        qs = super().get_queryset(request)
+        return qs.order_by('name')
+admin.site.register(models.Mutations, MutationsAdmin)
+
 class EqAdmin(admin.ModelAdmin):
     list_display = ("character", "name", "weight", "durability", "amount", "additional_description")
     def get_queryset(self, request):
