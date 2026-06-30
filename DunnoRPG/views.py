@@ -1418,6 +1418,9 @@ def give_item(request, **kwargs):
     if kwargs["item_id"]!=0:
         eq_item = get_object_or_404(models.Eq, id=kwargs['item_id'])
         itemDesc = get_object_or_404(models.Items, name=eq_item.name)
+        if itemDesc.unobtainable and not request.user.is_superuser:
+            messages.error(request, f"{eq_item.name} nie moze zostac przekazane.")
+            return redirect(f"/dunnorpg/items/ch{from_char.id}")
 
         if given_amount <= eq_item.amount:
             max_weight = get_character_max_weight(to_char)
@@ -2380,7 +2383,11 @@ class ItemsView(ListView):
             context['items_amulets'] = self.armor_dict['amulets']
             context['items_other'] = self.armor_dict['other']
             context['all_items'] = models.Items.objects.order_by('name')
-            context['player_items'] = models.Eq.objects.filter(character=self.character.name).values()
+            player_items = models.Eq.objects.filter(character=self.character.name)
+            if not self.request.user.is_superuser:
+                unobtainable_item_names = models.Items.objects.filter(unobtainable=True).values_list('name', flat=True)
+                player_items = player_items.exclude(name__in=unobtainable_item_names)
+            context['player_items'] = player_items.values()
             context['characters'] = models.Character.objects.filter(hidden=False).values()
             context['character'] = self.character
         return context

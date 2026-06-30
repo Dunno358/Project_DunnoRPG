@@ -213,6 +213,7 @@ class Items(models.Model):
 
     price = models.FloatField(default=0.0)
     found = models.BooleanField(default=False) #To be deleted
+    unobtainable = models.BooleanField(default=False)
 
     def __str__(self):
         if self.dualHanded == True:

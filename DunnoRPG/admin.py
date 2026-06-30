@@ -39,7 +39,7 @@ class SkillDescAdmin(admin.ModelAdmin):
 admin.site.register(models.Skills_Decs, SkillDescAdmin)
 
 class ItemsAdmin(admin.ModelAdmin):
-    list_display = ("name", "rarity",'dualHanded','found','price')
+    list_display = ("name", "rarity",'dualHanded','found','unobtainable','price')
     def get_queryset(self, request):
         qs = super().get_queryset(request)
         return qs.order_by('name','rarity')
