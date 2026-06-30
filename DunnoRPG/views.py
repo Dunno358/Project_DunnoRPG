@@ -1733,10 +1733,10 @@ def manageExp(char, exp):
             lvls_to_add = int(added_amount/100)
             char.exp = added_amount - (lvls_to_add*100)
             char.level += lvls_to_add
-            char.points_left += 1
+            char.points_left += lvls_to_add
             char, waterMessage = manageFoodAndWater(char, -20*lvls_to_add, "water")
             char, foodMessage = manageFoodAndWater(char, -20*lvls_to_add, "food")
-            msg = f"Zdobyto poziom! Nowy poziom to {char.level}, otrzymano punkt umiejętności."
+            msg = f"Zdobyto poziom! Nowy poziom to {char.level}, otrzymano {lvls_to_add} punktów umiejętności."
             if waterMessage != "":
                 msg += f" {waterMessage}"
             if foodMessage != "":
