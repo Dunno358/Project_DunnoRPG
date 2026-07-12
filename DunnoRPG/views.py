@@ -46,7 +46,7 @@ CHAPTER_CHOICES = [
     "Tzeentch",
     "Bretonnia",
     "Krasnoludy",
-    "Wschodnie Ziemie",
+    "Wschód",
     "Cathay",
     "Nordland",
     "Kislev",
