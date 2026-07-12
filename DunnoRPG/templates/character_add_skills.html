@@ -285,7 +285,13 @@
                 <div style='margin-left: 2%; width: 96%;' class='p-1 bg-dark border border-warning rounded'>
                     <a href='downgrade/{{ skill.id }}' class='mt-1 btn btn-sm btn-outline-warning w-25 me-2'>-</a>
                     <a href='upgrade/{{ skill.id }}' class='mt-1 btn btn-sm btn-outline-warning w-25 ms-2'>+</a>
-                    <p class='m-1 mt-2'>{{ skill.skill }} | lvl. {{ skill.level }} 
+                    <p class='m-1 mt-2'>
+                    {% if skill.original_id %}
+                    <span class="c-gold" style="cursor:pointer;" onclick="showSkillIframe('{{ skill.original_id }}')">{{ skill.skill }}</span>
+                    {% else %}
+                    {{ skill.skill }}
+                    {% endif %}
+                    | lvl. {{ skill.level }} 
 
                     {% if skill.source != 'natural_free' %}
                     <a href='delete/{{ skill.id }}' class='ms-2 btn btn-dark btn-outline-danger'>Usuń</a>               
@@ -330,6 +336,17 @@
         let id = select.value
 
         iframe.src = `/dunnorpg/skills/${id}`
+    }
+
+    function showSkillIframe(id){
+        let iframe = document.getElementById("iframe")
+        let iframe_container = document.getElementById("iframe-container")
+
+        iframe.src = `/dunnorpg/skills/${id}`
+
+        if (iframe_container.classList.contains("d-none")){
+            changeToIframe()
+        }
     }
 
     function chooseSkill(button){

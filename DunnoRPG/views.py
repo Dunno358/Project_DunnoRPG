@@ -620,10 +620,17 @@ class EditCharacterView(APIView):
             Q(restrictions__icontains='all') | Q(restrictions__icontains=chosen_character.chosen_class) | Q(restrictions__icontains='Uniwersalne')
         ).order_by('name').values()
 
-        character_skills_queryset = models.Skills.objects.filter(
+        character_skills_queryset = list(models.Skills.objects.filter(
             owner=chosen_character.owner,
             character=chosen_character.name
-        ).order_by('skill').values()
+        ).order_by('skill').values())
+        skill_names = [skill['skill'] for skill in character_skills_queryset]
+        skill_details_ids = {
+            skill['name']: skill['id']
+            for skill in models.Skills_Decs.objects.filter(name__in=skill_names).values('id', 'name')
+        }
+        for skill in character_skills_queryset:
+            skill['original_id'] = skill_details_ids.get(skill['skill'])
         
         users = []
         for user in User.objects.values():
