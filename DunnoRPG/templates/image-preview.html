@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="pl">
+<head>
+    <meta charset="utf-8">
+    <title>{{ image.name }} | DunnoRPG</title>
+    <style>
+        html,
+        body,
+        iframe {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            background: #111;
+        }
+
+        iframe {
+            border: 0;
+        }
+    </style>
+</head>
+<body>
+    <iframe id="drive-preview" src="" allow="autoplay"></iframe>
+
+    <script>
+        function getGoogleDrivePreviewUrl(url) {
+            if (!url) {
+                return ""
+            }
+
+            const fileMatch = url.match(/\/file\/d\/([^/]+)/)
+            if (fileMatch) {
+                return `https://drive.google.com/file/d/${fileMatch[1]}/preview`
+            }
+
+            const idMatch = url.match(/[?&]id=([^&]+)/)
+            if (idMatch) {
+                return `https://drive.google.com/file/d/${idMatch[1]}/preview`
+            }
+
+            return url
+        }
+
+        document.getElementById("drive-preview").src = getGoogleDrivePreviewUrl("{{ image.link|default:''|escapejs }}")
+    </script>
+</body>
+</html>

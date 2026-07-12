@@ -80,6 +80,21 @@ class Mutations(models.Model):
     def __str__(self):
         return f"{self.name}"
 
+class Images(models.Model):
+    name = models.CharField(max_length=255, null=True)
+    link = models.CharField(max_length=255, null=True)
+    chapter = models.CharField(max_length=255, null=True)
+    visible = models.BooleanField(default=False)
+
+    def __str__(self):
+        return self.name or ""
+
+class GameSettings(models.Model):
+    current_chapter = models.CharField(max_length=255, default="Tzeentch")
+
+    def __str__(self):
+        return f"Current chapter: {self.current_chapter}"
+
 class Races(models.Model):
     name = models.CharField(max_length=100)
     size = models.CharField(max_length=5)

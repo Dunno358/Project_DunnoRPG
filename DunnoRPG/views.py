@@ -42,6 +42,35 @@ raceSizes = {
     "L": 2
 }
 
+CHAPTER_CHOICES = [
+    "Tzeentch",
+    "Bretonnia",
+    "Krasnoludy",
+    "Wschodnie Ziemie",
+    "Cathay",
+    "Nordland",
+    "Kislev",
+]
+
+def get_game_settings():
+    settings, _ = models.GameSettings.objects.get_or_create(
+        id=1,
+        defaults={"current_chapter": CHAPTER_CHOICES[0]},
+    )
+    return settings
+
+def get_current_chapter():
+    return get_game_settings().current_chapter
+
+def is_visible_for_current_chapter(value, current_chapter):
+    value = (value or "").strip()
+    if not value:
+        return False
+    if "-" not in value:
+        return True
+    chapter_name = value.split("-", 1)[0].strip()
+    return chapter_name == current_chapter
+
 CLASS_COUNTERS = {
     "Rębacz": "Impet",
     "Juggernaut": "Napór",
@@ -445,6 +474,13 @@ class charGET(ListView):
 
     def get_queryset(self):
         qs = self.get_base_queryset()
+        current_chapter = get_current_chapter()
+        allowed_types = [
+            character_type
+            for character_type in qs.exclude(type__isnull=True).values_list('type', flat=True).distinct()
+            if is_visible_for_current_chapter(character_type, current_chapter)
+        ]
+        qs = qs.filter(type__in=allowed_types)
 
         selected_type = self.request.GET.get('character_type', 'Player')
         if selected_type:
@@ -458,10 +494,16 @@ class charGET(ListView):
         base_qs = self.get_base_queryset()
         base_qs = base_qs.exclude(type__isnull=True)
         selected_type = self.request.GET.get('character_type', 'Player')
+        current_chapter = get_current_chapter()
+        character_types = [
+            character_type
+            for character_type in base_qs.values_list('type', flat=True).distinct()
+            if is_visible_for_current_chapter(character_type, current_chapter)
+        ]
 
-        print(base_qs.values_list('type', flat=True).distinct())
         context['selected_type'] = selected_type
-        context['character_types'] = sorted(base_qs.values_list('type', flat=True).distinct())
+        context['character_types'] = sorted(character_types)
+        context['current_chapter'] = current_chapter
         context['characters_count'] = self.get_queryset().count()
         context['copy_default_names'] = {
             character.id: get_next_character_copy_name(character.name)
@@ -2583,6 +2625,35 @@ class RacesView(ListView):
         context = super().get_context_data(**kwargs)
         return context
 
+class ImagesView(ListView):
+    model = models.Images
+    template_name = 'images.html'
+    context_object_name = 'images'
+
+    def get_queryset(self):
+        images = super().get_queryset().order_by('chapter', 'name')
+        images = images.filter(chapter=get_current_chapter())
+        search_value = self.request.GET.get('search-input')
+        if search_value:
+            images = images.filter(name__icontains=search_value)
+        return images
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['search_value'] = self.request.GET.get('search-input', '')
+        context['current_chapter'] = get_current_chapter()
+        return context
+
+def image_preview(request, id):
+    image = models.Images.objects.filter(id=id).first()
+    if not image:
+        return render(request, '404.html', status=404)
+
+    if not image.visible and not request.user.is_superuser:
+        return render(request, '404.html', status=404)
+
+    return render(request, 'image-preview.html', {'image': image})
+
 class RaceView(DetailView):
     model = models.Races
     template_name = 'race.html'
@@ -2830,6 +2901,22 @@ def add_mutation(request):
 
     return redirect('gm_panel')
 
+def set_current_chapter(request):
+    if not request.user.is_superuser:
+        return redirect('gm_panel')
+
+    if request.method == 'POST':
+        chapter = request.POST.get('current_chapter')
+        if chapter in CHAPTER_CHOICES:
+            settings = get_game_settings()
+            settings.current_chapter = chapter
+            settings.save()
+            messages.success(request, f"Current chapter changed to {chapter}.")
+        else:
+            messages.error(request, "Invalid chapter.")
+
+    return redirect('gm_panel')
+
 class GMPanel(FormView):
     model = models.Requests
     template_name = 'gm_panel.html'
@@ -2841,6 +2928,8 @@ class GMPanel(FormView):
         context['requests'] = models.Requests.objects.all()
         context['player_characters'] = models.Character.objects.filter(hidden=False, type__iexact='Player').order_by('name')
         context['mutations'] = models.Mutations.objects.order_by('name')
+        context['chapter_choices'] = CHAPTER_CHOICES
+        context['current_chapter'] = get_current_chapter()
         #context['effect_form'] = AddEffectForm
 
         return context

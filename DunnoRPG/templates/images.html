@@ -1,0 +1,91 @@
+{% extends 'master.html' %}
+
+{% block title %}Zdjęcia | DunnoRPG{% endblock title %}
+
+{% block content %}
+{% include 'top_bar.html' %}
+
+<div id='iframe-card' class="container position-fixed m-0 p-0 pb-3 mt-0 d-none"
+    style="top: 5%; left: 5%; z-index: 2000; width: 90%; height: 90vh;">
+    <div class="row h-100">
+        <div class="col-12 h-100">
+            <button class='btn btn-dark btn-outline-danger w-100' onclick="hideImagePreview()">X Zamknij podgląd zdjęcia X</button>
+            <iframe src="" class="border border-warning w-100 h-100 bg-dark" id="image-iframe" allow="autoplay"></iframe>
+        </div>
+    </div>
+</div>
+
+<div class="container mt-3">
+    <div class="row">
+        <div class="col text-center c-gold h5">
+            {{ current_chapter }}
+        </div>
+    </div>
+    <form method="GET" class="row justify-content-center">
+        <input
+            class="col-12 col-md bg-dark border border-warning rounded c-gold text-center p-2 m-1"
+            type="text"
+            name="search-input"
+            value="{{ search_value }}"
+            placeholder="Szukaj po nazwie zdjecia">
+        <button class="col-5 col-sm-4 col-md-2 btn btn-dark btn-outline-warning m-1 c-gold" type="submit">Szukaj</button>
+    </form>
+</div>
+
+{% for image in images %}
+    <div class="container">
+        <div class="row align-items-stretch">
+            <button
+                type="button"
+                class='col m-1 h5 border border-warning rounded bg-gray text-center p-2 c-gold'
+                data-preview-url="{% url 'image_preview' image.id %}"
+                onclick="showImagePreview(this.dataset.previewUrl)">
+                {% if image.chapter %}
+                    <span class="text-white-50">[{{ image.chapter }}]</span>
+                {% endif %}
+                <span class='p-1 c-gold'>{{ image.name }}</span>
+            </button>
+            {% if user.is_superuser %}
+                <a
+                    class="col-auto m-1 h5 btn btn-dark btn-outline-info d-flex align-items-center"
+                    href="{% url 'admin:DunnoRPG_images_change' image.id %}"
+                    target="_blank"
+                    rel="noopener"
+                    title="Otworz rekord zdjecia">
+                    &#128279;
+                </a>
+            {% endif %}
+        </div>
+    </div>
+{% empty %}
+    <div class="container">
+        <div class="row">
+            <div class='col m-1 h5 border border-warning rounded bg-gray text-center p-2 c-gold'>
+                Brak zdjęć do wyświetlenia.
+            </div>
+        </div>
+    </div>
+{% endfor %}
+
+<script>
+    function showImagePreview(previewUrl) {
+        const iframe = document.getElementById("image-iframe")
+        const iframeCard = document.getElementById("iframe-card")
+
+        iframe.src = previewUrl
+        iframeCard.classList.remove("d-none")
+    }
+
+    function hideImagePreview() {
+        const iframe = document.getElementById("image-iframe")
+        const iframeCard = document.getElementById("iframe-card")
+
+        iframe.src = ""
+        iframeCard.classList.add("d-none")
+    }
+
+    document.getElementById('tb-info').classList.remove('btn-outline-warning')
+    document.getElementById('tb-info').classList.add('btn-outline-primary')
+</script>
+
+{% endblock content %}

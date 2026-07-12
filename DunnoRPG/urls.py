@@ -60,6 +60,7 @@ urlpatterns = [
     path('gmpanel/end_round', views.end_round, name='end_round'),
     path('gmpanel/add_effect', views.AddEffect.as_view(), name='add_effect'),
     path('gmpanel/add_mutation', views.add_mutation, name='add_mutation'),
+    path('gmpanel/set_chapter', views.set_current_chapter, name='set_current_chapter'),
     path('gmpanel/reset-skills/<str:mode>', views.reset_skills, name='reset_skills'),
     
     path('info/', views.Info.as_view(), name='info'),
@@ -76,6 +77,8 @@ urlpatterns = [
     
     path('info/races/<int:id>', views.RaceView.as_view(), name='race_info'),
     path('info/races/', views.RacesView.as_view(), name='races'),
+    path('info/images/<int:id>/preview', views.image_preview, name='image_preview'),
+    path('info/images/', views.ImagesView.as_view(), name='images'),
 
     path('info/effects/', views.InfoEffects.as_view(), name='info_effects'),
     

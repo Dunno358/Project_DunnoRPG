@@ -129,6 +129,21 @@
     </form>
 </div>
 
+<div id='chapter-settings' class='container bg-dark rounded border border-primary mt-3'>
+    <div class='row text-center c-gold mt-1'><h2>Aktualny chapter</h2></div>
+    <form method='POST' action='set_chapter'>
+    {% csrf_token %}
+        <div class='row m-2 p-2 c-gold justify-content-center text-center'>
+            <select name="current_chapter" class="col-12 col-md-8 text-center bg-dark rounded border border-warning c-gold p-2 m-1">
+                {% for chapter in chapter_choices %}
+                    <option value="{{ chapter }}" {% if chapter == current_chapter %}selected{% endif %}>{{ chapter }}</option>
+                {% endfor %}
+            </select>
+            <button class="col-8 col-md-2 btn btn-sm btn-success m-1" type="submit">Zmień</button>
+        </div>
+    </form>
+</div>
+
 {% else %}{% include 'user-not-gm.html' %}
 
 {% endif %}

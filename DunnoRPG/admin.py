@@ -59,6 +59,15 @@ admin.site.register(models.CharItems, CharItemsAdmin)
 
 admin.site.register(models.Races)
 
+class ImagesAdmin(admin.ModelAdmin):
+    list_display = ("name", "chapter", "visible")
+    def get_queryset(self, request):
+        qs = super().get_queryset(request)
+        return qs.order_by('chapter', 'name')
+admin.site.register(models.Images, ImagesAdmin)
+
+admin.site.register(models.GameSettings)
+
 class EffectsAdmin(admin.ModelAdmin):
     list_display = ("character", "name", 'time')
     def get_queryset(self, request):
