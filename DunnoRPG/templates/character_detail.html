@@ -8,6 +8,7 @@
     .counter-adjust-btn {
         width: 2.25rem;
         min-width: 2.25rem;
+        height: 1.6rem;
     }
 </style>
 
@@ -263,8 +264,8 @@ style="width: 98%; z-index: 20; margin-left: 0.22rem !important; margin-top: -5r
                         {% csrf_token %}
                         <div class="d-flex align-items-stretch">
                             <input id='counter-val' name='counter' type="number" min="0" step="1" class="w-100 h-100 text-center c-gold bg-dark rounded bg-gradient" value="{{ chosen_character.0.counter }}"/>
-                            <button type="button" class="btn btn-sm btn-danger ms-1 fw-bold counter-adjust-btn" onclick="adjustCounter('counter', -1)">-</button>
-                            <button type="button" class="btn btn-sm btn-success ms-1 fw-bold counter-adjust-btn" onclick="adjustCounter('counter', 1)">+</button>
+                            <button type="button" class="btn btn-sm btn-danger ms-1 fw-bold counter-adjust-btn pt-0" onclick="adjustCounter('counter', -1)">-</button>
+                            <button type="button" class="btn btn-sm btn-success ms-1 fw-bold counter-adjust-btn pt-0" onclick="adjustCounter('counter', 1)">+</button>
                         </div>
                     </form>
                 </div>
