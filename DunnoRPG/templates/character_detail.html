@@ -254,7 +254,11 @@ style="width: 98%; z-index: 20; margin-left: 0.22rem !important; margin-top: -5r
                 <div class="col-4 text-start ps-0 mt-1 pe-0">
                     <form id="counter-form" method="post" action="change-counter/counter" onsubmit="changeCounter(event, 'counter')">
                         {% csrf_token %}
-                        <input id='counter-val' name='counter' type="number" min="0" step="1" class="w-100 h-100 text-center c-gold bg-dark rounded bg-gradient" value="{{ chosen_character.0.counter }}"/>
+                        <div class="d-flex align-items-stretch">
+                            <input id='counter-val' name='counter' type="number" min="0" step="1" class="w-100 h-100 text-center c-gold bg-dark rounded bg-gradient" value="{{ chosen_character.0.counter }}"/>
+                            <button type="button" class="btn btn-sm btn-outline-danger ms-1 fw-bold" onclick="adjustCounter('counter', -1)">-</button>
+                            <button type="button" class="btn btn-sm btn-outline-success ms-1 fw-bold" onclick="adjustCounter('counter', 1)">+</button>
+                        </div>
                     </form>
                 </div>
             </div>
@@ -268,7 +272,11 @@ style="width: 98%; z-index: 20; margin-left: 0.22rem !important; margin-top: -5r
                 <div class="col-4 text-start ps-0 mt-1 pe-0">
                     <form id="counter2-form" method="post" action="change-counter/counter2" onsubmit="changeCounter(event, 'counter2')">
                         {% csrf_token %}
-                        <input id='counter2-val' name='counter2' type="number" min="0" step="1" class="w-100 h-100 text-center c-gold bg-dark rounded bg-gradient" value="{{ chosen_character.0.counter2 }}"/>
+                        <div class="d-flex align-items-stretch">
+                            <input id='counter2-val' name='counter2' type="number" min="0" step="1" class="w-100 h-100 text-center c-gold bg-dark rounded bg-gradient" value="{{ chosen_character.0.counter2 }}"/>
+                            <button type="button" class="btn btn-sm btn-outline-danger ms-1 fw-bold" onclick="adjustCounter('counter2', -1)">-</button>
+                            <button type="button" class="btn btn-sm btn-outline-success ms-1 fw-bold" onclick="adjustCounter('counter2', 1)">+</button>
+                        </div>
                     </form>
                 </div>
             </div>
@@ -2246,6 +2254,25 @@ document.querySelectorAll('[id^="skill-uses-val-"]').forEach((input) => {
 })
 initAjaxInput('counter-val', 'counter-form')
 initAjaxInput('counter2-val', 'counter2-form')
+
+function adjustCounter(counterField, delta){
+    const input = document.getElementById(`${counterField}-val`)
+    const form = document.getElementById(`${counterField}-form`)
+    if(!input || !form || form.dataset.submitting === 'true'){
+        return
+    }
+
+    const currentValue = Number(input.value)
+    const nextValue = Math.max(0, (Number.isInteger(currentValue) ? currentValue : 0) + delta)
+
+    if(String(nextValue) === input.dataset.lastSubmittedValue){
+        input.value = nextValue
+        return
+    }
+
+    input.value = nextValue
+    form.requestSubmit()
+}
 
 function showSkill(instance){
     if(instance.innerHTML == "Check skill"){
