@@ -4,6 +4,13 @@
 {% include 'top_bar.html' %}
 {% include 'dunnorpg/messages.html' %}
 
+<style>
+    .counter-adjust-btn {
+        width: 2.25rem;
+        min-width: 2.25rem;
+    }
+</style>
+
 <div id="ajax-msg-stack" class="position-fixed d-flex flex-column align-items-center gap-2"
 style="top: 0.7rem; left: 50%; transform: translateX(-50%); z-index: 9999; width: min(90vw, 28rem);"></div>
 
@@ -256,8 +263,8 @@ style="width: 98%; z-index: 20; margin-left: 0.22rem !important; margin-top: -5r
                         {% csrf_token %}
                         <div class="d-flex align-items-stretch">
                             <input id='counter-val' name='counter' type="number" min="0" step="1" class="w-100 h-100 text-center c-gold bg-dark rounded bg-gradient" value="{{ chosen_character.0.counter }}"/>
-                            <button type="button" class="btn btn-sm btn-outline-danger ms-1 fw-bold" onclick="adjustCounter('counter', -1)">-</button>
-                            <button type="button" class="btn btn-sm btn-outline-success ms-1 fw-bold" onclick="adjustCounter('counter', 1)">+</button>
+                            <button type="button" class="btn btn-sm btn-danger ms-1 fw-bold counter-adjust-btn" onclick="adjustCounter('counter', -1)">-</button>
+                            <button type="button" class="btn btn-sm btn-success ms-1 fw-bold counter-adjust-btn" onclick="adjustCounter('counter', 1)">+</button>
                         </div>
                     </form>
                 </div>
@@ -274,8 +281,8 @@ style="width: 98%; z-index: 20; margin-left: 0.22rem !important; margin-top: -5r
                         {% csrf_token %}
                         <div class="d-flex align-items-stretch">
                             <input id='counter2-val' name='counter2' type="number" min="0" step="1" class="w-100 h-100 text-center c-gold bg-dark rounded bg-gradient" value="{{ chosen_character.0.counter2 }}"/>
-                            <button type="button" class="btn btn-sm btn-outline-danger ms-1 fw-bold" onclick="adjustCounter('counter2', -1)">-</button>
-                            <button type="button" class="btn btn-sm btn-outline-success ms-1 fw-bold" onclick="adjustCounter('counter2', 1)">+</button>
+                            <button type="button" class="btn btn-sm btn-danger ms-1 fw-bold counter-adjust-btn" onclick="adjustCounter('counter2', -1)">-</button>
+                            <button type="button" class="btn btn-sm btn-success ms-1 fw-bold counter-adjust-btn" onclick="adjustCounter('counter2', 1)">+</button>
                         </div>
                     </form>
                 </div>
