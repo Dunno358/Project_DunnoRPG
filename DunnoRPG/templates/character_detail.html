@@ -2305,7 +2305,8 @@ function showMessageLegacy(text, type='success'){
     const msg = document.getElementById('ajax-msg')
     const isSuccess = type === 'success'
     const isWarning = type === 'warning'
-    const closeButton = isSuccess ? '' : '<br><button type="button" class="m-2 btn btn-sm w-50 p-3 border border-light text-light rounded" style="background: maroon;" onclick="this.parentElement.classList.add(\'d-none\')"><b>Okej</b></button>'
+    const closeButtonBg = isWarning ? '#b56f17' : 'maroon'
+    const closeButton = isSuccess ? '' : `<br><button type="button" class="m-2 btn btn-sm w-50 p-3 border border-light text-light rounded" style="background: ${closeButtonBg};" onclick="this.parentElement.classList.add('d-none')"><b>Okej</b></button>`
     const colorClass = isSuccess ? 'bg-success border-success' : (isWarning ? 'bg-warning border-warning' : 'bg-danger border-danger')
 
     clearTimeout(window.ajaxMsgTimeout)
@@ -2344,7 +2345,8 @@ function showMessage(text, type='success'){
     const msg = document.createElement('div')
     const isSuccess = type === 'success'
     const isWarning = type === 'warning'
-    const closeButton = isSuccess ? '' : '<br><button type="button" class="m-2 btn btn-sm w-50 p-3 border border-light text-light rounded" style="background: maroon;" onclick="this.parentElement.remove()"><b>Okej</b></button>'
+    const closeButtonBg = isWarning ? '#b56f17' : 'maroon'
+    const closeButton = isSuccess ? '' : `<br><button type="button" class="m-2 btn btn-sm w-50 p-3 border border-light text-light rounded" style="background: ${closeButtonBg};" onclick="this.parentElement.remove()"><b>Okej</b></button>`
     const colorClass = isSuccess ? 'bg-success border-success' : (isWarning ? 'bg-warning border-warning' : 'bg-danger border-danger')
 
     msg.className = `text-center rounded border bg-opacity-100 bg-gradient p-4 ps-4 pe-4 text-white w-100 ${colorClass}`
@@ -2550,6 +2552,30 @@ function updateFoodWaterState(statType, value, data = {}){
     })
 }
 
+function refreshEffectsBlock(effectsHtml){
+    if(!effectsHtml){
+        return
+    }
+
+    const effectsBlock = document.getElementsByName('Effects')[0]
+    if(!effectsBlock){
+        return
+    }
+
+    const wasOpen = !effectsBlock.classList.contains('d-none')
+    const wrapper = document.createElement('div')
+    wrapper.innerHTML = effectsHtml.trim()
+    const updatedEffectsBlock = wrapper.firstElementChild
+    if(!updatedEffectsBlock){
+        return
+    }
+
+    if(wasOpen){
+        updatedEffectsBlock.classList.remove('d-none')
+    }
+    effectsBlock.replaceWith(updatedEffectsBlock)
+}
+
 async function changeFoodWater(event, statType){
     event.preventDefault()
 
@@ -2583,6 +2609,7 @@ async function changeFoodWater(event, statType){
         }
 
         updateFoodWaterState(data.stat_type, data.value, data)
+        refreshEffectsBlock(data.effects_html)
         input.dataset.lastSubmittedValue = String(data.value)
         if(data.hp !== undefined){
             const hpInput = document.getElementById('hp-val')

@@ -1,0 +1,14 @@
+{% load filters %}
+
+<div name='Effects' class="row d-none m-0 p-0 position-absolute rounded container col card-body c-gold border border-warning bg-dark mt-4">
+    <p class="text-center fw-bold">Effects: </p>
+    <ul>
+    {% for effect in character|getCharacterEffects %}
+    <li onclick="show_or_hideById(this.attributes['name'].value)" name='ef{{ effect.id }}' class='fw-bold fst-italic'>
+        {{ effect.name }} | Pozosta&#322;o: {% if effect.time > 100 %}?{% else %}{{ effect.time }}{% endif %}
+
+    </li>
+    <p id='ef{{ effect.id }}' class='d-none'>{{ effect.desc }}</p>
+    {% endfor %}
+    </ul>
+</div>

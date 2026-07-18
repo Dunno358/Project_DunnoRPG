@@ -690,7 +690,11 @@ def getModFromId(charId,stat_for_mod):
 
 @register.filter
 def getCharacterEffects(character):
-    return models.Effects.objects.all().filter(character=character['name']).values()
+    try:
+        character_name = character['name']
+    except (TypeError, KeyError):
+        character_name = getattr(character, 'name', character)
+    return models.Effects.objects.all().filter(character=character_name).values()
 
 @register.filter
 def getCharacterEffectsCount(character):

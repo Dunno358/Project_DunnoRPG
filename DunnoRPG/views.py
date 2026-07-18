@@ -10,6 +10,7 @@ from django.db.models import Q
 from django.db.models.query import QuerySet
 from django.http import Http404, HttpResponse, HttpResponseRedirect, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
+from django.template.loader import render_to_string
 from django.urls import reverse_lazy
 from django.urls import reverse
 from django.views.generic import FormView, ListView, TemplateView
@@ -1832,6 +1833,11 @@ def change_food_water(request, **kwargs):
                     "stat_type": stat_type,
                     "value": getattr(char, stat_type),
                     "hp": char.HP,
+                    "effects_html": render_to_string(
+                        "dunnorpg/character_effects_block.html",
+                        {"character": char},
+                        request=request,
+                    ),
                     **extra_data,
                 }, status=200)
 
