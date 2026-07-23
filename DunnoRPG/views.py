@@ -919,6 +919,14 @@ class calculateGettingHit(APIView):
 
         return math.ceil(item.durability / 50)
 
+    def _durability_percent(self, item):
+        item_desc = models.Items.objects.filter(name=item.name).first()
+        max_durability = getattr(item_desc, "maxDurability", 0) or 0
+        if max_durability <= 0:
+            return "(0%)"
+
+        return f"({item.durability / max_durability:.0%})"
+
     def post(self, request, *args, **kwargs):
         try:
             data = request.data
@@ -939,7 +947,7 @@ class calculateGettingHit(APIView):
             dmg_after_barrier = dmg - barrier_blocked
             char.barrier = barrier - barrier_blocked
 
-            ap_damage = math.ceil(dmg_after_barrier * ap_percent / 100) if dmg_after_barrier > 0 else 0
+            ap_damage = int(dmg_after_barrier * ap_percent / 100) if dmg_after_barrier > 0 else 0
             dmg_for_armor = max(dmg_after_barrier - ap_damage, 0)
 
             items = {
@@ -980,6 +988,7 @@ class calculateGettingHit(APIView):
                 item.save()
                 updated_armor[part] = {
                     "durability": item.durability,
+                    "durability_percent": self._durability_percent(item),
                     "armor": self._armor_value(item),
                 }
 

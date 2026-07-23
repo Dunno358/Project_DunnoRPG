@@ -577,7 +577,7 @@ style="width: 98%; z-index: 20; margin-left: 0.22rem !important; margin-top: -5r
                 <div class="row me-0 pe-0">
                     <div class="col text-center">
                         <a href='javascript:void(0)' onclick="showIframe('/dunnorpg/items/{{ helmet.name|getDescId }}?ref=char;{{ helmet.id }}')" class="{{ helmet.name|getItemRarity }} h4">
-                            {{ helmet.name }} {{ helmet.name|getDurabilityPercent:helmet.durability }} 
+                            {{ helmet.name }} <span id="armor-head-durability-percent">{{ helmet.name|getDurabilityPercent:helmet.durability }}</span> 
                             {% if user.is_superuser %}
                                 <a href="/admin/DunnoRPG/charitems/{{ helmet.id }}/change/" class="fa fa-link" target="_blank" onclick="event.stopPropagation()"></a>
                             {% endif %}
@@ -699,7 +699,7 @@ style="width: 98%; z-index: 20; margin-left: 0.22rem !important; margin-top: -5r
                 <div class="row me-0 pe-0">
                     <div class="col text-center">
                         <a href='javascript:void(0)' onclick="showIframe('/dunnorpg/items/{{ torso.name|getDescId }}?ref=char;{{ torso.id }}')" class="{{ torso.name|getItemRarity }} h4">
-                            {{ torso.name }} {{ torso.name|getDurabilityPercent:torso.durability }} 
+                            {{ torso.name }} <span id="armor-torso-durability-percent">{{ torso.name|getDurabilityPercent:torso.durability }}</span> 
                             {% if user.is_superuser %}
                                 <a href="/admin/DunnoRPG/charitems/{{ torso.id }}/change/" class="fa fa-link" target="_blank" onclick="event.stopPropagation()"></a>
                             {% endif %}
@@ -1264,7 +1264,7 @@ style="width: 98%; z-index: 20; margin-left: 0.22rem !important; margin-top: -5r
                 <div class="row me-0 pe-0">
                     <div class="col text-center">
                         <a href='javascript:void(0)' onclick="showIframe('/dunnorpg/items/{{ boots.name|getDescId }}?ref=char;{{ boots.id }}')" class="{{ boots.name|getItemRarity }} h4">
-                            {{ boots.name }} {{ boots.name|getDurabilityPercent:boots.durability }} 
+                            {{ boots.name }} <span id="armor-legs-durability-percent">{{ boots.name|getDurabilityPercent:boots.durability }}</span> 
                             {% if user.is_superuser %}
                                 <a href="/admin/DunnoRPG/charitems/{{ boots.id }}/change/" class="fa fa-link" target="_blank" onclick="event.stopPropagation()"></a>
                             {% endif %}
@@ -1386,7 +1386,7 @@ style="width: 98%; z-index: 20; margin-left: 0.22rem !important; margin-top: -5r
                 <div class="row me-0 pe-0">
                     <div class="col text-center">
                         <a href='javascript:void(0)' onclick="showIframe('/dunnorpg/items/{{ gloves.name|getDescId }}?ref=char;{{ gloves.id }}')" class="{{ gloves.name|getItemRarity }} h4">
-                            {{ gloves.name }} {{ gloves.name|getDurabilityPercent:gloves.durability }} 
+                            {{ gloves.name }} <span id="armor-hands-durability-percent">{{ gloves.name|getDurabilityPercent:gloves.durability }}</span> 
                             {% if user.is_superuser %}
                                 <a href="/admin/DunnoRPG/charitems/{{ gloves.id }}/change/" class="fa fa-link" target="_blank" onclick="event.stopPropagation()"></a>
                             {% endif %}
@@ -2796,10 +2796,14 @@ async function calculateGettingHit(){
 
         Object.entries(data.armor || {}).forEach(([part, armor]) => {
             const durabilityInput = document.getElementById(`armor-${part}-durability`)
+            const durabilityPercent = document.getElementById(`armor-${part}-durability-percent`)
             const armorValue = document.getElementById(`armor-${part}-value`)
             if(durabilityInput){
                 durabilityInput.value = armor.durability
                 durabilityInput.setAttribute('value', armor.durability)
+            }
+            if(durabilityPercent){
+                durabilityPercent.textContent = armor.durability_percent
             }
             if(armorValue){
                 armorValue.textContent = armor.armor
