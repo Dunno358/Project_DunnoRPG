@@ -139,36 +139,39 @@ def getMaxDurability(itemName):
 def getStaffMagicDmg(itemName, charId):
 
     if charId==0:
-        int = 0
+        intelligence = 0
     else:
         char = get_object_or_404(models.Character, id=charId)
-        int = char.INT
+        intelligence = char.INT
 
     item = get_object_or_404(models.Items, name=itemName)
-    rarity = item.rarity
+    rarity = (item.rarity or "").strip().lower()
 
     if item.type=="Wand":
-        dmg = 0
         dictionary_dmg = {
+            "start-weapon": -7,
             "neutral-low": -7,
             "neutral-high": -6,
             "unique": -5,
             "magical": -4,
             "uncommon": -3,
+            "legendary": -2,
         }
         dictionary_ap = {
+            "start-weapon": 0,
             "neutral-low": 0,
             "neutral-high": 1,
             "unique": 2,
             "magical": 3,
             "uncommon": 4,
+            "legendary": 5,
         }
 
-        dmg = dictionary_dmg[rarity]+int
+        dmg = dictionary_dmg.get(rarity, dictionary_dmg["neutral-low"])+intelligence
         if dmg > 0:
             dmg = f"+{dmg}"
 
-        return f"[1K{dmg}, {dictionary_ap[rarity]}% AP]"
+        return f"[1K{dmg}, {dictionary_ap.get(rarity, dictionary_ap['neutral-low'])}% AP]"
     else:
         return ""
 
