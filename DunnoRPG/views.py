@@ -909,79 +909,102 @@ class TakeItemDurFromAttack(APIView):
         return Response("OK")
 
 class calculateGettingHit(APIView):
-    def get(self, request, *args, **kwargs):
-        dmg = kwargs['dmg']
-        ap = kwargs['ap']
-        parts = kwargs['parts'].split("|")
-        use_multiplier = bool(kwargs['multiplier'])
-        raw_dmg = int(dmg+ap)
+    def _armor_value(self, item):
+        if not item:
+            return 0
 
-        deadly = True
-        if parts == ["head"] and use_multiplier:
-            dmg = int(dmg*1.5)
-        if parts in [["hands"],["legs"],["hands","legs"]]:
-            deadly = False
+        item_desc = models.Items.objects.filter(name=item.name).first()
+        if not item_desc or item_desc.armor == 0:
+            return 0
 
-        char = get_object_or_404(models.Character, id=kwargs['char_id'])
-        helmet = models.CharItems.objects.filter(character=char.name, position='Helmet').first()
-        torso = models.CharItems.objects.filter(character=char.name, position='Torso').first()
-        boots = models.CharItems.objects.filter(character=char.name, position='Boots').first()
-        gloves = models.CharItems.objects.filter(character=char.name, position='Gloves').first()
-        items = {
-            'head': helmet,
-            'torso': torso,
-            'legs': boots,
-            'hands': gloves
-        }
+        return math.ceil(item.durability / 50)
 
-        armor = 0
+    def post(self, request, *args, **kwargs):
+        try:
+            data = request.data
+            dmg = max(int(data.get('dmg', 0)), 0)
+            ap_percent = min(max(int(data.get('ap', 0)), 0), 100)
+            barrier = max(int(data.get('barrier', 0)), 0)
+            parts = data.get('parts') or []
+            valid_parts = {'head', 'torso', 'hands', 'legs'}
+            parts = [part for part in parts if part in valid_parts]
 
-        if not "armor" in parts:
-            for item in items:
-                item = items[item]
-                try:
-                    desc_armor = models.Items.objects.filter(name=item.name).first().armor
-                    if desc_armor != 0:
-                        armor += math.ceil(item.durability / 50)
-                except:
-                    pass
+            if not parts:
+                return JsonResponse({"error": "Wybierz miejsce obrażeń."}, status=400)
 
-            armor -= ap
-            dmg = int(dmg*float(kwargs['final_multiplier'])) #Use additional multiplier before armor
-            dmg -= armor
+            char = get_object_or_404(models.Character, id=kwargs['char_id'])
+            hp_before = char.HP
 
-        injured = ""
-        if dmg > 0:
-            char.HP -= dmg
-            if char.HP <= 0:
-                if deadly:
-                    char.HP = 0
-                else:
-                    char.HP = 1 #Attacks on hand/leg cannot kill directly
-                injured = " oraz stajesz się nieprzytomny/a. Zaczynasz się wykrwawiać"
-            char.save()
+            barrier_blocked = min(dmg, barrier)
+            dmg_after_barrier = dmg - barrier_blocked
+            char.barrier = barrier - barrier_blocked
 
-        destroyed = False
-        d_count = 0
+            ap_damage = math.ceil(dmg_after_barrier * ap_percent / 100) if dmg_after_barrier > 0 else 0
+            dmg_for_armor = max(dmg_after_barrier - ap_damage, 0)
 
-        if not "armor" in parts:
+            items = {
+                'head': models.CharItems.objects.filter(character=char.name, position='Helmet').first(),
+                'torso': models.CharItems.objects.filter(character=char.name, position='Torso').first(),
+                'legs': models.CharItems.objects.filter(character=char.name, position='Boots').first(),
+                'hands': models.CharItems.objects.filter(character=char.name, position='Gloves').first(),
+            }
+
+            penetration_by_part = {}
             for part in parts:
-                items[part].durability-=(raw_dmg)
-                if items[part].durability < 0:
-                    items[part].durability = 0
-                    destroyed = True
-                    d_count += 1
-                items[part].save()
+                armor_value = self._armor_value(items[part])
+                penetration_by_part[part] = max(dmg_for_armor - armor_value, 0)
 
-        destroyed_txt = ""
-        if destroyed:
-            destroyed_txt = f"Krytycznie uszkodzono {d_count} elementów pancerza."
+            armor_damage = max(penetration_by_part.values(), default=0)
+            max_penetration_parts = [
+                part for part, penetration in penetration_by_part.items()
+                if penetration == armor_damage and penetration > 0
+            ]
+            deadly = any(part in {'head', 'torso'} for part in max_penetration_parts) or not max_penetration_parts
+            hp_loss = ap_damage + armor_damage
 
-        if dmg > 0: 
-            messages.error(request, f"Uderzenie przebiło pancerz! Tracisz {dmg} życia{injured}. {destroyed_txt}")
-        else:
-            messages.success(request, "Uderzenie zatrzymało się na pancerzu!")
-        return redirect(f"/dunnorpg/character_detail/{kwargs['char_id']}")
+            if hp_loss > 0:
+                char.HP -= hp_loss
+                if char.HP <= 0:
+                    char.HP = 0 if deadly else 1
+
+            updated_armor = {}
+            destroyed_count = 0
+            for part in parts:
+                item = items[part]
+                if not item:
+                    continue
+
+                item.durability = max(item.durability - dmg_after_barrier, 0)
+                if item.durability == 0:
+                    destroyed_count += 1
+                item.save()
+                updated_armor[part] = {
+                    "durability": item.durability,
+                    "armor": self._armor_value(item),
+                }
+
+            char.save()
+            actual_hp_loss = hp_before - char.HP
+            deadly_wound = char.HP == 0
+
+            message = f"Stracono {actual_hp_loss} PŻ z tego ataku."
+            if deadly_wound:
+                message += " Postać została śmiertelnie ranna."
+            elif hp_loss == 0:
+                message = "Atak nie zadał obrażeń PŻ."
+            if destroyed_count:
+                message += f" Krytycznie uszkodzono {destroyed_count} elementów pancerza."
+
+            return JsonResponse({
+                "message": message,
+                "hp": char.HP,
+                "barrier": char.barrier,
+                "hp_lost": actual_hp_loss,
+                "deadly_wound": deadly_wound,
+                "armor": updated_armor,
+            }, status=200)
+        except Exception as e:
+            return JsonResponse({"error": f"Błąd liczenia obrażeń: {e}"}, status=400)
 
 class TakeAmmoFromAttack(APIView):
     def get(self, request, *args, **kwargs):

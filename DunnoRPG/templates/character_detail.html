@@ -506,9 +506,6 @@ style="width: 98%; z-index: 20; margin-left: 0.22rem !important; margin-top: -5r
                 <div id="get-dmg-legs" class="col bg-gray p-2 m-1 rounded bg-gradient border border-warning get-dmg-place" onclick="setActive('get-dmg-legs')">
                     Nogi
                 </div>
-                <div id="get-dmg-armor" class="col bg-gray p-2 m-1 rounded bg-gradient border border-warning get-dmg-place" onclick="setActive('get-dmg-armor')">
-                    Ignoruj pancerz
-                </div>
             </div>
 
             <div class="row m-0 p-0 mt-2">
@@ -529,29 +526,19 @@ style="width: 98%; z-index: 20; margin-left: 0.22rem !important; margin-top: -5r
 
                 <div class="col mt-1 m-0 p-0">
                     <div class="col">
-                        AP:
+                        AP (%):
                     </div>
                     <div class="col">
-                        <input type="number" class="bg-gray border border-warning c-gold rounded text-center" id="get-dmg-ap"/>
+                        <input type="number" min="0" max="100" class="bg-gray border border-warning c-gold rounded text-center" id="get-dmg-ap"/>
                     </div>
                 </div>
             </div>
-
-            <div class="row m-0 p-0 mt-3">
-                <div class="col-9 m-0 p-0 text-end">
-                    Zastosuj mnożnik ciała:
-                </div>
-                <div class="col text-start">
-                    <input type="checkbox" id="get-dmg-ign-chk" style="width: 5vw; height: 3.5vh" checked />
-                </div>
-            </div>
-
-            <div class="col mt-2 m-0 p-0">
+            <div class="col mt-3 m-0 p-0">
                 <div class="col">
-                    Mnożnik podsumowujący:
+                    Bariera:
                 </div>
                 <div class="col">
-                    <input type="number" class="bg-gray border border-warning c-gold rounded text-center" value="1.00" step="0.01" id="get-dmg-multiplier"/>
+                    <input type="number" min="0" class="bg-gray border border-warning c-gold rounded text-center" value="{{ value.barrier }}" id="get-dmg-barrier"/>
                 </div>
             </div>
 
@@ -579,7 +566,7 @@ style="width: 98%; z-index: 20; margin-left: 0.22rem !important; margin-top: -5r
                 <div class="row c-gold me-0 pe-0">
                     <div class="col-7 h6 text-start pt-2 ps-1 pb-0 pe-0">
                         <span class="text-white-50">Wytrzymałość:</span>
-                        <input value="{{ helmet.durability }}" class="bg-gray border-0 c-gold p-0 m-0 h6 text-end" style="width: 15%" name="dur"/>
+                        <input id="armor-head-durability" value="{{ helmet.durability }}" class="bg-gray border-0 c-gold p-0 m-0 h6 text-end" style="width: 15%" name="dur"/>
                         /{{ helmet.name|getMaxDurability }}
                     </div>
                     <div class="col h6 text-end p-2 pb-0 border-start border-warning">
@@ -611,7 +598,7 @@ style="width: 98%; z-index: 20; margin-left: 0.22rem !important; margin-top: -5r
                 <div class="row ps-0 ms-1 me-0 pe-0">
 
                     <div class="col-4 border-end border-warning p-3 h6 mb-0 d-flex align-items-center justify-content-center">
-                        <span class="text-white-50">Pancerz:</span> <span class="c-gold ms-1">{{ helmet.name|getItemArmor }}</span>
+                        <span class="text-white-50">Pancerz:</span> <span id="armor-head-value" class="c-gold ms-1">{{ helmet.name|getItemArmor }}</span>
                     </div>                
                     <div class="col-2 border-end border-warning p-3 h6 mb-0 d-flex align-items-center justify-content-center">
                         <span class="text-white-50"></span> <span class="c-gold ms-1">{{ helmet.name|getItemWeight }}kg</span>
@@ -701,7 +688,7 @@ style="width: 98%; z-index: 20; margin-left: 0.22rem !important; margin-top: -5r
                 <div class="row c-gold me-0 pe-0">
                     <div class="col-7 h6 text-start pt-2 ps-1 pb-0 pe-0">
                         <span class="text-white-50">Wytrzymałość:</span>
-                        <input value="{{ torso.durability }}" class="bg-gray border-0 c-gold p-0 m-0 h6 text-end" style="width: 15%" name="dur"/>
+                        <input id="armor-torso-durability" value="{{ torso.durability }}" class="bg-gray border-0 c-gold p-0 m-0 h6 text-end" style="width: 15%" name="dur"/>
                         /{{ torso.name|getMaxDurability }}
                     </div>
                     <div class="col h6 text-end p-2 pb-0 border-start border-warning">
@@ -733,7 +720,7 @@ style="width: 98%; z-index: 20; margin-left: 0.22rem !important; margin-top: -5r
                 <div class="row ps-0 ms-1 me-0 pe-0">
 
                     <div class="col-4 border-end border-warning p-3 h6 mb-0 d-flex align-items-center justify-content-center">
-                        <span class="text-white-50">Pancerz:</span> <span class="c-gold ms-1">{{ torso.name|getItemArmor }}</span>
+                        <span class="text-white-50">Pancerz:</span> <span id="armor-torso-value" class="c-gold ms-1">{{ torso.name|getItemArmor }}</span>
                     </div>                
                     <div class="col-2 border-end border-warning p-3 h6 mb-0 d-flex align-items-center justify-content-center">
                         <span class="text-white-50"></span> <span class="c-gold ms-1">{{ torso.name|getItemWeight }}kg</span>
@@ -1266,7 +1253,7 @@ style="width: 98%; z-index: 20; margin-left: 0.22rem !important; margin-top: -5r
                 <div class="row c-gold me-0 pe-0">
                     <div class="col-7 h6 text-start pt-2 ps-1 pb-0 pe-0">
                         <span class="text-white-50">Wytrzymałość:</span>
-                        <input value="{{ boots.durability }}" class="bg-gray border-0 c-gold p-0 m-0 h6 text-end" style="width: 15%" name="dur"/>
+                        <input id="armor-legs-durability" value="{{ boots.durability }}" class="bg-gray border-0 c-gold p-0 m-0 h6 text-end" style="width: 15%" name="dur"/>
                         /{{ boots.name|getMaxDurability }}
                     </div>
                     <div class="col h6 text-end p-2 pb-0 border-start border-warning">
@@ -1298,7 +1285,7 @@ style="width: 98%; z-index: 20; margin-left: 0.22rem !important; margin-top: -5r
                 <div class="row ps-0 ms-1 me-0 pe-0">
 
                     <div class="col-4 border-end border-warning p-3 h6 mb-0 d-flex align-items-center justify-content-center">
-                        <span class="text-white-50">Pancerz:</span> <span class="c-gold ms-1">{{ boots.name|getItemArmor }}</span>
+                        <span class="text-white-50">Pancerz:</span> <span id="armor-legs-value" class="c-gold ms-1">{{ boots.name|getItemArmor }}</span>
                     </div>                
                     <div class="col-2 border-end border-warning p-3 h6 mb-0 d-flex align-items-center justify-content-center">
                         <span class="text-white-50"></span> <span class="c-gold ms-1">{{ boots.name|getItemWeight }}kg</span>
@@ -1388,7 +1375,7 @@ style="width: 98%; z-index: 20; margin-left: 0.22rem !important; margin-top: -5r
                 <div class="row c-gold me-0 pe-0">
                     <div class="col-7 h6 text-start pt-2 ps-1 pb-0 pe-0">
                         <span class="text-white-50">Wytrzymałość:</span>
-                        <input value="{{ gloves.durability }}" class="bg-gray border-0 c-gold p-0 m-0 h6 text-end" style="width: 15%" name="dur"/>
+                        <input id="armor-hands-durability" value="{{ gloves.durability }}" class="bg-gray border-0 c-gold p-0 m-0 h6 text-end" style="width: 15%" name="dur"/>
                         /{{ gloves.name|getMaxDurability }}
                     </div>
                     <div class="col h6 text-end p-2 pb-0 border-start border-warning">
@@ -1420,7 +1407,7 @@ style="width: 98%; z-index: 20; margin-left: 0.22rem !important; margin-top: -5r
                 <div class="row ps-0 ms-1 me-0 pe-0">
 
                     <div class="col-4 border-end border-warning p-3 h6 mb-0 d-flex align-items-center justify-content-center">
-                        <span class="text-white-50">Pancerz:</span> <span class="c-gold ms-1">{{ gloves.name|getItemArmor }}</span>
+                        <span class="text-white-50">Pancerz:</span> <span id="armor-hands-value" class="c-gold ms-1">{{ gloves.name|getItemArmor }}</span>
                     </div>                
                     <div class="col-2 border-end border-warning p-3 h6 mb-0 d-flex align-items-center justify-content-center">
                         <span class="text-white-50"></span> <span class="c-gold ms-1">{{ gloves.name|getItemWeight }}kg</span>
@@ -2759,25 +2746,72 @@ function setActive(id){
     }
 }
 
-function calculateGettingHit(){
+async function calculateGettingHit(){
     let url = window.location.href
-    let dmg = document.getElementById('get-dmg-dmg').value
-    let ap = document.getElementById('get-dmg-ap').value
-    let multiplier = document.getElementById('get-dmg-multiplier').value
-    let use_multiplier = Number(document.getElementById('get-dmg-ign-chk').checked)
+    let dmg = parseInt(document.getElementById('get-dmg-dmg').value) || 0
+    let ap = parseInt(document.getElementById('get-dmg-ap').value) || 0
+    let barrier = parseInt(document.getElementById('get-dmg-barrier').value) || 0
     let parts_block = document.getElementsByClassName('active get-dmg-place')
     let parts = []
-    
-    if(dmg==''){dmg=0}
-    if(ap==''){ap=0}
 
     for (let i=0; i<parts_block.length; i++) {
         parts.push(parts_block[i].id.replace('get-dmg-',''))
     }
 
-    let parts_str = parts.join('|')
+    if(parts.length === 0){
+        showMessage('Wybierz miejsce obrażeń.', 'error')
+        return
+    }
 
-    window.location.replace(url+`calculate_hit-${dmg}-${ap}-${parts_str}-${use_multiplier}-${multiplier}`)
+    if(dmg < 0 || ap < 0 || ap > 100 || barrier < 0){
+        showMessage('Obrażenia, AP i bariera mają nieprawidłową wartość.', 'error')
+        return
+    }
+
+    const token = document.querySelector('[name=csrfmiddlewaretoken]').value
+
+    try{
+        const response = await fetch(`${url}calculate_hit`, {
+            method: 'POST',
+            body: JSON.stringify({dmg, ap, barrier, parts}),
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': token,
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+        })
+
+        const data = await response.json()
+        if(!response.ok){
+            throw new Error(data.error || 'Nie udało się policzyć obrażeń.')
+        }
+
+        document.getElementById('hp-val').value = data.hp
+        document.getElementById('hp-val').setAttribute('value', data.hp)
+        document.getElementById('hp-val').dataset.lastSubmittedValue = String(data.hp)
+        document.getElementById('barrier-val').value = data.barrier
+        document.getElementById('barrier-val').setAttribute('value', data.barrier)
+        document.getElementById('barrier-val').dataset.lastSubmittedValue = String(data.barrier)
+        document.getElementById('get-dmg-barrier').value = data.barrier
+
+        Object.entries(data.armor || {}).forEach(([part, armor]) => {
+            const durabilityInput = document.getElementById(`armor-${part}-durability`)
+            const armorValue = document.getElementById(`armor-${part}-value`)
+            if(durabilityInput){
+                durabilityInput.value = armor.durability
+                durabilityInput.setAttribute('value', armor.durability)
+            }
+            if(armorValue){
+                armorValue.textContent = armor.armor
+            }
+        })
+
+        showMessage(data.message, data.deadly_wound ? 'error' : 'success')
+        show_or_hideById('get-damage')
+    }
+    catch(error){
+        showMessage(error.message, 'error')
+    }
 }
 
 function getWeaponMod(){
