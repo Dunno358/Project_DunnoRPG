@@ -996,11 +996,15 @@ class calculateGettingHit(APIView):
             actual_hp_loss = hp_before - char.HP
             deadly_wound = char.HP == 0
 
-            message = f"Stracono {actual_hp_loss} PŻ z tego ataku."
+            if dmg > 0 and dmg_after_barrier == 0:
+                message = "Bariera zablokowała obrażenia."
+            elif actual_hp_loss == 0:
+                message = "Obrażenia nie przebiły pancerza."
+            else:
+                message = f"Stracono {actual_hp_loss} PŻ z tego ataku."
+
             if deadly_wound:
                 message += " Postać została śmiertelnie ranna."
-            elif hp_loss == 0:
-                message = "Atak nie zadał obrażeń PŻ."
             if destroyed_count:
                 message += f" Krytycznie uszkodzono {destroyed_count} elementów pancerza."
 
