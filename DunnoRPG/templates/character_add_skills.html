@@ -128,11 +128,9 @@
             </div>
 
             <div class="col text-end">
-                {% if user.is_superuser %}
-                    <button class="m-2 btn btn-primary" onclick="changeOwnerScreen('{{ character }}')">
-                        Change owner
-                    </button>
-                {% endif %}
+                <button class="m-2 btn btn-primary" onclick="changeOwnerScreen('{{ character }}')">
+                    Change owner
+                </button>
             </div>
         </div>
     <div class='row'>
