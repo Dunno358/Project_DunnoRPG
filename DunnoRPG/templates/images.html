@@ -21,7 +21,7 @@
             {{ current_chapter }}
         </div>
     </div>
-    <form method="GET" class="row justify-content-center">
+    <form method="GET" class="row justify-content-center" data-dynamic-search data-results-target="#images-results">
         <input
             class="col-12 col-md bg-dark border border-warning rounded c-gold text-center p-2 m-1"
             type="text"
@@ -32,40 +32,9 @@
     </form>
 </div>
 
-{% for image in images %}
-    <div class="container">
-        <div class="row align-items-stretch">
-            <button
-                type="button"
-                class='col m-1 h5 border border-warning rounded bg-gray text-center p-2 c-gold'
-                data-preview-url="{% url 'image_preview' image.id %}"
-                onclick="showImagePreview(this.dataset.previewUrl)">
-                {% if image.chapter %}
-                    <span class="text-white-50">[{{ image.chapter }}]</span>
-                {% endif %}
-                <span class='p-1 c-gold'>{{ image.name }}</span>
-            </button>
-            {% if user.is_superuser %}
-                <a
-                    class="col-auto m-1 h5 btn btn-dark btn-outline-info d-flex align-items-center"
-                    href="{% url 'admin:DunnoRPG_images_change' image.id %}"
-                    target="_blank"
-                    rel="noopener"
-                    title="Otworz rekord zdjecia">
-                    &#128279;
-                </a>
-            {% endif %}
-        </div>
-    </div>
-{% empty %}
-    <div class="container">
-        <div class="row">
-            <div class='col m-1 h5 border border-warning rounded bg-gray text-center p-2 c-gold'>
-                Brak zdjęć do wyświetlenia.
-            </div>
-        </div>
-    </div>
-{% endfor %}
+<div id="images-results">
+    {% include 'dunnorpg/images_results.html' %}
+</div>
 
 <script>
     function showImagePreview(previewUrl) {

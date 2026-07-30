@@ -72,6 +72,12 @@ def is_visible_for_current_chapter(value, current_chapter):
     chapter_name = value.split("-", 1)[0].strip()
     return chapter_name == current_chapter
 
+def is_partial_request(request):
+    return (
+        request.GET.get("partial") == "1"
+        or request.headers.get("X-Requested-With") == "XMLHttpRequest"
+    )
+
 CLASS_COUNTERS = {
     "Rębacz": "Impet",
     "Juggernaut": "Napór",
@@ -2679,6 +2685,11 @@ class ImagesView(ListView):
     template_name = 'images.html'
     context_object_name = 'images'
 
+    def get_template_names(self):
+        if is_partial_request(self.request):
+            return ['dunnorpg/images_results.html']
+        return [self.template_name]
+
     def get_queryset(self):
         images = super().get_queryset().order_by('chapter', 'name')
         images = images.filter(chapter=get_current_chapter())
@@ -3089,6 +3100,11 @@ class InfoEffects(ListView):
     template_name = 'info-effects.html'
     context_object_name = 'effects'
     ordering = ['name']
+
+    def get_template_names(self):
+        if is_partial_request(self.request):
+            return ['dunnorpg/info_effects_results.html']
+        return [self.template_name]
 
     def get_queryset(self):
         queryset = super().get_queryset()

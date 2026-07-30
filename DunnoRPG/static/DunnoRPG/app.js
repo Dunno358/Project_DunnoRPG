@@ -101,3 +101,74 @@ function trackValueChanges(id){
         document.getElementById(id).setAttribute('value', document.getElementById(id).value);
     } 
 }
+
+document.addEventListener("DOMContentLoaded", () => {
+    const searchForms = document.querySelectorAll("[data-dynamic-search]");
+
+    searchForms.forEach((form) => {
+        const targetSelector = form.dataset.resultsTarget;
+        const target = document.querySelector(targetSelector);
+        const searchInput = form.querySelector("input[name='search-input']");
+        let searchTimeout = null;
+        let abortController = null;
+
+        if (!target) {
+            return;
+        }
+
+        const runSearch = async () => {
+            if (abortController) {
+                abortController.abort();
+            }
+
+            abortController = new AbortController();
+
+            const formData = new FormData(form);
+            const params = new URLSearchParams(formData);
+            const publicParams = new URLSearchParams(formData);
+            const action = form.getAttribute("action") || window.location.pathname;
+            const requestUrl = new URL(action, window.location.origin);
+            const publicUrl = new URL(action, window.location.origin);
+
+            params.set("partial", "1");
+            requestUrl.search = params.toString();
+            publicUrl.search = publicParams.toString();
+
+            target.setAttribute("aria-busy", "true");
+
+            try {
+                const response = await fetch(requestUrl.toString(), {
+                    headers: {
+                        "X-Requested-With": "XMLHttpRequest",
+                    },
+                    signal: abortController.signal,
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Search request failed: ${response.status}`);
+                }
+
+                target.innerHTML = await response.text();
+                window.history.replaceState({}, "", publicUrl.toString());
+            } catch (error) {
+                if (error.name !== "AbortError") {
+                    console.error(error);
+                }
+            } finally {
+                target.removeAttribute("aria-busy");
+            }
+        };
+
+        form.addEventListener("submit", (event) => {
+            event.preventDefault();
+            runSearch();
+        });
+
+        if (searchInput) {
+            searchInput.addEventListener("input", () => {
+                clearTimeout(searchTimeout);
+                searchTimeout = setTimeout(runSearch, 300);
+            });
+        }
+    });
+});
