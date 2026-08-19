@@ -96,6 +96,53 @@ function showById(id){
     document.getElementById(id).classList.remove("d-none")
 }
 
+function openInfoSideMenu(){
+    const menu = document.getElementById("info-side-menu");
+    const backdrop = document.getElementById("info-side-menu-backdrop");
+    const button = document.getElementById("tb-info");
+
+    if (!menu || !backdrop) {
+        return;
+    }
+
+    menu.classList.add("is-open");
+    menu.setAttribute("aria-hidden", "false");
+    backdrop.classList.remove("d-none");
+
+    if (button) {
+        button.setAttribute("aria-expanded", "true");
+    }
+}
+
+function closeInfoSideMenu(){
+    const menu = document.getElementById("info-side-menu");
+    const backdrop = document.getElementById("info-side-menu-backdrop");
+    const button = document.getElementById("tb-info");
+
+    if (!menu || !backdrop) {
+        return;
+    }
+
+    menu.classList.remove("is-open");
+    menu.setAttribute("aria-hidden", "true");
+    backdrop.classList.add("d-none");
+
+    if (button) {
+        button.setAttribute("aria-expanded", "false");
+    }
+}
+
+function toggleInfoSideMenu(){
+    const menu = document.getElementById("info-side-menu");
+
+    if (menu && menu.classList.contains("is-open")) {
+        closeInfoSideMenu();
+    }
+    else {
+        openInfoSideMenu();
+    }
+}
+
 function trackValueChanges(id){
     document.getElementById(id).oninput = () => {
         document.getElementById(id).setAttribute('value', document.getElementById(id).value);
@@ -169,6 +216,20 @@ document.addEventListener("DOMContentLoaded", () => {
                 clearTimeout(searchTimeout);
                 searchTimeout = setTimeout(runSearch, 300);
             });
+        }
+    });
+
+    const infoSideMenu = document.getElementById("info-side-menu");
+
+    if (infoSideMenu) {
+        infoSideMenu.querySelectorAll("a").forEach((link) => {
+            link.addEventListener("click", closeInfoSideMenu);
+        });
+    }
+
+    document.addEventListener("keydown", (event) => {
+        if (event.key === "Escape") {
+            closeInfoSideMenu();
         }
     });
 });

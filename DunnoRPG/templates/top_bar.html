@@ -1,12 +1,39 @@
-<div class="container-fluid">        
+<div class="container-fluid">
         <div class="header-bg bg-gray border-top border-bottom border-warning row">
-                <a class="col m-1 btn btn-dark btn-outline-danger" href="{% url 'logout' %}">Logout</a>
-                <a id='tb-info' class="col m-1 btn btn-dark btn-outline-warning" href="{% url 'info' %}">Info</a>
-                <a id='tb-items' class="col m-1 btn btn-dark btn-outline-warning" href="{% url 'items' 0 %}">Items</a>
+                <button
+                        id="tb-info"
+                        class="col-auto m-1 btn btn-dark btn-outline-warning top-bar-menu-button"
+                        type="button"
+                        aria-label="Otwórz menu info"
+                        aria-controls="info-side-menu"
+                        aria-expanded="false"
+                        onclick="toggleInfoSideMenu()"
+                >
+                        <i class="fa fa-bars" aria-hidden="true"></i>
+                </button>
+                <a class="col m-1 btn btn-dark btn-outline-danger" href="{% url 'logout' %}">Wyloguj</a>
+                <a id='tb-items' class="col m-1 btn btn-dark btn-outline-warning" href="{% url 'items' 0 %}">Przedmioty</a>
 
-                <a id='tb-city' class="col m-1 btn btn-dark btn-outline-warning" href="{% url 'city_view' %}">City</a>
+                <a id='tb-city' class="col m-1 btn btn-dark btn-outline-warning" href="{% url 'city_view' %}">Miasto</a>
                 {% if user.is_superuser %}<a id='tb-gm' class="col m-1 btn btn-dark btn-outline-warning" href="{% url 'gm_panel' %}">GM</a>{% endif %}
-                <a id='tb-characters' class="col m-1 btn btn-dark btn-outline-warning" href="{% url 'home' %}">Characters</a>
-                <a id='tb-skills' class="col m-1 btn btn-dark btn-outline-warning" href="{% url 'skills' %}">Skills</a>
+                <a id='tb-characters' class="col m-1 btn btn-dark btn-outline-warning" href="{% url 'home' %}">Postacie</a>
+                <a id='tb-skills' class="col m-1 btn btn-dark btn-outline-warning" href="{% url 'skills' %}">Skille</a>
         </div>
 </div>
+
+<div id="info-side-menu-backdrop" class="info-side-menu-backdrop d-none" onclick="closeInfoSideMenu()" aria-hidden="true"></div>
+<aside id="info-side-menu" class="info-side-menu bg-dark border-end border-warning" aria-hidden="true">
+        <div class="d-flex align-items-center justify-content-between border-bottom border-warning p-3">
+                <span class="c-gold h5 m-0">Więcej Informacji</span>
+                <button class="btn btn-danger btn-outline-white" type="button" aria-label="Zamknij menu info" onclick="closeInfoSideMenu()">
+                        <i class="fa fa-times" aria-hidden="true"></i>
+                </button>
+        </div>
+        <nav class="d-flex flex-column p-3">
+                <a class="btn btn-dark btn-outline-warning c-gold mb-2 text-start bg-gradient" href="{% url 'info_acc_rules' %}">Zasady Broni</a>
+                <a class="btn btn-dark btn-outline-warning c-gold mb-2 text-start bg-gradient" href="{% url 'info_effects' %}">Lista Efektów</a>
+                <a class="btn btn-dark btn-outline-warning c-gold mb-2 text-start bg-gradient" href="{% url 'classes' %}">Klasy</a>
+                <a class="btn btn-dark btn-outline-warning c-gold mb-2 text-start bg-gradient" href="{% url 'races' %}">Rasy</a>
+                <a class="btn btn-dark btn-outline-warning c-gold mb-2 text-start bg-gradient" href="{% url 'images' %}">Zdjęcia</a>
+        </nav>
+</aside>
