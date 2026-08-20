@@ -577,7 +577,7 @@ style="width: 98%; z-index: 20; margin-left: 0.22rem !important; margin-top: -5r
                 <div class="row me-0 pe-0">
                     <div class="col text-center">
                         <a href='javascript:void(0)' onclick="showIframe('/dunnorpg/items/{{ helmet.name|getDescId }}?ref=char;{{ helmet.id }}')" class="{{ helmet.name|getItemRarity }} h4">
-                            {{ helmet.name }} <span id="armor-head-durability-percent">{{ helmet.name|getDurabilityPercent:helmet.durability }}</span> 
+                            {{ helmet.name }} <span id="armor-head-durability-percent" class="item-durability-percent">{{ helmet.name|getDurabilityPercent:helmet.durability }}</span> 
                             {% if user.is_superuser %}
                                 <a href="/admin/DunnoRPG/charitems/{{ helmet.id }}/change/" class="fa fa-link" target="_blank" onclick="event.stopPropagation()"></a>
                             {% endif %}
@@ -699,7 +699,7 @@ style="width: 98%; z-index: 20; margin-left: 0.22rem !important; margin-top: -5r
                 <div class="row me-0 pe-0">
                     <div class="col text-center">
                         <a href='javascript:void(0)' onclick="showIframe('/dunnorpg/items/{{ torso.name|getDescId }}?ref=char;{{ torso.id }}')" class="{{ torso.name|getItemRarity }} h4">
-                            {{ torso.name }} <span id="armor-torso-durability-percent">{{ torso.name|getDurabilityPercent:torso.durability }}</span> 
+                            {{ torso.name }} <span id="armor-torso-durability-percent" class="item-durability-percent">{{ torso.name|getDurabilityPercent:torso.durability }}</span> 
                             {% if user.is_superuser %}
                                 <a href="/admin/DunnoRPG/charitems/{{ torso.id }}/change/" class="fa fa-link" target="_blank" onclick="event.stopPropagation()"></a>
                             {% endif %}
@@ -848,7 +848,7 @@ style="width: 98%; z-index: 20; margin-left: 0.22rem !important; margin-top: -5r
                 <div class="row me-0 pe-0">
                     <div class="col text-center">
                         <a href='javascript:void(0)' onclick="showIframe('/dunnorpg/items/{{ leftItem.name|getDescId }}?ref=char;{{ leftItem.id }}')" class="{{ leftItem.name|getItemRarity }} h4">
-                            {{ leftItem.name }} <span id="l-dur-perc">{{ leftItem.name|getDurabilityPercent:leftItem.durability }}</span> 
+                            {{ leftItem.name }} <span id="l-dur-perc" class="item-durability-percent">{{ leftItem.name|getDurabilityPercent:leftItem.durability }}</span> 
                             {% if user.is_superuser %}
                                 <a href="/admin/DunnoRPG/charitems/{{ leftItem.id }}/change/" class="fa fa-link" target="_blank" onclick="event.stopPropagation()"></a>
                             {% endif %}
@@ -1007,7 +1007,7 @@ style="width: 98%; z-index: 20; margin-left: 0.22rem !important; margin-top: -5r
                 <div class="row me-0 pe-0">
                     <div class="col text-center">
                         <a href='javascript:void(0)' onclick="showIframe('/dunnorpg/items/{{ rightItem.name|getDescId }}?ref=char;{{ rightItem.id }}')" class="{{ rightItem.name|getItemRarity }} h4">
-                            {{ rightItem.name }} <span id="r-dur-perc">{{ rightItem.name|getDurabilityPercent:rightItem.durability }}</span> 
+                            {{ rightItem.name }} <span id="r-dur-perc" class="item-durability-percent">{{ rightItem.name|getDurabilityPercent:rightItem.durability }}</span> 
                             {% if user.is_superuser %}
                                 <a href="/admin/DunnoRPG/charitems/{{ rightItem.id }}/change/" class="fa fa-link" target="_blank" onclick="event.stopPropagation()"></a>
                             {% endif %}
@@ -1137,7 +1137,7 @@ style="width: 98%; z-index: 20; margin-left: 0.22rem !important; margin-top: -5r
                 <div class="row me-0 pe-0">
                     <div class="col text-center">
                         <a href='javascript:void(0)' onclick="showIframe('/dunnorpg/items/{{ sideItem.name|getDescId }}?ref=char;{{ sideItem.id }}')" class="{{ sideItem.name|getItemRarity }} h4">
-                            {{ sideItem.name }} {{ sideItem.name|getDurabilityPercent:sideItem.durability }} 
+                            {{ sideItem.name }} <span class="item-durability-percent">{{ sideItem.name|getDurabilityPercent:sideItem.durability }}</span> 
                             {% if user.is_superuser %}
                                 <a href="/admin/DunnoRPG/charitems/{{ sideItem.id }}/change/" class="fa fa-link" target="_blank" onclick="event.stopPropagation()"></a>
                             {% endif %}
@@ -1264,7 +1264,7 @@ style="width: 98%; z-index: 20; margin-left: 0.22rem !important; margin-top: -5r
                 <div class="row me-0 pe-0">
                     <div class="col text-center">
                         <a href='javascript:void(0)' onclick="showIframe('/dunnorpg/items/{{ boots.name|getDescId }}?ref=char;{{ boots.id }}')" class="{{ boots.name|getItemRarity }} h4">
-                            {{ boots.name }} <span id="armor-legs-durability-percent">{{ boots.name|getDurabilityPercent:boots.durability }}</span> 
+                            {{ boots.name }} <span id="armor-legs-durability-percent" class="item-durability-percent">{{ boots.name|getDurabilityPercent:boots.durability }}</span> 
                             {% if user.is_superuser %}
                                 <a href="/admin/DunnoRPG/charitems/{{ boots.id }}/change/" class="fa fa-link" target="_blank" onclick="event.stopPropagation()"></a>
                             {% endif %}
@@ -1386,7 +1386,7 @@ style="width: 98%; z-index: 20; margin-left: 0.22rem !important; margin-top: -5r
                 <div class="row me-0 pe-0">
                     <div class="col text-center">
                         <a href='javascript:void(0)' onclick="showIframe('/dunnorpg/items/{{ gloves.name|getDescId }}?ref=char;{{ gloves.id }}')" class="{{ gloves.name|getItemRarity }} h4">
-                            {{ gloves.name }} <span id="armor-hands-durability-percent">{{ gloves.name|getDurabilityPercent:gloves.durability }}</span> 
+                            {{ gloves.name }} <span id="armor-hands-durability-percent" class="item-durability-percent">{{ gloves.name|getDurabilityPercent:gloves.durability }}</span> 
                             {% if user.is_superuser %}
                                 <a href="/admin/DunnoRPG/charitems/{{ gloves.id }}/change/" class="fa fa-link" target="_blank" onclick="event.stopPropagation()"></a>
                             {% endif %}
@@ -2238,6 +2238,74 @@ function initAjaxInput(inputId, formId){
     })
 }
 
+function initItemDurabilityForms(){
+    document.querySelectorAll('form[action*="changedur-"]').forEach((form) => {
+        const input = form.querySelector('input[name="dur"]')
+        const durabilityPercent = form.querySelector('.item-durability-percent')
+        const armorValue = form.querySelector('[id^="armor-"][id$="-value"]')
+        if(!input){
+            return
+        }
+
+        input.dataset.lastSubmittedValue = input.value
+
+        form.addEventListener('submit', async (event) => {
+            event.preventDefault()
+
+            const rawValue = input.value.trim()
+            const value = Number(rawValue)
+            if(form.dataset.submitting === 'true' || input.value === input.dataset.lastSubmittedValue){
+                return
+            }
+
+            if(rawValue === '' || !Number.isInteger(value) || value < 0){
+                showMessage('Wytrzymałość musi być liczbą całkowitą większą lub równą 0.', 'error')
+                return
+            }
+
+            form.dataset.submitting = 'true'
+            try{
+                const response = await fetch(form.action, {
+                    method: 'POST',
+                    body: new FormData(form),
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                    },
+                })
+                const data = await response.json()
+
+                if(!response.ok){
+                    throw new Error(data.error || 'Nie udało się zmienić wytrzymałości.')
+                }
+
+                input.value = data.durability
+                input.setAttribute('value', data.durability)
+                input.dataset.lastSubmittedValue = String(data.durability)
+                if(durabilityPercent){
+                    durabilityPercent.textContent = data.durability_percent
+                }
+                if(armorValue && data.armor !== undefined){
+                    armorValue.textContent = data.armor
+                }
+                showMessage(data.message || 'Pomyślnie zmieniono wytrzymałość.', 'success')
+            }
+            catch(error){
+                showMessage(error.message, 'error')
+            }
+            finally{
+                form.dataset.submitting = 'false'
+            }
+        })
+
+        input.addEventListener('change', () => {
+            if(input.value === input.dataset.lastSubmittedValue){
+                return
+            }
+            form.requestSubmit()
+        })
+    })
+}
+
 initAjaxInput('hp-val', 'hp-form')
 initAjaxInput('coins', 'coins-form')
 initAjaxInput('water-val', 'water-form')
@@ -2249,6 +2317,7 @@ document.querySelectorAll('[id^="skill-uses-val-"]').forEach((input) => {
 })
 initAjaxInput('counter-val', 'counter-form')
 initAjaxInput('counter2-val', 'counter2-form')
+initItemDurabilityForms()
 
 function adjustCounter(counterField, delta){
     const input = document.getElementById(`${counterField}-val`)

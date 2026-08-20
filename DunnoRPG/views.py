@@ -1611,12 +1611,40 @@ def swap_side_to_hand(request, **kwargs):
 
     return redirect('character_detail', char.id)
 def change_item_durability(request,**kwargs):
+    char = get_object_or_404(models.Character, id=kwargs['char_id'])
     dur = request.POST.get('dur')
-    if dur is not None and dur != '':
-        char = get_object_or_404(models.Character, id=kwargs['char_id'])
-        item = get_object_or_404(models.CharItems, id=kwargs['item_id'])
-        item.durability = int(request.POST['dur'])
-        item.save()
+    if dur is None or dur == '':
+        if is_partial_request(request):
+            return JsonResponse({"error": "Wytrzymałość nie może być pusta."}, status=400)
+        return redirect('character_detail', char.id)
+
+    try:
+        durability = int(dur)
+    except ValueError:
+        if is_partial_request(request):
+            return JsonResponse({"error": "Wytrzymałość musi być liczbą całkowitą."}, status=400)
+        return redirect('character_detail', char.id)
+
+    item = get_object_or_404(models.CharItems, id=kwargs['item_id'])
+    item.durability = durability
+    item.save()
+
+    if is_partial_request(request):
+        item_desc = get_object_or_404(models.Items, name=item.name)
+        max_durability = item_desc.maxDurability or 0
+        durability_percent = "(0%)"
+        if max_durability > 0:
+            durability_percent = f"({item.durability / max_durability:.0%})"
+        armor = 0
+        if item_desc.armor != 0:
+            armor = math.ceil(item.durability / 50)
+        return JsonResponse({
+            "message": "Pomyślnie zmieniono wytrzymałość.",
+            "durability": item.durability,
+            "durability_percent": durability_percent,
+            "armor": armor,
+        })
+
     return redirect('character_detail', char.id)
 def fix_item(request, **kwargs):
     if request.method == 'POST':
