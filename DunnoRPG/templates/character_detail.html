@@ -870,9 +870,9 @@ style="width: 98%; z-index: 20; margin-left: 0.22rem !important; margin-top: -5r
 
                     <div class="col-4 border-end border-warning p-1 h6 mb-0 d-flex align-items-center justify-content-center">
                         <span class="c-gold ms-1">
-                            <span id="l_stats">
+                            <span id="l_stats" class="item-stats">
                                 {{ leftItem.name|getStaffMagicDmg:0 }}
-                                {{ leftItem.name|getItemStatByName }}
+                                {{ leftItem.name|getItemStatByDurability:leftItem.durability }}
                             </span> <span id='l_bonus'>{{ value.name|isPreffereOrUnliked:leftItem.name }}</span>
                         </span>
                     </div>                
@@ -1029,7 +1029,7 @@ style="width: 98%; z-index: 20; margin-left: 0.22rem !important; margin-top: -5r
 
                     <div class="col-4 border-end border-warning p-1 h6 mb-0 d-flex align-items-center justify-content-center">
                         <span class="c-gold ms-1">
-                            <span id="r_stats">{{ rightItem.name|getItemStatByName }}</span> <span id='r_bonus'>{{ value.name|isPreffereOrUnliked:rightItem.name }}</span>
+                            <span id="r_stats" class="item-stats">{{ rightItem.name|getItemStatByDurability:rightItem.durability }}</span> <span id='r_bonus'>{{ value.name|isPreffereOrUnliked:rightItem.name }}</span>
                         </span>
                     </div>                
                     <div class="col-2 border-end border-warning p-3 h6 mb-0 d-flex align-items-center justify-content-center">
@@ -1158,7 +1158,7 @@ style="width: 98%; z-index: 20; margin-left: 0.22rem !important; margin-top: -5r
                 <div class="row ps-0 ms-1 me-0 pe-0">
 
                     <div class="col-4 border-end border-warning p-1 h6 mb-0 d-flex align-items-center justify-content-center">
-                        <span class="c-gold ms-1">{{ sideItem.name|getItemStatByName }}</span>
+                        <span class="c-gold ms-1"><span class="item-stats">{{ sideItem.name|getItemStatByDurability:sideItem.durability }}</span></span>
                     </div>                
                     <div class="col-2 border-end border-warning p-3 h6 mb-0 d-flex align-items-center justify-content-center">
                         <span class="text-white-50"></span> <span class="c-gold ms-1">{{ sideItem.name|getItemWeight }}kg</span>
@@ -2243,6 +2243,7 @@ function initItemDurabilityForms(){
         const input = form.querySelector('input[name="dur"]')
         const durabilityPercent = form.querySelector('.item-durability-percent')
         const armorValue = form.querySelector('[id^="armor-"][id$="-value"]')
+        const itemStats = form.querySelector('.item-stats')
         if(!input){
             return
         }
@@ -2286,6 +2287,9 @@ function initItemDurabilityForms(){
                 }
                 if(armorValue && data.armor !== undefined){
                     armorValue.textContent = data.armor
+                }
+                if(itemStats && data.block !== undefined && itemStats.textContent.includes('Blok:')){
+                    itemStats.textContent = itemStats.textContent.replace(/Blok:\s*\d+/, `Blok: ${data.block}`)
                 }
                 showMessage(data.message || 'Pomyślnie zmieniono wytrzymałość.', 'success')
             }

@@ -1638,11 +1638,15 @@ def change_item_durability(request,**kwargs):
         armor = 0
         if item_desc.armor != 0:
             armor = math.ceil(item.durability / 50)
+        block = 0
+        if item_desc.block != 0:
+            block = min(item_desc.block, math.ceil(item.durability / 50))
         return JsonResponse({
             "message": "Pomyślnie zmieniono wytrzymałość.",
             "durability": item.durability,
             "durability_percent": durability_percent,
             "armor": armor,
+            "block": block,
         })
 
     return redirect('character_detail', char.id)

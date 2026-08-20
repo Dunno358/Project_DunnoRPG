@@ -34,6 +34,18 @@ def getItemStatByName(itemName):
             return f"Blok: {item['block']}"
     except:
         pass
+
+@register.filter
+def getItemStatByDurability(itemName, currentDurability):
+    try:
+        item = models.Items.objects.all().filter(name=itemName).values()[0]
+        if item['type'].lower() != 'shield':
+            return f"{item['dmgDice']}, {item['AP']}% AP"
+
+        durability_block = math.ceil(int(currentDurability) / 50)
+        return f"Blok: {min(item['block'], durability_block)}"
+    except:
+        pass
     
 @register.filter
 def getItemAP(itemName, charId=0):
