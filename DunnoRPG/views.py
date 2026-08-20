@@ -7,6 +7,7 @@ from django.contrib.auth.models import User
 from django.db import transaction
 from django.apps import apps
 from django.db.models import Q
+from django.db.models.functions import Lower
 from django.db.models.query import QuerySet
 from django.http import Http404, HttpResponse, HttpResponseRedirect, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
@@ -2349,6 +2350,10 @@ class ItemsView(ListView):
     template_name = 'items.html'
     context_object_name = 'items'
     ordering = ['name']
+
+    @staticmethod
+    def sort_items_by_name(items):
+        return sorted(items, key=lambda item: (item.get('name') or '').lower())
     
     def get_queryset(self):
         queryset = []
@@ -2362,9 +2367,9 @@ class ItemsView(ListView):
         if self.character == None:
             if value:
                 if self.request.user.is_superuser:
-                    queryset = models.Items.objects.filter((Q(name__icontains=value) | Q(desc__icontains=value))).order_by('rarity')
+                    queryset = models.Items.objects.filter((Q(name__icontains=value) | Q(desc__icontains=value))).order_by(Lower('name'))
                 else:
-                    queryset = models.Items.objects.filter((Q(name__icontains=value) | Q(desc__icontains=value)), found=True).order_by('rarity')
+                    queryset = models.Items.objects.filter((Q(name__icontains=value) | Q(desc__icontains=value)), found=True).order_by(Lower('name'))
         else:
             self.singlehand = []
             self.twohand = []
@@ -2435,24 +2440,24 @@ class ItemsView(ListView):
         
         if self.character == None:
             if self.request.user.is_superuser:
-                context['items_singlehand'] = models.Items.objects.filter(dualHanded=False).order_by('rarity').exclude(type__in=types)
-                context['items_twohand'] = models.Items.objects.filter(dualHanded=True).order_by('rarity')   
+                context['items_singlehand'] = models.Items.objects.filter(dualHanded=False).order_by(Lower('name')).exclude(type__in=types)
+                context['items_twohand'] = models.Items.objects.filter(dualHanded=True).order_by(Lower('name'))   
                 context['animals'] =  models.Items.objects.filter(
                     Q(type='Animal') | Q(type='Mount Armor') | Q(category__in=MOUNT_ITEM_CATEGORIES)
-                ).order_by('rarity')
+                ).order_by(Lower('name'))
             else:
-                context['items_singlehand'] = models.Items.objects.filter(dualHanded=False, found=True).order_by('rarity').exclude(type__in=types)
-                context['items_twohand'] = models.Items.objects.filter(dualHanded=True, found=True) .order_by('rarity')
+                context['items_singlehand'] = models.Items.objects.filter(dualHanded=False, found=True).order_by(Lower('name')).exclude(type__in=types)
+                context['items_twohand'] = models.Items.objects.filter(dualHanded=True, found=True) .order_by(Lower('name'))
                 context['animals'] =  models.Items.objects.filter(
                     Q(type='Animal') | Q(type='Mount Armor') | Q(category__in=MOUNT_ITEM_CATEGORIES),
                     found=True
-                ).order_by('rarity')
+                ).order_by(Lower('name'))
             
             for x in range(len(names)):
                 if self.request.user.is_superuser:
-                    context[names[x]] = models.Items.objects.filter(type=types[x]).order_by('rarity')
+                    context[names[x]] = models.Items.objects.filter(type=types[x]).order_by(Lower('name'))
                 else:
-                    context[names[x]] = models.Items.objects.filter(type=types[x], found=True).order_by('rarity')
+                    context[names[x]] = models.Items.objects.filter(type=types[x], found=True).order_by(Lower('name'))
         else:
             
             items_weight = get_character_current_weight(self.character)
@@ -2473,15 +2478,15 @@ class ItemsView(ListView):
             context['charisma'] = charisma
             context['current_weight'] = items_weight
             context['max_weight'] = max_weight
-            context['items_singlehand'] = self.singlehand
-            context['items_twohand'] = self.twohand
-            context['animals'] = self.animals
-            context['items_helmet'] = self.armor_dict['helmet']
-            context['items_torso'] = self.armor_dict['torso']
-            context['items_gloves'] = self.armor_dict['gloves']
-            context['items_boots'] = self.armor_dict['boots']
-            context['items_amulets'] = self.armor_dict['amulets']
-            context['items_other'] = self.armor_dict['other']
+            context['items_singlehand'] = self.sort_items_by_name(self.singlehand)
+            context['items_twohand'] = self.sort_items_by_name(self.twohand)
+            context['animals'] = self.sort_items_by_name(self.animals)
+            context['items_helmet'] = self.sort_items_by_name(self.armor_dict['helmet'])
+            context['items_torso'] = self.sort_items_by_name(self.armor_dict['torso'])
+            context['items_gloves'] = self.sort_items_by_name(self.armor_dict['gloves'])
+            context['items_boots'] = self.sort_items_by_name(self.armor_dict['boots'])
+            context['items_amulets'] = self.sort_items_by_name(self.armor_dict['amulets'])
+            context['items_other'] = self.sort_items_by_name(self.armor_dict['other'])
             context['all_items'] = models.Items.objects.order_by('name')
             player_items = models.Eq.objects.filter(character=self.character.name)
             if not self.request.user.is_superuser:
