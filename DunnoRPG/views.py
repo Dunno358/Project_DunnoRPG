@@ -158,6 +158,7 @@ MOUNT_ATTACHMENT_CATEGORIES = {
     "Mount_horseshoes": {"animal_horseshoes"},
 }
 MOUNT_ITEM_CATEGORIES = {"animal", "animal_armor", "animal_saddle", "animal_horseshoes"}
+EQUIPPED_ONLY_CAPACITY_ITEM_TYPES = {"amulet", "helmet", "torso", "gloves", "boots"}
 
 
 def get_character_max_weight(character):
@@ -166,6 +167,8 @@ def get_character_max_weight(character):
     for item in models.Eq.objects.filter(character=character.name):
         item_desc = models.Items.objects.filter(name=item.name).first()
         if item_desc:
+            if (item_desc.type or "").lower() in EQUIPPED_ONLY_CAPACITY_ITEM_TYPES:
+                continue
             if (item_desc.category or "").lower() == "animal_saddle":
                 continue
             item_capacity += item_desc.extra_capacity * item.amount
