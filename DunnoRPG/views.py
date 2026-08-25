@@ -159,6 +159,12 @@ MOUNT_ATTACHMENT_CATEGORIES = {
 }
 MOUNT_ITEM_CATEGORIES = {"animal", "animal_armor", "animal_saddle", "animal_horseshoes"}
 EQUIPPED_ONLY_CAPACITY_ITEM_TYPES = {"amulet", "helmet", "torso", "gloves", "boots"}
+HAND_ITEM_PLACES = {"left", "right", "side"}
+
+
+def is_weapon_item(item):
+    category = (item.category or "").strip().lower()
+    return category == "weapon" or category.startswith("weapon_")
 
 
 def get_character_max_weight(character):
@@ -1999,6 +2005,10 @@ def char_wear_item(request, **kwargs):
     item = models.Items.objects.get(name=item_eq_obj.name)
     item_category = (item.category or "").lower()
 
+    if place.lower() in HAND_ITEM_PLACES and not is_weapon_item(item):
+        messages.error(request, "W tym slocie mozna zalozyc tylko bron.")
+        return redirect('character_detail', char.id)
+
     if place in MOUNT_ATTACHMENT_POSITIONS:
         if not models.CharItems.objects.filter(character=char.name, position="Mount").exists():
             messages.error(request, "Najpierw załóż wierzchowca.")
@@ -2198,6 +2208,10 @@ def char_swap_item(request, **kwargs):
     it2D = get_object_or_404(models.Items, name=it2.name)
 
     armor_place = it1.position or it1.hand
+    if (armor_place or "").lower() in HAND_ITEM_PLACES and not is_weapon_item(it2D):
+        messages.error(request, "W tym slocie mozna zalozyc tylko bron.")
+        return redirect('character_detail', char.id)
+
     if armor_place in MOUNT_ATTACHMENT_POSITIONS:
         if not models.CharItems.objects.filter(character=char.name, position="Mount").exists():
             messages.error(request, "Najpierw załóż wierzchowca.")
@@ -2451,10 +2465,12 @@ class ItemsView(ListView):
                 else:
                     if item_desc.type == 'Animal' or item_desc.type == 'Mount Armor' or (item_desc.category or "").lower() in MOUNT_ITEM_CATEGORIES:
                         self.animals.append(category_data)
-                    elif item_desc.dualHanded == False:
+                    elif is_weapon_item(item_desc) and item_desc.dualHanded == False:
                         self.singlehand.append(category_data)
-                    else:
+                    elif is_weapon_item(item_desc):
                         self.twohand.append(category_data)
+                    else:
+                        self.armor_dict['other'].append(category_data)
 
             for item in models.Eq.objects.filter(character=self.character.name):
                 item_obj = get_object_or_404(models.Items, name=item.name)
