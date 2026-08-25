@@ -73,6 +73,11 @@ class AddEqItemForm(forms.ModelForm):
         'name': 'equip_item'
     }))
 
+    ignore_limits = forms.BooleanField(required=False,label='Ignoruj limity',widget=forms.CheckboxInput(attrs={
+        'class': '',
+        'name': 'ignore_limits'
+    }))
+
     additional_description = forms.CharField(required=False,label='Dodatkowy opis',widget=forms.Textarea(attrs={
         'class': 'text-center bg-dark c-gold rounded border border-info m-1 w-100',
         'rows': 3
@@ -91,7 +96,7 @@ class AddEqItemForm(forms.ModelForm):
     
     class Meta: 
         model = Eq
-        fields = ['character','name','durability','amount','additional_description','override','equip_item']
+        fields = ['character','name','durability','amount','additional_description','override','equip_item','ignore_limits']
 
 """
 class AddEffectForm(forms.ModelForm):

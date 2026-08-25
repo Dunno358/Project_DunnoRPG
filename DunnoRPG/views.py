@@ -160,11 +160,26 @@ MOUNT_ATTACHMENT_CATEGORIES = {
 MOUNT_ITEM_CATEGORIES = {"animal", "animal_armor", "animal_saddle", "animal_horseshoes"}
 EQUIPPED_ONLY_CAPACITY_ITEM_TYPES = {"amulet", "helmet", "torso", "gloves", "boots"}
 HAND_ITEM_PLACES = {"left", "right", "side"}
+MAX_BAG_ITEMS_IN_EQ = 2
 
 
 def is_weapon_item(item):
     category = (item.category or "").strip().lower()
     return category == "weapon" or category.startswith("weapon_")
+
+
+def get_bag_items_count_in_eq(character):
+    bag_names = models.Items.objects.filter(category__iexact="bag").values_list("name", flat=True)
+    return sum(
+        item.amount
+        for item in models.Eq.objects.filter(character=character.name, name__in=bag_names)
+    )
+
+
+def can_add_item_to_eq_by_limits(character, item, amount):
+    if (item.category or "").strip().lower() != "bag":
+        return True
+    return get_bag_items_count_in_eq(character) + amount <= MAX_BAG_ITEMS_IN_EQ
 
 
 def get_character_max_weight(character):
@@ -566,7 +581,6 @@ class CopyCharacter(APIView):
         if not new_name:
             messages.error(request, "Brak nazwy postaci")
             return redirect_to_characters(request)
-
         try:
             amount = int(request.POST.get("amount") or 1)
         except ValueError:
@@ -1050,6 +1064,11 @@ class MoveItemToEq(APIView):
         item = get_object_or_404(models.CharItems, id=kwargs['item_id'])
         
         char = get_object_or_404(models.Character, name=item.character)
+        item_desc = get_object_or_404(models.Items, name=item.name)
+
+        if not can_add_item_to_eq_by_limits(char, item_desc, 1):
+            messages.error(request, f"{char.name} moze miec maksymalnie {MAX_BAG_ITEMS_IN_EQ} torby w ekwipunku.")
+            return redirect(f"/dunnorpg/character_detail/{kwargs['char_id']}")
         
         eq_weight = get_character_current_weight(char)
             
@@ -1529,6 +1548,10 @@ def give_item(request, **kwargs):
         if given_amount <= eq_item.amount:
             max_weight = get_character_max_weight(to_char)
             current_weight = get_character_current_weight(to_char)
+
+            if not can_add_item_to_eq_by_limits(to_char, itemDesc, given_amount):
+                messages.error(request, f"{to_char.name} moze miec maksymalnie {MAX_BAG_ITEMS_IN_EQ} torby w ekwipunku.")
+                return redirect(f"/dunnorpg/items/ch{from_char.id}")
 
             if itemDesc.weight * given_amount + current_weight <= max_weight:
                 models.Eq.objects.create(
@@ -3052,6 +3075,7 @@ class GMPanel(FormView):
     def form_valid(self, form):
         override = form.cleaned_data.get('override')
         equip_item = form.cleaned_data.get('equip_item')
+        ignore_limits = form.cleaned_data.get('ignore_limits')
         form_data = form.save(commit=False)
         
         character = models.Character.objects.get(pk=form_data.character)
@@ -3112,6 +3136,10 @@ class GMPanel(FormView):
 
             messages.warning(self.request, f"Nie udało się założyć {item.name} postaci {character.name}")
         
+        if not ignore_limits and not can_add_item_to_eq_by_limits(character, item, form_data.amount):
+            messages.error(self.request, f"{character.name} moze miec maksymalnie {MAX_BAG_ITEMS_IN_EQ} torby w ekwipunku.")
+            return redirect('gm_panel')
+
         try:
             existing_item = get_object_or_404(
                 models.Eq,
@@ -3420,6 +3448,10 @@ class BuyItem(APIView):
 
         if item_amount > available_amount:
             item_amount = available_amount
+
+        if not can_add_item_to_eq_by_limits(character, item, item_amount):
+            messages.error(request, f"{character.name} moze miec maksymalnie {MAX_BAG_ITEMS_IN_EQ} torby w ekwipunku.")
+            return redirect('/dunnorpg/city')
 
         max_weight = get_character_max_weight(character)
         current_weight = get_character_current_weight(character)
