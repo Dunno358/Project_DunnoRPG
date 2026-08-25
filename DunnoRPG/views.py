@@ -1329,8 +1329,7 @@ def skill_downgrade(request,char_id,skill_id):
         skill.uses_left = skill_details[f"useslvl{skill.level}"] or 0
         skill.save()
         
-        if skill_details['category'] != 'Magical':
-            character_object.points_left += int(skill_details['cost'])
+        character_object.points_left += int(skill_details['cost'])
         character_object.save()
     else:
         messages.error(request,f'{skill.skill}: Niżej się nie da!')
