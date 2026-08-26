@@ -149,7 +149,7 @@
                 <h2>Pancerz: {{ item.armor }}</h2>
             {% elif item.type == 'Other' %}
                 {% if item.on_use and item.on_use != '-' %}
-                    <h2>Możliwość użycia ({% if item.use_amount %}{{ item.use_amount }}{% else %}1{% endif %})</h2>
+                    <h2>Możliwość użycia: {% if item.use_info %}{{ item.use_info }}{% else %}{% if item.use_amount %}{{ item.use_amount }}{% else %}1{% endif %}{% endif %}</h2>
                 {% else %}
                     <h2>Nie można użyć</h2>
                 {% endif %}
@@ -157,7 +157,7 @@
                 <h2>PŻ: {{ item.maxDurability }} | Pancerz: {{ item.armor }}</h2>
             {% elif item.category == 'animal_horseshoes' or item.category == 'animal_saddle' %}
                 {% if item.on_use and item.on_use != '-' %}
-                    <h2>Możliwość użycia ({% if item.use_amount %}{{ item.use_amount }}{% else %}1{% endif %})</h2>
+                    <h2>Możliwość użycia: {% if item.use_info %}{{ item.use_info }}{% else %}{% if item.use_amount %}{{ item.use_amount }}{% else %}1{% endif %}{% endif %}</h2>
                 {% else %}
                     <h2>Wyposażenie wierzchowca</h2>
                 {% endif %}
