@@ -2187,6 +2187,32 @@ def reset_skills(request,mode):
             print(f"Cannot reset for: {skill}")
     return redirect('gm_panel')
 
+@user_passes_test(lambda u: u.is_superuser)
+def reset_portal(request):
+    if request.method != 'POST':
+        return redirect('gm_panel')
+
+    players = models.Character.objects.filter(hidden=False, type__iexact='Player')
+    player_names = list(players.values_list('name', flat=True))
+    player_count = len(player_names)
+
+    with transaction.atomic():
+        players.update(mutation="")
+        deleted_eq_count, _ = models.Eq.objects.filter(character__in=player_names).delete()
+        deleted_char_items_count, _ = models.CharItems.objects.filter(character__in=player_names).delete()
+        reset_skills_count = models.Skills.objects.filter(character__in=player_names).update(uses_left=0)
+
+    messages.warning(
+        request,
+        (
+            f"Reset portalowy wykonany dla {player_count} postaci. "
+            f"Usunięto {deleted_eq_count} przedmiotów z eq, "
+            f"{deleted_char_items_count} założonych przedmiotów i "
+            f"wyzerowano {reset_skills_count} ładunków skilli."
+        )
+    )
+    return redirect('gm_panel')
+
 def update_field(request, **kwargs):
     text = request.POST.get('notes-text')
     field_id = request.POST.get('id')

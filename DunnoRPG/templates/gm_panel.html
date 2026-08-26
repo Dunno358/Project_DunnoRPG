@@ -121,11 +121,9 @@
 </div>
 
 <div id='end-round' class='container bg-danger rounded border border-white mt-3'>
-    <h2 class='row text-center mt-1'>
-        <a class='col text-white border-end border-white p-2' href='reset-skills/all'>Reset all skills</a>
-        <a class='col text-white border-end border-white p-2' href='reset-skills/normal'>Reset normal skills</a>
-        <a class='col text-white border-0 border-white p-2' href='end_round'>End Round</a>
-    </a>
+    <form method='POST' action="{% url 'reset_portal' %}" onsubmit="return confirm('Czy na pewno usunąć wszystkie ładunki skilli, przedmioty i mutacje widocznych postaci Player?');">
+    {% csrf_token %}
+        <button class='w-100 btn btn-danger text-white p-2 fs-2 fw-bold' type='submit'>Reset portalowy</button>
     </form>
 </div>
 

@@ -62,6 +62,7 @@ urlpatterns = [
     path('gmpanel/add_mutation', views.add_mutation, name='add_mutation'),
     path('gmpanel/set_chapter', views.set_current_chapter, name='set_current_chapter'),
     path('gmpanel/reset-skills/<str:mode>', views.reset_skills, name='reset_skills'),
+    path('gmpanel/reset_portal', views.reset_portal, name='reset_portal'),
     
     path('info/', views.Info.as_view(), name='info'),
     path('info/acc-rules/', views.AccRules.as_view(), name='info_acc_rules'),
