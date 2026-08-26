@@ -34,6 +34,15 @@
 
     <div class="row m-0 p-0 mt-3">
         <div class="col-5 m-0 p-0 text-end">
+            <span class="text-white-50">Nazwa postaci:</span>
+        </div>
+        <div class="col">
+            <input class="w-100 text-center border border-warning bg-gray text-white-50 rounded" id="adv-name" type="text" value="{{ character.name }}" />
+        </div>
+    </div>
+
+    <div class="row m-0 p-0 mt-3">
+        <div class="col-5 m-0 p-0 text-end">
             <span class="text-white-50">Maks. liczba HP:</span>
         </div>
         <div class="col">
@@ -424,6 +433,7 @@
         let txt = document.getElementById("adv-txt")
 
         req_body = {
+            "name": document.getElementById("adv-name").value,
             "maxHP": document.getElementById("adv-maxhp").value,
             "barrier": document.getElementById("adv-barrier").value,
             "points": document.getElementById("adv-points").value,
@@ -446,6 +456,9 @@
             txt.textContent = "Pomyślnie zapisano zmiany"
             txt.classList.remove("text-danger")
             txt.classList.add("text-success")
+            const data = await response.json()
+            document.getElementById("char-name").textContent = data.name
+            document.title = "[E] " + data.name + " | DunnoRPG"
         }else{
             txt.textContent = "Wystąpił błąd"
             txt.classList.add("text-danger")

@@ -1714,16 +1714,40 @@ def change_char_details(request, **kwargs):
     try:
         data = json.loads(request.body)
         char = get_object_or_404(models.Character, id=kwargs['char_id'])
+        old_name = char.name
+        new_name = (data.get('name') or old_name).strip()
+        max_name_length = models.Character._meta.get_field("name").max_length
 
-        char.fullHP = int(data['maxHP'])
-        char.barrier = int(data['barrier'])
-        char.points_left = int(data['points'])
-        char.type = (data.get('type') or 'Player').strip() or 'Player'
-        char.model_url = data['url']
-        char.size = f"{float(data['size']):g}"
-        char.save()
+        if not new_name:
+            raise ValueError("Nazwa postaci nie moze byc pusta")
 
-        return JsonResponse({"message": "Pomyślnie zmieniono dane"}, status=200)
+        if len(new_name) > max_name_length:
+            raise ValueError(f"Nazwa postaci moze miec maksymalnie {max_name_length} znakow")
+
+        if models.Character.objects.filter(name=new_name).exclude(pk=char.pk).exists():
+            raise ValueError("Postac o takiej nazwie juz istnieje")
+
+        with transaction.atomic():
+            if new_name != old_name:
+                for related_model in [
+                    models.Skills,
+                    models.Eq,
+                    models.CharItems,
+                    models.Mods,
+                    models.Effects,
+                ]:
+                    related_model.objects.filter(character=old_name).update(character=new_name)
+
+            char.name = new_name
+            char.fullHP = int(data['maxHP'])
+            char.barrier = int(data['barrier'])
+            char.points_left = int(data['points'])
+            char.type = (data.get('type') or 'Player').strip() or 'Player'
+            char.model_url = data['url']
+            char.size = f"{float(data['size']):g}"
+            char.save()
+
+        return JsonResponse({"message": "Pomyslnie zmieniono dane", "name": char.name}, status=200)
     except Exception as e:
         print(traceback.format_exc())
         return JsonResponse({"error": str(e)}, status=400)
