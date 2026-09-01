@@ -2892,20 +2892,18 @@ async function calculateGettingHit(){
 }
 
 function getWeaponMod(){
-    let l_item = document.getElementById('l-weight')
-    let l_item_full = document.getElementById('l_weapon')
     let l_weight_shield = 0   
     try{
-        if(l_item_full.getAttribute("name").toLowerCase()=="shield"){
+        let l_item_type = document.getElementById('l-type').textContent.trim().toLowerCase()
+        if(l_item_type=="tarcza" || l_item_type=="shield"){
             l_weight_shield = parseFloat(document.getElementById('l-weight').innerHTML)
         }
     }catch(error){console.log(error)}
 
-    let r_item = document.getElementById('r-weight')
-    let r_item_full = document.getElementById('r_weapon')
     let r_weight_shield = 0
     try{
-        if(r_item_full.getAttribute("name").toLowerCase()=="shield"){
+        let r_item_type = document.getElementById('r-type').textContent.trim().toLowerCase()
+        if(r_item_type=="tarcza" || r_item_type=="shield"){
             r_weight_shield = parseFloat(document.getElementById('r-weight').innerHTML)
         }
     }catch(error){console.log(error)}
