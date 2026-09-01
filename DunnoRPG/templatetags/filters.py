@@ -446,10 +446,34 @@ def isPreffereOrUnliked(character, itemName):
         return ""
 
 
+def has_military_training(character):
+    return models.Skills.objects.filter(
+        character=character.name,
+        skill__iexact="wojskowe przeszkolenie",
+    ).exists()
+
+
+def filter_item_effective_range(item):
+    if item.range != 0:
+        return item.range
+
+    item_type = (item.type or "").lower()
+    if item_type in ["halberd", "spear", "glaive", "trident", "broń drzewcowa"]:
+        return 3 if item.dualHanded else 2
+    return 2 if item.dualHanded else 1
+
+
+def is_military_training_polearm(item):
+    return (
+        item.dualHanded
+        and (item.category or "").lower() == "weapon_melee"
+        and filter_item_effective_range(item) == 3
+    )
+
+
 @register.filter
 def handNotAllowed(character, hand): #To be extended of handling classes, skills and exceptions
     char = get_object_or_404(models.Character, name=character)
-    skills = models.Skills.objects.filter(character=char.name)
     chosen_hand = hand.capitalize()
     if hand.lower()=='left':
         try:
@@ -459,6 +483,8 @@ def handNotAllowed(character, hand): #To be extended of handling classes, skills
             return False
         
         if rightItemDesc.dualHanded:
+            if has_military_training(char) and is_military_training_polearm(rightItemDesc):
+                return False
             return True
         return False    
     elif hand.lower()=='right':
@@ -469,6 +495,8 @@ def handNotAllowed(character, hand): #To be extended of handling classes, skills
             return False
         
         if leftItemDesc.dualHanded:
+            if has_military_training(char) and is_military_training_polearm(leftItemDesc):
+                return False
             return True
         return False   
         

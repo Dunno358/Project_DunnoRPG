@@ -897,7 +897,7 @@ style="width: 98%; z-index: 20; margin-left: 0.22rem !important; margin-top: -5r
                 <div id='leftItem-swap' class='d-none row text-end m-0 p-0 mt-2 mb-2'>
                     <div class="col-8">
                         <select class='w-100 p-2 ms-2 text-center border border-warning bg-dark text-white-50 rounded'>
-                            {% for item in eq_weapons %}
+                            {% for item in eq_left_hand_weapons %}
                                 <option id='{{ item.id }}' name={{ item.durability }} value='{{ item.name }}'>
                                     {{ item.name }} 
                                     ({{ item.durability }}/{{ item.name|getMaxDurability }})
@@ -939,7 +939,7 @@ style="width: 98%; z-index: 20; margin-left: 0.22rem !important; margin-top: -5r
                 <div id='leftItem-add' class='d-none row text-end m-0 p-0 mt-2 mb-2'>
                     <div class="col-8">
                         <select class='w-100 p-2 ms-2 text-center border border-warning bg-dark text-white-50 rounded'>
-                            {% for item in eq_weapons %}
+                            {% for item in eq_left_hand_weapons %}
                                 <option id='{{ item.id }}' value='{{ item.name }}'>
                                     {{ item.name }} 
                                     ({{ item.durability }}/{{ item.name|getMaxDurability }})
@@ -1053,7 +1053,7 @@ style="width: 98%; z-index: 20; margin-left: 0.22rem !important; margin-top: -5r
                 <div id='rightItem-swap' class='d-none row text-end m-0 p-0 mt-2 mb-2'>
                     <div class="col-8">
                         <select class='w-100 p-2 ms-2 text-center border border-warning bg-dark text-white-50 rounded'>
-                            {% for item in eq_weapons %}
+                            {% for item in eq_right_hand_weapons %}
                                 <option id='{{ item.id }}' name={{ item.durability }} value='{{ item.name }}'>
                                     {{ item.name }} 
                                     ({{ item.durability }}/{{ item.name|getMaxDurability }})
@@ -1095,7 +1095,7 @@ style="width: 98%; z-index: 20; margin-left: 0.22rem !important; margin-top: -5r
                 <div id='rightItem-add' class='d-none row text-end m-0 p-0 mt-2 mb-2'>
                     <div class="col-8">
                         <select class='w-100 p-2 ms-2 text-center border border-warning bg-dark text-white-50 rounded'>
-                            {% for item in eq_weapons %}
+                            {% for item in eq_right_hand_weapons %}
                                 <option id='{{ item.id }}' value='{{ item.name }}'>
                                     {{ item.name }} 
                                     ({{ item.durability }}/{{ item.name|getMaxDurability }})

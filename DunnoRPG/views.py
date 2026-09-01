@@ -169,6 +169,126 @@ def is_weapon_item(item):
     return category == "weapon" or category.startswith("weapon_")
 
 
+MILITARY_TRAINING_SKILL = "wojskowe przeszkolenie"
+TWO_HANDED_IGNORE_CLASSES = {
+    'barbarzyĹ„ca: droga rosomaka',
+    'paladyn: przysiÄ™ga miecza',
+}
+
+
+def character_has_skill(character, skill_name):
+    return models.Skills.objects.filter(
+        character=character.name,
+        skill__iexact=skill_name,
+    ).exists()
+
+
+def item_effective_range(item):
+    if item.range != 0:
+        return item.range
+
+    item_type = (item.type or "").lower()
+    ranges = {
+        "pistol": 9,
+        "kusza refleksyjna": 15,
+        "crossbow": 16,
+        "heavy crossbow": 17,
+        "arbalest": 18,
+        "bow": 14,
+        "longbow": 16,
+        "shortbow": 12,
+        "musket": 18,
+        "lute": 1,
+        "shield": 1,
+        "strzelba": 8,
+        "krĂłtka strzelba": 5,
+        "wand": 12,
+        'flamethrower': 5,
+    }
+    if item_type in ranges:
+        return ranges[item_type]
+
+    bonus = 1 if item_type in ["halberd", "spear", "glaive", "trident", "broĹ„ drzewcowa"] else 0
+    return 2 + bonus if item.dualHanded else 1 + bonus
+
+
+def is_shield_item(item):
+    return (item.type or "").lower() == "shield"
+
+
+def is_military_training_polearm(item):
+    return (
+        item.dualHanded
+        and (item.category or "").lower() == "weapon_melee"
+        and item_effective_range(item) == 3
+    )
+
+
+def character_ignores_two_handed_limits(character):
+    return (character.chosen_class or "").lower() in TWO_HANDED_IGNORE_CLASSES
+
+
+def can_pair_hand_items(character, left_item, right_item):
+    if not left_item or not right_item:
+        return True
+    if character_ignores_two_handed_limits(character):
+        return True
+    if not left_item.dualHanded and not right_item.dualHanded:
+        return True
+
+    has_military_training = character_has_skill(character, MILITARY_TRAINING_SKILL)
+    military_training_pair = (
+        has_military_training
+        and (
+            (is_military_training_polearm(left_item) and is_shield_item(right_item))
+            or (is_shield_item(left_item) and is_military_training_polearm(right_item))
+        )
+    )
+    return military_training_pair
+
+
+def can_equip_hand_item(character, item, hand):
+    hand = hand.capitalize()
+    if hand not in {"Left", "Right"}:
+        return True, ""
+
+    opposite_hand = "Left" if hand == "Right" else "Right"
+    opposite = models.CharItems.objects.filter(character=character.name, hand=opposite_hand).first()
+    opposite_item = models.Items.objects.filter(name=opposite.name).first() if opposite else None
+
+    if (
+        hand == "Right"
+        and item.dualHanded
+        and not character_ignores_two_handed_limits(character)
+        and not (
+            opposite_item
+            and is_shield_item(opposite_item)
+            and character_has_skill(character, MILITARY_TRAINING_SKILL)
+            and is_military_training_polearm(item)
+        )
+    ):
+        return False, 'Dual-Handed weapons can only be added to left hand!'
+
+    left_item = item if hand == "Left" else opposite_item
+    right_item = item if hand == "Right" else opposite_item
+    if not can_pair_hand_items(character, left_item, right_item):
+        return False, 'W tej kombinacji moĹĽna poĹ‚Ä…czyÄ‡ tylko tarczÄ™ z dwurÄ™cznÄ… broniÄ… drzewcowÄ… o zasiÄ™gu 3 przy umiejÄ™tnoĹ›ci Wojskowe przeszkolenie.'
+
+    return True, ""
+
+
+def filter_hand_weapon_options(character, weapons, hand):
+    allowed = []
+    for eq_item in weapons:
+        item = models.Items.objects.filter(name=eq_item.name).first()
+        if not item:
+            continue
+        can_equip, _ = can_equip_hand_item(character, item, hand)
+        if can_equip:
+            allowed.append(eq_item)
+    return allowed
+
+
 def get_bag_items_count_in_eq(character):
     bag_names = models.Items.objects.filter(category__iexact="bag").values_list("name", flat=True)
     return sum(
@@ -919,6 +1039,8 @@ class CharacterDetails(DetailView):
         context['is_over_drunkenness_limit'] = alcohol_level > drunkenness_limit
         
         context['eq_weapons'] = eq_weapons_qs
+        context['eq_left_hand_weapons'] = filter_hand_weapon_options(chosen, eq_weapons_qs, "Left")
+        context['eq_right_hand_weapons'] = filter_hand_weapon_options(chosen, eq_weapons_qs, "Right")
         context['eq_helmets'] = eq_helmets_qs
         context['eq_torsos'] = eq_torsos_qs
         context['eq_gloves'] = eq_gloves_qs
@@ -2076,27 +2198,12 @@ def char_wear_item(request, **kwargs):
         messages.error(request, armor_weight_message)
         return redirect('character_detail', char.id)
     
-    wolverin_barbarian = 'barbarzyńca: droga rosomaka'
-    paladin = 'paladyn: przysięga miecza'
-    
-    allowed_classes = [wolverin_barbarian, paladin]
-                                
-    if item.dualHanded==True and place != 'Side' and char.chosen_class.lower() not in allowed_classes:
-        if place == 'Right':
-            messages.error(request, 'Dual-Handed weapons can only be added to left hand!')
-            return redirect('character_detail', char.id)
-        elif models.CharItems.objects.filter(character=char.name, hand='Right').first() not in [None,'']:
-            messages.error(request, 'Right hand must be empty for that!')
-            return redirect('character_detail', char.id)
-    else:
-        if place == "Right" and char.chosen_class.lower() not in allowed_classes:
-            leftItem = models.CharItems.objects.filter(character=char.name, hand="Left").first()
-            leftItemDesc = get_object_or_404(models.Items, name=leftItem.name) if leftItem else None
-            if leftItemDesc and leftItemDesc.dualHanded:
-                allowed_types = ["shield"]
-                if item.type.lower() not in allowed_types:
-                    messages.error(request, 'You can only add shield to this type of weapon!')
-                    return redirect('character_detail', char.id)
+    can_equip_hand, hand_message = can_equip_hand_item(char, item, place)
+    if not can_equip_hand:
+        messages.error(request, hand_message)
+        return redirect('character_detail', char.id)
+
+    # TODO: If Wojskowe przeszkolenie is level 1, add an attack and parry penalty for the polearm.
 
         
             
@@ -2301,25 +2408,12 @@ def char_swap_item(request, **kwargs):
         messages.error(request, armor_weight_message)
         return redirect('character_detail', char.id)
 
-    if it1D.type.lower() == "shield" and it1.hand.lower() == "right":
-        allow_class = ["barbarzyńca: droga rosomaka"]
-        try:
-            leftItem = models.CharItems.objects.filter(character=char.name, hand="Left").first()
-            leftItemDesc = get_object_or_404(models.Items, name=leftItem.name)     
-            if leftItemDesc.dualHanded and char.chosen_class.lower() not in allow_class:
-                messages.error(request, 'Only shield is avaible as additional weapon in this case!')
-                return redirect('character_detail', char.id)                       
-        except:
-            pass
-    
-    if it2D.dualHanded and it1.hand.lower() != 'side':
-        if it1.hand.lower() == 'right':
-            messages.error(request, 'Dual-handed weapon must be added to left hand when right hand is empty.')
-            return redirect('character_detail', char.id)
-        else:
-            if models.CharItems.objects.filter(character=char.name, hand='Right').first() not in [None,'']:
-                messages.error(request, 'Dual-handed weapon must be added to left hand when right hand is empty.')
-                return redirect('character_detail', char.id)
+    can_equip_hand, hand_message = can_equip_hand_item(char, it2D, armor_place)
+    if not can_equip_hand:
+        messages.error(request, hand_message)
+        return redirect('character_detail', char.id)
+
+    # TODO: If Wojskowe przeszkolenie is level 1, add an attack and parry penalty for the polearm.
 
     max_weight = get_character_max_weight(char)
     current_weight = get_character_current_weight(char)
