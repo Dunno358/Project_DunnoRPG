@@ -1,6 +1,6 @@
 {% extends 'master.html' %}
 
-{% block title %}Items | DunnoRPG{% endblock title %}
+{% block title %}{% if view.kwargs.char_id != 0 and character %}[Eq] {{ character.name }} | DunnoRPG{% else %}Items | DunnoRPG{% endif %}{% endblock title %}
 
 {% block content %}
 {% include 'top_bar.html' %}
