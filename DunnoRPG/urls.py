@@ -79,6 +79,7 @@ urlpatterns = [
     path('info/races/<int:id>', views.RaceView.as_view(), name='race_info'),
     path('info/races/', views.RacesView.as_view(), name='races'),
     path('info/images/<int:id>/preview', views.image_preview, name='image_preview'),
+    path('info/images/<int:id>/toggle-visible', views.toggle_image_visible, name='toggle_image_visible'),
     path('info/images/', views.ImagesView.as_view(), name='images'),
 
     path('info/effects/', views.InfoEffects.as_view(), name='info_effects'),

@@ -20,6 +20,15 @@
                     title="Otworz rekord zdjecia">
                     &#128279;
                 </a>
+                <button
+                    type="button"
+                    class="col-auto m-1 h5 btn {% if image.visible %}btn-success{% else %}btn-danger{% endif %} d-flex align-items-center image-visible-toggle"
+                    data-toggle-url="{% url 'toggle_image_visible' image.id %}"
+                    data-visible="{% if image.visible %}true{% else %}false{% endif %}"
+                    title="Zmien visible"
+                    aria-label="Zmien visible">
+                    &nbsp;
+                </button>
             {% endif %}
         </div>
     </div>

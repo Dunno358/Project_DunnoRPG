@@ -17,6 +17,7 @@ from django.urls import reverse
 from django.views.generic import FormView, ListView, TemplateView
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView
+from django.views.decorators.http import require_POST
 from rest_framework import generics, status
 from rest_framework.decorators import api_view
 from rest_framework.parsers import JSONParser
@@ -2841,6 +2842,14 @@ def image_preview(request, id):
         return render(request, '404.html', status=404)
 
     return render(request, 'image-preview.html', {'image': image})
+
+@require_POST
+@user_passes_test(lambda u: u.is_superuser)
+def toggle_image_visible(request, id):
+    image = get_object_or_404(models.Images, id=id)
+    image.visible = not image.visible
+    image.save(update_fields=['visible'])
+    return JsonResponse({'visible': image.visible}, status=200)
 
 class RaceView(DetailView):
     model = models.Races
