@@ -45,6 +45,24 @@
         </div>
     </div>
 
+    <div id='char-to-order' class='d-none position-fixed container-fluid ms-2'>
+        <div class='row bg-dark c-gold rounded border border-warning me-1'>
+          <div class='col text-center'>
+            <select class='bg-dark text-primary h4 m-3 border border-warning rounded text-center w-75' 
+            name="chosen_character" id="ordering_char_select">
+                {% for char in characters %}
+                    <option value='{{ char.id }}' class='h4'>{{ char.name }}</option>
+                {% endfor %}
+            </select>
+            <div class="row">
+                <div class="col"><p id='OrderItem' class='c-gold h5'>Item</p></div>
+            </div>
+            <a onclick='this.parentNode.parentNode.parentNode.classList.add("d-none")' class='btn btn-danger m-3'>Back</a>
+            <a onclick="confirmOrder()" class='btn btn-success m-3'>Zamów</a>
+          </div>
+        </div>
+    </div>
+
     <div class='container mt-3 p-0'>
         <div class='ms-0 ps-0 row text-center c-gold p-2 rounded border border-warning bg-dark mt-1' onclick="showOrHideBlock(this,'smith-items')" style="width: 100%;">
             <h2>Kowal</h2>
@@ -255,6 +273,47 @@
                                 <button class="w-100 h-100 text-center btn btn-sm btn-success d-flex align-items-center justify-content-center rounded-0" 
                                 onclick="buyItem('{{ item }}','{{ item|getDescId }}','{{ item.durability_percent }}')">
                                     Zakup
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            {% endfor %}
+        </div>
+
+        <div class='ms-0 ps-0 row text-center c-gold p-2 rounded border border-warning bg-dark mt-1' onclick="showOrHideBlock(this,'tavern-items')" style="width: 100%;">
+            <h2>Karczma</h2>
+        </div>
+        <div id='tavern-items' class='container text-center c-gold rounded border border-primary bg-dark d-none p-0 m-0' style="width: 100%;">
+            {% for item in tavern %}
+                <div class='row bg-gray rounded m-1 border border-primary'>
+
+                    <div class="col-9 border-end">
+                        <div class="row-10" style="text-align: left;">
+                            <div class="col pt-1">
+                            <a id='{{ item|getDescId }}' href='/dunnorpg/items/{{ item|getDescId }}'>
+                                <b class="{{ item|getItemRarity }}">{{ item }}</b>
+                            </a>
+                            </div>
+                        </div>
+                        <div class="row-10">
+                            <div class="col p-2" style="text-align: left;">
+                                <i class="neutral-high">{{ item|getItemUseInfo }}</i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-3 p-0">
+                        <div class="row-3 border-bottom pt-1 pb-1 h6 mb-0"><span class="neutral-high">Cena:</span> {{ city_prices|dict_get:item }} monet/y</div>
+                        <div class="row-3 border-bottom pt-1 pb-1">
+                            <div class="col"><span class="h6">Posiłek</span></div>
+                        </div>
+                        <div class="row-3" style="height: 5.2vh;">
+                            <div class="col h-100">
+                                <button class="w-100 h-100 text-center btn btn-sm btn-success d-flex align-items-center justify-content-center rounded-0" 
+                                onclick="orderItem('{{ item }}','{{ item|getDescId }}')">
+                                    Zamów
                                 </button>
                             </div>
                         </div>
@@ -540,6 +599,21 @@
         let amount = document.getElementById('Item-amount').value
     
         window.location.href = "buyitem-" + item_id + "-" + char_id + "-" + amount + "?durability=" + encodeURIComponent(item_durability);
+    }
+
+    function orderItem(item,item_id){
+        document.getElementById('char-to-order').classList.remove('d-none')
+        let item_line = document.getElementById('OrderItem')
+        item_line.innerHTML = item
+        item_line.setAttribute('name', item_id)
+    }
+
+    function confirmOrder(){
+        let item = document.getElementById('OrderItem');
+        let item_id = item.getAttribute('name');
+        let char_id = document.getElementById('ordering_char_select').value;
+
+        window.location.href = "orderitem-" + item_id + "-" + char_id;
     }
 
     function heal(char_id){

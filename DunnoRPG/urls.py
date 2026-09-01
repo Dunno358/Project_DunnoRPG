@@ -68,6 +68,7 @@ urlpatterns = [
     path('info/acc-rules/', views.AccRules.as_view(), name='info_acc_rules'),
     path('city/', views.CityView.as_view(), name='city_view'),
     path('city/buyitem-<int:item_id>-<int:character_id>-<int:amount>', views.BuyItem.as_view(), name='buy_item'),
+    path('city/orderitem-<int:item_id>-<int:character_id>', views.OrderTavernItem.as_view(), name='order_tavern_item'),
     path('city/<int:char_id>h<int:val>', views.healCharacter.as_view(), name='heal_character'),
     path('city/fixitem', views.fix_item, name='fix_item'),
     path('makerequest/<int:char_id>;<str:model>;<str:objects_model>;<int:object1_id>;<int:object2_id>;<str:field>;<str:title>;<str:to_reverse>;<int:amount>', views.makeRequest.as_view(), name='make_request'),

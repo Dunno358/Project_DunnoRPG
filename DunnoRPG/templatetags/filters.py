@@ -86,6 +86,10 @@ def getItemWeight(itemName):
     return get_object_or_404(models.Items, name=itemName).weight
 
 @register.filter
+def getItemUseInfo(itemName):
+    return get_object_or_404(models.Items, name=itemName).use_info or ""
+
+@register.filter
 def getItemExtraCapacity(itemName):
     return get_object_or_404(models.Items, name=itemName).extra_capacity
 

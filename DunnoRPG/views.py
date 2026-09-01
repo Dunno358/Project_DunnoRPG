@@ -3458,6 +3458,7 @@ class CityView(ListView):
             potions = []
             other = []
             animals = []
+            tavern = []
             amounts = {}
             durabilities = {}
             durability_percents = {}
@@ -3470,12 +3471,13 @@ class CityView(ListView):
             for sale_index, item in enumerate(items):
                 item_name, durability, amount = parse_city_item_entry(item)
 
-                if int(amount) == 0:
-                    continue
-
                 item = models.Items.objects.filter(name=item_name).first()
 
                 if item != None:
+                    item_category = (item.category or "").strip().lower()
+                    if int(amount) == 0 and item_category != "tawerna":
+                        continue
+
                     if durability is None:
                         durability = 100
 
@@ -3494,9 +3496,10 @@ class CityView(ListView):
                     city_prices[shop_item] = f"{item.price * 2 * durability_percent:.1f}"
                     city_armors[shop_item] = math.ceil(item.armor * durability_percent) if item.armor else item.armor
                     armor_weight_orders[shop_item] = get_city_armor_weight_order(item)
-                    item_category = (item.category or "").strip().lower()
                     city_categories[shop_item] = item_category
-                    if item_category in armor_shop_categories:
+                    if item_category == "tawerna":
+                        tavern.append(shop_item)
+                    elif item_category in armor_shop_categories:
                         all_armor.append(shop_item)
                     elif item.type == 'Amulet':
                         amulets.append(shop_item)
@@ -3555,6 +3558,7 @@ class CityView(ListView):
             context['amulets'] = amulets
             context['potions'] = potions
             context['animals'] = animals
+            context['tavern'] = tavern
             context['other'] = other
             context['city'] = city
             context['x5packets'] = x5packets
@@ -3683,6 +3687,51 @@ class BuyItem(APIView):
         else:
             messages.error(request, f'Za mało miejsca! Nosisz już {current_weight}/{max_weight}kg.')
 
+        return redirect('/dunnorpg/city')
+
+class OrderTavernItem(APIView):
+    def get(self, request, **kwargs):
+        item = get_object_or_404(models.Items, id=kwargs['item_id'], category__iexact="Tawerna")
+        character = get_object_or_404(models.Character, id=kwargs['character_id'])
+        city = get_object_or_404(models.Cities, visiting=True)
+
+        item_durability_percent = None
+        for ct_item in city.items.split(";"):
+            if not ct_item.strip():
+                continue
+            ct_item_name, ct_item_durability, _ = parse_city_item_entry(ct_item)
+            if ct_item_name == item.name:
+                item_durability_percent = 100 if ct_item_durability is None else ct_item_durability
+                break
+
+        if item_durability_percent is None:
+            messages.error(request, f'{item.name} nie jest dostępne w tej karczmie.')
+            return redirect('/dunnorpg/city')
+
+        price = item.price * 2 * (item_durability_percent / 100)
+        if character.coins < price:
+            messages.error(request, f'Za mało monet. {character.name} ma ich {character.coins}, a potrzeba {price}.')
+            return redirect('/dunnorpg/city')
+
+        actions = [part.strip() for part in (item.on_use or "").split(";") if part.strip()]
+        if not actions:
+            messages.error(request, f'{item.name} nie ma ustawionego on_use.')
+            return redirect('/dunnorpg/city')
+
+        character.coins -= price
+        character, effect_messages = apply_item_use_effects(
+            character,
+            actions,
+            0.0,
+            manageFoodAndWater,
+            sync_alcohol_mods,
+            add_consumed_container=False,
+        )
+        character.save()
+
+        for effect_message in effect_messages:
+            getattr(messages, effect_message.level)(request, effect_message.text)
+        messages.success(request, f'[{character.name}] Zamówiono {item.name} za {price} monet.')
         return redirect('/dunnorpg/city')
 
 class healCharacter(APIView):
