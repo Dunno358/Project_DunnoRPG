@@ -360,6 +360,14 @@
                 >{% if item.equipped %}<span class="text-info">[Założone]</span> {% endif %}{{ item.name }}
                 {% if item.dur and item.type != 'Other' and item.type != 'Amulet' %}({{ item.dur }}/{{ item.max_dur }}){% endif %}
                 {% if item.dur %} x{{ item.amount }}{% endif %}
+                {% if user.is_superuser and item.eq_id %}
+                    <span
+                        class="fa fa-link fa-lg text-info ms-2"
+                        data-admin-url="{% url 'admin:DunnoRPG_eq_change' item.eq_id %}"
+                        onclick="openEqAdminRecord(event, this)"
+                        title="Otworz rekord ekwipunku">
+                    </span>
+                {% endif %}
                 </span>
             </a>
             {% if view.kwargs.char_id != 0 and not item.equipped %}
@@ -1074,6 +1082,12 @@
         let amount = document.getElementById('give-item-amount').value
 
         window.location.href = "give"+item_id+";"+from_chid+";"+to_chid+";"+amount
+    }
+
+    function openEqAdminRecord(event, icon){
+        event.preventDefault()
+        event.stopPropagation()
+        window.open(icon.dataset.adminUrl, "_blank", "noopener")
     }
 
     function makeAddToEqRequest(){
