@@ -35,11 +35,73 @@ hr{
 }
 
 .body-bg404{
-    background: url('https://i.pinimg.com/originals/f4/dc/c3/f4dcc36601f213aec99dfdec25917d33.jpg');
+    background-image: url('/static/DunnoRPG/img/404/Tzeentch_404.webp');
     background-size: cover;
     width: 100vw;
     height: 100vh;
     background-position: center, center;
+    background-repeat: no-repeat;
+}
+
+.body-bg404-tzeentch{
+    background-image: url('/static/DunnoRPG/img/404/Tzeentch_404.webp');
+}
+
+.body-bg404-bretonnia{
+    background-image: url('/static/DunnoRPG/img/404/Bretonnia_404.jpg');
+}
+
+.body-bg404-krasnoludy{
+    background-image: url('/static/DunnoRPG/img/404/Dwarf_404.jpg');
+}
+
+.body-bg404-wschodnie-ziemie{
+    background-image: url('/static/DunnoRPG/img/404/Druchii_404.png');
+}
+
+.body-bg404-cathay{
+    background-image: url('/static/DunnoRPG/img/404/Cathay_404.jpg');
+}
+
+.body-bg404-nordland{
+    background-image: url('/static/DunnoRPG/img/404/Empire_404.jpg');
+}
+
+.body-bg404-kislev{
+    background-image: url('/static/DunnoRPG/img/404/Kislev_404.avif');
+}
+
+.text-404{
+    font-family: Bloody;
+    -webkit-text-stroke: 1px maroon;
+}
+
+.text-404-stroke-tzeentch{
+    -webkit-text-stroke-color: purple;
+}
+
+.text-404-stroke-bretonnia{
+    -webkit-text-stroke-color: steelblue;
+}
+
+.text-404-stroke-krasnoludy{
+    -webkit-text-stroke-color: darkgoldenrod;
+}
+
+.text-404-stroke-wschodnie-ziemie{
+    -webkit-text-stroke-color: maroon;
+}
+
+.text-404-stroke-cathay{
+    -webkit-text-stroke-color: lightskyblue;
+}
+
+.text-404-stroke-nordland{
+    -webkit-text-stroke-color: maroon;
+}
+
+.text-404-stroke-kislev{
+    -webkit-text-stroke-color: aliceblue;
 }
 
 a{

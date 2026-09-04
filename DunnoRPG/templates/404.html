@@ -19,18 +19,12 @@
 
         <title> {% block title %} DunnoRPG {% endblock %} </title>
     </head>
-    <body class='body-bg404'>
-        <div class='container'>
-            <div class='row'>
-                <div class='col text-center c-gold mt-5'>
-                    <h1 style='-webkit-text-stroke: 2px red;' class='title404'>404</h1>
-                </div>
-            </div>
-
+    <body class='body-bg404 {{ background_404_class }}'>
+        <div class='container' style="margin-top: 10rem !important;">
             <div class='row'>
                 <div class='col text-center'>
-                    <h1 style='font-family: Bloody; -webkit-text-stroke: 1px maroon;' class='text-black'>
-                        It seems that page you're looking for doesn't exist or has been slained for Sigmar!
+                    <h1 class='text-black text-404 {{ text_404_stroke_class }}'>
+                        {{ text_404 }}
                     </h1>
                 </div>
             </div>

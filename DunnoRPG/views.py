@@ -28,6 +28,7 @@ from django.contrib.auth.decorators import user_passes_test
 import traceback
 import json
 import math
+import random
 import re
 from urllib.parse import urlencode
 from pathlib import Path
@@ -49,11 +50,40 @@ CHAPTER_CHOICES = [
     "Tzeentch",
     "Bretonnia",
     "Krasnoludy",
-    "Wschód",
+    "Wschodnie Ziemie",
     "Cathay",
     "Nordland",
     "Kislev",
 ]
+
+CHAPTER_404_BACKGROUND_CLASSES = {
+    "Tzeentch": "body-bg404-tzeentch",
+    "Bretonnia": "body-bg404-bretonnia",
+    "Krasnoludy": "body-bg404-krasnoludy",
+    "Wschodnie Ziemie": "body-bg404-wschodnie-ziemie",
+    "Wschód": "body-bg404-wschodnie-ziemie",
+    "Cathay": "body-bg404-cathay",
+    "Nordland": "body-bg404-nordland",
+    "Kislev": "body-bg404-kislev",
+}
+
+CHAPTER_404_TEXT_STROKE_CLASSES = {
+    "Tzeentch": "text-404-stroke-tzeentch",
+    "Bretonnia": "text-404-stroke-bretonnia",
+    "Krasnoludy": "text-404-stroke-krasnoludy",
+    "Wschodnie Ziemie": "text-404-stroke-wschodnie-ziemie",
+    "Wschód": "text-404-stroke-wschodnie-ziemie",
+    "Cathay": "text-404-stroke-cathay",
+    "Nordland": "text-404-stroke-nordland",
+    "Kislev": "text-404-stroke-kislev",
+}
+
+CHAPTER_404_TEXT_ALIASES = {
+    "Wschód": "Wschodnie Ziemie",
+}
+
+TEXTS_404_PATH = Path(__file__).resolve().parent / "static" / "DunnoRPG" / "img" / "404" / "404_texts.json"
+DEFAULT_404_TEXT = "It seems that page you're looking for doesn't exist or has been slained for Sigmar!"
 
 def get_game_settings():
     settings, _ = models.GameSettings.objects.get_or_create(
@@ -64,6 +94,50 @@ def get_game_settings():
 
 def get_current_chapter():
     return get_game_settings().current_chapter
+
+def get_404_background_class():
+    return CHAPTER_404_BACKGROUND_CLASSES.get(
+        get_current_chapter(),
+        CHAPTER_404_BACKGROUND_CLASSES[CHAPTER_CHOICES[0]],
+    )
+
+def get_404_text_stroke_class():
+    return CHAPTER_404_TEXT_STROKE_CLASSES.get(
+        get_current_chapter(),
+        CHAPTER_404_TEXT_STROKE_CLASSES[CHAPTER_CHOICES[0]],
+    )
+
+def get_404_text():
+    current_chapter = get_current_chapter()
+    text_chapter = CHAPTER_404_TEXT_ALIASES.get(current_chapter, current_chapter)
+
+    try:
+        texts = json.loads(TEXTS_404_PATH.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return DEFAULT_404_TEXT
+
+    chapter_texts = [
+        text["tekst"]
+        for text in texts
+        if text.get("chapter") == text_chapter and text.get("tekst")
+    ]
+    if not chapter_texts:
+        return DEFAULT_404_TEXT
+
+    return random.choice(chapter_texts)
+
+def render_404(request):
+    return render(
+        request,
+        '404.html',
+        {
+            'background_404_class': get_404_background_class(),
+            'text_404_stroke_class': get_404_text_stroke_class(),
+            'current_chapter': get_current_chapter(),
+            'text_404': get_404_text(),
+        },
+        status=404,
+    )
 
 def is_visible_for_current_chapter(value, current_chapter):
     value = (value or "").strip()
@@ -2930,10 +3004,10 @@ class ImagesView(ListView):
 def image_preview(request, id):
     image = models.Images.objects.filter(id=id).first()
     if not image:
-        return render(request, '404.html', status=404)
+        return render_404(request)
 
     if not image.visible and not request.user.is_superuser:
-        return render(request, '404.html', status=404)
+        return render_404(request)
 
     return render(request, 'image-preview.html', {'image': image})
 
@@ -3760,4 +3834,4 @@ class SignUp(CreateView):
     template_name = "registration/signup.html"
     
 def view_404(request, exception):
-    return render(request, '404.html', status=404)
+    return render_404(request)
