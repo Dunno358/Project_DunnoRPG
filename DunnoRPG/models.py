@@ -48,6 +48,7 @@ class Character(models.Model):
     counter = models.IntegerField(default=0)
     counterName2 = models.CharField(max_length=50, blank=True, null=True)
     counter2 = models.IntegerField(default=0)
+    advantageBalance = models.IntegerField(default=0)
     mutation = models.TextField(null=True, blank=True) # names separated by ; and functions somewhere will do actions based on names
     anonimity = models.IntegerField(default=0) # boost to staying anonymous when someone tries to recognize you
     weaponBonus = models.IntegerField(null=True)

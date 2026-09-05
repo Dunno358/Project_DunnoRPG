@@ -1478,8 +1478,10 @@ def enter_or_leave_fight(request,char_id):
         character.actionLeft = 1.0
         character.counter = 0
         character.counter2 = 0
+        character.advantageBalance = 0
     else:
         character.inFight = True
+        character.advantageBalance = 0
     character.save()
     return redirect(f'/dunnorpg/character_detail/{char_id}/')
 
@@ -2024,6 +2026,7 @@ def change_counter(request, **kwargs):
     fields = {
         "counter": ("counter", "counterName"),
         "counter2": ("counter2", "counterName2"),
+        "advantageBalance": ("advantageBalance", None),
     }
 
     if counter_field not in fields:
@@ -2032,12 +2035,16 @@ def change_counter(request, **kwargs):
     try:
         char = get_object_or_404(models.Character, id=kwargs['char_id'])
         value_raw = request.POST.get(counter_field, '').strip()
-        if not re.match(r'^\d+$', value_raw):
+        if not re.match(r'^-?\d+$', value_raw):
             raise ValueError("Licznik musi być liczbą całkowitą większą lub równą 0")
 
         value = int(value_raw)
+        if counter_field != "advantageBalance" and value < 0:
+            raise ValueError("Licznik musi byc liczba calkowita wieksza lub rowna 0")
+
         value_field, name_field = fields[counter_field]
-        counter_name = getattr(char, name_field) or "Licznik"
+        counter_name = getattr(char, name_field) if name_field else "Bilans Przewag"
+        counter_name = counter_name or "Licznik"
         setattr(char, value_field, value)
         char.save()
 
