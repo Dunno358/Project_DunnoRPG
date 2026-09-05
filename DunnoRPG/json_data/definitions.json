@@ -1,8 +1,8 @@
 {
-    "Przewaga": "+K6 do wyniku rzutu. Otrzymując Przewaga zwiększasz ilość Balansu Przewag o 1.",
-    "DużaPrzewaga": "Zwiększasz ilość Balansu Przewag o 2, a więc równowartość 2 Przewag.",
-    "Utrudnienie": "-K6 do wyniku rzutu. Otrzymując Utrudnienie zmniejszasz ilość Balansu Przewag o 1.",
-    "DużeUtrudnienie": "Zmniejszasz ilość Balansu Przewag o 2, a więc równowartość 2 Utrudnień.",
+    "Przewaga": "Jeśli Przewaga jest zawarta jako Przewaga tylko akcji X to wtedy otrzymuje do niej +K6. Jeśli to po prostu Przewaga to zwiększasz ilość Balans Przewagi o 1, ten balans będzie modyfikował twoje rzuty o maks. +K12 lub -K12.",
+    "DużaPrzewaga": "Jeśli DużaPrzewaga jest zawarta jako DużaPrzewaga tylko akcji X to wtedy otrzymuje do niej +K12. Jeśli to po prostu DużaPrzewaga to zwiększasz ilość Balans Przewagi o 2, ten balans będzie modyfikował twoje rzuty o maks. +K12 lub -K12.",
+    "Utrudnienie": "Jeśli Utrudnienie jest zawarte jako Utrudnienie tylko akcji X to wtedy otrzymuje do niej +K6. Jeśli to po prostu Utrudnienie to zwiększasz ilość Balans Utrudnienia o 1, ten balans będzie modyfikował twoje rzuty o maks. +K12 lub -K12.",
+    "DużeUtrudnienie": "Jeśli DużeUtrudnienie jest zawarte jako DużeUtrudnienie tylko akcji X to wtedy otrzymuje do niej +K12. Jeśli to po prostu DużeUtrudnienie to zwiększasz ilość Balans Utrudnienia o 2, ten balans będzie modyfikował twoje rzuty o maks. +K12 lub -K12.",
     "Overwatch": "Możliwość zaatakowania innej postaci która rozpoczyna ruch będąc w zasięgu ataku (nie strzału czy rzutu, jeśli zmienia hex. Można to wykonać tylko raz na rundę.",
     "Podpalenie": "Podpalony przez 2 rundy otrzymuje K6 obrażeń ignorujacych pancerz na początku swojej tury. Nowe podpalenie odświeża czas trwania.",
     "Odepchnięcie": "Trafiony przesuwa się o wskazaną ilość hexów (1 jeśli nie jest sprecyzowane) w kierunku przeciwnym niż to z którego nadeszło odepchnięcie. Jeśli na polu na którym miałby się znaleźć jest przeszkoda np. skała to zamiast tego otrzymuje 1K6 obrażeń.",
