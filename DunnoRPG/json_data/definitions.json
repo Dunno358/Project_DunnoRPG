@@ -1,8 +1,8 @@
 {
-    "Przewaga": "Do wyniku kości dodajesz wynik rzutu K6. Dwie przewagi naraz liczą się jako DużaPrzewaga.",
-    "DużaPrzewaga": "Do wyniku kości dodajesz wynik rzutu K12. Jeśli ilość przewag przekracza 1K12 to i tak zostajemy przy 1K12 - nie można mieć naraz więcej niż 2 przewag lub 1 dużej przewagi.",
-    "Utrudnienie": "Od wyniku kości odejmujesz wynik rzutu K6. Dwa utrudnienia tworzą DużeUtrudnienie. Nie zabiera wartości bloku tarczy.",
-    "DużeUtrudnienie": "Od wyniku kości odejmujesz wynik rzutu K12. Jeśli ilość utrudnień przekracza 1K12 to i tak zostajemy przy 1K12 - nie można mieć naraz więcej niż 2 utrudnienia lub 1 duże utrudnienie.",
+    "Przewaga": "+K6 do wyniku rzutu. Otrzymując Przewaga zwiększasz ilość Balansu Przewag o 1.",
+    "DużaPrzewaga": "Zwiększasz ilość Balansu Przewag o 2, a więc równowartość 2 Przewag.",
+    "Utrudnienie": "-K6 do wyniku rzutu. Otrzymując Utrudnienie zmniejszasz ilość Balansu Przewag o 1.",
+    "DużeUtrudnienie": "Zmniejszasz ilość Balansu Przewag o 2, a więc równowartość 2 Utrudnień.",
     "Overwatch": "Możliwość zaatakowania innej postaci która rozpoczyna ruch będąc w zasięgu ataku (nie strzału czy rzutu, jeśli zmienia hex. Można to wykonać tylko raz na rundę.",
     "Podpalenie": "Podpalony przez 2 rundy otrzymuje K6 obrażeń ignorujacych pancerz na początku swojej tury. Nowe podpalenie odświeża czas trwania.",
     "Odepchnięcie": "Trafiony przesuwa się o wskazaną ilość hexów (1 jeśli nie jest sprecyzowane) w kierunku przeciwnym niż to z którego nadeszło odepchnięcie. Jeśli na polu na którym miałby się znaleźć jest przeszkoda np. skała to zamiast tego otrzymuje 1K6 obrażeń.",
@@ -22,11 +22,11 @@
     "Szkielet": "Przywołany szkielet ma 5 PŻ, 3 mobilności, brak reakcji i umiejętności ale za to możliwość ataku kościaną pałką z 1K6 obrażeń i 10% AP (CEL 7).",
     "Zatrzymanie": "Utrata całej pozostałej mobilności w tej samej rundzie. Jeśli masz 4 hexy mobilności i ruszysz się jeden ale otrzymasz Zatrzymanie to i tak spada do 0.",
     "Spowolnienie": "Tracisz wartość mobilność równą połowie twojej maks. mobilności w tej samej rundzie. Jeśli twoja mobilność pozwala na ruch do 6 hexów to tracisz natychmiast 3 hexy ruchu.",
-    "Kamuflaż": "Nie możesz zostać celem ataku z odległości większej niż 1 hex, a taki atak i tak zyskuje Utrudnienie przy ataku w ciebie. Wykonując agresywną akcję tracisz Kamuflaż.",
+    "Kamuflaż": "Nie możesz zostać celem ataku z odległości większej niż 1 hex, a taki atak i tak zyskuje -K6 do wszystkich rzutów przy ataku w ciebie. Wykonując agresywną akcję tracisz Kamuflaż.",
     "Przyciągnięcie": "Spraw by cel poruszył się w twoim kierunku o wskazaną liczbę hexów, jeśli nie jest ona wskazana to 1 hex.",
     "LekkieZatrucie": "Utrata 2 PŻ na początku tury przez 2 tury. Czas trwania kolejnych zatruć sumuje się, a dwa LekkieZatrucie zmieniają w MocneZatrucie..",
     "MocneZatrucie": "Utrata 3 PŻ na początku tury przez 3 tury. Czas trwania kolejnych zatruć sumuje się.",
     "Żwawość": "Twoja mobilność w najbliższej akcji zwiększa się o 50% twojej maks. mobilności.",
     "Nadprędkość": "Twoja mobilność w najbliższej akcji zwiększa się o 100% twojej maks. mobilności.",
-    "Dym": "Atak przechodzący przez dym gdy ani atakujący ani cel nie są w dymie ma DużeUtrudnienie. Atak gdy jednak ze stron lub obydwie są w dymie ma Utrudnienie."
+    "Dym": "Atak przechodzący przez dym gdy ani atakujący ani cel nie są w dymie ma -K12 do CEL. Atak gdy jednak ze stron lub obydwie są w dymie ma -K6 do CEL."
 }
