@@ -1081,7 +1081,8 @@ class CharacterDetails(DetailView):
             character=chosen.name,
             name__in=models.Items.objects.filter(category='animal_saddle').values_list('name', flat=True)
         ).order_by('name')
-        eq_weapons_qs = models.Eq.objects.filter(character=chosen.name).exclude(type__in=types).order_by('name')
+        weapon_names = models.Items.objects.filter(category__startswith="weapon_").values_list("name", flat=True)
+        eq_weapons_qs = models.Eq.objects.filter(character=chosen.name, name__in=weapon_names).order_by('name')
         
         context['helmet'] = models.CharItems.objects.filter(character=serializer.data['name'], position='Helmet').first()
         context['torso'] = models.CharItems.objects.filter(character=serializer.data['name'], position='Torso').first()
