@@ -3505,7 +3505,7 @@ def is_city_range_shop_item(item_category):
     return "range" in item_category
 
 def is_city_gunpowder_shop_item(item_category):
-    return "gunpowder" in item_category or item_category == "weapon_gun"
+    return "gun" in item_category or "gunpowder" in item_category
 
 class CityShopItem(str):
     def __new__(cls, name, durability_percent, sale_index):
