@@ -82,6 +82,17 @@ def getItemArmor(itemName, charId=0):
     #return get_object_or_404(models.Items, name=itemName).armor - OLD
 
 @register.filter
+def getItemArmorByDurability(itemName, currentDurability):
+    item = get_object_or_404(models.Items, name=itemName)
+    if item.armor == 0:
+        return 0
+
+    try:
+        return math.ceil(int(currentDurability) / 50)
+    except:
+        return item.armor
+
+@register.filter
 def getItemWeight(itemName):
     return get_object_or_404(models.Items, name=itemName).weight
 

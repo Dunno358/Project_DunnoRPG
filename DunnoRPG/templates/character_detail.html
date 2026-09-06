@@ -619,7 +619,7 @@ style="width: 98%; z-index: 20; margin-left: 0.22rem !important; margin-top: -5r
                 <div class="row ps-0 ms-1 me-0 pe-0">
 
                     <div class="col-4 border-end border-warning p-3 h6 mb-0 d-flex align-items-center justify-content-center">
-                        <span class="text-white-50">Pancerz:</span> <span id="armor-head-value" class="c-gold ms-1">{{ helmet.name|getItemArmor }}</span>
+                        <span class="text-white-50">Pancerz:</span> <span id="armor-head-value" class="c-gold ms-1">{{ helmet.name|getItemArmorByDurability:helmet.durability }}</span>
                     </div>                
                     <div class="col-2 border-end border-warning p-3 h6 mb-0 d-flex align-items-center justify-content-center">
                         <span class="text-white-50"></span> <span class="c-gold ms-1">{{ helmet.name|getItemWeight }}kg</span>
@@ -741,7 +741,7 @@ style="width: 98%; z-index: 20; margin-left: 0.22rem !important; margin-top: -5r
                 <div class="row ps-0 ms-1 me-0 pe-0">
 
                     <div class="col-4 border-end border-warning p-3 h6 mb-0 d-flex align-items-center justify-content-center">
-                        <span class="text-white-50">Pancerz:</span> <span id="armor-torso-value" class="c-gold ms-1">{{ torso.name|getItemArmor }}</span>
+                        <span class="text-white-50">Pancerz:</span> <span id="armor-torso-value" class="c-gold ms-1">{{ torso.name|getItemArmorByDurability:torso.durability }}</span>
                     </div>                
                     <div class="col-2 border-end border-warning p-3 h6 mb-0 d-flex align-items-center justify-content-center">
                         <span class="text-white-50"></span> <span class="c-gold ms-1">{{ torso.name|getItemWeight }}kg</span>
@@ -1306,7 +1306,7 @@ style="width: 98%; z-index: 20; margin-left: 0.22rem !important; margin-top: -5r
                 <div class="row ps-0 ms-1 me-0 pe-0">
 
                     <div class="col-4 border-end border-warning p-3 h6 mb-0 d-flex align-items-center justify-content-center">
-                        <span class="text-white-50">Pancerz:</span> <span id="armor-legs-value" class="c-gold ms-1">{{ boots.name|getItemArmor }}</span>
+                        <span class="text-white-50">Pancerz:</span> <span id="armor-legs-value" class="c-gold ms-1">{{ boots.name|getItemArmorByDurability:boots.durability }}</span>
                     </div>                
                     <div class="col-2 border-end border-warning p-3 h6 mb-0 d-flex align-items-center justify-content-center">
                         <span class="text-white-50"></span> <span class="c-gold ms-1">{{ boots.name|getItemWeight }}kg</span>
@@ -1428,7 +1428,7 @@ style="width: 98%; z-index: 20; margin-left: 0.22rem !important; margin-top: -5r
                 <div class="row ps-0 ms-1 me-0 pe-0">
 
                     <div class="col-4 border-end border-warning p-3 h6 mb-0 d-flex align-items-center justify-content-center">
-                        <span class="text-white-50">Pancerz:</span> <span id="armor-hands-value" class="c-gold ms-1">{{ gloves.name|getItemArmor }}</span>
+                        <span class="text-white-50">Pancerz:</span> <span id="armor-hands-value" class="c-gold ms-1">{{ gloves.name|getItemArmorByDurability:gloves.durability }}</span>
                     </div>                
                     <div class="col-2 border-end border-warning p-3 h6 mb-0 d-flex align-items-center justify-content-center">
                         <span class="text-white-50"></span> <span class="c-gold ms-1">{{ gloves.name|getItemWeight }}kg</span>
@@ -1550,7 +1550,7 @@ style="width: 98%; z-index: 20; margin-left: 0.22rem !important; margin-top: -5r
                 <div class="row ps-0 ms-1 me-0 pe-0">
 
                     <div class="col-4 border-end border-warning p-3 h6 mb-0 d-flex align-items-center justify-content-center">
-                        <span class="text-white-50">Pancerz:</span> <span class="c-gold ms-1">{{ amulet.name|getItemArmor }}</span>
+                        <span class="text-white-50">Pancerz:</span> <span class="c-gold ms-1">{{ amulet.name|getItemArmorByDurability:amulet.durability }}</span>
                     </div>                
                     <div class="col-2 border-end border-warning p-3 h6 mb-0 d-flex align-items-center justify-content-center">
                         <span class="text-white-50"></span> <span class="c-gold ms-1">{{ amulet.name|getItemWeight }}kg</span>
@@ -1675,7 +1675,7 @@ style="width: 98%; z-index: 20; margin-left: 0.22rem !important; margin-top: -5r
                         <span class="text-white-50">Juki:</span> <span class="c-gold ms-1">{{ mount.name|getItemBonus }}kg</span>
                     </div>                
                     <div class="col-3 border-end border-warning p-3 h6 mb-0 d-flex align-items-center justify-content-center">
-                        <span class="text-white-50">Pancerz:</span> <span id='mount_armor_default' class="c-gold ms-1">{{ mount.name|getItemArmor }}</span>
+                        <span class="text-white-50">Pancerz:</span> <span id='mount_armor_default' class="c-gold ms-1">{{ mount.name|getItemArmorByDurability:mount.durability }}</span>
                     </div>                
                     <div class="col-3 border-end border-warning h6 mb-0 d-flex align-items-center justify-content-center">
                         <a class="btn btn-info p-3 pt-2 pb-2 text-white" onclick='show_or_hideById("mount-swap")'>Zmień</a>
@@ -1795,7 +1795,7 @@ style="width: 98%; z-index: 20; margin-left: 0.22rem !important; margin-top: -5r
                 <div class="row ps-0 ms-1 me-0 pe-0">
 
                     <div class="col-4 border-end border-warning p-3 h6 mb-0 d-flex align-items-center justify-content-center">
-                        <span class="text-white-50">Pancerz:</span> <span class="c-gold ms-1" id="mount_armor_value">{{ mount_armor.name|getItemArmor }}</span>
+                        <span class="text-white-50">Pancerz:</span> <span class="c-gold ms-1" id="mount_armor_value">{{ mount_armor.name|getItemArmorByDurability:mount_armor.durability }}</span>
                     </div>                
                     <div class="col-2 border-end border-warning p-3 h6 mb-0 d-flex align-items-center justify-content-center">
                         <span class="text-white-50"></span> <span class="c-gold ms-1">{{ mount_armor.name|getItemWeight }}kg</span>
