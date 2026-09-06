@@ -18,6 +18,16 @@ def apply_item_use_effects(char, actions, cost, manage_food_and_water, sync_alco
     messages = []
 
     for single_action in actions:
+        if single_action == "heal-bandage":
+            used_amount, removed_bleeding_count = heal_with_bandage(char)
+            bleeding_message = ", usunieto Krwawienie" if removed_bleeding_count else ""
+            messages.append(ItemEffectMessage(
+                "success",
+                f"Uleczono {used_amount} PŻ, wykorzystano {cost}/{char.actionLeft-cost} akcji",
+            ))
+            messages[-1].text = messages[-1].text.replace(", wykorzystano", f"{bleeding_message}, wykorzystano")
+            continue
+
         action_name, amount_value = single_action.split("-", 1)
         amount = int(amount_value)
 
@@ -64,6 +74,13 @@ def add_hp(char, amount):
 
     char.exp += 1
     return used_amount
+
+
+def heal_with_bandage(char):
+    heal_amount = 2 if char.inFight else 3
+    used_amount = add_hp(char, heal_amount)
+    removed_bleeding_count, _ = models.Effects.objects.filter(character=char.name, name="Krwawienie").delete()
+    return used_amount, removed_bleeding_count
 
 
 def add_alcohol(char, amount):
