@@ -3467,6 +3467,16 @@ def get_durability_from_percent(durability_percent, max_durability):
         return max_durability
     return math.ceil(max_durability * (durability_percent / 100))
 
+def get_city_price_multiplier(available_amount, durability_percent):
+    return 2.0 if int(available_amount) == 1 and durability_percent > 0.5 else 1.5
+
+def get_city_unit_price(item, available_amount, durability_percent):
+    base_price = float(f"{item.price * get_city_price_multiplier(available_amount, durability_percent):.1f}")
+    return float(f"{base_price * durability_percent:.1f}")
+
+def get_city_total_price(item, available_amount, durability_percent, amount):
+    return float(f"{get_city_unit_price(item, available_amount, durability_percent) * int(amount):.1f}")
+
 def get_city_armor_weight_order(item):
     item_armor_weight = (item.armor_weight or "").strip().lower()
     item_armor_rank = ARMOR_WEIGHT_ORDER.get(item_armor_weight)
@@ -3574,7 +3584,7 @@ class CityView(ListView):
                     durabilities[shop_item] = item_durability
                     durability_percent = durability / 100
                     durability_percents[shop_item] = f"{durability:.0f}%"
-                    city_prices[shop_item] = f"{item.price * 2 * durability_percent:.1f}"
+                    city_prices[shop_item] = f"{get_city_unit_price(item, amount, durability_percent):.1f}"
                     city_armors[shop_item] = math.ceil(item.armor * durability_percent) if item.armor else item.armor
                     armor_weight_orders[shop_item] = get_city_armor_weight_order(item)
                     city_categories[shop_item] = item_category
@@ -3696,7 +3706,7 @@ class BuyItem(APIView):
 
         if current_weight+item.weight*item_amount <= max_weight:
             durability_percent = item_durability_percent / 100
-            price = item.price*2*durability_percent*int(item_amount)
+            price = get_city_total_price(item, available_amount, durability_percent, item_amount)
             charisma = character.CHAR
 
             for mod in models.Mods.objects.filter(character=character.name, field="CHAR"):
@@ -3712,7 +3722,7 @@ class BuyItem(APIView):
 
             raw_char_bonus = price * (charisma * 2) / 100
             char_bonus = float("{:.1f}".format(raw_char_bonus)) # e.g. 10.1
-            price -= char_bonus
+            price = float(f"{price - char_bonus:.1f}")
 
             if character.coins >= price:
 
@@ -3777,19 +3787,21 @@ class OrderTavernItem(APIView):
         city = get_object_or_404(models.Cities, visiting=True)
 
         item_durability_percent = None
+        available_amount = 1
         for ct_item in city.items.split(";"):
             if not ct_item.strip():
                 continue
-            ct_item_name, ct_item_durability, _ = parse_city_item_entry(ct_item)
+            ct_item_name, ct_item_durability, amount = parse_city_item_entry(ct_item)
             if ct_item_name == item.name:
                 item_durability_percent = 100 if ct_item_durability is None else ct_item_durability
+                available_amount = amount
                 break
 
         if item_durability_percent is None:
             messages.error(request, f'{item.name} nie jest dostępne w tej karczmie.')
             return redirect('/dunnorpg/city')
 
-        price = item.price * 2 * (item_durability_percent / 100)
+        price = get_city_unit_price(item, available_amount, item_durability_percent / 100)
         if character.coins < price:
             messages.error(request, f'Za mało monet. {character.name} ma ich {character.coins}, a potrzeba {price}.')
             return redirect('/dunnorpg/city')
