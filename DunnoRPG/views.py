@@ -3469,7 +3469,7 @@ def get_durability_from_percent(durability_percent, max_durability):
     return math.ceil(max_durability * (durability_percent / 100))
 
 def get_city_price_multiplier(available_amount, durability_percent):
-    return 2.0 if int(available_amount) == 1 and durability_percent > 0.5 else 1.5
+    return 2.0 if int(available_amount) == 1 and durability_percent > 0.7 else 1.5
 
 def get_city_unit_price(item, available_amount, durability_percent):
     base_price = float(f"{item.price * get_city_price_multiplier(available_amount, durability_percent):.1f}")
