@@ -3500,6 +3500,12 @@ def get_city_armor_weight_order(item):
         return ARMOR_WEIGHT_ORDER["medium"]
     return ARMOR_WEIGHT_ORDER["heavy"]
 
+def is_city_range_shop_item(item_category):
+    return "range" in item_category
+
+def is_city_gunpowder_shop_item(item_category):
+    return "gunpowder" in item_category or item_category == "weapon_gun"
+
 class CityShopItem(str):
     def __new__(cls, name, durability_percent, sale_index):
         obj = str.__new__(cls, name)
@@ -3546,6 +3552,8 @@ class CityView(ListView):
             amulets=[]
             weaponry_singlehand=[]
             weaponry_twohand=[]
+            ranged_weaponry = []
+            gunpowder_weaponry = []
             potions = []
             other = []
             animals = []
@@ -3590,6 +3598,10 @@ class CityView(ListView):
                     city_categories[shop_item] = item_category
                     if item_category == "tawerna":
                         tavern.append(shop_item)
+                    elif is_city_range_shop_item(item_category):
+                        ranged_weaponry.append(shop_item)
+                    elif is_city_gunpowder_shop_item(item_category):
+                        gunpowder_weaponry.append(shop_item)
                     elif item_category in armor_shop_categories:
                         all_armor.append(shop_item)
                     elif item.type == 'Amulet':
@@ -3643,6 +3655,8 @@ class CityView(ListView):
 
             context['weaponry_singlehand'] = weaponry_singlehand
             context['weaponry_twohand'] = weaponry_twohand
+            context['ranged_weaponry'] = ranged_weaponry
+            context['gunpowder_weaponry'] = gunpowder_weaponry
             context['armor'] = armor
             context['cloth'] = cloth
             context['armor_elegant'] = armor_elegant
