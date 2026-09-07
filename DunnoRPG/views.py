@@ -3569,6 +3569,7 @@ class CityView(ListView):
             ranged_weaponry = []
             gunpowder_weaponry = []
             potions = []
+            trophies = []
             other = []
             animals = []
             tavern = []
@@ -3619,6 +3620,8 @@ class CityView(ListView):
                         tavern_buy_items.append(shop_item)
                     elif item_category == "tawerna":
                         tavern.append(shop_item)
+                    elif item_category.startswith("trophy_"):
+                        trophies.append(shop_item)
                     elif is_city_range_shop_item(item_category):
                         ranged_weaponry.append(shop_item)
                     elif is_city_gunpowder_shop_item(item_category):
@@ -3683,6 +3686,7 @@ class CityView(ListView):
             context['armor_elegant'] = armor_elegant
             context['amulets'] = amulets
             context['potions'] = potions
+            context['trophies'] = trophies
             context['animals'] = animals
             context['tavern'] = tavern
             context['tavern_buy_items'] = tavern_buy_items
