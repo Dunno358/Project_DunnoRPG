@@ -1717,6 +1717,8 @@ def sell_item(request, **kwargs):
         char_bonus = float("{:.1f}".format(raw_char_bonus))
 
         price = base_price + char_bonus #Get 100% of calculated price + [charisma*4]% bonus
+        if price < 0:
+            price = 0
 
         char.coins += price
         char.save()
@@ -3593,7 +3595,9 @@ class CityView(ListView):
                     durabilities[shop_item] = item_durability
                     durability_percent = durability / 100
                     durability_percents[shop_item] = f"{durability:.0f}%"
-                    city_prices[shop_item] = f"{get_city_unit_price(item, amount, durability_percent):.1f}"
+                    shop_item.unit_price = f"{get_city_unit_price(item, amount, durability_percent):.1f}"
+                    shop_item.available_amount = amount
+                    city_prices[shop_item] = shop_item.unit_price
                     city_armors[shop_item] = math.ceil(item.armor * durability_percent) if item.armor else item.armor
                     armor_weight_orders[shop_item] = get_city_armor_weight_order(item)
                     city_categories[shop_item] = item_category

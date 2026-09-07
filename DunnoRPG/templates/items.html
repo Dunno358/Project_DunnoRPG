@@ -372,8 +372,11 @@
             </a>
             {% if view.kwargs.char_id != 0 and not item.equipped %}
                 <button class='col-2 text-center text-white bg-success p-2 m-1 rounded'
-                onclick="sellConfirmation('{{ view.kwargs.char_id }}','{{ item.eq_id }}','{{ item.price }}','{{ item.dur }}','{{ item.max_dur }}','{{ item.name }}', '{{ item.amount }}', '{{ charisma }}')">
-                Sell</button>
+                onclick="sellConfirmation('{{ view.kwargs.char_id }}','{{ item.eq_id }}','{{ item.price }}','{{ item.dur }}','{{ item.max_dur }}','{{ item.name }}', '{{ item.amount }}', '{{ charisma }}')"
+                title="Sprzedaj"
+                aria-label="Sprzedaj">
+                    <span class="fa-solid fa-coins fa-lg" aria-hidden="true"></span>
+                </button>
             {% endif %}
                 <div class="row m-0 mt-1 p-0">
                     {% if view.kwargs.char_id != 0 and not item.equipped and item.on_use and item.on_use != '-' %}
@@ -1024,7 +1027,7 @@
         let dur_perc = dur/maxDur
         let base_price = price*dur_perc*amount
         base_price = parseFloat(base_price.toFixed(1))
-        let char_bonus = ((base_price/100)*(charisma*4))
+        let char_bonus = Math.round(((charisma*4)*base_price)/100)
         char_bonus = parseFloat(char_bonus.toFixed(1))
         //console.log(char_bonus)
         //console.log(base_price,char_bonus,base_price+char_bonus)
@@ -1051,7 +1054,6 @@
         main_block.classList.remove("d-none")
         title.innerHTML = `Sprzedawca: Rzućmy okiem... No stan jest ${quality}, proponuję ${calc_price} monet.`
         item_name.innerHTML = itemName
-
         sell_btn.setAttribute("onclick", `sellItem(${id}, ${parseInt(charBonus)}, ${amount})`)
     }
 
@@ -1072,7 +1074,6 @@
         }
 
         window.location.href = "sell"+item_id+";"+chid+";"+selling_item_mod+";"+amount
-
     }
 
     function giveItem(){
