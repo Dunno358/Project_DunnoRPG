@@ -412,6 +412,43 @@
 
                 </div>
             {% endfor %}
+            {% for item in tavern_buy_items %}
+                <div class='row bg-gray rounded m-1 border border-primary'>
+
+                    <div class="col-9 border-end">
+                        <div class="row-10" style="text-align: left;">
+                            <div class="col pt-1">
+                            <a id='{{ item|getDescId }}' href='/dunnorpg/items/{{ item|getDescId }}'>
+                                <b class="{{ item|getItemRarity }}">{{ item }} [{{ durability_percents|dict_get:item }}]</b>
+                            </a>
+                            </div>
+                        </div>
+                        <div class="row-10">
+                            <div class="col p-2" style="text-align: left;">
+                                <i class="neutral-high">{{ item|getVisibleSkillAndDesc:user }}</i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-3 p-0">
+                        <div class="row-3 border-bottom pt-1 pb-1 h6 mb-0"><span class="neutral-high">Cena:</span> {{ city_prices|dict_get:item }} monet/y</div>
+                        <div class="row-3 border-bottom pt-1 pb-1">
+                            <div class="col"><span class="h6">Jedzenie / Alkohol</span></div>
+                        </div>
+                        <div class="row-3 border-bottom pt-1 pb-1 h6 mb-0"><span class="neutral-high">Wytrzymalosc:</span> {{ durability_percents|dict_get:item }}</div>
+                        <div class="row-3 border-bottom pt-1 pb-1 h6 mb-0"><span class="neutral-high">Ilosc:</span> {{ amounts|dict_get:item }}</div>
+                        <div class="row-3" style="height: 5.2vh;">
+                            <div class="col h-100">
+                                <button class="w-100 h-100 text-center btn btn-sm btn-success d-flex align-items-center justify-content-center rounded-0" 
+                                onclick="buyItem('{{ item }}','{{ item|getDescId }}','{{ item.durability_percent }}','{{ item.unit_price }}','{{ item.available_amount }}')">
+                                    Zakup
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            {% endfor %}
         </div>
 
         <div class='ms-0 ps-0 row text-center c-gold p-2 rounded border border-warning bg-dark mt-1' onclick="showOrHideBlock(this,'strange-items')" style="width: 100%;">

@@ -3514,6 +3514,8 @@ def is_city_range_shop_item(item_category):
 def is_city_gunpowder_shop_item(item_category):
     return "gun" in item_category or "gunpowder" in item_category
 
+CITY_TAVERN_BUY_CATEGORIES = {"alkohol", "jedzenie"}
+
 class CityShopItem(str):
     def __new__(cls, name, durability_percent, sale_index):
         obj = str.__new__(cls, name)
@@ -3573,6 +3575,7 @@ class CityView(ListView):
             city_armors = {}
             armor_weight_orders = {}
             city_categories = {}
+            tavern_buy_items = []
             armor_shop_categories = ["armor", "cloth", "armor_elegant"]
             
             for sale_index, item in enumerate(items):
@@ -3606,7 +3609,11 @@ class CityView(ListView):
                     city_armors[shop_item] = math.ceil(item.armor * durability_percent) if item.armor else item.armor
                     armor_weight_orders[shop_item] = get_city_armor_weight_order(item)
                     city_categories[shop_item] = item_category
-                    if item_category == "tawerna":
+                    if item_category == "trash":
+                        other.append(shop_item)
+                    elif item_category in CITY_TAVERN_BUY_CATEGORIES:
+                        tavern_buy_items.append(shop_item)
+                    elif item_category == "tawerna":
                         tavern.append(shop_item)
                     elif is_city_range_shop_item(item_category):
                         ranged_weaponry.append(shop_item)
@@ -3674,6 +3681,7 @@ class CityView(ListView):
             context['potions'] = potions
             context['animals'] = animals
             context['tavern'] = tavern
+            context['tavern_buy_items'] = tavern_buy_items
             context['other'] = other
             context['city'] = city
             context['x5packets'] = x5packets
