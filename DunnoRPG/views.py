@@ -2892,12 +2892,16 @@ class useItem(APIView):
                 char, foodMsg = manageFoodAndWater(char, -1, "food")
             char.save()
 
-            if eq_item.amount == 1:
-                eq_item.delete()
+            if item.use_amount and item.use_amount >= 2:
+                item.use_amount -= 1
+                item.save()
             else:
-                eq_item.weight -= eq_item.weight/eq_item.amount
-                eq_item.amount -= 1
-                eq_item.save()
+                if eq_item.amount == 1:
+                    eq_item.delete()
+                else:
+                    eq_item.weight -= eq_item.weight/eq_item.amount
+                    eq_item.amount -= 1
+                    eq_item.save()
 
             if waterMsg != "":
                 messages.error(request, waterMsg)
