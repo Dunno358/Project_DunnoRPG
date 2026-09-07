@@ -2336,7 +2336,12 @@ def char_wear_item(request, **kwargs):
                 curr_effect.time = 100
                 curr_effect.save()
 
-    item_eq_obj.delete()
+    if item_eq_obj.amount == 1:
+        item_eq_obj.delete()
+    else:
+        item_eq_obj.weight -= item.weight
+        item_eq_obj.amount -= 1
+        item_eq_obj.save()
     return redirect('character_detail', char.id)
 def char_use_skill(request, **kwargs):
     char = get_object_or_404(models.Character, id=kwargs['char_id'])
