@@ -451,50 +451,6 @@
             {% endfor %}
         </div>
 
-        <div class='ms-0 ps-0 row text-center c-gold p-2 rounded border border-warning bg-dark mt-1' onclick="showOrHideBlock(this,'strange-items')" style="width: 100%;">
-            <h2>Stoisko z różnymi przedmiotami</h2>
-        </div>
-        <div id='strange-items' class='container text-center c-gold rounded border border-primary bg-dark d-none p-0 m-0' style="width: 100%;">
-            {% for item in amulets %}
-                <div class='row bg-gray rounded m-1 border border-primary'>
-
-                    <div class="col-9 border-end">
-                        <div class="row-10" style="text-align: left;">
-                            <div class="col pt-1">
-                            <b class="{{ item|getItemRarity }}">{{ item|getItemType:"pl" }} |</b> 
-                            <a id='{{ item|getDescId }}' href='/dunnorpg/items/{{ item|getDescId }}'>
-                                <b class="{{ item|getItemRarity }}">{{ item }}</b>
-                            </a>
-                            </div>
-                        </div>
-                        <div class="row-10">
-                            <div class="col p-2" style="text-align: left;">
-                                <i class="neutral-high">{{ item|getVisibleSkillAndDesc:user }}</i>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="col-3 p-0">
-                        <div class="row-3 border-bottom pt-1 pb-1 h6 mb-0"><span class="neutral-high">Cena:</span> {{ city_prices|dict_get:item }} monet/y</div>
-                        <div class="row-3 border-bottom pt-1 pb-1">
-                            <div class="col"><span class="h6">Amulet</span></div>
-                        </div>
-                        <div class="row-3 border-bottom pt-1 pb-1 h6 mb-0"><span class="neutral-high">Wytrzymałość:</span> {{ durability_percents|dict_get:item }}</div>
-                        <div class="row-3 border-bottom pt-1 pb-1 h6 mb-0"><span class="neutral-high">Ilość:</span> {{ amounts|dict_get:item }}</div>
-                        <div class="row-3" style="height: 5.2vh;">
-                            <div class="col h-100">
-                                <button class="w-100 h-100 text-center btn btn-sm btn-success d-flex align-items-center justify-content-center rounded-0" 
-                                onclick="buyItem('{{ item }}','{{ item|getDescId }}','{{ item.durability_percent }}','{{ item.unit_price }}','{{ item.available_amount }}')">
-                                    Zakup
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-
-                </div>
-            {% endfor %}
-        </div>
-
         <div class='ms-0 ps-0 row text-center c-gold p-2 rounded border border-warning bg-dark mt-1' onclick="showOrHideBlock(this,'potions')" style="width: 100%;">
             <h2>Stoisko z eliksirami</h2>
         </div>
