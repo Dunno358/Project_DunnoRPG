@@ -1971,8 +1971,16 @@ def end_round_infight(request, **kwargs):
                 effect.time -= 1
                 effect.save()
 
+        for mod in models.Mods.objects.filter(character=char.name, time__gt=0):
+            if mod.time == 1:
+                mod.delete()
+                removedAny = True
+            else:
+                mod.time -= 1
+                mod.save()
+
         if removedAny:
-            msg = "Zakończono rundę, odnowiono ilość akcji postaci oraz usunięto niektóre efekty"
+            msg = "Zakończono rundę, odnowiono ilość akcji postaci oraz usunięto niektóre efekty/modyfikatory"
         else:
             msg = "Zakończono rundę oraz odnowiono ilość akcji postaci"
 
@@ -2576,6 +2584,13 @@ def end_round(request, **kwargs):
                 effect.delete()
             else:
                 effect.save()
+    for mod in models.Mods.objects.filter(time__gt=0):
+        mod.time -= 1
+        if mod.time <= 0:
+            msg += f"{mod.character}-{mod.field}; "
+            mod.delete()
+        else:
+            mod.save()
     if msg != 'Deleted: ':
         messages.warning(request, msg)
     return redirect('gm_panel')

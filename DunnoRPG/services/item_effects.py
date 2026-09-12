@@ -12,6 +12,7 @@ class ItemEffectMessage:
 
 
 EMPTY_BOTTLE_ACTIONS = {"addHP_Potion", "addWater_Bottle"}
+VALID_STAT_MOD_FIELDS = {"INT", "SIŁ", "ZRE", "CHAR", "CEL", "SPO"}
 
 
 def apply_item_use_effects(char, actions, cost, manage_food_and_water, sync_alcohol_mods=None, add_consumed_container=True):
@@ -29,6 +30,38 @@ def apply_item_use_effects(char, actions, cost, manage_food_and_water, sync_alco
             continue
 
         action_name, amount_value = single_action.split("-", 1)
+
+        if action_name.startswith("increaseStat:"):
+            stat_name = action_name.split(":", 1)[1].strip()
+            mod = increase_stat(char, stat_name, amount_value)
+            if mod is None:
+                messages.append(ItemEffectMessage(
+                    "error",
+                    f"Nieprawidłowy modyfikator statystyki: {single_action}",
+                ))
+                continue
+
+            messages.append(ItemEffectMessage(
+                "success",
+                f"Dodano {mod.value:+d} {mod.field} na {mod.time} rund, wykorzystano {cost}/{char.actionLeft-cost} akcji",
+            ))
+            continue
+
+        if action_name == "increaseMobility":
+            mod = increase_mobility(char, amount_value)
+            if mod is None:
+                messages.append(ItemEffectMessage(
+                    "error",
+                    f"Nieprawidłowy modyfikator mobilności: {single_action}",
+                ))
+                continue
+
+            messages.append(ItemEffectMessage(
+                "success",
+                f"Dodano {mod.value:+d} mobilności na {mod.time} rund, wykorzystano {cost}/{char.actionLeft-cost} akcji",
+            ))
+            continue
+
         amount = int(amount_value)
 
         if action_name.startswith("addHP"):
@@ -56,6 +89,20 @@ def apply_item_use_effects(char, actions, cost, manage_food_and_water, sync_alco
             messages.append(ItemEffectMessage(
                 "success",
                 f"Dodano {amount} alkoholu, wykorzystano {cost}/{char.actionLeft-cost} akcji",
+            ))
+        elif action_name.startswith("addEffect:"):
+            effect_name = action_name.split(":", 1)[1].strip()
+            effect = add_effect(char, effect_name, amount)
+            if effect is None:
+                messages.append(ItemEffectMessage(
+                    "error",
+                    f"Nie znaleziono efektu: {effect_name}",
+                ))
+                continue
+
+            messages.append(ItemEffectMessage(
+                "success",
+                f"Dodano efekt {effect.name} na {amount} rund, wykorzystano {cost}/{char.actionLeft-cost} akcji",
             ))
 
     if add_consumed_container:
@@ -91,6 +138,64 @@ def add_alcohol(char, amount):
 
     char.alcohol = max(0, alcohol_level + amount)
     return alcohol_level
+
+
+def add_effect(char, effect_name, time):
+    effect_desc = models.Effects_Decs.objects.filter(name=effect_name).first()
+    if effect_desc is None:
+        return None
+
+    effect, _ = models.Effects.objects.update_or_create(
+        owner=char.owner,
+        character=char.name,
+        name=effect_desc.name,
+        defaults={
+            "desc": effect_desc.desc,
+            "time": time,
+            "category": effect_desc.category,
+            "source": "item_use",
+        },
+    )
+    return effect
+
+
+def increase_stat(char, stat_name, payload):
+    stat_name = stat_name.upper()
+    if stat_name not in VALID_STAT_MOD_FIELDS:
+        return None
+
+    return increase_mod(char, stat_name, payload, f"item_use:increaseStat:{stat_name}")
+
+
+def increase_mobility(char, payload):
+    return increase_mod(char, "mobility", payload, "item_use:increaseMobility")
+
+
+def increase_mod(char, field, payload, source):
+    if "|" not in payload:
+        return None
+
+    try:
+        value_text, time_text = payload.split("|", 1)
+        value = int(value_text)
+        time = int(time_text)
+    except ValueError:
+        return None
+
+    if time <= 0:
+        return None
+
+    mod, _ = models.Mods.objects.update_or_create(
+        owner=char.owner,
+        character=char.name,
+        field=field,
+        source=source,
+        defaults={
+            "value": value,
+            "time": time,
+        },
+    )
+    return mod
 
 
 def add_empty_bottle_if_needed(char, actions):

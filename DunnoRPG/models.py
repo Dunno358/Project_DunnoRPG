@@ -68,6 +68,7 @@ class Mods(models.Model):
     character = models.CharField(max_length=50, null=True)
     field = models.CharField(max_length=10, default='INT')
     value = models.IntegerField(default=0)
+    time = models.IntegerField(default=0)
     source = models.CharField(max_length=255, null=True, blank=True)
 
     def __str__(self):

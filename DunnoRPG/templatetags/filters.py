@@ -747,6 +747,16 @@ def getModFromId(charId,stat_for_mod):
     return value
 
 @register.filter
+def getMobilityMod(character):
+    mobility_fields = ["mobility", "Mobility", "MOB", "mob", "Mob"]
+    value = 0
+    for mod in models.Mods.objects.filter(character=character['name'], field__in=mobility_fields).values():
+        value += mod['value']
+    if value >= 0:
+        return f"+{value}"
+    return value
+
+@register.filter
 def getCharacterEffects(character):
     try:
         character_name = character['name']

@@ -2221,6 +2221,7 @@ style="width: 98%; z-index: 20; margin-left: 0.22rem !important; margin-top: -5r
     <p id='item-skill-char'>{{ value.name|getStatFromItems:"CHAR" }}</p>
     <p id='item-skill-cel'>{{ value.name|getStatFromItems:"CEL" }}</p>
     <p id='item-skill-spo'>{{ value.name|getStatFromItems:"SPO" }}</p>
+    <p id='mobility-mod'>{{ value|getMobilityMod }}</p>
 </div>
 
 <script>
@@ -3653,9 +3654,10 @@ function show_result_at_window(action){
     {
         zre = parseInt(document.getElementById('stat-ZRE').innerHTML)
         zre_mod = parseInt(document.getElementById('stat-ZRE-mod').innerHTML) 
+        mobility_mod = parseInt(document.getElementById('mobility-mod').innerHTML)
         full_zre = parseInt(zre+zre_mod)
-        bonus_move = full_zre/3
-        full_move = Math.ceil(4+bonus_move) //4 + 1 for every 3 ZRE
+        zre_move = Math.floor(full_zre/2)
+        full_move = Math.max(0, 4 + zre_move + mobility_mod)
 
         showMovementAction(full_move)
 
