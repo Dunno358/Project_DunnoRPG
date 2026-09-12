@@ -532,6 +532,10 @@ def get_alcohol_state(character, alcohol_level=None, drunkenness_limit=None):
         return "Kac"
     return "Trzeźwy"
 
+
+def is_player_animal(character):
+    return (character.type or "").lower() == "gracz: zwierze"
+
 def sync_alcohol_mods(character, previous_alcohol_level=None):
     try:
         alcohol_level = int(character.alcohol)
@@ -1112,6 +1116,10 @@ class CharacterDetails(DetailView):
         context['drunkenness_limit'] = drunkenness_limit
         context['alcohol_state'] = get_alcohol_state(chosen, alcohol_level, drunkenness_limit)
         context['is_over_drunkenness_limit'] = alcohol_level > drunkenness_limit
+        context['exp_animal_characters'] = models.Character.objects.filter(
+            owner=chosen.owner,
+            type__iexact="Gracz: Zwierze",
+        ).exclude(id=chosen.id).order_by('name')
         
         context['eq_weapons'] = eq_weapons_qs
         context['eq_left_hand_weapons'] = filter_hand_weapon_options(chosen, eq_weapons_qs, "Left")
@@ -1571,7 +1579,7 @@ def create_character(request,name,char_class,race,type,owner,exp):
 
         race =  get_object_or_404(models.Races, name=race)
         maxHP = race.hp
-        size_dict = {"S": 0.5,"M": 1,"L": 2}
+        size_dict = {"S": 0.5, "M": 1, "L": 2}
         race = get_object_or_404(models.Races, name=race)
         char_class = get_object_or_404(models.Classes, name=char_class)
         class_mods = char_class.mods.split(";")
@@ -1613,7 +1621,7 @@ def create_character(request,name,char_class,race,type,owner,exp):
             exp=exp,
             chosen_class=char_class,
             race=race,
-            size=size_dict[race.size],
+            size=size_dict.get(str(race.size).upper(), race.size),
             HP=maxHP+class_hp_mod,
             fullHP=maxHP+class_hp_mod,
             coins=0,
@@ -1638,6 +1646,8 @@ def create_character(request,name,char_class,race,type,owner,exp):
             grant_free_skill(owner, name, skill)
 
         for effect in class_effects: #Effects are to be overhauled
+            if not effect:
+                continue
             eff_name = effect[:-2]
             parts = effect.split("-")
             eff_nr = parts[len(parts)-1]
@@ -2239,8 +2249,9 @@ def manageExp(char, exp):
             char.exp = added_amount - (lvls_to_add*100)
             char.level += lvls_to_add
             char.points_left += lvls_to_add
-            char, waterMessage = manageFoodAndWater(char, -20*lvls_to_add, "water")
-            char, foodMessage = manageFoodAndWater(char, -20*lvls_to_add, "food")
+            if not is_player_animal(char):
+                char, waterMessage = manageFoodAndWater(char, -20*lvls_to_add, "water")
+                char, foodMessage = manageFoodAndWater(char, -20*lvls_to_add, "food")
             msg = f"Zdobyto poziom! Nowy poziom to {char.level}, otrzymano {lvls_to_add} punktów umiejętności."
             if waterMessage != "":
                 msg += f" {waterMessage}"
@@ -2266,15 +2277,31 @@ def manageExp(char, exp):
 
 def add_exp(request, **kwargs):
     char = get_object_or_404(models.Character, id=kwargs['char_id'])
-    msg = ''
-    msg_type = ''
+    exp = kwargs['exp']
 
-    char, msg, msg_type = manageExp(char, kwargs['exp'])
+    char, msg, msg_type = manageExp(char, exp)
 
     if msg_type == 'error':
-        messages.error(request, msg)
+        messages.error(request, f"{char.name}: {msg}")
     else:
-        messages.success(request, msg)
+        messages.success(request, f"{char.name}: {msg}")
+
+    selected_animal_ids = [
+        animal_id for animal_id in request.GET.getlist('exp_animals')
+        if str(animal_id).isdigit()
+    ]
+    selected_animals = models.Character.objects.filter(
+        id__in=selected_animal_ids,
+        owner=char.owner,
+        type__iexact="Gracz: Zwierze",
+    ).exclude(id=char.id)
+
+    for animal in selected_animals:
+        animal, animal_msg, animal_msg_type = manageExp(animal, exp)
+        if animal_msg_type == 'error':
+            messages.error(request, f"{animal.name}: {animal_msg}")
+        else:
+            messages.success(request, f"{animal.name}: {animal_msg}")
 
     return redirect('character_detail', char.id)
 
