@@ -414,12 +414,25 @@ def get_character_current_weight(character):
     return current_weight
 
 
+def clamp_item_durability(item_desc, durability):
+    try:
+        durability = int(durability)
+    except (TypeError, ValueError):
+        durability = item_desc.maxDurability
+
+    max_durability = item_desc.maxDurability or 0
+    if max_durability > 0 and durability > max_durability:
+        return max_durability
+    return durability
+
+
 def move_char_item_to_eq(char_item):
     item_desc = get_object_or_404(models.Items, name=char_item.name)
+    durability = clamp_item_durability(item_desc, char_item.durability)
     eq_item = models.Eq.objects.filter(
         character=char_item.character,
         name=char_item.name,
-        durability=char_item.durability,
+        durability=durability,
         additional_description=char_item.additional_description,
     ).first()
 
@@ -434,7 +447,7 @@ def move_char_item_to_eq(char_item):
             name=char_item.name,
             type=item_desc.type,
             weight=item_desc.weight,
-            durability=char_item.durability,
+            durability=durability,
             additional_description=char_item.additional_description,
         )
 
@@ -1718,7 +1731,8 @@ def sell_item(request, **kwargs):
                 pass
         #print(f"charisma {charisma}")
         
-        durability_percent = eqItem.durability/itemDesc.maxDurability
+        durability = clamp_item_durability(itemDesc, eqItem.durability)
+        durability_percent = durability / itemDesc.maxDurability if itemDesc.maxDurability else 0
 
         raw_base_price = itemDesc.price*durability_percent*amount
         base_price = float("{:.1f}".format(raw_base_price)) # e.g. 10.1
@@ -1772,7 +1786,7 @@ def give_item(request, **kwargs):
                     name=eq_item.name,
                     type=eq_item.type,
                     weight=eq_item.weight*given_amount,
-                    durability=eq_item.durability,
+                    durability=clamp_item_durability(itemDesc, eq_item.durability),
                     amount=given_amount,
                     additional_description=eq_item.additional_description,
                 )
@@ -1835,7 +1849,7 @@ def swap_side_to_hand(request, **kwargs):
                 name = rightItem.name,
                 type = rightItemDesc.type,
                 weight = rightItemDesc.weight,
-                durability = rightItem.durability,
+                durability = clamp_item_durability(rightItemDesc, rightItem.durability),
                 amount = 1,
                 additional_description = rightItem.additional_description
             )
@@ -2353,7 +2367,7 @@ def char_wear_item(request, **kwargs):
                 owner = request.user,
                 character = char.name,
                 name = item.name,
-                durability = item_eq_obj.durability,
+                durability = clamp_item_durability(item, item_eq_obj.durability),
                 hand = place.capitalize(),
                 position = '',
                 additional_description = item_eq_obj.additional_description
@@ -2363,14 +2377,14 @@ def char_wear_item(request, **kwargs):
                 owner = request.user,
                 character = char.name,
                 name = item.name,
-                durability = item_eq_obj.durability,
+                durability = clamp_item_durability(item, item_eq_obj.durability),
                 hand = '',
                 position = place.capitalize(),
                 additional_description = item_eq_obj.additional_description
                 )            
     else:
         charItObj.name = item.name
-        charItObj.durability = item_eq_obj.durability
+        charItObj.durability = clamp_item_durability(item, item_eq_obj.durability)
         charItObj.additional_description = item_eq_obj.additional_description
         charItObj.save()  
 
@@ -2572,7 +2586,7 @@ def char_swap_item(request, **kwargs):
         name=it1.name,
         type=it1D.type,
         weight=it1D.weight,
-        durability=it1.durability,
+        durability=clamp_item_durability(it1D, it1.durability),
         additional_description=it1.additional_description,
     )
 
@@ -3245,6 +3259,7 @@ class RequestHandling(APIView):
                                     dur = rq_object.title.split('-')[1][:-3]
                                     char = get_object_or_404(models.Character, id=rq_object.char_id)
                                     itemDesc = models.Items.objects.get(id=rq_object.object1_id)
+                                    dur = clamp_item_durability(itemDesc, dur)
 
                                     max_weight = get_character_max_weight(char)
                                     current_weight = get_character_current_weight(char)
@@ -3288,6 +3303,7 @@ class RequestHandling(APIView):
                                 dur = rq.title.split('-')[1][:-3]
                                 char = get_object_or_404(models.Character, id=rq.char_id)
                                 itemDesc = models.Items.objects.get(id=rq.object1_id)
+                                dur = clamp_item_durability(itemDesc, dur)
                                 
                                 max_weight = get_character_max_weight(char)
                                 current_weight = get_character_current_weight(char)
@@ -3393,6 +3409,7 @@ class GMPanel(FormView):
         item = models.Items.objects.get(pk=form_data.name)
         form_data.name = item.name
         form_data.type = item.type
+        form_data.durability = clamp_item_durability(item, form_data.durability)
         item_weight = item.weight * form_data.amount
         form_data.weight = item_weight
         
@@ -3433,7 +3450,7 @@ class GMPanel(FormView):
                     effectsafterpen=item.effectsAfterPen,
                     effectsall=item.effectsAlways,
                     name=item.name,
-                    durability=form_data.durability,
+                    durability=clamp_item_durability(item, form_data.durability),
                     hand=target_hand,
                     position=target_position,
                     reloaded=True,
@@ -3657,8 +3674,10 @@ class CityView(ListView):
 
                     if durability is None:
                         durability = 100
+                    durability = min(durability, 100)
 
                     item_durability = get_durability_from_percent(durability, item.maxDurability)
+                    item_durability = clamp_item_durability(item, item_durability)
 
                     if not item.found:
                         item.found = True
@@ -3786,9 +3805,11 @@ class BuyItem(APIView):
         for ct_item in city.items.split(";"):
             ct_item_name, ct_item_durability, amount = parse_city_item_entry(ct_item)
             ct_item_durability_percent = 100 if ct_item_durability is None else ct_item_durability
+            ct_item_durability_percent = min(ct_item_durability_percent, 100)
             if ct_item_name == item.name and (requested_durability is None or requested_durability == ct_item_durability_percent):
                 item_durability_percent = ct_item_durability_percent
                 item_durability = get_durability_from_percent(item_durability_percent, item.maxDurability)
+                item_durability = clamp_item_durability(item, item_durability)
                 available_amount = amount
                 break
 
@@ -3832,6 +3853,7 @@ class BuyItem(APIView):
                 for ct_item in city_items:
                     ct_item_name, ct_item_durability, amount = parse_city_item_entry(ct_item)
                     ct_item_durability_percent = 100 if ct_item_durability is None else ct_item_durability
+                    ct_item_durability_percent = min(ct_item_durability_percent, 100)
                     if ct_item_name == item.name and (requested_durability is None or requested_durability == ct_item_durability_percent):
                         index = city_items.index(ct_item)
                         if ct_item_durability is None:
@@ -3847,8 +3869,9 @@ class BuyItem(APIView):
                             new_amount = int(amount)-int(item_amount) #should be 0
                         ct_new_item = format_city_item_entry(ct_item_name, ct_item_durability, new_amount)
                         city_items[index] = ct_new_item
-                        item_durability_percent = ct_item_durability
+                        item_durability_percent = min(ct_item_durability, 100)
                         item_durability = get_durability_from_percent(item_durability_percent, item.maxDurability)
+                        item_durability = clamp_item_durability(item, item_durability)
 
                 city.items = ';'.join(city_items)
                 city.save()
@@ -3859,6 +3882,7 @@ class BuyItem(APIView):
                 #if item.name in ["Strzała","Pocisk do broni prochowej"]:
                 #    item_amount = item_amount*10
                 try:
+                    item_durability = clamp_item_durability(item, item_durability)
                     existing_item = get_object_or_404(models.Eq, name=item.name, character=character.name, durability=item_durability)
                     existing_item.amount += item_amount
                     existing_item.weight += item.weight*item_amount

@@ -1024,7 +1024,7 @@
             sellConfirmation(chid, id, price, dur, maxDur, itemName, newAmount, charBonus)
         }
 
-        let dur_perc = dur/maxDur
+        let dur_perc = Math.min(dur, maxDur)/maxDur
         let base_price = price*dur_perc*amount
         base_price = parseFloat(base_price.toFixed(1))
         let char_bonus = Math.round(((charisma*4)*base_price)/100)
