@@ -73,6 +73,7 @@
     </div>
 
     <div class='container mt-3 p-0'>
+        {% if weaponry_singlehand or weaponry_twohand %}
         <div class='ms-0 ps-0 row text-center c-gold p-2 rounded border border-warning bg-dark mt-1' onclick="showOrHideBlock(this,'smith-items')" style="width: 100%;">
             <h2>Kowal</h2>
         </div>
@@ -114,11 +115,13 @@
 
                 </div>
             {% endfor %}
-            <div class="row">
-                <div class="col"><hr></div>
-                <div class="col-3"><b>Dwuręczne</b></div>
-                <div class="col"><hr></div>
-            </div>
+            {% if weaponry_twohand %}
+                <div class="row">
+                    <div class="col"><hr></div>
+                    <div class="col-3"><b>Dwuręczne</b></div>
+                    <div class="col"><hr></div>
+                </div>
+            {% endif %}
             {% for item in weaponry_twohand %}
                 <div class='row bg-gray rounded m-1 border border-primary'>
 
@@ -157,8 +160,10 @@
                 </div>
             {% endfor %}
         </div>
+        {% endif %}
 
 
+        {% if ranged_weaponry %}
         <div class='ms-0 ps-0 row text-center c-gold p-2 rounded border border-warning bg-dark mt-1' onclick="showOrHideBlock(this,'bowyer-items')" style="width: 100%;">
             <h2>Łuczarz</h2>
         </div>
@@ -199,7 +204,9 @@
                 </div>
             {% endfor %}
         </div>
+        {% endif %}
 
+        {% if gunpowder_weaponry %}
         <div class='ms-0 ps-0 row text-center c-gold p-2 rounded border border-warning bg-dark mt-1' onclick="showOrHideBlock(this,'gunsmith-items')" style="width: 100%;">
             <h2>Rusznikarz</h2>
         </div>
@@ -240,7 +247,9 @@
                 </div>
             {% endfor %}
         </div>
+        {% endif %}
 
+        {% if armor %}
         <div class='ms-0 ps-0 row text-center c-gold p-2 rounded border border-warning bg-dark mt-1' onclick="showOrHideBlock(this,'armorer-items')" style="width: 100%;">
             <h2>Płatnerz</h2>
         </div>
@@ -284,7 +293,9 @@
                 </div>
             {% endfor %}
         </div>
+        {% endif %}
 
+        {% if cloth %}
         <div class='ms-0 ps-0 row text-center c-gold p-2 rounded border border-warning bg-dark mt-1' onclick="showOrHideBlock(this,'tailor-items')" style="width: 100%;">
             <h2>Krawiec</h2>
         </div>
@@ -328,7 +339,9 @@
                 </div>
             {% endfor %}
         </div>
+        {% endif %}
 
+        {% if armor_elegant %}
         <div class='ms-0 ps-0 row text-center c-gold p-2 rounded border border-warning bg-dark mt-1' onclick="showOrHideBlock(this,'jeweler-items')" style="width: 100%;">
             <h2>Jubiler</h2>
         </div>
@@ -372,7 +385,9 @@
                 </div>
             {% endfor %}
         </div>
+        {% endif %}
 
+        {% if tavern or tavern_buy_items %}
         <div class='ms-0 ps-0 row text-center c-gold p-2 rounded border border-warning bg-dark mt-1' onclick="showOrHideBlock(this,'tavern-items')" style="width: 100%;">
             <h2>Karczma</h2>
         </div>
@@ -450,7 +465,9 @@
                 </div>
             {% endfor %}
         </div>
+        {% endif %}
 
+        {% if potions %}
         <div class='ms-0 ps-0 row text-center c-gold p-2 rounded border border-warning bg-dark mt-1' onclick="showOrHideBlock(this,'potions')" style="width: 100%;">
             <h2>Stoisko z eliksirami</h2>
         </div>
@@ -493,7 +510,9 @@
                 </div>
             {% endfor %}
         </div>
+        {% endif %}
 
+        {% if trophies %}
         <div class='ms-0 ps-0 row text-center c-gold p-2 rounded border border-warning bg-dark mt-1' onclick="showOrHideBlock(this,'hunter')" style="width: 100%;">
             <h2>Myśliwy</h2>
         </div>
@@ -536,7 +555,9 @@
                 </div>
             {% endfor %}
         </div>
+        {% endif %}
 
+        {% if other %}
         <div class='ms-0 ps-0 row text-center c-gold p-2 rounded border border-warning bg-dark mt-1' onclick="showOrHideBlock(this,'merchant')" style="width: 100%;">
             <h2>Kupiec</h2>
         </div>
@@ -578,7 +599,9 @@
                 </div>
             {% endfor %}
         </div>
+        {% endif %}
 
+        {% if animals %}
         <div class='ms-0 ps-0 row text-center c-gold p-2 rounded border border-warning bg-dark mt-1' onclick="showOrHideBlock(this,'animals')" style="width: 100%;">
             <h2>Handlarz zwierząt</h2>
         </div>
@@ -621,6 +644,7 @@
                 </div>
             {% endfor %}
         </div>
+        {% endif %}
 
         <div class='ms-0 ps-0 row text-center c-gold p-2 rounded border border-warning bg-dark mt-1' onclick="showOrHideBlock(this,'medic')" style="width: 100%;">
             <h2>Uzdrowiciel</h2>
