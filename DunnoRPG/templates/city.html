@@ -1,5 +1,5 @@
 {% extends 'master.html' %}
-{% load filters %}
+{% load filters static %}
 
 {% block content %}
 {% include 'top_bar.html' %}
@@ -75,7 +75,7 @@
     <div class='container mt-3 p-0'>
         {% if weaponry_singlehand or weaponry_twohand %}
         <div class='ms-0 ps-0 row text-center c-gold p-2 rounded border border-warning bg-dark mt-1' onclick="showOrHideBlock(this,'smith-items')" style="width: 100%;">
-            <h2>Kowal</h2>
+            <h2><span class="me-2 d-inline-block" style="width: 1em; height: 1em; vertical-align: -0.12em; background-color: currentColor; -webkit-mask: url('{% static 'DunnoRPG/img/icons/axe-sword.svg' %}') center / contain no-repeat; mask: url('{% static 'DunnoRPG/img/icons/axe-sword.svg' %}') center / contain no-repeat;"></span>Kowal</h2>
         </div>
         <div id='smith-items' class='container text-center c-gold rounded border border-primary bg-dark d-none p-0 m-0' style="width: 100%;">
             {% for item in weaponry_singlehand %}
@@ -165,7 +165,7 @@
 
         {% if ranged_weaponry %}
         <div class='ms-0 ps-0 row text-center c-gold p-2 rounded border border-warning bg-dark mt-1' onclick="showOrHideBlock(this,'bowyer-items')" style="width: 100%;">
-            <h2>Łuczarz</h2>
+            <h2><span class="me-2 d-inline-block" style="width: 1em; height: 1em; vertical-align: -0.12em; background-color: currentColor; -webkit-mask: url('{% static 'DunnoRPG/img/icons/crossbow.svg' %}') center / contain no-repeat; mask: url('{% static 'DunnoRPG/img/icons/crossbow.svg' %}') center / contain no-repeat;"></span>Łuczarz</h2>
         </div>
         <div id='bowyer-items' class='container text-center c-gold rounded border border-primary bg-dark d-none p-0 m-0' style="width: 100%;">
             {% for item in ranged_weaponry %}
@@ -208,7 +208,7 @@
 
         {% if gunpowder_weaponry %}
         <div class='ms-0 ps-0 row text-center c-gold p-2 rounded border border-warning bg-dark mt-1' onclick="showOrHideBlock(this,'gunsmith-items')" style="width: 100%;">
-            <h2>Rusznikarz</h2>
+            <h2><span class="me-2 d-inline-block" style="width: 1em; height: 1em; vertical-align: -0.12em; background-color: currentColor; -webkit-mask: url('{% static 'DunnoRPG/img/icons/crossed-pistols.svg' %}') center / contain no-repeat; mask: url('{% static 'DunnoRPG/img/icons/crossed-pistols.svg' %}') center / contain no-repeat;"></span>Rusznikarz</h2>
         </div>
         <div id='gunsmith-items' class='container text-center c-gold rounded border border-primary bg-dark d-none p-0 m-0' style="width: 100%;">
             {% for item in gunpowder_weaponry %}
@@ -251,7 +251,7 @@
 
         {% if armor %}
         <div class='ms-0 ps-0 row text-center c-gold p-2 rounded border border-warning bg-dark mt-1' onclick="showOrHideBlock(this,'armorer-items')" style="width: 100%;">
-            <h2>Płatnerz</h2>
+            <h2><span class="me-2 d-inline-block" style="width: 1em; height: 1em; vertical-align: -0.12em; background-color: currentColor; -webkit-mask: url('{% static 'DunnoRPG/img/icons/visored-helm.svg' %}') center / contain no-repeat; mask: url('{% static 'DunnoRPG/img/icons/visored-helm.svg' %}') center / contain no-repeat;"></span>Płatnerz</h2>
         </div>
         <div id='armorer-items' class='container text-center c-gold rounded border border-primary bg-dark d-none p-0 m-0' style="width: 100%;">
             {% for item in armor %}
@@ -297,7 +297,7 @@
 
         {% if cloth %}
         <div class='ms-0 ps-0 row text-center c-gold p-2 rounded border border-warning bg-dark mt-1' onclick="showOrHideBlock(this,'tailor-items')" style="width: 100%;">
-            <h2>Krawiec</h2>
+            <h2><span class="me-2 d-inline-block" style="width: 1em; height: 1em; vertical-align: -0.12em; background-color: currentColor; -webkit-mask: url('{% static 'DunnoRPG/img/icons/pirate-coat.svg' %}') center / contain no-repeat; mask: url('{% static 'DunnoRPG/img/icons/pirate-coat.svg' %}') center / contain no-repeat;"></span>Krawiec</h2>
         </div>
         <div id='tailor-items' class='container text-center c-gold rounded border border-primary bg-dark d-none p-0 m-0' style="width: 100%;">
             {% for item in cloth %}
@@ -343,7 +343,7 @@
 
         {% if armor_elegant %}
         <div class='ms-0 ps-0 row text-center c-gold p-2 rounded border border-warning bg-dark mt-1' onclick="showOrHideBlock(this,'jeweler-items')" style="width: 100%;">
-            <h2>Jubiler</h2>
+            <h2><span class="me-2 d-inline-block" style="width: 1em; height: 1em; vertical-align: -0.12em; background-color: currentColor; -webkit-mask: url('{% static 'DunnoRPG/img/icons/ring.svg' %}') center / contain no-repeat; mask: url('{% static 'DunnoRPG/img/icons/ring.svg' %}') center / contain no-repeat;"></span>Jubiler</h2>
         </div>
         <div id='jeweler-items' class='container text-center c-gold rounded border border-primary bg-dark d-none p-0 m-0' style="width: 100%;">
             {% for item in armor_elegant %}
@@ -389,7 +389,7 @@
 
         {% if tavern or tavern_buy_items %}
         <div class='ms-0 ps-0 row text-center c-gold p-2 rounded border border-warning bg-dark mt-1' onclick="showOrHideBlock(this,'tavern-items')" style="width: 100%;">
-            <h2>Karczma</h2>
+            <h2><span class="fas fa-utensils me-2"></span>Karczma</h2>
         </div>
         <div id='tavern-items' class='container text-center c-gold rounded border border-primary bg-dark d-none p-0 m-0' style="width: 100%;">
             {% for item in tavern %}
@@ -469,7 +469,7 @@
 
         {% if potions %}
         <div class='ms-0 ps-0 row text-center c-gold p-2 rounded border border-warning bg-dark mt-1' onclick="showOrHideBlock(this,'potions')" style="width: 100%;">
-            <h2>Stoisko z eliksirami</h2>
+            <h2><span class="me-2 d-inline-block" style="width: 1em; height: 1em; vertical-align: -0.12em; background-color: currentColor; -webkit-mask: url('{% static 'DunnoRPG/img/icons/potion-ball.svg' %}') center / contain no-repeat; mask: url('{% static 'DunnoRPG/img/icons/potion-ball.svg' %}') center / contain no-repeat;"></span>Stoisko z eliksirami</h2>
         </div>
         <div id='potions' class='container text-center c-gold rounded border border-primary bg-dark d-none p-0 m-0' style="width: 100%;">
             {% for item in potions %}
@@ -514,7 +514,7 @@
 
         {% if trophies %}
         <div class='ms-0 ps-0 row text-center c-gold p-2 rounded border border-warning bg-dark mt-1' onclick="showOrHideBlock(this,'hunter')" style="width: 100%;">
-            <h2>Myśliwy</h2>
+            <h2><span class="me-2 d-inline-block" style="width: 1em; height: 1em; vertical-align: -0.12em; background-color: currentColor; -webkit-mask: url('{% static 'DunnoRPG/img/icons/wolf-trap.svg' %}') center / contain no-repeat; mask: url('{% static 'DunnoRPG/img/icons/wolf-trap.svg' %}') center / contain no-repeat;"></span>Myśliwy</h2>
         </div>
         <div id='hunter' class='container text-center c-gold rounded border border-primary bg-dark d-none p-0 m-0' style="width: 100%;">
             {% for item in trophies %}
@@ -559,7 +559,7 @@
 
         {% if other %}
         <div class='ms-0 ps-0 row text-center c-gold p-2 rounded border border-warning bg-dark mt-1' onclick="showOrHideBlock(this,'merchant')" style="width: 100%;">
-            <h2>Kupiec</h2>
+            <h2><span class="me-2 d-inline-block" style="width: 1em; height: 1em; vertical-align: -0.12em; background-color: currentColor; -webkit-mask: url('{% static 'DunnoRPG/img/icons/swap-bag.svg' %}') center / contain no-repeat; mask: url('{% static 'DunnoRPG/img/icons/swap-bag.svg' %}') center / contain no-repeat;"></span>Kupiec</h2>
         </div>
         <div id='merchant' class='container text-center c-gold rounded border border-primary bg-dark d-none p-0 m-0' style="width: 100%;">
             {% for item in other %}
@@ -603,7 +603,7 @@
 
         {% if animals %}
         <div class='ms-0 ps-0 row text-center c-gold p-2 rounded border border-warning bg-dark mt-1' onclick="showOrHideBlock(this,'animals')" style="width: 100%;">
-            <h2>Handlarz zwierząt</h2>
+            <h2><span class="me-2 d-inline-block" style="width: 1em; height: 1em; vertical-align: -0.12em; background-color: currentColor; -webkit-mask: url('{% static 'DunnoRPG/img/icons/donkey.svg' %}') center / contain no-repeat; mask: url('{% static 'DunnoRPG/img/icons/donkey.svg' %}') center / contain no-repeat;"></span>Handlarz zwierząt</h2>
         </div>
         <div id='animals' class='container text-center c-gold rounded border border-primary bg-dark d-none p-0 m-0' style="width: 100%;">
             {% for item in animals %}
@@ -647,7 +647,7 @@
         {% endif %}
 
         <div class='ms-0 ps-0 row text-center c-gold p-2 rounded border border-warning bg-dark mt-1' onclick="showOrHideBlock(this,'medic')" style="width: 100%;">
-            <h2>Uzdrowiciel</h2>
+            <h2><span class="me-2 d-inline-block" style="width: 1em; height: 1em; vertical-align: -0.12em; background-color: currentColor; -webkit-mask: url('{% static 'DunnoRPG/img/icons/plague-doctor-profile.svg' %}') center / contain no-repeat; mask: url('{% static 'DunnoRPG/img/icons/plague-doctor-profile.svg' %}') center / contain no-repeat;"></span>Uzdrowiciel</h2>
         </div>
         <div id='medic' class='container text-center c-gold rounded border border-primary bg-dark d-none p-0 m-0' style="width: 100%;">
             {% for char in characters %}
@@ -666,7 +666,7 @@
         </div>
 
         <div class='ms-0 ps-0 row text-center c-gold p-2 rounded border border-warning bg-dark mt-1' onclick="showOrHideBlock(this,'fix')" style="width: 100%;">
-            <h2>Naprawa</h2>
+            <h2><span class="fas fa-tools me-2"></span>Naprawa</h2>
         </div>
         <div id='fix' class='container text-center c-gold rounded border border-primary bg-dark d-none p-0 m-0' style="width: 100%;">
             {% for char in characters %}
