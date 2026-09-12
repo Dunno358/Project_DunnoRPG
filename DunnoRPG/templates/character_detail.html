@@ -75,18 +75,18 @@ style="width: 98%; z-index: 20; margin-left: 0.22rem !important; margin-top: -5r
     </div>
 </div>
 
-<div id='pop-window' class='d-none position-fixed container-fluid' style='margin-top: 8rem;'>
+<div id='pop-window' class='d-none position-fixed container-fluid' style='margin-top: 1rem; z-index: 15;'>
     <div class='row bg-dark c-gold rounded border border-warning m-0'>
 
         <div class='row text-center ms-1'>
             <div class='col mt-4'>
-                <h3 id='window-action-text-top' class='m-1'></h3>
+                <div id='window-action-text-top' class='h3 m-1'></div>
             </div>
         </div>
 
         <div class='row text-center ms-1'>
             <div class='col mt-1 mb-2'>
-                <h3 id='window-action-text-center' class='m-1'>Action</h3>
+                <div id='window-action-text-center' class='h3 m-1'>Action</div>
             </div>
         </div>
 
@@ -316,7 +316,7 @@ style="width: 98%; z-index: 20; margin-left: 0.22rem !important; margin-top: -5r
                 <span class="h-100 c-gold fw-bold">Dostępna ilość akcji:</span> 
             </div>
             <div class="col-4 text-start ps-0 mt-1 pe-0">
-                <form method="post" action="change-action-amount">
+                <form id="actions-amount-form" method="post" action="change-action-amount" onsubmit="changeActionAmount(event)">
                     {% csrf_token %}
                     <input id='actions-amount' name='actions-amount' type="number" step="0.5" class="w-100 h-100 text-center c-gold bg-dark rounded bg-gradient" value="{{ chosen_character.0.actionLeft }}"/>
                 </form>
@@ -344,7 +344,7 @@ style="width: 98%; z-index: 20; margin-left: 0.22rem !important; margin-top: -5r
         </div>
         {% if chosen_character.0.inFight %}
             <div class="col text-center">
-                <button class="btn w-100 h-100 btn-primary" id="end-round" onclick="(() => { window.location.replace(window.location.href+'end-round') })()">Zakończ rundę</button>
+                <button class="btn w-100 h-100 btn-primary" id="end-round" onclick="endRound()">Zakończ rundę</button>
             </div>
         {% endif %}
     </div>
@@ -2331,12 +2331,104 @@ function initItemDurabilityForms(){
     })
 }
 
+async function changeActionAmount(event){
+    event.preventDefault()
+
+    const form = event.currentTarget
+    const actionsInput = document.getElementById('actions-amount')
+    const rawValue = actionsInput.value.trim()
+    const value = Number(rawValue)
+
+    if(form.dataset.submitting === 'true' || actionsInput.value === actionsInput.dataset.lastSubmittedValue){
+        return
+    }
+
+    if(rawValue === '' || Number.isNaN(value) || value < 0){
+        showMessage('Dostępna ilość akcji musi być liczbą większą lub równą 0.', 'error')
+        return
+    }
+
+    form.dataset.submitting = 'true'
+
+    try{
+        const response = await fetch(form.action, {
+            method: 'POST',
+            body: new FormData(form),
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+            },
+        })
+        const data = await response.json()
+
+        if(!response.ok){
+            throw new Error(data.error || 'Nie udało się zmienić dostępnej ilości akcji.')
+        }
+
+        actionsInput.value = data.actionLeft
+        actionsInput.setAttribute('value', data.actionLeft)
+        actionsInput.dataset.lastSubmittedValue = String(data.actionLeft)
+    }
+    catch(error){
+        showMessage(error.message, 'error')
+    }
+    finally{
+        form.dataset.submitting = 'false'
+    }
+}
+
+async function spendActions(cost){
+    const input = document.getElementById('actions-amount')
+    const form = document.getElementById('actions-amount-form')
+    if(!input || !form || form.dataset.submitting === 'true'){
+        return false
+    }
+
+    const currentActions = Number(input.value)
+    if(Number.isNaN(currentActions) || currentActions < cost){
+        showMessage(`Nie posiadasz wystarczająco akcji! Wymagane ${cost} a dostępne ${input.value}.`, 'error')
+        return false
+    }
+
+    const previousActions = input.value
+    input.value = Math.max(0, currentActions - cost)
+
+    form.dataset.submitting = 'true'
+    try{
+        const response = await fetch(form.action, {
+            method: 'POST',
+            body: new FormData(form),
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+            },
+        })
+        const data = await response.json()
+
+        if(!response.ok){
+            throw new Error(data.error || 'Nie udało się zmienić dostępnej ilości akcji.')
+        }
+
+        input.value = data.actionLeft
+        input.setAttribute('value', data.actionLeft)
+        input.dataset.lastSubmittedValue = String(data.actionLeft)
+        return true
+    }
+    catch(error){
+        input.value = previousActions
+        showMessage(error.message, 'error')
+        return false
+    }
+    finally{
+        form.dataset.submitting = 'false'
+    }
+}
+
 initAjaxInput('hp-val', 'hp-form')
 initAjaxInput('coins', 'coins-form')
 initAjaxInput('water-val', 'water-form')
 initAjaxInput('food-val', 'food-form')
 initAjaxInput('alcohol-val', 'alcohol-form')
 initAjaxInput('barrier-val', 'barrier-form')
+initAjaxInput('actions-amount', 'actions-amount-form')
 document.querySelectorAll('[id^="skill-uses-val-"]').forEach((input) => {
     initAjaxInput(input.id, `skill-uses-form-${input.id.replace('skill-uses-val-', '')}`)
 })
@@ -3332,6 +3424,169 @@ function change_result(text, element, mods, result, additional=false){
     }
 }
 
+let movementTracker = {
+    baseMove: 0,
+    totalMove: 0,
+    remainingMove: 0,
+}
+
+function getMovementStorageKey(){
+    const characterId = document.getElementById('char-name')?.getAttribute('name') || 'unknown'
+    return `movementTracker:${characterId}`
+}
+
+function clearMovementTracker(){
+    try{
+        sessionStorage.removeItem(getMovementStorageKey())
+    }
+    catch{
+        return
+    }
+}
+
+function endRound(){
+    clearMovementTracker()
+    window.location.replace(window.location.href + 'end-round')
+}
+
+function saveMovementTracker(){
+    try{
+        sessionStorage.setItem(getMovementStorageKey(), JSON.stringify(movementTracker))
+    }
+    catch{
+        return
+    }
+}
+
+function getSavedMovementTracker(baseMove){
+    let savedTracker = null
+    try{
+        savedTracker = sessionStorage.getItem(getMovementStorageKey())
+    }
+    catch{
+        return null
+    }
+
+    if(!savedTracker){
+        return null
+    }
+
+    try{
+        const parsedTracker = JSON.parse(savedTracker)
+        const savedBaseMove = Number(parsedTracker.baseMove)
+        const savedTotalMove = Number(parsedTracker.totalMove)
+        const savedRemainingMove = Number(parsedTracker.remainingMove)
+
+        if(
+            savedBaseMove !== baseMove ||
+            !Number.isInteger(savedTotalMove) ||
+            !Number.isInteger(savedRemainingMove) ||
+            savedTotalMove < baseMove ||
+            savedRemainingMove < 0 ||
+            savedRemainingMove > savedTotalMove
+        ){
+            return null
+        }
+
+        return {
+            baseMove: savedBaseMove,
+            totalMove: savedTotalMove,
+            remainingMove: savedRemainingMove,
+        }
+    }
+    catch{
+        return null
+    }
+}
+
+function getMovementDotHtml(index, isAvailable){
+    const colorClass = isAvailable ? 'text-success' : 'text-secondary'
+    const title = isAvailable ? `Pozostały ruch: ${index} hex` : `Przywróć ruch do ${index} hex`
+    return `
+        <button type="button"
+            class="btn btn-link ${colorClass} p-0 m-1 fs-4 text-decoration-none"
+            title="${title}"
+            onclick="setRemainingMove(${index})">
+            <span class="fas fa-running"></span>
+        </button>
+    `
+}
+
+function renderMovementTracker(){
+    const trackerElement = document.getElementById('movement-tracker')
+    const moveLabel = document.getElementById('movement-range-label')
+    if(!trackerElement || !moveLabel){
+        return
+    }
+
+    const dots = []
+    dots.push(`
+        <button type="button"
+            class="btn btn-link text-danger p-0 m-1 fs-4 text-decoration-none"
+            title="Wyczerp ruch"
+            onclick="setRemainingMove(0)">
+            <span class="fas fa-times"></span>
+        </button>
+    `)
+
+    for(let i = 1; i <= movementTracker.totalMove; i++){
+        dots.push(getMovementDotHtml(i, i <= movementTracker.remainingMove))
+    }
+
+    moveLabel.textContent = `Zasięg ruchu: ${movementTracker.totalMove} hex`
+    trackerElement.innerHTML = dots.join('')
+    saveMovementTracker()
+}
+
+function setRemainingMove(remainingMove){
+    movementTracker.remainingMove = Math.max(0, Math.min(remainingMove, movementTracker.totalMove))
+    renderMovementTracker()
+}
+
+async function useMovementBoost(boost, cost){
+    const hasActions = await spendActions(cost)
+    if(!hasActions){
+        return
+    }
+
+    movementTracker.totalMove = movementTracker.baseMove + boost
+    movementTracker.remainingMove = movementTracker.totalMove
+    renderMovementTracker()
+}
+
+function showMovementAction(baseMove){
+    const accelerationMove = Math.ceil(baseMove / 2)
+    const sprintMove = baseMove
+
+    movementTracker = getSavedMovementTracker(baseMove) || {
+        baseMove: baseMove,
+        totalMove: baseMove,
+        remainingMove: baseMove,
+    }
+
+    window_action_top.innerHTML = `
+        <div id="movement-range-label" class="mb-2"></div>
+        <div id="movement-tracker" class="d-flex flex-wrap align-items-center justify-content-center"></div>
+    `
+    window_action_bottom.innerHTML = `
+        <div class="d-flex flex-column flex-md-row gap-2 justify-content-center align-items-stretch">
+            <div class="border border-warning rounded p-2 bg-gradient">
+                <div>Przyśpieszenie (+${accelerationMove})</div>
+                <button type="button" class="btn btn-sm btn-success mt-1" onclick="useMovementBoost(${accelerationMove}, 0.5)">
+                    Użyj za 0.5 akcji
+                </button>
+            </div>
+            <div class="border border-warning rounded p-2 bg-gradient">
+                <div>Sprint (+${sprintMove})</div>
+                <button type="button" class="btn btn-sm btn-success mt-1" onclick="useMovementBoost(${sprintMove}, 1)">
+                    Użyj za 1 akcji
+                </button>
+            </div>
+        </div>
+    `
+    renderMovementTracker()
+}
+
 function show_result_at_window(action){
     document.getElementById('pop-window').classList.remove('d-none')
 
@@ -3341,6 +3596,8 @@ function show_result_at_window(action){
 
     window_action_top.textContent = ""
     window_action_bottom.textContent = ""
+    window_action_top.onclick = ''
+    window_action_bottom.onclick = ''
 
     window_url = document.getElementById('window-footer-text')
 
@@ -3400,8 +3657,7 @@ function show_result_at_window(action){
         bonus_move = full_zre/3
         full_move = Math.ceil(4+bonus_move) //4 + 1 for every 3 ZRE
 
-        window_action_top.textContent = `Zasięg ruchu wynikający ze zręczności: ${full_move} hex`
-        window_action_bottom.textContent = `Zasięg ruchu przy sprincie (zabiera ruch): ${full_move*2} hex`
+        showMovementAction(full_move)
 
     }
     else if (action == 'Parry')

@@ -2016,9 +2016,29 @@ def change_coins(request, **kwargs):
 def change_action_amount(request, **kwargs):
     if request.method == 'POST':
         char = get_object_or_404(models.Character, id=kwargs['char_id'])
-        print(request.POST)
-        char.actionLeft = float(request.POST['actions-amount'])
+        try:
+            action_left = float(request.POST['actions-amount'])
+        except (TypeError, ValueError):
+            msg = "Nieprawidłowa ilość akcji."
+            if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+                return JsonResponse({"error": msg}, status=400)
+            messages.error(request, msg)
+            return redirect('character_detail', kwargs['char_id'])
+
+        if action_left < 0:
+            msg = "Ilość akcji nie może być mniejsza niż 0."
+            if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+                return JsonResponse({"error": msg}, status=400)
+            messages.error(request, msg)
+            return redirect('character_detail', kwargs['char_id'])
+
+        char.actionLeft = action_left
         char.save()
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+            return JsonResponse({
+                "actionLeft": char.actionLeft,
+                "message": "Pomyślnie zmieniono ilość akcji.",
+            })
         return redirect('character_detail', char.id) 
 
 def change_counter(request, **kwargs):
