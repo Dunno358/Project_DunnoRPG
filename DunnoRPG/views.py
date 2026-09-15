@@ -18,6 +18,7 @@ from django.views.generic import FormView, ListView, TemplateView
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView
 from django.views.decorators.http import require_POST
+from decimal import Decimal, InvalidOperation, ROUND_FLOOR
 from rest_framework import generics, status
 from rest_framework.decorators import api_view
 from rest_framework.parsers import JSONParser
@@ -1832,12 +1833,27 @@ def sell_item(request, **kwargs):
 def give_item(request, **kwargs):
     from_char = get_object_or_404(models.Character, id=kwargs['from_char'])
     to_char = get_object_or_404(models.Character, id=kwargs['to_char'])
-    given_amount = kwargs['amount']
+    raw_amount = str(kwargs['amount']).replace(",", ".")
+    try:
+        amount_decimal = Decimal(raw_amount)
+    except InvalidOperation:
+        messages.error(request, "Nieprawidlowa ilosc do transferu.")
+        return redirect(f"/dunnorpg/items/ch{from_char.id}")
+
+    if amount_decimal <= 0:
+        messages.error(request, "Ilosc do transferu musi byc wieksza od 0.")
+        return redirect(f"/dunnorpg/items/ch{from_char.id}")
+
     if (to_char.type or "").lower() != "player" and not request.user.is_superuser:
         messages.error(request, f"Cannot transfer to {to_char.name}.")
         return redirect(f"/dunnorpg/items/ch{from_char.id}")
     item_ref = str(kwargs["item_id"])
     if item_ref != "0":
+        given_amount = int(amount_decimal.to_integral_value(rounding=ROUND_FLOOR))
+        if given_amount < 1:
+            messages.error(request, "Ilosc przedmiotow do transferu musi wynosic co najmniej 1.")
+            return redirect(f"/dunnorpg/items/ch{from_char.id}")
+
         source_type = "eq"
         source_id = item_ref
         if "-" in item_ref:
@@ -1917,6 +1933,7 @@ def give_item(request, **kwargs):
         else:
             messages.error(request, f"Chcesz dać więcej niż masz? Linióweczka...")
     else:
+        given_amount = float(amount_decimal)
         if from_char.coins>=given_amount:
             from_char.coins -= given_amount
             from_char.save()
