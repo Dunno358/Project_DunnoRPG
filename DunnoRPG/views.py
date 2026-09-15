@@ -235,6 +235,7 @@ MOUNT_ATTACHMENT_CATEGORIES = {
 }
 MOUNT_ITEM_CATEGORIES = {"animal", "animal_armor", "animal_saddle", "animal_horseshoes"}
 CHARACTER_ACCESSORY_CATEGORIES = {"accessory", "akcesoria"}
+CHARACTER_ACCESSORY_POSITIONS = {"accessory", "akcesoria"}
 EQUIPPED_ONLY_CAPACITY_ITEM_TYPES = {"amulet", "helmet", "torso", "gloves", "boots"}
 HAND_ITEM_PLACES = {"left", "right", "side"}
 MAX_BAG_ITEMS_IN_EQ = 2
@@ -367,6 +368,21 @@ def filter_hand_weapon_options(character, weapons, hand):
 
 def is_character_accessory_item(item):
     return (item.category or "").strip().lower() in CHARACTER_ACCESSORY_CATEGORIES
+
+
+def is_character_accessory_position(position):
+    return (position or "").strip().lower() in CHARACTER_ACCESSORY_POSITIONS
+
+
+def get_equipped_item_for_place(character_name, place):
+    if (place or "").lower() in HAND_ITEM_PLACES:
+        return models.CharItems.objects.filter(character=character_name, hand=place.capitalize()).first()
+    if is_character_accessory_position(place):
+        return (
+            models.CharItems.objects.filter(character=character_name, position__iexact="Accessory").first()
+            or models.CharItems.objects.filter(character=character_name, position__iexact="Akcesoria").first()
+        )
+    return models.CharItems.objects.filter(character=character_name, position=place.capitalize()).first()
 
 
 def get_bag_items_count_in_eq(character):
@@ -1132,7 +1148,7 @@ class CharacterDetails(DetailView):
         context['gloves'] = models.CharItems.objects.filter(character=serializer.data['name'], position='Gloves').first()
         context['boots'] = models.CharItems.objects.filter(character=serializer.data['name'], position='Boots').first()
         context['amulet'] = models.CharItems.objects.filter(character=serializer.data['name'], position='Amulet').first()
-        context['accessory'] = models.CharItems.objects.filter(character=serializer.data['name'], position='Accessory').first()
+        context['accessory'] = get_equipped_item_for_place(serializer.data['name'], 'Accessory')
         context['mount'] = models.CharItems.objects.filter(character=serializer.data['name'], position='Mount').first()
         context['mount_armor'] = models.CharItems.objects.filter(character=serializer.data['name'], position='Mount_armor').first()
         context['mount_horseshoes'] = models.CharItems.objects.filter(character=serializer.data['name'], position='Mount_horseshoes').first()
@@ -2482,7 +2498,7 @@ def char_wear_item(request, **kwargs):
         messages.error(request, "W tym slocie można założyć tylko wierzchowca.")
         return redirect('character_detail', char.id)
 
-    if place == "Accessory" and not is_character_accessory_item(item):
+    if is_character_accessory_position(place) and not is_character_accessory_item(item):
         messages.error(request, "W tym slocie mozna zalozyc tylko akcesoria.")
         return redirect('character_detail', char.id)
 
@@ -2504,7 +2520,7 @@ def char_wear_item(request, **kwargs):
 
         
             
-    charItObj = models.CharItems.objects.filter(hand=place.capitalize(), character=char.name).first()  
+    charItObj = get_equipped_item_for_place(char.name, place)
     if charItObj == None: 
         if place.lower() in ['left','right','side']:
             models.CharItems.objects.create(
@@ -2705,7 +2721,7 @@ def char_swap_item(request, **kwargs):
             messages.error(request, "Ten przedmiot nie pasuje do wybranego slotu wierzchowca.")
             return redirect('character_detail', char.id)
 
-    if armor_place == "Accessory" and not is_character_accessory_item(it2D):
+    if is_character_accessory_position(armor_place) and not is_character_accessory_item(it2D):
         messages.error(request, "W tym slocie mozna zalozyc tylko akcesoria.")
         return redirect('character_detail', char.id)
 
