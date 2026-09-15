@@ -1775,8 +1775,57 @@ def give_item(request, **kwargs):
     if (to_char.type or "").lower() != "player" and not request.user.is_superuser:
         messages.error(request, f"Cannot transfer to {to_char.name}.")
         return redirect(f"/dunnorpg/items/ch{from_char.id}")
-    if kwargs["item_id"]!=0:
-        eq_item = get_object_or_404(models.Eq, id=kwargs['item_id'])
+    item_ref = str(kwargs["item_id"])
+    if item_ref != "0":
+        source_type = "eq"
+        source_id = item_ref
+        if "-" in item_ref:
+            source_type, source_id = item_ref.split("-", 1)
+
+        if not source_id.isdigit() or source_type not in {"eq", "char"}:
+            messages.error(request, "Nieprawidlowy przedmiot do transferu.")
+            return redirect(f"/dunnorpg/items/ch{from_char.id}")
+
+        if source_type == "char":
+            given_amount = 1
+            char_item = get_object_or_404(models.CharItems, id=int(source_id), character=from_char.name)
+            itemDesc = get_object_or_404(models.Items, name=char_item.name)
+            if itemDesc.unobtainable and not request.user.is_superuser:
+                messages.error(request, f"{char_item.name} nie moze zostac przekazane.")
+                return redirect(f"/dunnorpg/items/ch{from_char.id}")
+
+            max_weight = get_character_max_weight(to_char)
+            current_weight = get_character_current_weight(to_char)
+            if not can_add_item_to_eq_by_limits(to_char, itemDesc, 1):
+                messages.error(request, f"{to_char.name} moze miec maksymalnie {MAX_BAG_ITEMS_IN_EQ} torby w ekwipunku.")
+                return redirect(f"/dunnorpg/items/ch{from_char.id}")
+
+            if itemDesc.weight + current_weight <= max_weight:
+                models.Eq.objects.create(
+                    owner=to_char.owner,
+                    character=to_char.name,
+                    name=char_item.name,
+                    type=itemDesc.type,
+                    weight=itemDesc.weight,
+                    durability=clamp_item_durability(itemDesc, char_item.durability),
+                    amount=1,
+                    additional_description=char_item.additional_description,
+                )
+
+                if itemDesc.skillEffects != None:
+                    for effect in itemDesc.skillEffects.split(';'):
+                        effect = effect.split("-")
+                        active_effect = models.Effects.objects.filter(character=from_char.name, name=effect[0]).first()
+                        if active_effect:
+                            active_effect.delete()
+
+                char_item.delete()
+                messages.success(request, f"Transferred {itemDesc.name} to {to_char.name}.")
+            else:
+                messages.error(request, f"Not enough space in {to_char.name} equipment.")
+            return redirect(f"/dunnorpg/items/ch{from_char.id}")
+
+        eq_item = get_object_or_404(models.Eq, id=int(source_id), character=from_char.name)
         itemDesc = get_object_or_404(models.Items, name=eq_item.name)
         if itemDesc.unobtainable and not request.user.is_superuser:
             messages.error(request, f"{eq_item.name} nie moze zostac przekazane.")
@@ -1796,14 +1845,19 @@ def give_item(request, **kwargs):
                     character=to_char.name,
                     name=eq_item.name,
                     type=eq_item.type,
-                    weight=eq_item.weight*given_amount,
+                    weight=itemDesc.weight*given_amount,
                     durability=clamp_item_durability(itemDesc, eq_item.durability),
                     amount=given_amount,
                     additional_description=eq_item.additional_description,
                 )
 
                 messages.success(request, f"Transferred {eq_item.name} to {to_char.name}.")
-                eq_item.delete()
+                if given_amount >= eq_item.amount:
+                    eq_item.delete()
+                else:
+                    eq_item.amount -= given_amount
+                    eq_item.weight -= itemDesc.weight * given_amount
+                    eq_item.save()
             else:
                 messages.error(request, f"Not enough space in {to_char.name} equipment.")
         else:
@@ -2899,10 +2953,32 @@ class ItemsView(ListView):
             context['items_other'] = self.sort_items_by_name(self.armor_dict['other'])
             context['all_items'] = models.Items.objects.order_by('name')
             player_items = models.Eq.objects.filter(character=self.character.name)
+            equipped_items = models.CharItems.objects.filter(character=self.character.name).exclude(name__isnull=True).exclude(name='')
             if not self.request.user.is_superuser:
                 unobtainable_item_names = models.Items.objects.filter(unobtainable=True).values_list('name', flat=True)
                 player_items = player_items.exclude(name__in=unobtainable_item_names)
-            context['player_items'] = player_items.values()
+                equipped_items = equipped_items.exclude(name__in=unobtainable_item_names)
+            transfer_items = [
+                {
+                    "transfer_id": f"eq-{item.id}",
+                    "name": item.name,
+                    "durability": item.durability,
+                    "amount": item.amount,
+                    "equipped": False,
+                }
+                for item in player_items
+            ]
+            transfer_items += [
+                {
+                    "transfer_id": f"char-{item.id}",
+                    "name": item.name,
+                    "durability": item.durability,
+                    "amount": 1,
+                    "equipped": True,
+                }
+                for item in equipped_items
+            ]
+            context['transfer_items'] = sorted(transfer_items, key=lambda item: (item["name"] or "").lower())
             context['characters'] = models.Character.objects.filter(hidden=False, type__iexact='Player').values()
             context['character'] = self.character
         return context

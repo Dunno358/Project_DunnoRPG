@@ -249,7 +249,7 @@
     </div>
 </div>
 
-<div id='give-item-main' class='d-none position-fixed container bg-dark c-gold rounded border border-warning' style="left: 10%; width: 80%; top: 45%">
+<div id='give-item-main' class='d-none position-fixed container bg-dark c-gold rounded border border-warning' style="left: 3%; width: 95%; top: 15%; height: 60%">
     <div class='row'>
         <div class="col-2"></div>
         <div class='col text-center mt-3 h4'>Przekaż przedmiot</div>
@@ -262,9 +262,9 @@
                 <option value="0">
                     Monety ({{ character.coins }})
                 </option>
-                {% for item in player_items %}
-                    <option value="{{ item.id }}">
-                        {{ item.name }} ({{ item.durability }})
+                {% for item in transfer_items %}
+                    <option value="{{ item.transfer_id }}">
+                        {{ item.name }} ({{ item.durability }}){% if item.amount > 1 %} [{{ item.amount }}]{% endif %}{% if item.equipped %} [Założone]{% endif %}
                     </option>
                 {% endfor %}
             </select>
