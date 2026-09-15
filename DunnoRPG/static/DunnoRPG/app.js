@@ -143,6 +143,54 @@ function toggleInfoSideMenu(){
     }
 }
 
+function openCharacterDetailSideMenu(){
+    const menu = document.getElementById("character-detail-side-menu");
+    const backdrop = document.getElementById("character-detail-side-menu-backdrop");
+    const button = document.getElementById("tb-character-detail-menu");
+
+    if (!menu || !backdrop) {
+        return;
+    }
+
+    closeInfoSideMenu();
+    menu.classList.add("is-open");
+    menu.setAttribute("aria-hidden", "false");
+    backdrop.classList.remove("d-none");
+
+    if (button) {
+        button.setAttribute("aria-expanded", "true");
+    }
+}
+
+function closeCharacterDetailSideMenu(){
+    const menu = document.getElementById("character-detail-side-menu");
+    const backdrop = document.getElementById("character-detail-side-menu-backdrop");
+    const button = document.getElementById("tb-character-detail-menu");
+
+    if (!menu || !backdrop) {
+        return;
+    }
+
+    menu.classList.remove("is-open");
+    menu.setAttribute("aria-hidden", "true");
+    backdrop.classList.add("d-none");
+
+    if (button) {
+        button.setAttribute("aria-expanded", "false");
+    }
+}
+
+function toggleCharacterDetailSideMenu(){
+    const menu = document.getElementById("character-detail-side-menu");
+
+    if (menu && menu.classList.contains("is-open")) {
+        closeCharacterDetailSideMenu();
+    }
+    else {
+        openCharacterDetailSideMenu();
+    }
+}
+
 function trackValueChanges(id){
     document.getElementById(id).oninput = () => {
         document.getElementById(id).setAttribute('value', document.getElementById(id).value);
@@ -227,9 +275,18 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
+    const characterDetailSideMenu = document.getElementById("character-detail-side-menu");
+
+    if (characterDetailSideMenu) {
+        characterDetailSideMenu.querySelectorAll("button").forEach((button) => {
+            button.addEventListener("click", closeCharacterDetailSideMenu);
+        });
+    }
+
     document.addEventListener("keydown", (event) => {
         if (event.key === "Escape") {
             closeInfoSideMenu();
+            closeCharacterDetailSideMenu();
         }
     });
 });
