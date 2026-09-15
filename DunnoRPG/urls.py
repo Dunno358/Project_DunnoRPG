@@ -49,8 +49,8 @@ urlpatterns = [
     path('char-copy/<int:char_id>', views.CopyCharacter.as_view(), name='copy_character'),
     
     path('items/ch<int:char_id>', views.ItemsView.as_view(), name='items'),
-    path('items/<int:char_id>del<int:obj_id>-<int:amount>', views.del_eq_item, name='del_eq_item'),
-    path('items/sell<int:item_id>;<int:char_id>;<int:mod>;<int:amount>', views.sell_item, name='sell_item'),
+    path('items/<int:char_id>del<str:obj_id>-<int:amount>', views.del_eq_item, name='del_eq_item'),
+    path('items/sell<str:item_id>;<int:char_id>;<int:mod>;<int:amount>', views.sell_item, name='sell_item'),
     path('items/give<str:item_id>;<int:from_char>;<int:to_char>;<int:amount>', views.give_item, name='give_item'),
     path('items/<int:id>', views.ItemDetailView.as_view(), name='item_detail'),
     path('items/useItem-<int:id>-<int:char_id>', views.useItem.as_view(), name='use_item'),

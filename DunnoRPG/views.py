@@ -466,6 +466,22 @@ def move_char_item_to_eq(char_item):
     char_item.delete()
 
 
+def delete_char_item(char_item):
+    item_desc = get_object_or_404(models.Items, name=char_item.name)
+    if char_item.position == "Mount":
+        for attachment in models.CharItems.objects.filter(character=char_item.character, position__in=MOUNT_ATTACHMENT_POSITIONS):
+            delete_char_item(attachment)
+
+    if item_desc.skillEffects != None:
+        for effect in item_desc.skillEffects.split(';'):
+            effect = effect.split("-")
+            active_effect = models.Effects.objects.filter(character=char_item.character, name=effect[0]).first()
+            if active_effect:
+                active_effect.delete()
+
+    char_item.delete()
+
+
 def can_character_wear_armor_weight(character, item, place):
     if place.lower() not in ARMOR_WEIGHT_LIMITED_POSITIONS:
         return True, ""
@@ -1707,8 +1723,35 @@ def log_as_guest(request):
     else:
         return HttpResponse('Invalid login')
 def del_eq_item(request, **kwargs):
-    itemDesc = get_object_or_404(models.Items, id=kwargs['obj_id'])
     char = get_object_or_404(models.Character, id=kwargs['char_id'])
+    obj_id = str(kwargs['obj_id'])
+    if obj_id.startswith("char-"):
+        char_item_id = obj_id.split("-", 1)[1]
+        if not char_item_id.isdigit():
+            messages.error(request, "Nieprawidlowy przedmiot do usuniecia.")
+            return redirect(f"/dunnorpg/items/ch{kwargs['char_id']}")
+
+        char_item = get_object_or_404(models.CharItems, id=int(char_item_id), character=char.name)
+        delete_char_item(char_item)
+        return redirect(f"/dunnorpg/items/ch{kwargs['char_id']}")
+
+    if obj_id.startswith("eq-"):
+        eq_item_id = obj_id.split("-", 1)[1]
+        if not eq_item_id.isdigit():
+            messages.error(request, "Nieprawidlowy przedmiot do usuniecia.")
+            return redirect(f"/dunnorpg/items/ch{kwargs['char_id']}")
+
+        item = get_object_or_404(models.Eq, id=int(eq_item_id), character=char.name)
+        itemDesc = get_object_or_404(models.Items, name=item.name)
+        if item.amount <= int(kwargs['amount']):
+            item.delete()
+        else:
+            item.amount -= int(kwargs['amount'])
+            item.weight -= itemDesc.weight*int(kwargs['amount'])
+            item.save()
+        return redirect(f"/dunnorpg/items/ch{kwargs['char_id']}")
+
+    itemDesc = get_object_or_404(models.Items, id=obj_id)
     item = models.Eq.objects.filter(name=itemDesc.name, character=char.name).first()
     if item.amount <= int(kwargs['amount']):
         item.delete()
@@ -1720,12 +1763,26 @@ def del_eq_item(request, **kwargs):
 def sell_item(request, **kwargs):
     try:
         city = get_object_or_404(models.Cities, visiting=True)
-        eqItem = get_object_or_404(models.Eq, id=kwargs['item_id'])
-        itemDesc = get_object_or_404(models.Items, name=eqItem.name)
         char = get_object_or_404(models.Character, id=kwargs['char_id'])
-        amount = int(kwargs['amount'])
+        item_ref = str(kwargs['item_id'])
+        source_type = "eq"
+        source_id = item_ref
+        if "-" in item_ref:
+            source_type, source_id = item_ref.split("-", 1)
+        if not source_id.isdigit() or source_type not in {"eq", "char"}:
+            messages.error(request, "Nieprawidlowy przedmiot do sprzedazy.")
+            return redirect(f"/dunnorpg/items/ch{kwargs['char_id']}")
+
+        if source_type == "char":
+            eqItem = get_object_or_404(models.CharItems, id=int(source_id), character=char.name)
+            amount = 1
+        else:
+            eqItem = get_object_or_404(models.Eq, id=int(source_id), character=char.name)
+            amount = int(kwargs['amount'])
+
+        itemDesc = get_object_or_404(models.Items, name=eqItem.name)
         
-        if amount>eqItem.amount:
+        if source_type == "eq" and amount>eqItem.amount:
             messages.error(request, f"Hola, hola! Nie masz tego tyle! Masz {eqItem.amount} sztuk tego przedmiotu. ({itemDesc.name})")
             return redirect(f"/dunnorpg/items/ch{kwargs['char_id']}")
 
@@ -1758,11 +1815,15 @@ def sell_item(request, **kwargs):
         char.coins += price
         char.save()
 
-        eqItem.amount -= amount
-        if eqItem.amount==0:
-            eqItem.delete()
+        if source_type == "char":
+            delete_char_item(eqItem)
         else:
-            eqItem.save()
+            eqItem.amount -= amount
+            if eqItem.amount==0:
+                eqItem.delete()
+            else:
+                eqItem.weight -= itemDesc.weight * amount
+                eqItem.save()
 
         messages.success(request, f"Sprzedano {amount}x {itemDesc.name} za {price} monet! Obecny majątek: {char.coins} monet.")
     except:
@@ -1812,14 +1873,7 @@ def give_item(request, **kwargs):
                     additional_description=char_item.additional_description,
                 )
 
-                if itemDesc.skillEffects != None:
-                    for effect in itemDesc.skillEffects.split(';'):
-                        effect = effect.split("-")
-                        active_effect = models.Effects.objects.filter(character=from_char.name, name=effect[0]).first()
-                        if active_effect:
-                            active_effect.delete()
-
-                char_item.delete()
+                delete_char_item(char_item)
                 messages.success(request, f"Transferred {itemDesc.name} to {to_char.name}.")
             else:
                 messages.error(request, f"Not enough space in {to_char.name} equipment.")
@@ -2843,6 +2897,8 @@ class ItemsView(ListView):
                     'id': item_desc.id,
                     'eq_id': eq_id,
                     'char_item_id': char_item_id,
+                    'delete_id': f"char-{char_item_id}" if equipped else f"eq-{eq_id}",
+                    'sell_id': f"char-{char_item_id}" if equipped else eq_id,
                     'rarity': item_desc.rarity,
                     'found': item_desc.found,
                     'name': item_desc.name,
@@ -2864,6 +2920,8 @@ class ItemsView(ListView):
                     'max_dur': item_desc.maxDurability,
                     'eq_id': eq_id,
                     'char_item_id': char_item_id,
+                    'delete_id': f"char-{char_item_id}" if equipped else f"eq-{eq_id}",
+                    'sell_id': f"char-{char_item_id}" if equipped else eq_id,
                     'equipped': equipped,
                 }
                 armor_category = {

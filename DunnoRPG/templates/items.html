@@ -346,8 +346,8 @@
     <div>
         <div class='row bg-dark bg-opacity-75 rounded m-2 p-2'>
 
-            {% if view.kwargs.char_id != 0 and not item.equipped %}
-                <button class='col-2 text-center text-white bg-danger p-2 m-1 rounded' onclick="deleteConfirmation('{{ item.name }}', {{ view.kwargs.char_id }}, {{ item.id }})">X</button>
+            {% if view.kwargs.char_id != 0 %}
+                <button class='col-2 text-center text-white bg-danger p-2 m-1 rounded' onclick="deleteConfirmation('{{ item.name }}', {{ view.kwargs.char_id }}, '{{ item.delete_id }}')">X</button>
             {% endif %}
             
             <a class='col text-center c-gold bg-dark p-2 rounded border border-primary' href='{{ item.id }}{% if item.eq_id %}?ref=eq;{{ item.eq_id }}{% elif item.char_item_id %}?ref=char;{{ item.char_item_id }}{% endif %}'>
@@ -370,9 +370,9 @@
                 {% endif %}
                 </span>
             </a>
-            {% if view.kwargs.char_id != 0 and not item.equipped %}
+            {% if view.kwargs.char_id != 0 and item.sell_id %}
                 <button class='col-2 text-center text-white bg-success p-2 m-1 rounded'
-                onclick="sellConfirmation('{{ view.kwargs.char_id }}','{{ item.eq_id }}','{{ item.price }}','{{ item.dur }}','{{ item.max_dur }}','{{ item.name }}', '{{ item.amount }}', '{{ charisma }}')"
+                onclick="sellConfirmation('{{ view.kwargs.char_id }}','{{ item.sell_id }}','{{ item.price }}','{{ item.dur }}','{{ item.max_dur }}','{{ item.name }}', '{{ item.amount }}', '{{ charisma }}')"
                 title="Sprzedaj"
                 aria-label="Sprzedaj">
                     <span class="fa-solid fa-coins fa-lg" aria-hidden="true"></span>
@@ -434,8 +434,8 @@
     {% for item in items_singlehand %}
         <div class='item-list-entry weapon-list-entry' data-rarity='{{ item.rarity }}' data-category='{{ item.category|default_if_none:""|lower }}' data-weapon-type='{{ item.type|default_if_none:""|lower }}' data-dual-handed='{{ item.dualHanded }}'>
             <div class='row bg-dark bg-opacity-75 rounded m-2 p-2'>
-                {% if view.kwargs.char_id != 0 and not item.equipped %}
-                    <button class='col-2 text-center text-white bg-danger p-2 m-1 rounded' onclick="deleteConfirmation('{{ item.name }}', {{ view.kwargs.char_id }}, {{ item.id }})">X</button>
+                {% if view.kwargs.char_id != 0 %}
+                    <button class='col-2 text-center text-white bg-danger p-2 m-1 rounded' onclick="deleteConfirmation('{{ item.name }}', {{ view.kwargs.char_id }}, '{{ item.delete_id }}')">X</button>
                 {% endif %}
                 
                 <a class='col text-center c-gold bg-dark p-2 rounded border border-primary' href='{{ item.id }}{% if item.eq_id %}?ref=eq;{{ item.eq_id }}{% elif item.char_item_id %}?ref=char;{{ item.char_item_id }}{% endif %}'>
@@ -448,8 +448,8 @@
     {% for item in items_twohand %}
     <div class='item-list-entry weapon-list-entry' data-rarity='{{ item.rarity }}' data-category='{{ item.category|default_if_none:""|lower }}' data-weapon-type='{{ item.type|default_if_none:""|lower }}' data-dual-handed='{{ item.dualHanded }}'>
         <div class='row bg-dark bg-opacity-75 rounded m-2 p-2'>
-            {% if view.kwargs.char_id != 0 and not item.equipped %}
-                <button class='col-2 text-center text-white bg-danger p-2 m-1 rounded' onclick="deleteConfirmation('{{ item.name }}', {{ view.kwargs.char_id }}, {{ item.id }})">X</button>
+            {% if view.kwargs.char_id != 0 %}
+                <button class='col-2 text-center text-white bg-danger p-2 m-1 rounded' onclick="deleteConfirmation('{{ item.name }}', {{ view.kwargs.char_id }}, '{{ item.delete_id }}')">X</button>
             {% endif %}
             
             <a class='col text-center c-gold bg-dark p-2 rounded border border-primary' href='{{ item.id }}{% if item.eq_id %}?ref=eq;{{ item.eq_id }}{% elif item.char_item_id %}?ref=char;{{ item.char_item_id }}{% endif %}'>
@@ -464,8 +464,8 @@
     {% for item in items_helmet %}
     <div class='item-list-entry' data-rarity='{{ item.rarity }}'>
         <div class='row bg-dark bg-opacity-75 rounded m-2 p-2'>
-            {% if view.kwargs.char_id != 0 and not item.equipped %}
-                <button class='col-2 text-center text-white bg-danger p-2 m-1 rounded' onclick="deleteConfirmation('{{ item.name }}', {{ view.kwargs.char_id }}, {{ item.id }})">X</button>
+            {% if view.kwargs.char_id != 0 %}
+                <button class='col-2 text-center text-white bg-danger p-2 m-1 rounded' onclick="deleteConfirmation('{{ item.name }}', {{ view.kwargs.char_id }}, '{{ item.delete_id }}')">X</button>
             {% endif %}
             
             <a class='col text-center c-gold bg-dark p-2 rounded border border-primary' href='{{ item.id }}{% if item.eq_id %}?ref=eq;{{ item.eq_id }}{% elif item.char_item_id %}?ref=char;{{ item.char_item_id }}{% endif %}'>
@@ -480,8 +480,8 @@
     {% for item in items_torso %}
     <div class='item-list-entry' data-rarity='{{ item.rarity }}'>
         <div class='row bg-dark bg-opacity-75 rounded m-2 p-2'>
-            {% if view.kwargs.char_id != 0 and not item.equipped %}
-                <button class='col-2 text-center text-white bg-danger p-2 m-1 rounded' onclick="deleteConfirmation('{{ item.name }}', {{ view.kwargs.char_id }}, {{ item.id }})">X</button>
+            {% if view.kwargs.char_id != 0 %}
+                <button class='col-2 text-center text-white bg-danger p-2 m-1 rounded' onclick="deleteConfirmation('{{ item.name }}', {{ view.kwargs.char_id }}, '{{ item.delete_id }}')">X</button>
             {% endif %}
             
             <a class='col text-center c-gold bg-dark p-2 rounded border border-primary' href='{{ item.id }}{% if item.eq_id %}?ref=eq;{{ item.eq_id }}{% elif item.char_item_id %}?ref=char;{{ item.char_item_id }}{% endif %}'>
@@ -496,8 +496,8 @@
     {% for item in items_boots %}
     <div class='item-list-entry' data-rarity='{{ item.rarity }}'>
         <div class='row bg-dark bg-opacity-75 rounded m-2 p-2'>
-            {% if view.kwargs.char_id != 0 and not item.equipped %}
-                <button class='col-2 text-center text-white bg-danger p-2 m-1 rounded' onclick="deleteConfirmation('{{ item.name }}', {{ view.kwargs.char_id }}, {{ item.id }})">X</button>
+            {% if view.kwargs.char_id != 0 %}
+                <button class='col-2 text-center text-white bg-danger p-2 m-1 rounded' onclick="deleteConfirmation('{{ item.name }}', {{ view.kwargs.char_id }}, '{{ item.delete_id }}')">X</button>
             {% endif %}
             
             <a class='col text-center c-gold bg-dark p-2 rounded border border-primary' href='{{ item.id }}{% if item.eq_id %}?ref=eq;{{ item.eq_id }}{% elif item.char_item_id %}?ref=char;{{ item.char_item_id }}{% endif %}'>
@@ -512,8 +512,8 @@
     {% for item in items_gloves %}
     <div class='item-list-entry' data-rarity='{{ item.rarity }}'>
         <div class='row bg-dark bg-opacity-75 rounded m-2 p-2'>
-            {% if view.kwargs.char_id != 0 and not item.equipped %}
-                <button class='col-2 text-center text-white bg-danger p-2 m-1 rounded' onclick="deleteConfirmation('{{ item.name }}', {{ view.kwargs.char_id }}, {{ item.id }})">X</button>
+            {% if view.kwargs.char_id != 0 %}
+                <button class='col-2 text-center text-white bg-danger p-2 m-1 rounded' onclick="deleteConfirmation('{{ item.name }}', {{ view.kwargs.char_id }}, '{{ item.delete_id }}')">X</button>
             {% endif %}
             
             <a class='col text-center c-gold bg-dark p-2 rounded border border-primary' href='{{ item.id }}{% if item.eq_id %}?ref=eq;{{ item.eq_id }}{% elif item.char_item_id %}?ref=char;{{ item.char_item_id }}{% endif %}'>
@@ -528,8 +528,8 @@
     {% for item in items_amulets %}
     <div class='item-list-entry' data-rarity='{{ item.rarity }}'>
         <div class='row bg-dark bg-opacity-75 rounded m-2 p-2'>
-            {% if view.kwargs.char_id != 0 and not item.equipped %}
-                <button class='col-2 text-center text-white bg-danger p-2 m-1 rounded' onclick="deleteConfirmation('{{ item.name }}', {{ view.kwargs.char_id }}, {{ item.id }})">X</button>
+            {% if view.kwargs.char_id != 0 %}
+                <button class='col-2 text-center text-white bg-danger p-2 m-1 rounded' onclick="deleteConfirmation('{{ item.name }}', {{ view.kwargs.char_id }}, '{{ item.delete_id }}')">X</button>
             {% endif %}
             
             <a class='col text-center c-gold bg-dark p-2 rounded border border-primary' href='{{ item.id }}{% if item.eq_id %}?ref=eq;{{ item.eq_id }}{% elif item.char_item_id %}?ref=char;{{ item.char_item_id }}{% endif %}'>
@@ -544,8 +544,8 @@
     {% for item in animals %}
     <div class='item-list-entry animal-list-entry' data-rarity='{{ item.rarity }}' data-category='{{ item.category|default_if_none:""|lower }}'>
         <div class='row bg-dark bg-opacity-75 rounded m-2 p-2'>
-            {% if view.kwargs.char_id != 0 and not item.equipped %}
-                <button class='col-2 text-center text-white bg-danger p-2 m-1 rounded' onclick="deleteConfirmation('{{ item.name }}', {{ view.kwargs.char_id }}, {{ item.id }})">X</button>
+            {% if view.kwargs.char_id != 0 %}
+                <button class='col-2 text-center text-white bg-danger p-2 m-1 rounded' onclick="deleteConfirmation('{{ item.name }}', {{ view.kwargs.char_id }}, '{{ item.delete_id }}')">X</button>
             {% endif %}
             
             <a class='col text-center c-gold bg-dark p-2 rounded border border-primary' href='{{ item.id }}{% if item.eq_id %}?ref=eq;{{ item.eq_id }}{% elif item.char_item_id %}?ref=char;{{ item.char_item_id }}{% endif %}'>
@@ -560,8 +560,8 @@
     {% for item in items_other %}
     <div class='item-list-entry' data-rarity='{{ item.rarity }}'>
         <div class='row bg-dark bg-opacity-75 rounded m-2 p-2'>
-            {% if view.kwargs.char_id != 0 and not item.equipped %}
-                <button class='col-2 text-center text-white bg-danger p-2 m-1 rounded' onclick="deleteConfirmation('{{ item.name }}', {{ view.kwargs.char_id }}, {{ item.id }})">X</button>
+            {% if view.kwargs.char_id != 0 %}
+                <button class='col-2 text-center text-white bg-danger p-2 m-1 rounded' onclick="deleteConfirmation('{{ item.name }}', {{ view.kwargs.char_id }}, '{{ item.delete_id }}')">X</button>
             {% endif %}
             
             <a class='col text-center c-gold bg-dark p-2 rounded border border-primary' href='{{ item.id }}{% if item.eq_id %}?ref=eq;{{ item.eq_id }}{% elif item.char_item_id %}?ref=char;{{ item.char_item_id }}{% endif %}'>
@@ -1017,9 +1017,17 @@
         let charisma = parseInt(document.getElementById("charisma").innerHTML)
         let amount_input = document.getElementById("sell-amount")
         //console.log(charisma)
+        const isEquippedItem = String(id).startsWith('char-')
+        if(isEquippedItem){
+            amount = 1
+        }
         amount_input.value = amount
+        amount_input.disabled = isEquippedItem
 
         amount_input.oninput = (e) => {
+            if(isEquippedItem){
+                return
+            }
             let newAmount = parseInt(e.target.value) || 0
             sellConfirmation(chid, id, price, dur, maxDur, itemName, newAmount, charBonus)
         }
@@ -1054,7 +1062,9 @@
         main_block.classList.remove("d-none")
         title.innerHTML = `Sprzedawca: Rzućmy okiem... No stan jest ${quality}, proponuję ${calc_price} monet.`
         item_name.innerHTML = itemName
-        sell_btn.setAttribute("onclick", `sellItem(${id}, ${parseInt(charBonus)}, ${amount})`)
+        sell_btn.onclick = function(){
+            sellItem(id, parseInt(charBonus), amount)
+        }
     }
 
     function sellItem(item_id, bonus, amount){
