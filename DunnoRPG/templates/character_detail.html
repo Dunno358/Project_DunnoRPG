@@ -1569,7 +1569,7 @@ style="width: 98%; z-index: 20; margin-left: 0.22rem !important; margin-top: -5r
         <div class="row mt-3 mb-3 m-0 p-0 text-danger">
             <div class="col p-0 m-0"><hr class="bg-danger mt-4"></div>
             <div class="col-3 p-0 m-0">
-                <h3 class="mt-2 textdanger">Akcesoria</h3>
+                <h3 class="mt-2 textdanger">Amulet</h3>
             </div>
             <div class="col p-0 m-0"><hr class="bg-danger mt-4"></div>
         </div>
@@ -1584,7 +1584,7 @@ style="width: 98%; z-index: 20; margin-left: 0.22rem !important; margin-top: -5r
                         /{{ amulet.name|getMaxDurability }}
                     </div>
                     <div class="col h6 text-end p-2 pb-0 border-start border-warning">
-                        Akcesoria - {{ amulet.name|getArmorWeightType }}
+                        Amulet - {{ amulet.name|getArmorWeightType }}
                     </div>
                 </div>
 
@@ -1647,7 +1647,7 @@ style="width: 98%; z-index: 20; margin-left: 0.22rem !important; margin-top: -5r
             <div name='head' class='row mt-2 border border-warning rounded bg-gray m-0 p-0'>
                 <div class="row c-gold me-0 pe-0">
                     <div class="col h6 text-start p-2 pb-0 ms-1">
-                        Akcesoria - Brak
+                        Amulet - Brak
                     </div>
                 </div>
 
@@ -1686,6 +1686,124 @@ style="width: 98%; z-index: 20; margin-left: 0.22rem !important; margin-top: -5r
 
             </div>
                 
+        {% endif %}
+
+
+        <div class="row mt-3 mb-3 m-0 p-0 text-danger">
+            <div class="col p-0 m-0"><hr class="bg-danger mt-4"></div>
+            <div class="col-3 p-0 m-0">
+                <h3 class="mt-2 textdanger">Akcesoria</h3>
+            </div>
+            <div class="col p-0 m-0"><hr class="bg-danger mt-4"></div>
+        </div>
+
+        {% if accessory %}
+            <form name='head' method='post' action='changedur-{{ accessory.id }}' class='row mt-2 border border-warning rounded bg-gray m-0 p-0'>
+                {% csrf_token %}
+                <div class="row c-gold me-0 pe-0">
+                    <div class="col-7 h6 text-start pt-2 ps-1 pb-0 pe-0">
+                        <span class="text-white-50">Wytrzyma&#322;o&#347;&#263;:</span>
+                        <input value="{{ accessory.durability }}" class="bg-gray border-0 c-gold p-0 m-0 h6 text-end" style="width: 15%" name="dur"/>
+                        /{{ accessory.name|getMaxDurability }}
+                    </div>
+                    <div class="col h6 text-end p-2 pb-0 border-start border-warning">
+                        Akcesoria - {{ accessory.name|getArmorWeightType }}
+                    </div>
+                </div>
+
+                <div class="row me-0 pe-0">
+                    <div class="col text-center">
+                        <a href='javascript:void(0)' onclick="showIframe('/dunnorpg/items/{{ accessory.name|getDescId }}?ref=char;{{ accessory.id }}')" class="{{ accessory.name|getItemRarity }} h4">
+                            {{ accessory.name }}
+                        </a>
+                        {% if user.is_superuser %}
+                            <a href="/admin/DunnoRPG/charitems/{{ accessory.id }}/change/" class="fa fa-link" target="_blank" onclick="event.stopPropagation()"></a>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <hr class="mb-0 mt-1">
+                {% if accessory.name|getVisibleSkill:user %}
+                    <div class="row me-0 pe-0">
+                        <div class="col text-justified {{ accessory.name|getItemRarity }} p-0 ps-1 pt-1">
+                            {{ accessory.name|getVisibleSkill:user|itemSkillWithLinks }}
+                        </div>
+                    </div>
+                    <hr class="mb-0 mt-1">
+                {% endif %}
+
+                <div class="row ps-0 ms-1 me-0 pe-0">
+                    <div class="col-4 border-end border-warning p-3 h6 mb-0 d-flex align-items-center justify-content-center">
+                        <span class="text-white-50">Pancerz:</span> <span class="c-gold ms-1">{{ accessory.name|getItemArmorByDurability:accessory.durability }}</span>
+                    </div>
+                    <div class="col-2 border-end border-warning p-3 h6 mb-0 d-flex align-items-center justify-content-center">
+                        <span class="text-white-50"></span> <span class="c-gold ms-1">{{ accessory.name|getItemWeight }}kg</span>
+                    </div>
+                    <div class="col-3 border-end border-warning h6 mb-0 d-flex align-items-center justify-content-center">
+                        <a class="btn btn-info p-3 pt-2 pb-2 text-white" onclick='show_or_hideById("accessory-swap")'>Zmie&#324;</a>
+                    </div>
+                    <div class="col-3 h6 mb-0 d-flex align-items-center justify-content-center">
+                        <a class="btn btn-danger p-3 pt-2 pb-2 text-white" href='move_eq-{{ accessory.id }}'>Od&#322;&#243;&#380;</a>
+                    </div>
+                </div>
+
+                <div id='accessory-swap' class='d-none row text-end m-0 p-0 mt-2 mb-2'>
+                    <div class="col-8">
+                        <select class='w-100 p-2 ms-2 text-center border border-warning bg-dark text-white-50 rounded'>
+                            {% for item in eq_accessories %}
+                                <option id='{{ item.id }}' name={{ item.durability }} value='{{ item.name }}'>
+                                    {{ item.name }}
+                                    ({{ item.durability }}/{{ item.name|getMaxDurability }})
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col text-start">
+                        <a onclick="swapItem('{{ accessory.id }}', 'accessory-swap')" class='btn w-75 btn-success'>Zamie&#324;</a>
+                    </div>
+                </div>
+
+            </form>
+        {% else %}
+            <div name='head' class='row mt-2 border border-warning rounded bg-gray m-0 p-0'>
+                <div class="row c-gold me-0 pe-0">
+                    <div class="col h6 text-start p-2 pb-0 ms-1">
+                        Akcesoria - Brak
+                    </div>
+                </div>
+
+                <div class="row me-0 pe-0">
+                    <div class="col text-center">
+                        <a href='' class="c-gold h4">
+                            Brak akcesori&#243;w
+                        </a>
+                    </div>
+                </div>
+
+                <hr class="mb-0 mt-1">
+
+                <div class="row ps-0 ms-1 me-0 pe-0">
+                    <div class="col border-end border-warning mb-0 d-flex align-items-center justify-content-center">
+                        <a class="text-light h5 btn btn-info m-2 w-75" onclick='show_or_hideById("accessory-add")'>Za&#322;&#243;&#380;</a>
+                    </div>
+                </div>
+
+                <div id='accessory-add' class='d-none row text-end m-0 p-0 mt-2 mb-2'>
+                    <div class="col-8">
+                        <select class='w-100 p-2 ms-2 text-center border border-warning bg-dark text-white-50 rounded'>
+                            {% for item in eq_accessories %}
+                                <option id='{{ item.id }}' value='{{ item.name }}'>
+                                    {{ item.name }}
+                                    ({{ item.durability }}/{{ item.name|getMaxDurability }})
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col text-start">
+                        <a onclick="wearItem('Accessory', 'accessory-add')" class='btn w-75 btn-success'>OK</a>
+                    </div>
+                </div>
+            </div>
         {% endif %}
 
         {% if mount %}

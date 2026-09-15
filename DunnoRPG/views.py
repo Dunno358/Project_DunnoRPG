@@ -233,6 +233,7 @@ MOUNT_ATTACHMENT_CATEGORIES = {
     "Mount_horseshoes": {"animal_horseshoes"},
 }
 MOUNT_ITEM_CATEGORIES = {"animal", "animal_armor", "animal_saddle", "animal_horseshoes"}
+CHARACTER_ACCESSORY_CATEGORIES = {"accessory", "akcesoria"}
 EQUIPPED_ONLY_CAPACITY_ITEM_TYPES = {"amulet", "helmet", "torso", "gloves", "boots"}
 HAND_ITEM_PLACES = {"left", "right", "side"}
 MAX_BAG_ITEMS_IN_EQ = 2
@@ -361,6 +362,10 @@ def filter_hand_weapon_options(character, weapons, hand):
         if can_equip:
             allowed.append(eq_item)
     return allowed
+
+
+def is_character_accessory_item(item):
+    return (item.category or "").strip().lower() in CHARACTER_ACCESSORY_CATEGORIES
 
 
 def get_bag_items_count_in_eq(character):
@@ -1084,7 +1089,11 @@ class CharacterDetails(DetailView):
         eq_torsos_qs = models.Eq.objects.filter(character=chosen.name, type='Torso').order_by('name')
         eq_gloves_qs = models.Eq.objects.filter(character=chosen.name, type='Gloves').order_by('name')
         eq_boots_qs = models.Eq.objects.filter(character=chosen.name, type='Boots').order_by('name')
-        eq_amulets_qs = models.Eq.objects.filter(character=chosen.name, type='Amulet').order_by('name')
+        accessory_names = models.Items.objects.filter(
+            Q(category__iexact='Accessory') | Q(category__iexact='Akcesoria')
+        ).values_list('name', flat=True)
+        eq_amulets_qs = models.Eq.objects.filter(character=chosen.name, type='Amulet').exclude(name__in=accessory_names).order_by('name')
+        eq_accessories_qs = models.Eq.objects.filter(character=chosen.name, name__in=accessory_names).order_by('name')
         eq_mounts_qs = models.Eq.objects.filter(character=chosen.name, type='Animal').order_by('name')
         eq_mounts_armor_qs = models.Eq.objects.filter(
             Q(type='Mount Armor') | Q(name__in=models.Items.objects.filter(category='animal_armor').values_list('name', flat=True)),
@@ -1106,6 +1115,7 @@ class CharacterDetails(DetailView):
         context['gloves'] = models.CharItems.objects.filter(character=serializer.data['name'], position='Gloves').first()
         context['boots'] = models.CharItems.objects.filter(character=serializer.data['name'], position='Boots').first()
         context['amulet'] = models.CharItems.objects.filter(character=serializer.data['name'], position='Amulet').first()
+        context['accessory'] = models.CharItems.objects.filter(character=serializer.data['name'], position='Accessory').first()
         context['mount'] = models.CharItems.objects.filter(character=serializer.data['name'], position='Mount').first()
         context['mount_armor'] = models.CharItems.objects.filter(character=serializer.data['name'], position='Mount_armor').first()
         context['mount_horseshoes'] = models.CharItems.objects.filter(character=serializer.data['name'], position='Mount_horseshoes').first()
@@ -1142,6 +1152,7 @@ class CharacterDetails(DetailView):
         context['eq_gloves'] = eq_gloves_qs
         context['eq_boots'] = eq_boots_qs
         context['eq_amulets'] = eq_amulets_qs
+        context['eq_accessories'] = eq_accessories_qs
         context['eq_mounts'] = eq_mounts_qs
         context['eq_mounts_armor'] = eq_mounts_armor_qs
         context['eq_mounts_horseshoes'] = eq_mounts_horseshoes_qs
@@ -2346,6 +2357,14 @@ def char_wear_item(request, **kwargs):
         messages.error(request, "W tym slocie można założyć tylko wierzchowca.")
         return redirect('character_detail', char.id)
 
+    if place == "Accessory" and not is_character_accessory_item(item):
+        messages.error(request, "W tym slocie mozna zalozyc tylko akcesoria.")
+        return redirect('character_detail', char.id)
+
+    if place == "Amulet" and (item.type != "Amulet" or is_character_accessory_item(item)):
+        messages.error(request, "W tym slocie mozna zalozyc tylko amulet.")
+        return redirect('character_detail', char.id)
+
     can_wear_armor, armor_weight_message = can_character_wear_armor_weight(char, item, place)
     if not can_wear_armor:
         messages.error(request, armor_weight_message)
@@ -2560,6 +2579,14 @@ def char_swap_item(request, **kwargs):
         if (it2D.category or "").lower() not in allowed_categories and not (armor_place == "Mount_armor" and it2D.type == "Mount Armor"):
             messages.error(request, "Ten przedmiot nie pasuje do wybranego slotu wierzchowca.")
             return redirect('character_detail', char.id)
+
+    if armor_place == "Accessory" and not is_character_accessory_item(it2D):
+        messages.error(request, "W tym slocie mozna zalozyc tylko akcesoria.")
+        return redirect('character_detail', char.id)
+
+    if armor_place == "Amulet" and (it2D.type != "Amulet" or is_character_accessory_item(it2D)):
+        messages.error(request, "W tym slocie mozna zalozyc tylko amulet.")
+        return redirect('character_detail', char.id)
 
     can_wear_armor, armor_weight_message = can_character_wear_armor_weight(char, it2D, armor_place)
     if not can_wear_armor:
