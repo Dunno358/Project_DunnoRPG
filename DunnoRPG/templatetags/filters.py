@@ -750,7 +750,16 @@ def getModFromId(charId,stat_for_mod):
 def getMobilityMod(character):
     mobility_fields = ["mobility", "Mobility", "MOB", "mob", "Mob"]
     value = 0
-    for mod in models.Mods.objects.filter(character=character['name'], field__in=mobility_fields).values():
+    if isinstance(character, dict):
+        character_name = character.get('name')
+        race_name = character.get('race')
+    else:
+        character_name = getattr(character, 'name', character)
+        race_name = getattr(character, 'race', None)
+    race = models.Races.objects.filter(name=race_name).first()
+    if race:
+        value += race.mobilityChange
+    for mod in models.Mods.objects.filter(character=character_name, field__in=mobility_fields).values():
         value += mod['value']
     if value >= 0:
         return f"+{value}"
