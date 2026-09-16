@@ -208,6 +208,77 @@ def grant_free_skill(owner, character_name, skill):
         source="natural_free"
     )
 
+
+def parse_item_granted_skills(granted_skills):
+    if not granted_skills:
+        return []
+
+    parsed_skills = []
+    for raw_skill in granted_skills.split(";"):
+        skill = raw_skill.strip()
+        if not skill:
+            continue
+
+        parsed_skill = parse_free_skill(skill)
+        if parsed_skill is None and "-" in skill:
+            skill_name, skill_lvl = skill.rsplit("-", 1)
+            if skill_lvl.strip().isdigit():
+                parsed_skill = (skill_name.strip(), int(skill_lvl.strip()))
+
+        if parsed_skill is not None:
+            parsed_skills.append(parsed_skill)
+
+    return parsed_skills
+
+
+def sync_item_granted_skills(character):
+    models.Skills.objects.filter(
+        owner=character.owner,
+        character=character.name,
+    ).filter(Q(source="item") | Q(source__startswith="item:")).delete()
+
+    granted = {}
+    equipped_names = models.CharItems.objects.filter(
+        owner=character.owner,
+        character=character.name,
+    ).values_list("name", flat=True)
+    item_descs = models.Items.objects.filter(name__in=equipped_names).exclude(grantedSkills__isnull=True).exclude(grantedSkills="")
+
+    for item_desc in item_descs:
+        for skill_name, skill_lvl in parse_item_granted_skills(item_desc.grantedSkills):
+            current = granted.get(skill_name.lower())
+            if current is None or skill_lvl > current["level"]:
+                granted[skill_name.lower()] = {
+                    "name": skill_name,
+                    "level": skill_lvl,
+                    "source": f"item:{item_desc.name}",
+                }
+
+    for skill_data in granted.values():
+        if models.Skills.objects.filter(
+            owner=character.owner,
+            character=character.name,
+            skill__iexact=skill_data["name"],
+        ).exists():
+            continue
+
+        skill_desc = models.Skills_Decs.objects.filter(name__iexact=skill_data["name"]).first()
+        if skill_desc is None:
+            continue
+
+        level_desc = getattr(skill_desc, f"level{skill_data['level']}", None)
+        max_uses = getattr(skill_desc, f"useslvl{skill_data['level']}", None)
+        models.Skills.objects.create(
+            owner=character.owner,
+            character=character.name,
+            skill=skill_desc.name,
+            category=skill_desc.category,
+            level=skill_data["level"],
+            desc=f"{skill_desc.desc} {level_desc}" if level_desc else skill_desc.desc,
+            uses_left=max_uses or 0,
+            source=skill_data["source"],
+        )
+
 maxAdvs = 2
 maxBigAdvs = 1
 
@@ -449,6 +520,7 @@ def clamp_item_durability(item_desc, durability):
 
 
 def move_char_item_to_eq(char_item):
+    character = models.Character.objects.filter(owner=char_item.owner, name=char_item.character).first()
     item_desc = get_object_or_404(models.Items, name=char_item.name)
     durability = clamp_item_durability(item_desc, char_item.durability)
     eq_item = models.Eq.objects.filter(
@@ -481,9 +553,12 @@ def move_char_item_to_eq(char_item):
                 active_effect.delete()
 
     char_item.delete()
+    if character:
+        sync_item_granted_skills(character)
 
 
 def delete_char_item(char_item):
+    character = models.Character.objects.filter(owner=char_item.owner, name=char_item.character).first()
     item_desc = get_object_or_404(models.Items, name=char_item.name)
     if char_item.position == "Mount":
         for attachment in models.CharItems.objects.filter(character=char_item.character, position__in=MOUNT_ATTACHMENT_POSITIONS):
@@ -497,6 +572,8 @@ def delete_char_item(char_item):
                 active_effect.delete()
 
     char_item.delete()
+    if character:
+        sync_item_granted_skills(character)
 
 
 def can_character_wear_armor_weight(character, item, place):
@@ -2565,6 +2642,8 @@ def char_wear_item(request, **kwargs):
                 curr_effect.time = 100
                 curr_effect.save()
 
+    sync_item_granted_skills(char)
+
     if item_eq_obj.amount == 1:
         item_eq_obj.delete()
     else:
@@ -2650,6 +2729,7 @@ def reset_portal(request):
         players.update(mutation="")
         deleted_eq_count, _ = models.Eq.objects.filter(character__in=player_names).delete()
         deleted_char_items_count, _ = models.CharItems.objects.filter(character__in=player_names).delete()
+        models.Skills.objects.filter(character__in=player_names).filter(Q(source="item") | Q(source__startswith="item:")).delete()
         reset_skills_count = models.Skills.objects.filter(character__in=player_names).update(uses_left=0)
 
     messages.warning(
@@ -2780,6 +2860,7 @@ def char_swap_item(request, **kwargs):
             )    
     
     it2.delete()
+    sync_item_granted_skills(char)
     
     return redirect('character_detail', char.id)
 @user_passes_test(lambda u: u.is_superuser)
@@ -3650,6 +3731,7 @@ class GMPanel(FormView):
                     reloaded=True,
                     additional_description=form_data.additional_description,
                 )
+                sync_item_granted_skills(character)
                 messages.success(self.request, f"{item.name} equipped to {character.name}.")
                 return super().form_valid(form)
 
