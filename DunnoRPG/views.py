@@ -1960,7 +1960,7 @@ def give_item(request, **kwargs):
             given_amount = 1
             char_item = get_object_or_404(models.CharItems, id=int(source_id), character=from_char.name)
             itemDesc = get_object_or_404(models.Items, name=char_item.name)
-            if itemDesc.unobtainable and not request.user.is_superuser:
+            if itemDesc.unobtainable:
                 messages.error(request, f"{char_item.name} nie moze zostac przekazane.")
                 return redirect(f"/dunnorpg/items/ch{from_char.id}")
 
@@ -1990,7 +1990,7 @@ def give_item(request, **kwargs):
 
         eq_item = get_object_or_404(models.Eq, id=int(source_id), character=from_char.name)
         itemDesc = get_object_or_404(models.Items, name=eq_item.name)
-        if itemDesc.unobtainable and not request.user.is_superuser:
+        if itemDesc.unobtainable:
             messages.error(request, f"{eq_item.name} nie moze zostac przekazane.")
             return redirect(f"/dunnorpg/items/ch{from_char.id}")
 
@@ -3126,10 +3126,9 @@ class ItemsView(ListView):
             context['all_items'] = models.Items.objects.order_by('name')
             player_items = models.Eq.objects.filter(character=self.character.name)
             equipped_items = models.CharItems.objects.filter(character=self.character.name).exclude(name__isnull=True).exclude(name='')
-            if not self.request.user.is_superuser:
-                unobtainable_item_names = models.Items.objects.filter(unobtainable=True).values_list('name', flat=True)
-                player_items = player_items.exclude(name__in=unobtainable_item_names)
-                equipped_items = equipped_items.exclude(name__in=unobtainable_item_names)
+            unobtainable_item_names = models.Items.objects.filter(unobtainable=True).values_list('name', flat=True)
+            player_items = player_items.exclude(name__in=unobtainable_item_names)
+            equipped_items = equipped_items.exclude(name__in=unobtainable_item_names)
             transfer_items = [
                 {
                     "transfer_id": f"eq-{item.id}",
