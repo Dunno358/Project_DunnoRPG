@@ -7,7 +7,7 @@
                 data-preview-url="{% url 'image_preview' image.id %}"
                 onclick="showImagePreview(this.dataset.previewUrl)">
                 {% if image.chapter %}
-                    <span class="text-white-50">[{{ image.chapter }}]</span>
+                    <span class="image-chapter {% if image.visible %}text-success{% else %}text-danger{% endif %}">[{{ image.chapter }}]</span>
                 {% endif %}
                 <span class='p-1 c-gold'>{{ image.name }}</span>
             </button>

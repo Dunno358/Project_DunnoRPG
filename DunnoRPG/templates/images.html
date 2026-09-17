@@ -86,6 +86,13 @@
                 button.dataset.visible = nextVisible ? "true" : "false"
                 button.classList.toggle("btn-success", nextVisible)
                 button.classList.toggle("btn-danger", !nextVisible)
+
+                const row = button.closest(".row")
+                const chapter = row ? row.querySelector(".image-chapter") : null
+                if (chapter) {
+                    chapter.classList.toggle("text-success", nextVisible)
+                    chapter.classList.toggle("text-danger", !nextVisible)
+                }
             }
         } finally {
             button.disabled = false
