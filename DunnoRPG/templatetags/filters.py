@@ -12,6 +12,14 @@ import traceback
 
 register = template.Library()
 
+@register.filter
+def as_percentage(value):
+    try:
+        percentage = float(value) * 100
+        return f"{percentage:g}%"
+    except (TypeError, ValueError):
+        return "-"
+
 #OBJECT-GET
 @register.filter
 def getObjectName(model, object_id):

@@ -89,6 +89,13 @@
                     Wytrzymałość:<br> {{ item.maxDurability }}
                 </h2>
             </div>
+            {% if item.type == 'Amunicja' %}
+                <div class='col text-center c-gold fst-italic m-0 p-0 border-end border-bottom border-warning bg-dark bg-gradient'>
+                    <h2>
+                        Modyfikator Obrażeń:<br> {{ item.dmgModifier|as_percentage }}
+                    </h2>
+                </div>
+            {% endif %}
             {% if item.on_use and item.on_use != '-' %}
                 <div class='col text-center c-gold fst-italic m-0 p-0 border-end border-bottom border-warning bg-dark bg-gradient'>
                     <h2>
