@@ -202,7 +202,7 @@ class Items(models.Model):
     armor_weight = models.CharField(max_length=50, blank=True)
     
     dmgDice = models.CharField(max_length=50, default="1K10") # nKx where n is number of dices and x is which dice
-    dmgModifier = models.IntegerField(default=1) #for ammo
+    dmgModifier = models.FloatField(default=1) #for ammo
     AP = models.IntegerField(default=0)
 
     range = models.IntegerField(default=0)
