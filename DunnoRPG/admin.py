@@ -90,7 +90,7 @@ class RequestAdmin(admin.ModelAdmin):
 admin.site.register(models.Requests, RequestAdmin)
 
 class CitiesAdmin(admin.ModelAdmin):
-    list_display = ("city_name", "visiting")
+    list_display = ("city_name", "healer", "repair", "visiting")
     def get_queryset(self, request):
         qs = super().get_queryset(request)
         return qs.order_by('-visiting')

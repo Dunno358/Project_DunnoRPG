@@ -646,6 +646,7 @@
         </div>
         {% endif %}
 
+        {% if city.healer %}
         <div class='ms-0 ps-0 row text-center c-gold p-2 rounded border border-warning bg-dark mt-1' onclick="showOrHideBlock(this,'medic')" style="width: 100%;">
             <h2>Uzdrowiciel<span class="ms-2 d-inline-block" style="width: 1em; height: 1em; vertical-align: -0.12em; background-color: currentColor; -webkit-mask: url('{% static 'DunnoRPG/img/icons/plague-doctor-profile.svg' %}') center / contain no-repeat; mask: url('{% static 'DunnoRPG/img/icons/plague-doctor-profile.svg' %}') center / contain no-repeat;"></span></h2>
         </div>
@@ -665,6 +666,9 @@
             {% endfor %}
         </div>
 
+        {% endif %}
+
+        {% if city.repair %}
         <div class='ms-0 ps-0 row text-center c-gold p-2 rounded border border-warning bg-dark mt-1' onclick="showOrHideBlock(this,'fix')" style="width: 100%;">
             <h2>Naprawa<span class="fas fa-tools ms-2"></span></h2>
         </div>
@@ -693,6 +697,7 @@
                 {% endfor %}
             {% endfor %}
         </div>
+        {% endif %}
 
     </div>
  

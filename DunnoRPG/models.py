@@ -295,6 +295,8 @@ class Requests(models.Model):
 class Cities(models.Model):
     city_name = models.CharField(max_length = 150)
     items = models.TextField()
+    healer = models.BooleanField(default=True, verbose_name="Uzdrowiciel")
+    repair = models.BooleanField(default=True, verbose_name="Naprawa")
     magic_school = models.BooleanField(default=False)
     champion_school_type = models.CharField(max_length = 150)
     visiting = models.BooleanField(default=False)

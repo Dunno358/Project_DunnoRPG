@@ -2138,6 +2138,10 @@ def change_item_durability(request,**kwargs):
     return redirect('character_detail', char.id)
 def fix_item(request, **kwargs):
     if request.method == 'POST':
+        city = get_object_or_404(models.Cities, visiting=True)
+        if not city.repair:
+            return JsonResponse({"error": "Naprawa nie jest dostepna w tym miescie."}, status=403)
+
         try:
             data = json.loads(request.body)
             char = get_object_or_404(models.Character, id=data['char_id'])
@@ -4230,6 +4234,11 @@ class OrderTavernItem(APIView):
 
 class healCharacter(APIView):
     def get(self,request,**kwargs):
+        city = get_object_or_404(models.Cities, visiting=True)
+        if not city.healer:
+            messages.error(request, 'Uzdrowiciel nie jest dostepny w tym miescie.')
+            return redirect('/dunnorpg/city')
+
         character = get_object_or_404(models.Character, id=kwargs['char_id'])
         val = kwargs['val']
 
