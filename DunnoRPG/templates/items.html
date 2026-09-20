@@ -357,9 +357,9 @@
                 {% if item.rarity == 'unique' %}style='color: #0ec800;'{% endif %}
                 {% if item.rarity == 'magical' %}style='color: #4a76c7;'{% endif %}
                 {% if item.rarity == 'uncommon' %}style='color: #b401b4;'{% endif %} 
-                >{% if item.equipped %}<span class="text-info">[Założone]</span> {% endif %}[{{ item.weight }}kg] {{ item.name }}
+                >{% if item.equipped %}<span class="text-info">[Założone]</span> {% endif %}{% if view.kwargs.char_id != 0 %}[{{ item.weight }}kg] {% endif %}{{ item.name }}
                 {% if item.dur and item.type != 'Other' and item.type != 'Amulet' %}({{ item.dur }}/{{ item.max_dur }}){% endif %}
-                x{{ item.amount }}
+                {% if view.kwargs.char_id != 0 %}x{{ item.amount }}{% endif %}
                 {% if user.is_superuser and item.eq_id %}
                     <span
                         class="fa fa-link fa-lg text-info ms-2"
