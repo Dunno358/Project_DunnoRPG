@@ -34,6 +34,8 @@ def getObjectName(model, object_id):
 #ITEM-GET
 @register.filter
 def getItemStatByName(itemName):
+    if hasattr(itemName, "item_stat"):
+        return itemName.item_stat
     try:
         item = models.Items.objects.all().filter(name=itemName).values()[0]
         if item['type'].lower() != 'shield':
@@ -106,6 +108,8 @@ def getItemWeight(itemName):
 
 @register.filter
 def getItemUseInfo(itemName):
+    if hasattr(itemName, "use_info"):
+        return itemName.use_info
     return get_object_or_404(models.Items, name=itemName).use_info or ""
 
 @register.filter
@@ -114,6 +118,8 @@ def getItemExtraCapacity(itemName):
 
 @register.filter
 def getArmorWeightType(itemName):
+    if hasattr(itemName, "armor_weight_label"):
+        return itemName.armor_weight_label
     armor_weight_labels = {
         "light": "Lekkie",
         "light+": "Lekkie+",
@@ -277,7 +283,7 @@ def getItemType(itemName, translate="none"):
         "Gloves": "Karwasze"
     }
 
-    type = get_object_or_404(models.Items, name=itemName).type
+    type = itemName.item_type if hasattr(itemName, "item_type") else get_object_or_404(models.Items, name=itemName).type
     if translate=="none":
         return type
     elif translate=="pl":
@@ -322,6 +328,8 @@ def ammoTypePl(ammo_type):
 
 @register.filter
 def getItemRarity(itemName):
+    if hasattr(itemName, "rarity"):
+        return itemName.rarity
     try:
         return models.Items.objects.filter(name=itemName).get().rarity
     except:
@@ -384,6 +392,8 @@ def getSkillAndDesc(itemName):
 
 @register.filter
 def getVisibleSkillAndDesc(itemName, user):
+    if hasattr(itemName, "visible_description"):
+        return itemName.visible_description
     try:
         limit = 80
         row = models.Items.objects.filter(name=itemName).get()
@@ -405,6 +415,8 @@ def getVisibleSkillAndDesc(itemName, user):
 
 @register.filter
 def getDescId(itemName):
+    if hasattr(itemName, "item_id"):
+        return itemName.item_id
     try:
         return models.Items.objects.filter(name=itemName).values()[0]['id']
     except:

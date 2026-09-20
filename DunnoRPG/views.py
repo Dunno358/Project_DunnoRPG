@@ -3870,6 +3870,25 @@ def get_city_armor_weight_order(item):
         return ARMOR_WEIGHT_ORDER["medium"]
     return ARMOR_WEIGHT_ORDER["heavy"]
 
+def get_city_armor_weight_label(item):
+    labels = {
+        "light": "Lekkie",
+        "light+": "Lekkie+",
+        "medium": "Srednie",
+        "medium+": "Srednie+",
+        "heavy": "Ciezkie",
+    }
+    explicit_weight = (item.armor_weight or "").strip().lower()
+    if explicit_weight in labels:
+        return labels[explicit_weight]
+
+    order = get_city_armor_weight_order(item)
+    return {
+        ARMOR_WEIGHT_ORDER["light"]: "Lekkie",
+        ARMOR_WEIGHT_ORDER["medium"]: "Srednie",
+        ARMOR_WEIGHT_ORDER["heavy"]: "Ciezkie",
+    }.get(order, "Bron")
+
 def is_city_range_shop_item(item_category):
     return "range" in item_category
 
@@ -3879,10 +3898,26 @@ def is_city_gunpowder_shop_item(item_category):
 CITY_TAVERN_BUY_CATEGORIES = {"alkohol", "jedzenie"}
 
 class CityShopItem(str):
-    def __new__(cls, name, durability_percent, sale_index):
+    def __new__(cls, item, durability_percent, sale_index, is_superuser=False):
+        name = item.name
         obj = str.__new__(cls, name)
         obj.durability_percent = durability_percent
         obj.sale_index = sale_index
+        obj.item_id = item.id
+        obj.item_type = item.type
+        obj.rarity = item.rarity
+        obj.use_info = item.use_info or ""
+        obj.armor_weight_label = get_city_armor_weight_label(item)
+        if (item.type or "").lower() == "shield":
+            obj.item_stat = f"Blok: {item.block}"
+        else:
+            obj.item_stat = f"{item.dmgDice}, {item.AP}% AP"
+
+        skill = item.skill or ""
+        if is_superuser and item.hiddenSkill:
+            skill = f"{skill} | {item.hiddenSkill}" if skill else item.hiddenSkill
+        full_description = f"{skill} | {item.desc}" if skill else (item.desc or "")
+        obj.visible_description = full_description[:80] + "..." if len(full_description) > 80 else full_description
         return obj
 
     def __hash__(self):
@@ -3907,8 +3942,12 @@ class CityView(ListView):
 
         context['is_empty'] = is_empty
         if not is_empty:
-            items = city.items.split(';')
-            items.sort()
+            items = sorted(city.items.split(';'))
+            parsed_items = [parse_city_item_entry(entry) for entry in items]
+            item_names = {name for name, _, _ in parsed_items if name}
+            item_descriptions = {}
+            for item_description in models.Items.objects.filter(name__in=item_names):
+                item_descriptions.setdefault(item_description.name, item_description)
             armor_types = ['Helmet','Torso','Gloves','Boots']
             helmets = []
             torsos = []
@@ -3941,10 +3980,9 @@ class CityView(ListView):
             tavern_buy_items = []
             armor_shop_categories = ["armor", "cloth", "armor_elegant"]
             
-            for sale_index, item in enumerate(items):
-                item_name, durability, amount = parse_city_item_entry(item)
-
-                item = models.Items.objects.filter(name=item_name).first()
+            found_item_ids = []
+            for sale_index, (item_name, durability, amount) in enumerate(parsed_items):
+                item = item_descriptions.get(item_name)
 
                 if item != None:
                     item_category = (item.category or "").strip().lower()
@@ -3959,10 +3997,9 @@ class CityView(ListView):
                     item_durability = clamp_item_durability(item, item_durability)
 
                     if not item.found:
-                        item.found = True
-                        item.save()
+                        found_item_ids.append(item.id)
 
-                    shop_item = CityShopItem(item.name, durability, sale_index)
+                    shop_item = CityShopItem(item, durability, sale_index, self.request.user.is_superuser)
 
                     amounts[shop_item] = amount
                     durabilities[shop_item] = item_durability
@@ -4017,7 +4054,10 @@ class CityView(ListView):
                                 if item.type in singles.keys():
                                     singles[item.type].append(shop_item)
                                 else:
-                                    singles[item.type] = [shop_item]          
+                                    singles[item.type] = [shop_item]
+
+            if found_item_ids:
+                models.Items.objects.filter(id__in=found_item_ids).update(found=True)
             
 
             for tw_items in twohands.values():
@@ -4060,9 +4100,45 @@ class CityView(ListView):
             context['city_prices'] = city_prices
             context['city_armors'] = city_armors
             if self.request.user.is_superuser:
-                context['characters'] = models.Character.objects.all()
+                characters = list(models.Character.objects.all())
             else:
-                context['characters'] = models.Character.objects.filter(owner=self.request.user, hidden=False)
+                characters = list(models.Character.objects.filter(owner=self.request.user, hidden=False))
+            context['characters'] = characters
+
+            character_names = [character.name for character in characters]
+            equipped_items = list(models.CharItems.objects.filter(character__in=character_names))
+            equipped_descriptions = {
+                item.name: item for item in models.Items.objects.filter(
+                    name__in={equipped.name for equipped in equipped_items}
+                )
+            }
+            charisma_mods = {name: 0 for name in character_names}
+            for mod in models.Mods.objects.filter(character__in=character_names, field="CHAR"):
+                charisma_mods[mod.character] = charisma_mods.get(mod.character, 0) + mod.value
+            for equipped_item in equipped_items:
+                description = equipped_descriptions.get(equipped_item.name)
+                for stat in (description.skillStats or "").split(";") if description else []:
+                    if stat[:-2].lower() != "char" or len(stat) < 2:
+                        continue
+                    try:
+                        charisma_mods[equipped_item.character] += int(stat[-2:])
+                    except ValueError:
+                        pass
+            for character in characters:
+                value = charisma_mods.get(character.name, 0)
+                character.city_char_mod = f"+{value}" if value >= 0 else str(value)
+
+            if city.repair:
+                items_by_character = {name: [] for name in character_names}
+                for equipped_item in equipped_items:
+                    description = equipped_descriptions.get(equipped_item.name)
+                    if description is None or description.type == "Animal":
+                        continue
+                    equipped_item.rarity = description.rarity
+                    equipped_item.max_durability = description.maxDurability
+                    items_by_character.setdefault(equipped_item.character, []).append(equipped_item)
+                for character in characters:
+                    character.repair_items = items_by_character.get(character.name, [])
 
 
         return context       

@@ -28,7 +28,7 @@
                 {% for char in characters %}
                     <option value='{{ char.id }}' class='h4'>{{ char.name }}</option>
                     <option id="{{ char.id }}-char" class="d-none">{{ char.CHAR }}</option>
-                    <option id="{{ char.id }}-char-mod" class="d-none">{{ char.id|getModFromId:"CHAR" }}</option>
+                    <option id="{{ char.id }}-char-mod" class="d-none">{{ char.city_char_mod }}</option>
                 {% endfor %}
             </select>
             <div class="row">
@@ -674,12 +674,11 @@
         </div>
         <div id='fix' class='container text-center c-gold rounded border border-primary bg-dark d-none p-0 m-0' style="width: 100%;">
             {% for char in characters %}
-                {% for item in char.name|getCharacterItems %}
-                    {% if item.name|getItemType != "Animal" %}
+                {% for item in char.repair_items %}
                         <div class='row bg-gray rounded m-1 border border-primary'>
-                            <a class="col text-center c-gold h5 m-1 {{ item.name|getItemRarity }}" id='fix-{{ item.id }}-item'>
-                                [<span id="item-{{ item.id }}-owner">{{ item.character }}</span>] {{ item.name }} (<span id="fix-{{ item.id }}-dur">{{ item.durability }}</span>/{{ item.name|getMaxDurability }})
-                                <span class="d-none" id="rarity-{{ item.id }}">{{ item.name|getItemRarity }}</span>
+                            <a class="col text-center c-gold h5 m-1 {{ item.rarity }}" id='fix-{{ item.id }}-item'>
+                                [<span id="item-{{ item.id }}-owner">{{ item.character }}</span>] {{ item.name }} (<span id="fix-{{ item.id }}-dur">{{ item.durability }}</span>/{{ item.max_durability }})
+                                <span class="d-none" id="rarity-{{ item.id }}">{{ item.rarity }}</span>
                             </a>
                             <input type='number' min="0" id="fix-{{ item.id }}"
                             class='col-2 c-gold m-1 bg-gray border border-warning rounded'
@@ -693,7 +692,6 @@
                                 Fix
                             </a>
                         </div>
-                    {% endif %}
                 {% endfor %}
             {% endfor %}
         </div>
