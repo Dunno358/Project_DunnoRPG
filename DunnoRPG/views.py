@@ -3010,7 +3010,16 @@ class ItemsView(ListView):
             self.animals = []
             self.armor_dict = {'helmet': [], 'torso': [], 'boots': [], 'gloves': [], 'amulets': [], 'other': []}
 
-            def add_character_item(item_desc, durability, amount=1, eq_id=None, char_item_id=None, equipped=False):
+            def add_character_item(
+                item_desc,
+                durability,
+                amount=1,
+                eq_id=None,
+                char_item_id=None,
+                equipped=False,
+                inventory_weight=None,
+            ):
+                display_weight = inventory_weight if inventory_weight is not None else item_desc.weight * amount
                 item_data = {
                     'id': item_desc.id,
                     'eq_id': eq_id,
@@ -3022,12 +3031,14 @@ class ItemsView(ListView):
                     'name': item_desc.name,
                     'dur': durability,
                     'amount': amount,
+                    'weight': display_weight,
                     'max_dur': item_desc.maxDurability,
                     'type': item_desc.type,
                     'price': item_desc.price,
                     'on_use': item_desc.on_use,
                     'use_cost': item_desc.use_cost,
                     'use_info': item_desc.use_info,
+                    'use_amount': item_desc.use_amount,
                     'equipped': equipped,
                 }
                 queryset.append(item_data)
@@ -3035,6 +3046,7 @@ class ItemsView(ListView):
                 category_data = item_desc.__dict__ | {
                     'dur': durability,
                     'amount': amount,
+                    'weight': display_weight,
                     'max_dur': item_desc.maxDurability,
                     'eq_id': eq_id,
                     'char_item_id': char_item_id,
@@ -3064,12 +3076,24 @@ class ItemsView(ListView):
 
             for item in models.Eq.objects.filter(character=self.character.name):
                 item_obj = get_object_or_404(models.Items, name=item.name)
-                add_character_item(item_obj, item.durability, item.amount, item.id)
+                add_character_item(
+                    item_obj,
+                    item.durability,
+                    item.amount,
+                    item.id,
+                    inventory_weight=item.weight,
+                )
 
             for item in models.CharItems.objects.filter(character=self.character.name):
                 if item.name:
                     item_obj = get_object_or_404(models.Items, name=item.name)
-                    add_character_item(item_obj, item.durability, char_item_id=item.id, equipped=True)
+                    add_character_item(
+                        item_obj,
+                        item.durability,
+                        char_item_id=item.id,
+                        equipped=True,
+                        inventory_weight=item_obj.weight,
+                    )
         return queryset
     
     def get_context_data(self, **kwargs):
@@ -3131,14 +3155,18 @@ class ItemsView(ListView):
             player_items = models.Eq.objects.filter(character=self.character.name)
             equipped_items = models.CharItems.objects.filter(character=self.character.name).exclude(name__isnull=True).exclude(name='')
             unobtainable_item_names = models.Items.objects.filter(unobtainable=True).values_list('name', flat=True)
-            player_items = player_items.exclude(name__in=unobtainable_item_names)
-            equipped_items = equipped_items.exclude(name__in=unobtainable_item_names)
+            player_items = list(player_items.exclude(name__in=unobtainable_item_names))
+            equipped_items = list(equipped_items.exclude(name__in=unobtainable_item_names))
+            equipped_item_weights = dict(
+                models.Items.objects.filter(name__in={item.name for item in equipped_items}).values_list('name', 'weight')
+            )
             transfer_items = [
                 {
                     "transfer_id": f"eq-{item.id}",
                     "name": item.name,
                     "durability": item.durability,
                     "amount": item.amount,
+                    "weight": item.weight,
                     "equipped": False,
                 }
                 for item in player_items
@@ -3149,6 +3177,7 @@ class ItemsView(ListView):
                     "name": item.name,
                     "durability": item.durability,
                     "amount": 1,
+                    "weight": equipped_item_weights.get(item.name, 0),
                     "equipped": True,
                 }
                 for item in equipped_items

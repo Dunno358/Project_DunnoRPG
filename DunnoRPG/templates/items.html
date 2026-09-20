@@ -264,7 +264,7 @@
                 </option>
                 {% for item in transfer_items %}
                     <option value="{{ item.transfer_id }}">
-                        {{ item.name }} ({{ item.durability }}){% if item.amount > 1 %} [{{ item.amount }}]{% endif %}{% if item.equipped %} [Założone]{% endif %}
+                        [{{ item.weight }}kg] {{ item.name }} x{{ item.amount }} ({{ item.durability }}){% if item.equipped %} [Założone]{% endif %}
                     </option>
                 {% endfor %}
             </select>
@@ -357,9 +357,9 @@
                 {% if item.rarity == 'unique' %}style='color: #0ec800;'{% endif %}
                 {% if item.rarity == 'magical' %}style='color: #4a76c7;'{% endif %}
                 {% if item.rarity == 'uncommon' %}style='color: #b401b4;'{% endif %} 
-                >{% if item.equipped %}<span class="text-info">[Założone]</span> {% endif %}{{ item.name }}
+                >{% if item.equipped %}<span class="text-info">[Założone]</span> {% endif %}[{{ item.weight }}kg] {{ item.name }}
                 {% if item.dur and item.type != 'Other' and item.type != 'Amulet' %}({{ item.dur }}/{{ item.max_dur }}){% endif %}
-                {% if item.dur %} x{{ item.amount }}{% endif %}
+                x{{ item.amount }}
                 {% if user.is_superuser and item.eq_id %}
                     <span
                         class="fa fa-link fa-lg text-info ms-2"
@@ -382,7 +382,7 @@
                     {% if view.kwargs.char_id != 0 and not item.equipped and item.on_use and item.on_use != '-' %}
                         <div class="col m-0 p-0">
                             <a class='btn btn-success w-100' href='useItem-{{ item.id }}-{{ view.kwargs.char_id }}'>
-                                Użyj {% if item.use_info %}[{{ item.use_info }}]{% endif %}
+                                Użyj {% if item.use_info %}[{{ item.use_info }}]{% endif %}{% if item.use_amount > 1 %} | Pozostało: {{ item.use_amount }}{% endif %}
                             </a> 
                         </div>
                     {% endif %}
