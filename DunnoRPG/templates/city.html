@@ -16,9 +16,26 @@
 
 
     <meta name="csrf-token" content="{{ csrf_token }}">
-    <h1 class='c-gold text-center fst-italic' style='-webkit-text-stroke: 0.5px blue; font-size:300%;' id='city-name'>
-        {{ city.city_name }}
-    </h1>
+    <div class="row m-0 px-2">
+        <div class="col text-end p-0">
+        <button
+            type="button"
+            class="btn btn-sm btn-dark btn-outline-warning bg-gradient px-2 py-1"
+            onclick="refreshCityData(this)"
+            title="Pobierz aktualne dane miasta">
+            <span class="fas fa-rotate-right me-1" aria-hidden="true"></span>
+            Odśwież
+        </button>
+        </div>
+    </div>
+    <div id="city-refresh-content">
+    <div class="row m-0">
+        <div class="col p-0">
+            <h1 class='c-gold text-center fst-italic mb-0' style='-webkit-text-stroke: 0.5px blue; font-size:300%;' id='city-name'>
+                {{ city.city_name }}
+            </h1>
+        </div>
+    </div>
 
     <div id='char-to-buy' class='d-none position-fixed container-fluid'>
         <div class='row bg-dark c-gold rounded border border-warning me-1'>
@@ -726,6 +743,41 @@
     
 
     let pendingBuyUrl = ""
+
+    async function refreshCityData(button){
+        const originalContent = button.innerHTML
+        button.disabled = true
+        button.innerHTML = '<span class="fas fa-spinner fa-spin me-1" aria-hidden="true"></span>Odświeżanie'
+
+        try {
+            const response = await fetch(window.location.href, {
+                method: 'GET',
+                cache: 'no-store',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}`)
+            }
+
+            const documentFromDatabase = new DOMParser().parseFromString(await response.text(), 'text/html')
+            const refreshedContent = documentFromDatabase.getElementById('city-refresh-content')
+            const currentContent = document.getElementById('city-refresh-content')
+            if (!refreshedContent || !currentContent) {
+                throw new Error('Brak danych miasta w odpowiedzi')
+            }
+
+            currentContent.innerHTML = refreshedContent.innerHTML
+            document.title = document.getElementById('city-name').textContent.trim() + " | DunnoRPG"
+        } catch (error) {
+            console.error('Nie udało się odświeżyć miasta:', error)
+            alert('Nie udało się pobrać aktualnych danych miasta.')
+        } finally {
+            button.disabled = false
+            button.innerHTML = originalContent
+        }
+    }
 
     function buyItem(item,item_id,item_durability,item_unit_price,item_available_amount){
         document.getElementById('char-to-buy').classList.remove('d-none')
