@@ -3429,11 +3429,24 @@ function gatherAttackInfo(hand, item_id){
     div.classList.remove("d-none")
 }
 
+function parseDisplayedNumber(elementId){
+    const element = document.getElementById(elementId)
+    if(!element){
+        return 0
+    }
+
+    const value = parseFloat(element.innerHTML.replace(',', '.'))
+    return Number.isNaN(value) ? 0 : value
+}
+
+function calculateArmorPenalty(armorWeight, shieldWeight){
+    return Math.floor((armorWeight + shieldWeight) / 6)
+}
+
 function getArmorMod(){
-    armor_weight = parseFloat(document.getElementById('armor-weight').innerHTML)
-    shield_weight = parseFloat(document.getElementById('shield-weight').innerHTML)
-    mod = (armor_weight+shield_weight)/6
-    mod = parseInt(mod)
+    const armor_weight = parseDisplayedNumber('armor-weight')
+    const shield_weight = parseDisplayedNumber('shield-weight')
+    let mod = calculateArmorPenalty(armor_weight, shield_weight)
     try{
         if(document.getElementById('char-class').innerHTML.trim() == 'Berserker'){
             mod = mod*2
@@ -3456,7 +3469,7 @@ function formatSignedMod(value){
 
 function updateZreModWithArmorPenalty(){
     let zreModElement = document.getElementById('stat-ZRE-mod')
-    let armorMod = parseInt(document.getElementById('armor-mod').innerHTML) || 0
+    let armorMod = parseDisplayedNumber('armor-mod')
     let baseZreMod = parseInt(zreModElement.dataset.baseMod) || 0
     zreModElement.innerHTML = formatSignedMod(baseZreMod - armorMod)
 }
@@ -3555,10 +3568,12 @@ function formatWeight(value){
 }
 
 function showArmorPenaltyInfo(){
-    let armorWeight = parseFloat(document.getElementById('armor-weight').innerHTML) || 0
-    let shieldWeight = parseFloat(document.getElementById('shield-weight').innerHTML) || 0
+    getArmorMod()
+
+    let armorWeight = parseDisplayedNumber('armor-weight')
+    let shieldWeight = parseDisplayedNumber('shield-weight')
     let totalWeight = armorWeight + shieldWeight
-    let armorMod = parseInt(document.getElementById('armor-mod').innerHTML) || 0
+    let armorMod = parseDisplayedNumber('armor-mod')
 
     showInfoCard(
         'Kara',
