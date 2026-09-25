@@ -1227,6 +1227,10 @@ class CharacterDetails(DetailView):
         context['amulet'] = models.CharItems.objects.filter(character=serializer.data['name'], position='Amulet').first()
         context['accessory'] = get_equipped_item_for_place(serializer.data['name'], 'Accessory')
         context['mount'] = models.CharItems.objects.filter(character=serializer.data['name'], position='Mount').first()
+        context['mount_mobility'] = (
+            models.Items.objects.filter(name=context['mount'].name).values_list('mobility', flat=True).first()
+            if context['mount'] else None
+        )
         context['mount_armor'] = models.CharItems.objects.filter(character=serializer.data['name'], position='Mount_armor').first()
         context['mount_horseshoes'] = models.CharItems.objects.filter(character=serializer.data['name'], position='Mount_horseshoes').first()
         context['mount_saddle'] = models.CharItems.objects.filter(character=serializer.data['name'], position='Mount_saddle').first()

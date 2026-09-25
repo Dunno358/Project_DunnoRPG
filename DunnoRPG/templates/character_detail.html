@@ -3699,15 +3699,19 @@ let movementTracker = {
     totalMove: 0,
     remainingMove: 0,
 }
+let movementMode = 'character'
+let characterBaseMove = 0
+let mountBaseMove = null
 
-function getMovementStorageKey(){
+function getMovementStorageKey(mode = movementMode){
     const characterId = document.getElementById('char-name')?.getAttribute('name') || 'unknown'
-    return `movementTracker:${characterId}`
+    return `movementTracker:${characterId}:${mode}`
 }
 
 function clearMovementTracker(){
     try{
-        sessionStorage.removeItem(getMovementStorageKey())
+        sessionStorage.removeItem(getMovementStorageKey('character'))
+        sessionStorage.removeItem(getMovementStorageKey('mount'))
     }
     catch{
         return
@@ -3824,20 +3828,10 @@ async function useMovementBoost(boost, cost){
     renderMovementTracker()
 }
 
-function showMovementAction(baseMove){
+function renderMovementBoosts(baseMove){
     const accelerationMove = Math.ceil(baseMove / 2)
     const sprintMove = baseMove
 
-    movementTracker = getSavedMovementTracker(baseMove) || {
-        baseMove: baseMove,
-        totalMove: baseMove,
-        remainingMove: baseMove,
-    }
-
-    window_action_top.innerHTML = `
-        <div id="movement-range-label" class="mb-2"></div>
-        <div id="movement-tracker" class="d-flex flex-wrap align-items-center justify-content-center"></div>
-    `
     window_action_bottom.innerHTML = `
         <div class="d-flex flex-column flex-md-row gap-2 justify-content-center align-items-stretch">
             <div class="border border-warning rounded p-2 bg-gradient">
@@ -3854,7 +3848,57 @@ function showMovementAction(baseMove){
             </div>
         </div>
     `
+}
+
+function selectMovementMode(mode){
+    movementMode = mode
+    const baseMove = mode === 'mount' ? mountBaseMove : characterBaseMove
+    movementTracker = getSavedMovementTracker(baseMove) || {
+        baseMove: baseMove,
+        totalMove: baseMove,
+        remainingMove: baseMove,
+    }
+
+    document.querySelectorAll('[data-movement-mode]').forEach(button => {
+        const isActive = button.dataset.movementMode === mode
+        button.classList.toggle('btn-warning', isActive)
+        button.classList.toggle('btn-outline-warning', !isActive)
+        button.setAttribute('aria-selected', isActive ? 'true' : 'false')
+    })
+
+    if(mode === 'character'){
+        renderMovementBoosts(baseMove)
+    }
+    else{
+        window_action_bottom.innerHTML = ''
+    }
+
     renderMovementTracker()
+}
+
+function showMovementAction(baseMove, equippedMountMove = null){
+    characterBaseMove = baseMove
+    mountBaseMove = equippedMountMove
+
+    const movementTabs = mountBaseMove === null ? '' : `
+        <div class="btn-group mb-3" style="width: 100%;" role="tablist" aria-label="Rodzaj ruchu">
+            <button type="button" class="btn btn-sm btn-warning" role="tab" aria-selected="true"
+                data-movement-mode="character" onclick="selectMovementMode('character')">
+                Postać
+            </button>
+            <button type="button" class="btn btn-sm btn-outline-warning" role="tab" aria-selected="false"
+                data-movement-mode="mount" onclick="selectMovementMode('mount')">
+                Wierzchowiec
+            </button>
+        </div>
+    `
+
+    window_action_top.innerHTML = `
+        ${movementTabs}
+        <div id="movement-range-label" class="mb-2"></div>
+        <div id="movement-tracker" class="d-flex flex-wrap align-items-center justify-content-center"></div>
+    `
+    selectMovementMode('character')
 }
 
 function show_result_at_window(action){
@@ -3928,7 +3972,7 @@ function show_result_at_window(action){
         zre_move = Math.floor(full_zre/2)
         full_move = Math.max(0, 4 + zre_move + mobility_mod)
 
-        showMovementAction(full_move)
+        showMovementAction(full_move, {% if mount %}{{ mount_mobility|default:0 }}{% else %}null{% endif %})
 
     }
     else if (action == 'Parry')
