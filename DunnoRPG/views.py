@@ -1018,6 +1018,11 @@ class EditCharacterView(APIView):
             "available_skills": available_skills,
             "users": users,
             "stats_descriptions": stats_descriptions,
+            "exp_animal_characters": models.Character.objects.filter(
+                owner=chosen_character.owner,
+                type__iexact="Gracz: Zwierze",
+                hidden=False,
+            ).exclude(id=chosen_character.id).order_by("name"),
         }
         return Response(context)
 

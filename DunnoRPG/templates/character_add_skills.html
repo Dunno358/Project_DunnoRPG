@@ -4,6 +4,42 @@
 {% include 'dunnorpg/messages.html' %}
 <meta name="csrf-token" content="{{ csrf_token }}"> 
 
+<div id='add-exp-block' class='position-fixed container-fluid p-0 ms-4 d-none' style='margin-top: 7rem; width: 90%; z-index: 10;'>
+    <div class='row bg-dark c-gold rounded border border-warning me-1'>
+        <div class='col text-center'>
+            <div class='row'>
+                <div class='col mt-2'><p class='c-gold h3'>Dodawanie doświadczenia</p></div>
+            </div>
+            <div class='row mt-3'>
+                <div class='col-2 text-end'><span class='c-gold h6'>EXP: </span></div>
+                <div class='col'><input class='text-center w-100 c-gold bg-dark border border-warning rounded' type='number' value='' id='add-exp-input'></div>
+            </div>
+            {% if exp_animal_characters %}
+                <div class='row mt-2'>
+                    <div class='col-2'></div>
+                    <div class='col text-start'>
+                        <p class='fw-bold mb-1'>Dodaj też do:</p>
+                        {% for animal_character in exp_animal_characters %}
+                            <label class='d-block h6 mb-2'>
+                                <input type='checkbox' class='add-exp-animal me-2' value='{{ animal_character.id }}' style='transform: scale(1.35);'>
+                                {{ animal_character.name }}
+                            </label>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endif %}
+            <div class='row mt-4'>
+                <div class='col m-0 p-0'>
+                    <button type='button' onclick="hideById('add-exp-block')" class='btn btn-danger w-75 m-1'>Powrót</button>
+                </div>
+                <div class='col m-0 p-0'>
+                    <button type='button' onclick='addExp()' class='btn btn-success w-75 m-1'>Dodaj</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <form method="post" action="change_owner" id='choose-new-owner' class='d-none position-fixed container-fluid'>
     {% csrf_token %}
     <div class='row bg-dark c-gold rounded border border-warning mt-5 m-2'>
@@ -128,17 +164,23 @@
     </div>
 </div>
 
-<div class='container hideable'>
-        <div class="row">
-            <div class="col text-end">
-                    <button class="m-2 btn btn-success" onclick="show_or_hideById('advanced')">
-                        Zaawansowane
-                    </button>
+<div class='container hideable mt-1'>
+        <div class="d-flex flex-nowrap gap-2 px-1">
+            <div class="flex-shrink-0">
+                <button class="btn btn-primary fw-bold px-2 py-2 text-nowrap" onclick="show_or_hideById('add-exp-block')">
+                    EXP+
+                </button>
             </div>
 
-            <div class="col text-end">
-                <button class="m-2 btn btn-primary" onclick="changeOwnerScreen('{{ character }}')">
-                    Change owner
+            <div class="flex-fill">
+                <button class="btn btn-success w-100 px-1 py-2 text-nowrap" onclick="show_or_hideById('advanced')">
+                    Zaawansowane
+                </button>
+            </div>
+
+            <div class="flex-fill">
+                <button class="btn w-100 px-1 py-2 text-white text-nowrap" style="background-color: #4c10b3; border-color: #a78bfa;" onclick="changeOwnerScreen('{{ character }}')">
+                    Właściciel
                 </button>
             </div>
         </div>
@@ -328,6 +370,19 @@
     function changeOwnerScreen(character){
         document.getElementById("Character").innerHTML = character
         document.getElementById("choose-new-owner").classList.remove("d-none")
+    }
+
+    function addExp(){
+        let expValue = document.getElementById('add-exp-input').value
+        if(expValue === ''){
+            expValue = 0
+        }
+
+        const url = new URL(`/dunnorpg/character_detail/{{ character.id }}/add-exp/${encodeURIComponent(expValue)}`, window.location.origin)
+        document.querySelectorAll('.add-exp-animal:checked').forEach((checkbox) => {
+            url.searchParams.append('exp_animals', checkbox.value)
+        })
+        window.location.replace(url)
     }
 
     function addSkill(){
