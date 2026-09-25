@@ -46,6 +46,7 @@ urlpatterns = [
     path('character_add_skills/<int:char_id>/change_adv', views.change_char_details, name='change_char_details'),
 
     path('char-delete/<int:char_id>', views.DeleteCharacter.as_view(), name='delete_character'),
+    path('char-archive/<int:char_id>', views.ArchiveCharacter.as_view(), name='archive_character'),
     path('char-copy/<int:char_id>', views.CopyCharacter.as_view(), name='copy_character'),
     
     path('items/ch<int:char_id>', views.ItemsView.as_view(), name='items'),

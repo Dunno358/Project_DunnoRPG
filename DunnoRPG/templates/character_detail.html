@@ -30,6 +30,17 @@
 <div id="ajax-msg-stack" class="position-fixed d-flex flex-column align-items-center gap-2"
 style="top: 0.7rem; left: 50%; transform: translateX(-50%); z-index: 9999; width: min(90vw, 28rem);"></div>
 
+<div id='archive-character-confirm' class='d-none position-fixed container-fluid' style='z-index: 1050;'>
+    <div class='row bg-dark c-gold rounded border border-warning mt-5 ms-5 me-5'>
+        <div class='col text-center'>
+            <h2 class='m-2 mt-5 fst-150'>Zarchiwizować {{ value.name }}?</h2>
+            {% csrf_token %}
+            <button type='button' onclick="show_or_hideById('archive-character-confirm')" class='btn btn-lg btn-outline-danger m-1 mb-5'>Nie</button>
+            <button type='button' id='archive-character-positive' onclick='archiveCurrentCharacter()' class='btn btn-lg btn-outline-success m-1 mb-5'>Tak</button>
+        </div>
+    </div>
+</div>
+
 <div id='info-card' class="container card-body text-center c-gold border border-warning bg-dark rounded position-fixed m-0 p-0 pb-3 d-none mt-5" 
 style="width: 98%; z-index: 20; margin-left: 0.1rem !important; margin-top: -1rem !important;">
     <h3 class="mt-1" id="info-card-topic"></h3>
@@ -2251,6 +2262,14 @@ style="width: 98%; z-index: 20; margin-left: 0.22rem !important; margin-top: -11
                 <a class='col c-gold' href='/dunnorpg/info/races/{{ race_id }}' title='{{ race_desc }}'>{{ value.race }}</a>
             </div>
         </div>
+        <button
+            type='button'
+            class='btn w-100 mt-2 mb-3 text-white fw-bold'
+            style='background-color: #7c3aed; border-color: #a78bfa;'
+            onclick="show_or_hideById('archive-character-confirm')"
+        >
+            Archiwizuj
+        </button>
     </div>    
     
     <form id="notes-block" class="d-none position-fixed mt-2 border border-primary bg-gray rounded" 
@@ -3674,6 +3693,34 @@ async function refreshCharacterDetailsData(){
         if(nextRoot){
             nextRoot.dataset.refreshing = 'false'
         }
+    }
+}
+
+async function archiveCurrentCharacter(){
+    const confirmButton = document.getElementById('archive-character-positive')
+    const csrfToken = document.querySelector('#archive-character-confirm input[name="csrfmiddlewaretoken"]').value
+    confirmButton.disabled = true
+
+    try{
+        const response = await fetch("{% url 'archive_character' value.id %}", {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': csrfToken,
+                'X-Requested-With': 'XMLHttpRequest',
+            },
+        })
+        if(!response.ok){
+            throw new Error('Nie udało się zarchiwizować postaci.')
+        }
+
+        const result = await response.json()
+        sessionStorage.setItem('archiveNotification', result.message)
+        window.location.href = "{% url 'home' %}"
+    }
+    catch(error){
+        document.getElementById('archive-character-confirm').classList.add('d-none')
+        showMessage(error.message, 'error')
+        confirmButton.disabled = false
     }
 }
 

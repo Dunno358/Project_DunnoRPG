@@ -1,5 +1,6 @@
 {% extends 'master.html' %}
 {% load filters %}
+{% load static %}
 
 {% block content %}
 
@@ -12,6 +13,33 @@
       <h2 id='del-confirm-title' class='m-2 mt-5 fst-150'>Jesteś pewien?</h2>
       <a onclick='this.parentNode.parentNode.parentNode.classList.add("d-none")' class='btn btn-lg btn-outline-danger m-1 mb-5'>Nie</a>
       <a href='char-delete/' id='del-confirm-positive' class='btn btn-lg btn-outline-success m-1 mb-5'>Tak</a>
+    </div>
+  </div>
+</div>
+
+<div id='archive-confirm' class='d-none position-fixed container-fluid' style='z-index: 1050;'>
+  <div class='row bg-dark c-gold rounded border border-warning mt-5 ms-5 me-5'>
+    <div class='col text-center'>
+      <h2 id='archive-confirm-title' class='m-2 mt-5 fst-150'>Jesteś pewien?</h2>
+      {% csrf_token %}
+      <button type='button' onclick='closeArchiveConfirmation()' class='btn btn-lg btn-outline-danger m-1 mb-5'>Nie</button>
+      <button type='button' id='archive-confirm-positive' onclick='archiveCharacter()' class='btn btn-lg btn-outline-success m-1 mb-5'>Tak</button>
+    </div>
+  </div>
+</div>
+
+<div id='archive-notification' class='d-none container mt-2'>
+  <div class='row'>
+    <div class='col'>
+      <div class='bg-dark text-light text-center rounded border border-success shadow-sm py-2 px-3 d-flex align-items-center justify-content-center gap-3'>
+        <span class='fa-solid fa-circle-check text-success' aria-hidden='true'></span>
+        <span id='archive-notification-text' class='fw-bold'></span>
+        <button
+          onclick="this.closest('#archive-notification').classList.add('d-none')"
+          type='button'
+          class='btn btn-sm btn-success ms-auto'
+        >Okej</button>
+      </div>
     </div>
   </div>
 </div>
@@ -72,7 +100,7 @@
 
     <div class="row">
         {% for character in characters %}
-          <div class="col m-4 p-3 border border-warning bg-gray c-gold rounded text-center position-relative">
+          <div id="character-card-{{ character.id }}" class="col m-4 p-3 border border-warning bg-gray c-gold rounded text-center position-relative">
             <a
               onclick="charDeleteConfirmation('Usunąć {{ character.name }}?',{{ character.id }})"
               class="position-absolute top-0 start-0 m-2 text-danger"
@@ -81,6 +109,17 @@
             >
               <span class="fa-solid fa-trash"></span>
             </a>
+            <div class="position-absolute top-0 end-0 m-2">
+              <button
+                type="button"
+                class="border-0 bg-transparent p-0 d-flex align-items-center justify-content-center"
+                title="Archiwizuj"
+                aria-label="Archiwizuj {{ character.name }}"
+                onclick="showArchiveConfirmation('{{ character.name|escapejs }}', {{ character.id }})"
+              >
+                <img src="{% static 'DunnoRPG/img/icons/full-folder.svg' %}" width="16" height="16" alt="">
+              </button>
+            </div>
             <dl>
               {% if user.is_superuser %}
                 <dt>Właściciel:</dt>
@@ -142,6 +181,64 @@
     document.getElementById('del-confirm-positive').href = 'char-delete/' + id + window.location.search
     document.getElementById('del-confirm').classList.remove('d-none')
   }
+
+  let pendingArchive = null
+
+  const redirectedArchiveMessage = sessionStorage.getItem('archiveNotification')
+  if(redirectedArchiveMessage){
+    sessionStorage.removeItem('archiveNotification')
+    document.getElementById('archive-notification-text').textContent = redirectedArchiveMessage
+    document.getElementById('archive-notification').classList.remove('d-none')
+  }
+
+  function showArchiveConfirmation(characterName, characterId){
+    pendingArchive = {name: characterName, id: characterId}
+    document.getElementById('archive-confirm-title').textContent = `Zarchiwizować ${characterName}?`
+    document.getElementById('archive-confirm').classList.remove('d-none')
+  }
+
+  function closeArchiveConfirmation(){
+    document.getElementById('archive-confirm').classList.add('d-none')
+    pendingArchive = null
+  }
+
+  async function archiveCharacter(){
+    if(!pendingArchive){
+      return
+    }
+
+    const archivedCharacter = pendingArchive
+    const confirmButton = document.getElementById('archive-confirm-positive')
+    const csrfToken = document.querySelector('#archive-confirm input[name="csrfmiddlewaretoken"]').value
+    confirmButton.disabled = true
+
+    try{
+      const response = await fetch(`char-archive/${archivedCharacter.id}`, {
+        method: 'POST',
+        headers: {
+          'X-CSRFToken': csrfToken,
+          'X-Requested-With': 'XMLHttpRequest',
+        },
+      })
+      if(!response.ok){
+        throw new Error('Nie udało się zarchiwizować postaci.')
+      }
+
+      const result = await response.json()
+      document.getElementById(`character-card-${archivedCharacter.id}`)?.remove()
+      document.getElementById('archive-notification-text').textContent = result.message
+      document.getElementById('archive-notification').classList.remove('d-none')
+      closeArchiveConfirmation()
+    }
+    catch(error){
+      document.getElementById('archive-notification-text').textContent = error.message
+      document.getElementById('archive-notification').classList.remove('d-none')
+    }
+    finally{
+      confirmButton.disabled = false
+    }
+  }
+
   function charCopyConfirmation(characterName, id, defaultName){
     document.getElementById('copy-confirm-title').innerHTML = 'Kopiuj ' + characterName
     document.getElementById('copy-confirm-form').action = 'char-copy/' + id + window.location.search

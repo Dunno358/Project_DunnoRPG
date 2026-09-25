@@ -33,3 +33,6 @@
 - `plague-doctor-profile.svg` - "Plague doctor profile" by Delapouite, from Game-icons.net, licensed under CC BY 3.0.
   Source: https://game-icons.net/1x1/delapouite/plague-doctor-profile.html
   License: https://creativecommons.org/licenses/by/3.0/
+- `full-folder.svg` - "Full folder" by Delapouite, from Game-icons.net, licensed under CC BY 3.0.
+  Source: https://game-icons.net/1x1/delapouite/full-folder.html
+  License: https://creativecommons.org/licenses/by/3.0/

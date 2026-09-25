@@ -898,6 +898,20 @@ class DeleteCharacter(APIView):
 
         return redirect_to_characters(request)
 
+class ArchiveCharacter(APIView):
+    def post(self, request, char_id):
+        character = get_object_or_404(models.Character, id=char_id, hidden=False)
+        if not request.user.is_superuser and character.owner != request.user.username:
+            raise Http404('Invalid character')
+
+        character.hidden = True
+        character.save(update_fields=['hidden'])
+        return JsonResponse({
+            'id': character.id,
+            'name': character.name,
+            'message': f"Zarchiwizowano {character.name}",
+        })
+
 class CopyCharacter(APIView):
     def post(self, request, char_id):
         character = get_object_or_404(models.Character, id=char_id)
@@ -1256,6 +1270,7 @@ class CharacterDetails(DetailView):
         context['exp_animal_characters'] = models.Character.objects.filter(
             owner=chosen.owner,
             type__iexact="Gracz: Zwierze",
+            hidden=False,
         ).exclude(id=chosen.id).order_by('name')
         
         context['eq_weapons'] = eq_weapons_qs
@@ -2545,6 +2560,7 @@ def add_exp(request, **kwargs):
         id__in=selected_animal_ids,
         owner=char.owner,
         type__iexact="Gracz: Zwierze",
+        hidden=False,
     ).exclude(id=char.id)
 
     for animal in selected_animals:
@@ -4132,10 +4148,10 @@ class CityView(ListView):
             context['durability_percents'] = durability_percents
             context['city_prices'] = city_prices
             context['city_armors'] = city_armors
-            if self.request.user.is_superuser:
-                characters = list(models.Character.objects.all())
-            else:
-                characters = list(models.Character.objects.filter(owner=self.request.user, hidden=False))
+            characters_query = models.Character.objects.filter(hidden=False)
+            if not self.request.user.is_superuser:
+                characters_query = characters_query.filter(owner=self.request.user)
+            characters = list(characters_query)
             context['characters'] = characters
 
             character_names = [character.name for character in characters]
