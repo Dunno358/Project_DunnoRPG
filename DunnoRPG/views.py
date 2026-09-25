@@ -1458,12 +1458,20 @@ class UpgradeCharacterStats(APIView):
         character = get_object_or_404(models.Character, id=char_id)
         if int(character.points_left)>0:
             setattr(character, stat, int(getattr(character, stat))+1)
-                
             character.points_left -= 1
             character.save()
         else:
+            if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+                return JsonResponse({'error': 'Brak dostępnych punktów.'}, status=400)
             messages.error(request, 'Not enough points.')
-        
+
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+            return JsonResponse({
+                'stat': stat,
+                'value': getattr(character, stat),
+                'points_left': character.points_left,
+            })
+
         return redirect(f'/dunnorpg/character_add_skills/{char_id}/')
     
 class DowngradeCharacterStats(APIView):
@@ -1479,12 +1487,21 @@ class DowngradeCharacterStats(APIView):
         if stat_val>0:
             setattr(character,stat,stat_val-1)
         else:
+            if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+                return JsonResponse({'error': 'Statystyka nie może być niższa niż 0.'}, status=400)
             messages.error(request, 'Stat cannot be lower than 0.')
             return redirect(f'/dunnorpg/character_add_skills/{char_id}/')
                 
         character.points_left += 1
         character.save()
-        
+
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+            return JsonResponse({
+                'stat': stat,
+                'value': getattr(character, stat),
+                'points_left': character.points_left,
+            })
+
         return redirect(f'/dunnorpg/character_add_skills/{char_id}/')
 
 class Skills(APIView):

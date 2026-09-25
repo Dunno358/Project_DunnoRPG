@@ -186,7 +186,7 @@
         </div>
     <div class='row'>
         <div class='col text-center c-gold fst-italic txt-shadow p-0'>
-            <h2>Dostępne punkty umiejętności: <br><span>{{ character.points_left }}</span></h2>            
+            <h2>Dostępne punkty umiejętności: <br><span id="available-points">{{ character.points_left }}</span></h2>
         </div>
     </div>
 </div>
@@ -203,51 +203,51 @@
     <div class='row txt-shadow bg-gray border border-warning c-gold rounded text-center m-1 hideable'> 
         <table>
             <td class='border border-warning col-2'>
-                <a href='up/INT' class='col text-decoration-none text-success fsw-bold h2'>+</a>
+                <a href='up/INT' onclick="changeCharacterStat(event, 'INT')" class='col text-decoration-none text-success fsw-bold h2'>+</a>
                 <div class='row'>
-                    <span class='col' onclick="showInfoCard('Inteligencja')">INT:<br>{{ character.INT }}</span>
+                    <span class='col' onclick="showInfoCard('Inteligencja')">INT:<br><span id='stat-value-INT'>{{ character.INT }}</span></span>
                 </div>
-                <a href='down/INT' class='col text-decoration-none text-danger fsw-bold h2'>-</a>
+                <a href='down/INT' onclick="changeCharacterStat(event, 'INT')" class='col text-decoration-none text-danger fsw-bold h2'>-</a>
             </td>
 
             <td class='border border-warning col-2'>
-                <a href='up/SIŁ' class='col text-decoration-none text-success fsw-bold h2'>+</a>
+                <a href='up/SIŁ' onclick="changeCharacterStat(event, 'SIŁ')" class='col text-decoration-none text-success fsw-bold h2'>+</a>
                 <div class='row'>
-                    <span class='col' onclick="showInfoCard('Siła')">SIŁ:<br>{{ character.SIŁ }}</span>
+                    <span class='col' onclick="showInfoCard('Siła')">SIŁ:<br><span id='stat-value-SIŁ'>{{ character.SIŁ }}</span></span>
                 </div>
-                <a href='down/SIŁ' class='col text-decoration-none text-danger fsw-bold h2'>-</a>
+                <a href='down/SIŁ' onclick="changeCharacterStat(event, 'SIŁ')" class='col text-decoration-none text-danger fsw-bold h2'>-</a>
             </td>
 
             <td class='border border-warning col-2'>
-                <a href='up/ZRE' class='col text-decoration-none text-success fsw-bold h2'>+</a>
+                <a href='up/ZRE' onclick="changeCharacterStat(event, 'ZRE')" class='col text-decoration-none text-success fsw-bold h2'>+</a>
                 <div class='row'>
-                    <span class='col' onclick="showInfoCard('Zręczność')">ZRE:<br>{{ character.ZRE }}</span>
+                    <span class='col' onclick="showInfoCard('Zręczność')">ZRE:<br><span id='stat-value-ZRE'>{{ character.ZRE }}</span></span>
                 </div>
-                <a href='down/ZRE' class='col text-decoration-none text-danger fsw-bold h2'>-</a>
+                <a href='down/ZRE' onclick="changeCharacterStat(event, 'ZRE')" class='col text-decoration-none text-danger fsw-bold h2'>-</a>
             </td>
 
             <td class='border border-warning col-2'>
-                <a href='up/CHAR' class='col text-decoration-none text-success fsw-bold h2'>+</a>
+                <a href='up/CHAR' onclick="changeCharacterStat(event, 'CHAR')" class='col text-decoration-none text-success fsw-bold h2'>+</a>
                 <div class='row'>
-                    <span class='col' onclick="showInfoCard('Charyzma')">CHAR:<br>{{ character.CHAR }}</span>
+                    <span class='col' onclick="showInfoCard('Charyzma')">CHAR:<br><span id='stat-value-CHAR'>{{ character.CHAR }}</span></span>
                 </div>
-                <a href='down/CHAR' class='col text-decoration-none text-danger fsw-bold h2'>-</a>
+                <a href='down/CHAR' onclick="changeCharacterStat(event, 'CHAR')" class='col text-decoration-none text-danger fsw-bold h2'>-</a>
             </td>
 
             <td class='border border-warning col-2'>
-                <a href='up/CEL' class='col text-decoration-none text-success fsw-bold h2'>+</a>
+                <a href='up/CEL' onclick="changeCharacterStat(event, 'CEL')" class='col text-decoration-none text-success fsw-bold h2'>+</a>
                 <div class='row'>
-                    <span class='col' onclick="showInfoCard('Celność')">CEL:<br>{{ character.CEL }}</span>
+                    <span class='col' onclick="showInfoCard('Celność')">CEL:<br><span id='stat-value-CEL'>{{ character.CEL }}</span></span>
                 </div>
-                <a href='down/CEL' class='col text-decoration-none text-danger fsw-bold h2'>-</a>
+                <a href='down/CEL' onclick="changeCharacterStat(event, 'CEL')" class='col text-decoration-none text-danger fsw-bold h2'>-</a>
             </td>
 
             <td class='border border-warning col-2'>
-                <a href='up/SPO' class='col text-decoration-none text-success fsw-bold h2'>+</a>
+                <a href='up/SPO' onclick="changeCharacterStat(event, 'SPO')" class='col text-decoration-none text-success fsw-bold h2'>+</a>
                 <div class='row'>
-                    <span class='col' onclick="showInfoCard('Spostrzegawczość')">SPO:<br>{{ character.SPO }}</span>
+                    <span class='col' onclick="showInfoCard('Spostrzegawczość')">SPO:<br><span id='stat-value-SPO'>{{ character.SPO }}</span></span>
                 </div>
-                <a href='down/SPO' class='col text-decoration-none text-danger fsw-bold h2'>-</a>
+                <a href='down/SPO' onclick="changeCharacterStat(event, 'SPO')" class='col text-decoration-none text-danger fsw-bold h2'>-</a>
             </td>
         </table> 
     </div>  
@@ -364,6 +364,7 @@
 
  <script>
     const statsDescriptions = JSON.parse(document.getElementById("stats-descriptions").textContent)
+    let statChangePending = false
 
     document.title = "[E] " + document.getElementById("char-name").innerHTML + " | DunnoRPG"
 
@@ -383,6 +384,44 @@
             url.searchParams.append('exp_animals', checkbox.value)
         })
         window.location.replace(url)
+    }
+
+    async function changeCharacterStat(event, stat){
+        event.preventDefault()
+        const button = event.currentTarget
+        if(statChangePending){
+            return
+        }
+
+        statChangePending = true
+        const statButtons = document.querySelectorAll('a[onclick^="changeCharacterStat"]')
+        statButtons.forEach(statButton => statButton.classList.add('pe-none', 'opacity-50'))
+
+        try{
+            const response = await fetch(button.href, {
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                },
+            })
+            const data = await response.json()
+            if(!response.ok){
+                throw new Error(data.error || 'Nie udało się zmienić statystyki.')
+            }
+
+            document.getElementById(`stat-value-${stat}`).textContent = data.value
+            document.getElementById('available-points').textContent = data.points_left
+            document.getElementById('adv-points').value = data.points_left
+        }
+        catch(error){
+            const card = document.getElementById('info-card')
+            document.getElementById('info-card-topic').textContent = 'Nie można zmienić statystyki'
+            document.getElementById('info-card-content').textContent = error.message
+            card.classList.remove('d-none')
+        }
+        finally{
+            statChangePending = false
+            statButtons.forEach(statButton => statButton.classList.remove('pe-none', 'opacity-50'))
+        }
     }
 
     function addSkill(){
