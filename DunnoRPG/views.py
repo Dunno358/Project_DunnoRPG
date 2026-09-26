@@ -306,6 +306,7 @@ MOUNT_ATTACHMENT_CATEGORIES = {
 }
 MOUNT_ITEM_CATEGORIES = {"animal", "animal_armor", "animal_saddle", "animal_horseshoes"}
 CHARACTER_ACCESSORY_CATEGORIES = {"accessory", "akcesoria"}
+CHARACTER_ACCESSORY_TYPES = {"accessory", "akcesoria"}
 CHARACTER_ACCESSORY_POSITIONS = {"accessory", "akcesoria"}
 EQUIPPED_ONLY_CAPACITY_ITEM_TYPES = {"amulet", "helmet", "torso", "gloves", "boots"}
 HAND_ITEM_PLACES = {"left", "right", "side"}
@@ -438,7 +439,18 @@ def filter_hand_weapon_options(character, weapons, hand):
 
 
 def is_character_accessory_item(item):
-    return (item.category or "").strip().lower() in CHARACTER_ACCESSORY_CATEGORIES
+    item_category = (item.category or "").strip().lower()
+    item_type = (item.type or "").strip().lower()
+    return item_category in CHARACTER_ACCESSORY_CATEGORIES or item_type in CHARACTER_ACCESSORY_TYPES
+
+
+def character_accessory_items_q():
+    query = Q()
+    for category in CHARACTER_ACCESSORY_CATEGORIES:
+        query |= Q(category__iexact=category)
+    for item_type in CHARACTER_ACCESSORY_TYPES:
+        query |= Q(type__iexact=item_type)
+    return query
 
 
 def is_character_accessory_position(position):
@@ -1218,9 +1230,7 @@ class CharacterDetails(DetailView):
         eq_torsos_qs = models.Eq.objects.filter(character=chosen.name, type='Torso').order_by('name')
         eq_gloves_qs = models.Eq.objects.filter(character=chosen.name, type='Gloves').order_by('name')
         eq_boots_qs = models.Eq.objects.filter(character=chosen.name, type='Boots').order_by('name')
-        accessory_names = models.Items.objects.filter(
-            Q(category__iexact='Accessory') | Q(category__iexact='Akcesoria')
-        ).values_list('name', flat=True)
+        accessory_names = models.Items.objects.filter(character_accessory_items_q()).values_list('name', flat=True)
         eq_amulets_qs = models.Eq.objects.filter(character=chosen.name, type='Amulet').exclude(name__in=accessory_names).order_by('name')
         eq_accessories_qs = models.Eq.objects.filter(character=chosen.name, name__in=accessory_names).order_by('name')
         eq_mounts_qs = models.Eq.objects.filter(character=chosen.name, type='Animal').order_by('name')
@@ -3775,7 +3785,10 @@ class GMPanel(FormView):
             target_hand = ""
             target_position = ""
             item_category = (item.category or "").lower()
-            if form_data.amount == 1 and item_category in ["armor", "cloth", "armor_elegant"]:
+            if form_data.amount == 1 and is_character_accessory_item(item):
+                target_position = "Akcesoria"
+                equipped = get_equipped_item_for_place(character.name, target_position) is None
+            elif form_data.amount == 1 and item_category in ["armor", "cloth", "armor_elegant"]:
                 target_position = item.type
                 equipped = not models.CharItems.objects.filter(
                     character=character.name,
