@@ -2530,6 +2530,9 @@ def change_food_water(request, **kwargs):
             messages.error(request, msg)
             return redirect('character_detail', kwargs['char_id'])
 
+def count_hp_level_bonus(previous_level, current_level):
+    return max(0, current_level // 5 - previous_level // 5)
+
 def manageExp(char, exp):
     msg = ''
     msg_type = 'success'
@@ -2543,14 +2546,21 @@ def manageExp(char, exp):
         added_amount = int(char.exp) + amount
 
         if added_amount >= 100:
+            previous_level = char.level
             lvls_to_add = int(added_amount/100)
             char.exp = added_amount - (lvls_to_add*100)
             char.level += lvls_to_add
             char.points_left += lvls_to_add
+            hp_bonus = count_hp_level_bonus(previous_level, char.level)
+            if hp_bonus > 0:
+                char.fullHP = (char.fullHP or 0) + hp_bonus
+                char.HP += hp_bonus
             if not is_player_animal(char):
                 char, waterMessage = manageFoodAndWater(char, -20*lvls_to_add, "water")
                 char, foodMessage = manageFoodAndWater(char, -20*lvls_to_add, "food")
             msg = f"Zdobyto poziom! Nowy poziom to {char.level}, otrzymano {lvls_to_add} punktów umiejętności."
+            if hp_bonus > 0:
+                msg += f" Punkty Życia zwiększone o {hp_bonus}."
             if waterMessage != "":
                 msg += f" {waterMessage}"
             if foodMessage != "":

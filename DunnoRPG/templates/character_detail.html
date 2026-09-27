@@ -525,7 +525,7 @@ style="width: 98%; z-index: 20; margin-left: 0.22rem !important; margin-top: -11
             <div class="col rounded p-1 bg-gray bg-gradient border border-warning m-2 p-1 h6 pb-0" style="min-width: 0;"> 
                 <form id="hp-form" class='' method="post" action="change-health" onsubmit="changeHealth(event)">
                     {% csrf_token %}
-                    <span class="text-white-50">Życie:</span>
+                    <span class="text-white-50" onclick="showInfoCard('Życie', 'Punkty Życia zostają zwiększone o 1 za każde 5 lvl')">Życie:</span>
                     <input type='number' id='hp-val' class='c-gold text-center bg-gray bg-gradient border-0 h6' style='width: 6vw' value='{{ value.HP }}' name="hp">/{{ value.fullHP }}
                 </form>
             </div>
