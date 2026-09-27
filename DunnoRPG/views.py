@@ -2530,8 +2530,8 @@ def change_food_water(request, **kwargs):
             messages.error(request, msg)
             return redirect('character_detail', kwargs['char_id'])
 
-def count_hp_level_bonus(previous_level, current_level):
-    return max(0, current_level // 5 - previous_level // 5)
+def count_hp_level_change(previous_level, current_level):
+    return current_level // 5 - previous_level // 5
 
 def manageExp(char, exp):
     msg = ''
@@ -2543,36 +2543,43 @@ def manageExp(char, exp):
             amount = int(exp)
         except:
             amount = 0
-        added_amount = int(char.exp) + amount
+        previous_level = char.level
+        total_exp = max(0, ((previous_level - 1) * 100) + int(char.exp) + amount)
+        char.level = (total_exp // 100) + 1
+        char.exp = total_exp % 100
+        level_change = char.level - previous_level
+        hp_change = count_hp_level_change(previous_level, char.level)
 
-        if added_amount >= 100:
-            previous_level = char.level
-            lvls_to_add = int(added_amount/100)
-            char.exp = added_amount - (lvls_to_add*100)
-            char.level += lvls_to_add
-            char.points_left += lvls_to_add
-            hp_bonus = count_hp_level_bonus(previous_level, char.level)
-            if hp_bonus > 0:
-                char.fullHP = (char.fullHP or 0) + hp_bonus
-                char.HP += hp_bonus
+        if level_change > 0:
+            char.points_left = (char.points_left or 0) + level_change
+            if hp_change > 0:
+                char.fullHP = (char.fullHP or 0) + hp_change
+                char.HP += hp_change
             if not is_player_animal(char):
-                char, waterMessage = manageFoodAndWater(char, -20*lvls_to_add, "water")
-                char, foodMessage = manageFoodAndWater(char, -20*lvls_to_add, "food")
-            msg = f"Zdobyto poziom! Nowy poziom to {char.level}, otrzymano {lvls_to_add} punktów umiejętności."
-            if hp_bonus > 0:
-                msg += f" Punkty Życia zwiększone o {hp_bonus}."
+                char, waterMessage = manageFoodAndWater(char, -20*level_change, "water")
+                char, foodMessage = manageFoodAndWater(char, -20*level_change, "food")
+            msg = f"Zdobyto poziom! Nowy poziom to {char.level}, otrzymano {level_change} punktów umiejętności."
+            if hp_change > 0:
+                msg += f" Punkty Życia zwiększone o {hp_change}."
             if waterMessage != "":
                 msg += f" {waterMessage}"
             if foodMessage != "":
                 msg += f" {foodMessage}"
+        elif level_change < 0:
+            levels_lost = abs(level_change)
+            char.points_left = max(0, (char.points_left or 0) - levels_lost)
+            hp_lost = abs(hp_change)
+            if hp_lost > 0:
+                char.fullHP = max(0, (char.fullHP or 0) - hp_lost)
+                char.HP = max(0, min(char.HP - hp_lost, char.fullHP))
+            msg = f"Liczba utraconych poziomów: {levels_lost}. Nowy poziom to {char.level}, pozostało {char.exp}% doświadczenia."
+            if hp_lost > 0:
+                msg += f" Punkty Życia zmniejszone o {hp_lost}."
         else:
-            if added_amount < 0:
-                added_amount = 0
-            char.exp = added_amount
             if amount >= 0:
-                msg = f"Dodano {amount} doświadczenia, łącznie masz już {added_amount}% doświadczenia"
+                msg = f"Dodano {amount} doświadczenia, łącznie masz już {char.exp}% doświadczenia"
             else:
-                msg = f"Zabrano {abs(amount)} doświadczenia, pozostało ci {added_amount}% doświadczenia"
+                msg = f"Zabrano {abs(amount)} doświadczenia, pozostało ci {char.exp}% doświadczenia"
 
         char.save()
 
