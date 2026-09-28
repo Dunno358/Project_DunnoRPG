@@ -28,5 +28,15 @@
     "MocneZatrucie": "Utrata 3 PŻ na początku tury przez 3 tury. Czas trwania kolejnych zatruć sumuje się.",
     "Żwawość": "Twoja mobilność w najbliższej akcji zwiększa się o 50% twojej maks. mobilności.",
     "Nadprędkość": "Twoja mobilność w najbliższej akcji zwiększa się o 100% twojej maks. mobilności.",
-    "Dym": "Atak przechodzący przez dym gdy ani atakujący ani cel nie są w dymie ma -K12 do CEL. Atak gdy jednak ze stron lub obydwie są w dymie ma -K6 do CEL."
+    "Dym": "Atak przechodzący przez dym gdy ani atakujący ani cel nie są w dymie ma -K12 do CEL. Atak gdy jednak ze stron lub obydwie są w dymie ma -K6 do CEL.",
+    "Krwawienie": "K6 prawdziwych obrażeń na początku następnej tury celu.",
+    "Zamroczenie": "Cel traci swoją najbliższą akcję",
+    "Rozłupanie": "+2K20% AP (min. +20%)",
+    "Przebicie": "Ataku ignoruje blok tarczą lub +25% AP, do wyboru",
+    "PrecyzyjnyStrzał": "Nie można wykonać uniku przed tym trafieniem, +20% AP.",
+    "DewastująceTrafienie": "Atak ma 2x więcej podstawowego AP, ale maks. 100%.",
+    "Przeciążenie": "Atak ignoruje pancerz.",
+    "Zatrucie": "Atak zadaje dodatkowe K6 obrażeń na początku tury celu przez 2 tury. Czas trwania kolejnych zatruć sumuje się.",
+    "PomyślnośćWiatrówMagii": "Do kości obrażeń dorzucasz dodatkową kość tej samej wartości co inne w ataku, a następnie wybierasz jedną kość której wynik zmienia się na jej maks. wartość. Jeśli skill nie zadaje obrażeń to cel ma dodatkowe Utrudnienie do obrony przed efektem.",
+    "NieszczęścieWiatrówMagii": "Do kości obrażeń dorzucasz dodatkową kość tej samej wartości co inne w ataku, a następnie wybierasz jedną kość której wynik zmienia się na jej minimalną wartość. Jeśli skill nie zadaje obrażeń to cel ma dodatkowe Przewaga do obrony przed efektem."
 }
