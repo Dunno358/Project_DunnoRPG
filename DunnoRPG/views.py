@@ -1337,6 +1337,7 @@ class calculateGettingHit(APIView):
             dmg = max(int(data.get('dmg', 0)), 0)
             ap_percent = min(max(int(data.get('ap', 0)), 0), 100)
             barrier = max(int(data.get('barrier', 0)), 0)
+            ignore_armor = data.get('ignore_armor', False) in (True, 1, '1', 'true', 'True')
             parts = data.get('parts') or []
             valid_parts = {'head', 'torso', 'hands', 'legs'}
             parts = [part for part in parts if part in valid_parts]
@@ -1351,7 +1352,7 @@ class calculateGettingHit(APIView):
             dmg_after_barrier = dmg - barrier_blocked
             char.barrier = barrier - barrier_blocked
 
-            ap_damage = int(dmg_after_barrier * ap_percent / 100) if dmg_after_barrier > 0 else 0
+            ap_damage = int(dmg_after_barrier * ap_percent / 100) if dmg_after_barrier > 0 and not ignore_armor else 0
             dmg_for_armor = max(dmg_after_barrier - ap_damage, 0)
 
             items = {
@@ -1363,7 +1364,7 @@ class calculateGettingHit(APIView):
 
             penetration_by_part = {}
             for part in parts:
-                armor_value = self._armor_value(items[part])
+                armor_value = 0 if ignore_armor else self._armor_value(items[part])
                 penetration_by_part[part] = max(dmg_for_armor - armor_value, 0)
 
             armor_damage = max(penetration_by_part.values(), default=0)
@@ -1381,7 +1382,7 @@ class calculateGettingHit(APIView):
 
             updated_armor = {}
             destroyed_count = 0
-            for part in parts:
+            for part in [] if ignore_armor else parts:
                 item = items[part]
                 if not item:
                     continue

@@ -588,6 +588,9 @@ style="width: 98%; z-index: 20; margin-left: 0.22rem !important; margin-top: -11
             </div>
 
             <div class="row m-0 p-0">
+                <div id="get-dmg-all" class="col bg-gray p-2 m-1 rounded bg-gradient border border-warning get-dmg-all" onclick="setActive('get-dmg-all')">
+                    Całe ciało
+                </div>
                 <div id="get-dmg-head" class="col bg-gray p-2 m-1 rounded bg-gradient border border-warning get-dmg-place" onclick="setActive('get-dmg-head')">
                     Głowa
                 </div>
@@ -633,6 +636,14 @@ style="width: 98%; z-index: 20; margin-left: 0.22rem !important; margin-top: -11
                 </div>
                 <div class="col">
                     <input type="number" min="0" class="bg-gray border border-warning c-gold rounded text-center" value="{{ value.barrier }}" id="get-dmg-barrier"/>
+                </div>
+            </div>
+            <div class="row m-0 p-0 mt-3">
+                <div class="col text-center">
+                    <label class="c-gold">
+                        <input type="checkbox" id="get-dmg-ignore-armor" class="me-1"/>
+                        Ignoruj pancerz
+                    </label>
                 </div>
             </div>
 
@@ -3127,22 +3138,51 @@ function wearItem(place, block_id){
     window.location.replace(url)
 }
 
-function setActive(id){
-    let block = document.getElementById(id)
-
-    if(block.classList.contains('active')){
-        block.classList.remove('active')
-        block.classList.remove('border-primary')
-        block.classList.remove('text-primary')
-        block.classList.add('border-warning')
-        block.classList.add('c-gold') 
-    }else{
+function setDamagePartState(block, active){
+    if(active){
         block.classList.add('active')
         block.classList.add('border-primary') 
         block.classList.add('text-primary') 
         block.classList.remove('border-warning') 
         block.classList.remove('c-gold') 
+    }else{
+        block.classList.remove('active')
+        block.classList.remove('border-primary')
+        block.classList.remove('text-primary')
+        block.classList.add('border-warning')
+        block.classList.add('c-gold') 
     }
+}
+
+function syncWholeBodySelection(){
+    const allBlock = document.getElementById('get-dmg-all')
+    const partBlocks = document.getElementsByClassName('get-dmg-place')
+    let everyPartSelected = true
+
+    for (let i=0; i<partBlocks.length; i++) {
+        if(!partBlocks[i].classList.contains('active')){
+            everyPartSelected = false
+            break
+        }
+    }
+
+    setDamagePartState(allBlock, everyPartSelected)
+}
+
+function setActive(id){
+    const block = document.getElementById(id)
+    const shouldActivate = !block.classList.contains('active')
+
+    if(id === 'get-dmg-all'){
+        setDamagePartState(block, shouldActivate)
+        document.querySelectorAll('.get-dmg-place').forEach((partBlock) => {
+            setDamagePartState(partBlock, shouldActivate)
+        })
+        return
+    }
+
+    setDamagePartState(block, shouldActivate)
+    syncWholeBodySelection()
 }
 
 async function calculateGettingHit(){
@@ -3150,6 +3190,7 @@ async function calculateGettingHit(){
     let dmg = parseInt(document.getElementById('get-dmg-dmg').value) || 0
     let ap = parseInt(document.getElementById('get-dmg-ap').value) || 0
     let barrier = parseInt(document.getElementById('get-dmg-barrier').value) || 0
+    let ignore_armor = document.getElementById('get-dmg-ignore-armor').checked
     let parts_block = document.getElementsByClassName('active get-dmg-place')
     let parts = []
 
@@ -3172,7 +3213,7 @@ async function calculateGettingHit(){
     try{
         const response = await fetch(`${url}calculate_hit`, {
             method: 'POST',
-            body: JSON.stringify({dmg, ap, barrier, parts}),
+            body: JSON.stringify({dmg, ap, barrier, parts, ignore_armor}),
             headers: {
                 'Content-Type': 'application/json',
                 'X-CSRFToken': token,
