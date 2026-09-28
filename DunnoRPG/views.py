@@ -3077,7 +3077,7 @@ class ItemsView(ListView):
             self.singlehand = []
             self.twohand = []
             self.animals = []
-            self.armor_dict = {'helmet': [], 'torso': [], 'boots': [], 'gloves': [], 'amulets': [], 'other': []}
+            self.armor_dict = {'helmet': [], 'torso': [], 'boots': [], 'gloves': [], 'amulets': [], 'accessories': [], 'other': []}
 
             def add_character_item(
                 item_desc,
@@ -3129,6 +3129,8 @@ class ItemsView(ListView):
                     'boots': 'boots',
                     'gloves': 'gloves',
                     'amulet': 'amulets',
+                    'accessory': 'accessories',
+                    'akcesoria': 'accessories',
                     'other': 'other',
                 }.get(item_desc.type.lower())
                 if armor_category:
@@ -3168,18 +3170,19 @@ class ItemsView(ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         
-        names = ['items_helmet','items_torso','items_boots','items_gloves','items_amulets','items_other']
-        types = ['Helmet','Torso','Boots','Gloves','Amulet','Other']
+        names = ['items_helmet','items_torso','items_boots','items_gloves','items_amulets','items_accessories','items_other']
+        types = ['Helmet','Torso','Boots','Gloves','Amulet','Accessory','Other']
+        excluded_types = types + ['Akcesoria']
         
         if self.character == None:
             if self.request.user.is_superuser:
-                context['items_singlehand'] = models.Items.objects.filter(dualHanded=False).order_by(Lower('name')).exclude(type__in=types)
+                context['items_singlehand'] = models.Items.objects.filter(dualHanded=False).order_by(Lower('name')).exclude(type__in=excluded_types)
                 context['items_twohand'] = models.Items.objects.filter(dualHanded=True).order_by(Lower('name'))   
                 context['animals'] =  models.Items.objects.filter(
                     Q(type='Animal') | Q(type='Mount Armor') | Q(category__in=MOUNT_ITEM_CATEGORIES)
                 ).order_by(Lower('name'))
             else:
-                context['items_singlehand'] = models.Items.objects.filter(dualHanded=False, found=True).order_by(Lower('name')).exclude(type__in=types)
+                context['items_singlehand'] = models.Items.objects.filter(dualHanded=False, found=True).order_by(Lower('name')).exclude(type__in=excluded_types)
                 context['items_twohand'] = models.Items.objects.filter(dualHanded=True, found=True) .order_by(Lower('name'))
                 context['animals'] =  models.Items.objects.filter(
                     Q(type='Animal') | Q(type='Mount Armor') | Q(category__in=MOUNT_ITEM_CATEGORIES),
@@ -3188,9 +3191,15 @@ class ItemsView(ListView):
             
             for x in range(len(names)):
                 if self.request.user.is_superuser:
-                    context[names[x]] = models.Items.objects.filter(type=types[x]).order_by(Lower('name'))
+                    if names[x] == 'items_accessories':
+                        context[names[x]] = models.Items.objects.filter(Q(type='Accessory') | Q(type='Akcesoria')).order_by(Lower('name'))
+                    else:
+                        context[names[x]] = models.Items.objects.filter(type=types[x]).order_by(Lower('name'))
                 else:
-                    context[names[x]] = models.Items.objects.filter(type=types[x], found=True).order_by(Lower('name'))
+                    if names[x] == 'items_accessories':
+                        context[names[x]] = models.Items.objects.filter(Q(type='Accessory') | Q(type='Akcesoria'), found=True).order_by(Lower('name'))
+                    else:
+                        context[names[x]] = models.Items.objects.filter(type=types[x], found=True).order_by(Lower('name'))
         else:
             
             items_weight = get_character_current_weight(self.character)
@@ -3219,6 +3228,7 @@ class ItemsView(ListView):
             context['items_gloves'] = self.sort_items_by_name(self.armor_dict['gloves'])
             context['items_boots'] = self.sort_items_by_name(self.armor_dict['boots'])
             context['items_amulets'] = self.sort_items_by_name(self.armor_dict['amulets'])
+            context['items_accessories'] = self.sort_items_by_name(self.armor_dict['accessories'])
             context['items_other'] = self.sort_items_by_name(self.armor_dict['other'])
             context['all_items'] = models.Items.objects.order_by('name')
             player_items = models.Eq.objects.filter(character=self.character.name)

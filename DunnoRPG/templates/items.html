@@ -158,6 +158,10 @@
                 Amulety
             </div>
 
+            <div class='col btn btn-dark btn-outline-warning p-2 m-1 item-category-filter' onclick='show_or_hideById(this)'>
+                Akcesoria
+            </div>
+
             <div class='col btn btn-dark btn-outline-warning p-2 m-1 item-category-filter' onclick='showAnimalCategoryButtons(this)'>
                 Zwierzęta
             </div>
@@ -540,6 +544,22 @@
     {% endfor %}
 </div>
 
+<div id='Akcesoria' class='container d-none'>
+    {% for item in items_accessories %}
+    <div class='item-list-entry' data-rarity='{{ item.rarity }}'>
+        <div class='row bg-dark bg-opacity-75 rounded m-2 p-2'>
+            {% if view.kwargs.char_id != 0 %}
+                <button class='col-2 text-center text-white bg-danger p-2 m-1 rounded' onclick="deleteConfirmation('{{ item.name }}', {{ view.kwargs.char_id }}, '{{ item.delete_id }}')">X</button>
+            {% endif %}
+            
+            <a class='col text-center c-gold bg-dark p-2 rounded border border-primary' href='{{ item.id }}{% if item.eq_id %}?ref=eq;{{ item.eq_id }}{% elif item.char_item_id %}?ref=char;{{ item.char_item_id }}{% endif %}'>
+                <span class="{{ item.rarity }}">{% if item.equipped %}<span class="text-info">[Założone]</span> {% endif %}{{ item.name }}</span>
+            </a>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
 <div id='Wierzchowce' class='container d-none'>
     {% for item in animals %}
     <div class='item-list-entry animal-list-entry' data-rarity='{{ item.rarity }}' data-category='{{ item.category|default_if_none:""|lower }}'>
@@ -589,7 +609,7 @@
         weapon_gun: ['pistol', 'musket', 'strzelba'],
     }
     const animalCategories = ['animal', 'animal_armor']
-    const itemCategoryIds = ['Broń', 'Hełmy', 'Napierśniki', 'Buty', 'Rękawice', 'Amulety', 'Wierzchowce', 'Inne']
+    const itemCategoryIds = ['Broń', 'Hełmy', 'Napierśniki', 'Buty', 'Rękawice', 'Amulety', 'Akcesoria', 'Wierzchowce', 'Inne']
 
     document.getElementById('selected-eq-add-dur').oninput = () => {
         document.getElementById('selected-eq-add-dur').setAttribute('value', document.getElementById('selected-eq-add-dur').value);
