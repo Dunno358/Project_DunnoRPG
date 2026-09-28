@@ -3078,7 +3078,7 @@ class ItemsView(ListView):
             self.singlehand = []
             self.twohand = []
             self.animals = []
-            self.armor_dict = {'helmet': [], 'torso': [], 'boots': [], 'gloves': [], 'amulets': [], 'accessories': [], 'other': []}
+            self.armor_dict = {'helmet': [], 'torso': [], 'boots': [], 'gloves': [], 'amulets': [], 'accessories': [], 'ammo': [], 'other': []}
 
             def add_character_item(
                 item_desc,
@@ -3132,6 +3132,7 @@ class ItemsView(ListView):
                     'amulet': 'amulets',
                     'accessory': 'accessories',
                     'akcesoria': 'accessories',
+                    'amunicja': 'ammo',
                     'other': 'other',
                 }.get(item_desc.type.lower())
                 if armor_category:
@@ -3171,20 +3172,20 @@ class ItemsView(ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         
-        names = ['items_helmet','items_torso','items_boots','items_gloves','items_amulets','items_accessories','items_other']
-        types = ['Helmet','Torso','Boots','Gloves','Amulet','Accessory','Other']
+        names = ['items_helmet','items_torso','items_boots','items_gloves','items_amulets','items_accessories','items_ammo','items_other']
+        types = ['Helmet','Torso','Boots','Gloves','Amulet','Accessory','Amunicja','Other']
         excluded_types = types + ['Akcesoria']
         
         if self.character == None:
             if self.request.user.is_superuser:
-                context['items_singlehand'] = models.Items.objects.filter(dualHanded=False).order_by(Lower('name')).exclude(type__in=excluded_types)
-                context['items_twohand'] = models.Items.objects.filter(dualHanded=True).order_by(Lower('name'))   
+                context['items_singlehand'] = models.Items.objects.filter(dualHanded=False).order_by(Lower('name')).exclude(type__in=excluded_types).exclude(type__iexact='Amunicja')
+                context['items_twohand'] = models.Items.objects.filter(dualHanded=True).order_by(Lower('name')).exclude(type__in=excluded_types).exclude(type__iexact='Amunicja')
                 context['animals'] =  models.Items.objects.filter(
                     Q(type='Animal') | Q(type='Mount Armor') | Q(category__in=MOUNT_ITEM_CATEGORIES)
                 ).order_by(Lower('name'))
             else:
-                context['items_singlehand'] = models.Items.objects.filter(dualHanded=False, found=True).order_by(Lower('name')).exclude(type__in=excluded_types)
-                context['items_twohand'] = models.Items.objects.filter(dualHanded=True, found=True) .order_by(Lower('name'))
+                context['items_singlehand'] = models.Items.objects.filter(dualHanded=False, found=True).order_by(Lower('name')).exclude(type__in=excluded_types).exclude(type__iexact='Amunicja')
+                context['items_twohand'] = models.Items.objects.filter(dualHanded=True, found=True) .order_by(Lower('name')).exclude(type__in=excluded_types).exclude(type__iexact='Amunicja')
                 context['animals'] =  models.Items.objects.filter(
                     Q(type='Animal') | Q(type='Mount Armor') | Q(category__in=MOUNT_ITEM_CATEGORIES),
                     found=True
@@ -3194,11 +3195,15 @@ class ItemsView(ListView):
                 if self.request.user.is_superuser:
                     if names[x] == 'items_accessories':
                         context[names[x]] = models.Items.objects.filter(Q(type='Accessory') | Q(type='Akcesoria')).order_by(Lower('name'))
+                    elif names[x] == 'items_ammo':
+                        context[names[x]] = models.Items.objects.filter(type__iexact='Amunicja').order_by(Lower('name'))
                     else:
                         context[names[x]] = models.Items.objects.filter(type=types[x]).order_by(Lower('name'))
                 else:
                     if names[x] == 'items_accessories':
                         context[names[x]] = models.Items.objects.filter(Q(type='Accessory') | Q(type='Akcesoria'), found=True).order_by(Lower('name'))
+                    elif names[x] == 'items_ammo':
+                        context[names[x]] = models.Items.objects.filter(type__iexact='Amunicja', found=True).order_by(Lower('name'))
                     else:
                         context[names[x]] = models.Items.objects.filter(type=types[x], found=True).order_by(Lower('name'))
         else:
@@ -3230,6 +3235,7 @@ class ItemsView(ListView):
             context['items_boots'] = self.sort_items_by_name(self.armor_dict['boots'])
             context['items_amulets'] = self.sort_items_by_name(self.armor_dict['amulets'])
             context['items_accessories'] = self.sort_items_by_name(self.armor_dict['accessories'])
+            context['items_ammo'] = self.sort_items_by_name(self.armor_dict['ammo'])
             context['items_other'] = self.sort_items_by_name(self.armor_dict['other'])
             context['all_items'] = models.Items.objects.order_by('name')
             player_items = models.Eq.objects.filter(character=self.character.name)

@@ -25,6 +25,71 @@
     });
 </script>
 
+<style>
+    .inventory-summary {
+        align-items: center;
+        display: flex;
+        gap: 0.75rem;
+        justify-content: center;
+    }
+
+    .inventory-weight {
+        margin: 0;
+        overflow-wrap: anywhere;
+    }
+
+    .give-item-modal {
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+        width: min(42rem, calc(100% - 2rem));
+        max-height: calc(100vh - 2rem);
+        max-height: calc(100dvh - 2rem);
+        overflow-x: hidden;
+        overflow-y: auto;
+        z-index: 1050;
+    }
+
+    .give-item-modal select,
+    .give-item-modal input {
+        max-width: 100%;
+    }
+
+    .give-item-modal .give-item-select {
+        width: 100%;
+    }
+
+    @media (max-width: 575.98px) {
+        .inventory-summary {
+            align-items: stretch;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .inventory-weight {
+            font-size: 1.75rem;
+        }
+
+        .inventory-transfer-button {
+            width: 100%;
+        }
+
+        .give-item-modal {
+            width: calc(100% - 1rem);
+            max-height: calc(100vh - 1rem);
+            max-height: calc(100dvh - 1rem);
+        }
+
+        .give-item-modal .give-item-title {
+            font-size: 1.25rem;
+        }
+
+        .give-item-modal .give-item-form-row {
+            margin: 1rem 0.5rem !important;
+        }
+    }
+</style>
+
 <div name='bar' class='container mt-1'>
     <div class='row bg-gray border border-warning rounded'>
 
@@ -162,6 +227,10 @@
                 Akcesoria
             </div>
 
+            <div class='col btn btn-dark btn-outline-warning p-2 m-1 item-category-filter' onclick='show_or_hideById(this)'>
+                Amunicja
+            </div>
+
             <div class='col btn btn-dark btn-outline-warning p-2 m-1 item-category-filter' onclick='showAnimalCategoryButtons(this)'>
                 Zwierzęta
             </div>
@@ -200,16 +269,13 @@
         </div>
     </div>
 
-    <div class='row mt-2'>
-        <div class="col-3"></div>
-        <h1 class='col c-gold text-center' style='-webkit-text-stroke: 1px black;'>
+    <div class='inventory-summary mt-2 px-2'>
+        <h1 class='inventory-weight c-gold text-center' style='-webkit-text-stroke: 1px black;'>
             Udźwig: {{ current_weight }}/{{ max_weight }}kg
         </h1>
-        <div class="col-3 text-start ps-0 ms-0">
-            <button class="btn btn-primary p-2" onclick="document.getElementById('give-item-main').classList.remove('d-none')">
-                Transfer
-            </button>
-        </div>
+        <button class="inventory-transfer-button btn btn-primary p-2" onclick="document.getElementById('give-item-main').classList.remove('d-none')">
+            Transfer
+        </button>
     </div>
 </div>
 
@@ -253,16 +319,16 @@
     </div>
 </div>
 
-<div id='give-item-main' class='d-none position-fixed container bg-dark c-gold rounded border border-warning' style="left: 3%; width: 95%; top: 15%; height: 60%">
+<div id='give-item-main' class='give-item-modal d-none position-fixed container bg-dark c-gold rounded border border-warning'>
     <div class='row'>
         <div class="col-2"></div>
-        <div class='col text-center mt-3 h4'>Przekaż przedmiot</div>
+        <div class='give-item-title col text-center mt-3 h4'>Przekaż przedmiot</div>
         <button class='btn btn-danger col-2' onclick="this.parentNode.parentNode.classList.add('d-none')">X</button>
       </div>
 
-    <div class="row m-2 mt-4">
+    <div class="give-item-form-row row m-2 mt-4">
         <div class="col text-center">
-            <select id="give-item-id" class="text-center p-1 rounded bg-dark text-warning border border-warning">
+            <select id="give-item-id" class="give-item-select text-center p-1 rounded bg-dark text-warning border border-warning">
                 <option value="0">
                     Monety ({{ character.coins }})
                 </option>
@@ -275,13 +341,13 @@
         </div>
     </div>
 
-    <div class="row m-2 mt-4">
+    <div class="give-item-form-row row m-2 mt-4">
         <div class="col text-center">
             Ilość: <input type="number" step="any" id="give-item-amount" value="1" class="text-center p-1 rounded bg-dark text-warning border border-warning" />
         </div>
     </div>
 
-    <div class="row m-2 mt-4">
+    <div class="give-item-form-row row m-2 mt-4">
         <div class="col text-center">
             Do: <select id="give-character-id" class="text-center p-1 rounded bg-dark text-warning border border-warning">
                 {% for character in characters %}
@@ -293,7 +359,7 @@
         </div>
     </div>
 
-    <div class="row m-2">
+    <div class="give-item-form-row row m-2">
         <div class="col text-center">
             <button class="btn-lg btn-primary h4 mt-4" onclick="giveItem()">
                 Przekaż
@@ -551,7 +617,23 @@
             {% if view.kwargs.char_id != 0 %}
                 <button class='col-2 text-center text-white bg-danger p-2 m-1 rounded' onclick="deleteConfirmation('{{ item.name }}', {{ view.kwargs.char_id }}, '{{ item.delete_id }}')">X</button>
             {% endif %}
-            
+
+            <a class='col text-center c-gold bg-dark p-2 rounded border border-primary' href='{{ item.id }}{% if item.eq_id %}?ref=eq;{{ item.eq_id }}{% elif item.char_item_id %}?ref=char;{{ item.char_item_id }}{% endif %}'>
+                <span class="{{ item.rarity }}">{% if item.equipped %}<span class="text-info">[Założone]</span> {% endif %}{{ item.name }}</span>
+            </a>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<div id='Amunicja' class='container d-none'>
+    {% for item in items_ammo %}
+    <div class='item-list-entry' data-rarity='{{ item.rarity }}'>
+        <div class='row bg-dark bg-opacity-75 rounded m-2 p-2'>
+            {% if view.kwargs.char_id != 0 %}
+                <button class='col-2 text-center text-white bg-danger p-2 m-1 rounded' onclick="deleteConfirmation('{{ item.name }}', {{ view.kwargs.char_id }}, '{{ item.delete_id }}')">X</button>
+            {% endif %}
+
             <a class='col text-center c-gold bg-dark p-2 rounded border border-primary' href='{{ item.id }}{% if item.eq_id %}?ref=eq;{{ item.eq_id }}{% elif item.char_item_id %}?ref=char;{{ item.char_item_id }}{% endif %}'>
                 <span class="{{ item.rarity }}">{% if item.equipped %}<span class="text-info">[Założone]</span> {% endif %}{{ item.name }}</span>
             </a>
@@ -609,7 +691,7 @@
         weapon_gun: ['pistol', 'musket', 'strzelba'],
     }
     const animalCategories = ['animal', 'animal_armor']
-    const itemCategoryIds = ['Broń', 'Hełmy', 'Napierśniki', 'Buty', 'Rękawice', 'Amulety', 'Akcesoria', 'Wierzchowce', 'Inne']
+    const itemCategoryIds = ['Broń', 'Hełmy', 'Napierśniki', 'Buty', 'Rękawice', 'Amulety', 'Akcesoria', 'Amunicja', 'Wierzchowce', 'Inne']
 
     document.getElementById('selected-eq-add-dur').oninput = () => {
         document.getElementById('selected-eq-add-dur').setAttribute('value', document.getElementById('selected-eq-add-dur').value);
