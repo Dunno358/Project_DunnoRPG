@@ -22,6 +22,9 @@
             placeholder: "Select an item",
             allowClear: true
         });
+        $('#item-type-search').select2({
+            width: 'resolve'
+        });
     });
 </script>
 
@@ -291,8 +294,16 @@
 <div class='container mt-2'>
     <div class='row text-center'>
         <form action="{% url 'items' view.kwargs.char_id %}" method='GET' class='container-fluid'>
-            <input name='search' class='text-center bg-gray c-gold border rounded border-warning' 
-            placeholder="Nazwa/Opis przedmiotu...">
+            <div class="mb-2">
+                <select id="item-type-search" name="item_type" class="text-center bg-gray c-gold border rounded border-warning">
+                    <option value="">Wszystkie</option>
+                    {% for item_type in item_types %}
+                        <option value="{{ item_type }}" {% if selected_item_type == item_type %}selected{% endif %}>{{ item_type }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <input name='search' class='text-center bg-gray c-gold border rounded border-warning'
+            placeholder="Nazwa/Opis przedmiotu..." value="{{ search_value }}">
             <button type='submit' class='fas fa-search bg-dark btn btn-outline-warning' style="width: 3rem;"></button>
         </form>
     </div>
@@ -413,7 +424,7 @@
 
 <div id='search-result' class='container'>
     {% for item in items %}
-    <div>
+    <div class='search-list-entry' data-rarity='{{ item.rarity }}'>
         <div class='row bg-dark bg-opacity-75 rounded m-2 p-2'>
 
             {% if view.kwargs.char_id != 0 %}
@@ -698,6 +709,11 @@
     }
 
     function applyItemRarityFilter(){
+        document.querySelectorAll('.search-list-entry').forEach((entry) => {
+            const matchesRarity = activeItemRarityFilters.length === 0 || activeItemRarityFilters.includes(entry.dataset.rarity)
+            entry.classList.toggle('d-none', !matchesRarity)
+        })
+
         document.querySelectorAll('.item-list-entry').forEach((entry) => {
             const matchesRarity = activeItemRarityFilters.length === 0 || activeItemRarityFilters.includes(entry.dataset.rarity)
             const itemCategory = entry.dataset.category || ''

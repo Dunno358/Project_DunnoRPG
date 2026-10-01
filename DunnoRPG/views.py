@@ -3061,7 +3061,8 @@ class ItemsView(ListView):
     
     def get_queryset(self):
         queryset = []
-        value = self.request.GET.get('search')
+        value = (self.request.GET.get('search') or '').strip()
+        selected_type = (self.request.GET.get('item_type') or '').strip()
         char_id = self.kwargs['char_id']
         if char_id != 0:
             self.character = models.Character.objects.filter(id=char_id).first()
@@ -3069,11 +3070,15 @@ class ItemsView(ListView):
             self.character = None
 
         if self.character == None:
-            if value:
-                if self.request.user.is_superuser:
-                    queryset = models.Items.objects.filter((Q(name__icontains=value) | Q(desc__icontains=value))).order_by(Lower('name'))
-                else:
-                    queryset = models.Items.objects.filter((Q(name__icontains=value) | Q(desc__icontains=value)), found=True).order_by(Lower('name'))
+            if value or selected_type:
+                queryset = models.Items.objects.all()
+                if not self.request.user.is_superuser:
+                    queryset = queryset.filter(found=True)
+                if value:
+                    queryset = queryset.filter(Q(name__icontains=value) | Q(desc__icontains=value))
+                if selected_type:
+                    queryset = queryset.filter(type=selected_type)
+                queryset = queryset.order_by(Lower('name'))
         else:
             self.singlehand = []
             self.twohand = []
@@ -3171,6 +3176,16 @@ class ItemsView(ListView):
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        context['search_value'] = self.request.GET.get('search', '')
+        context['selected_item_type'] = self.request.GET.get('item_type', '')
+
+        item_types_queryset = models.Items.objects.exclude(type__isnull=True).exclude(type='')
+        if not self.request.user.is_superuser:
+            item_types_queryset = item_types_queryset.filter(found=True)
+        context['item_types'] = sorted(
+            set(item_types_queryset.values_list('type', flat=True)),
+            key=lambda item_type: item_type.lower()
+        )
         
         names = ['items_helmet','items_torso','items_boots','items_gloves','items_amulets','items_accessories','items_ammo','items_other']
         types = ['Helmet','Torso','Boots','Gloves','Amulet','Accessory','Amunicja','Other']
@@ -3285,6 +3300,7 @@ class ItemDetailView(DetailView):
         context = super().get_context_data(**kwargs)
         item = self.get_object()
         additional_description = ''
+        inventory_return_character_id = None
         ref = self.request.GET.get('ref', '')
 
         try:
@@ -3298,6 +3314,12 @@ class ItemDetailView(DetailView):
 
             if referenced_item:
                 additional_description = referenced_item.additional_description
+                inventory_character = models.Character.objects.filter(
+                    owner=referenced_item.owner,
+                    name=referenced_item.character
+                ).first()
+                if inventory_character:
+                    inventory_return_character_id = inventory_character.id
         except ValueError:
             pass
 
@@ -3322,6 +3344,7 @@ class ItemDetailView(DetailView):
             context['weight_type'] = weight_type
         context['item'] = item
         context['additional_description'] = additional_description
+        context['inventory_return_character_id'] = inventory_return_character_id
 
         return context
 

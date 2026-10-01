@@ -38,6 +38,14 @@
         </div>
     </div>
 
+    {% if inventory_return_character_id %}
+        <div class="row mb-2">
+            <div class="col c-gold">
+                <a class='btn btn-dark btn-outline-danger w-100' href="{% url 'items' inventory_return_character_id %}"><- Powrót do ekwipunku</a>
+            </div>
+        </div>
+    {% endif %}
+
     {% if item.type == 'Animal' %}
         <div class='row text-border-black'>
             <div class='col text-center c-gold fst-italic m-0 p-0 border-end border-bottom border-warning bg-dark bg-gradient'>
