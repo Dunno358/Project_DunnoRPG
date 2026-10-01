@@ -25,6 +25,9 @@
         $('#item-type-search').select2({
             width: 'resolve'
         });
+        $('#item-category-search').select2({
+            width: 'resolve'
+        });
     });
 </script>
 
@@ -299,6 +302,14 @@
                     <option value="">Wszystkie</option>
                     {% for item_type in item_types %}
                         <option value="{{ item_type }}" {% if selected_item_type == item_type %}selected{% endif %}>{{ item_type }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="mb-2">
+                <select id="item-category-search" name="item_category" aria-label="Kategoria" class="text-center bg-gray c-gold border rounded border-warning">
+                    <option value="">Wszystkie</option>
+                    {% for item_category in item_categories %}
+                        <option value="{{ item_category }}" {% if selected_item_category == item_category %}selected{% endif %}>{{ item_category }}</option>
                     {% endfor %}
                 </select>
             </div>

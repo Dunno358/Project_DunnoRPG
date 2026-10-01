@@ -3063,6 +3063,7 @@ class ItemsView(ListView):
         queryset = []
         value = (self.request.GET.get('search') or '').strip()
         selected_type = (self.request.GET.get('item_type') or '').strip()
+        selected_category = (self.request.GET.get('item_category') or '').strip()
         char_id = self.kwargs['char_id']
         if char_id != 0:
             self.character = models.Character.objects.filter(id=char_id).first()
@@ -3070,7 +3071,7 @@ class ItemsView(ListView):
             self.character = None
 
         if self.character == None:
-            if value or selected_type:
+            if value or selected_type or selected_category:
                 queryset = models.Items.objects.all()
                 if not self.request.user.is_superuser:
                     queryset = queryset.filter(found=True)
@@ -3078,6 +3079,8 @@ class ItemsView(ListView):
                     queryset = queryset.filter(Q(name__icontains=value) | Q(desc__icontains=value))
                 if selected_type:
                     queryset = queryset.filter(type=selected_type)
+                if selected_category:
+                    queryset = queryset.filter(category=selected_category)
                 queryset = queryset.order_by(Lower('name'))
         else:
             self.singlehand = []
@@ -3178,6 +3181,7 @@ class ItemsView(ListView):
         context = super().get_context_data(**kwargs)
         context['search_value'] = self.request.GET.get('search', '')
         context['selected_item_type'] = self.request.GET.get('item_type', '')
+        context['selected_item_category'] = self.request.GET.get('item_category', '')
 
         item_types_queryset = models.Items.objects.exclude(type__isnull=True).exclude(type='')
         if not self.request.user.is_superuser:
@@ -3185,6 +3189,13 @@ class ItemsView(ListView):
         context['item_types'] = sorted(
             set(item_types_queryset.values_list('type', flat=True)),
             key=lambda item_type: item_type.lower()
+        )
+        item_categories_queryset = models.Items.objects.exclude(category__isnull=True).exclude(category='')
+        if not self.request.user.is_superuser:
+            item_categories_queryset = item_categories_queryset.filter(found=True)
+        context['item_categories'] = sorted(
+            set(item_categories_queryset.values_list('category', flat=True)),
+            key=lambda item_category: item_category.lower()
         )
         
         names = ['items_helmet','items_torso','items_boots','items_gloves','items_amulets','items_accessories','items_ammo','items_other']
