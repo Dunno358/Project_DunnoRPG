@@ -31,7 +31,7 @@
     "Dym": "Atak przechodzący przez dym gdy ani atakujący ani cel nie są w dymie ma -K12 do CEL. Atak gdy jednak ze stron lub obydwie są w dymie ma -K6 do CEL.",
     "Krwawienie": "K6 prawdziwych obrażeń na początku następnej tury celu.",
     "Zamroczenie": "Cel traci swoją najbliższą akcję",
-    "Zaśnięcie": "Postać nie może nic zrobić do momentu wybudzenia lub otrzymania obrażeń."
+    "Zaśnięcie": "Postać nie może nic zrobić do momentu wybudzenia lub otrzymania obrażeń.",
     "Rozłupanie": "+2K20% AP (min. +20%)",
     "Przebicie": "Ataku ignoruje blok tarczą lub +25% AP, do wyboru",
     "PrecyzyjnyStrzał": "Nie można wykonać uniku przed tym trafieniem, +20% AP.",
