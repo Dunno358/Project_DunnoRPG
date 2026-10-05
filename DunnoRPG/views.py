@@ -540,6 +540,7 @@ def move_char_item_to_eq(char_item):
         name=char_item.name,
         durability=durability,
         additional_description=char_item.additional_description,
+        use_amount=char_item.use_amount,
     ).first()
 
     if eq_item:
@@ -555,6 +556,7 @@ def move_char_item_to_eq(char_item):
             weight=item_desc.weight,
             durability=durability,
             additional_description=char_item.additional_description,
+            use_amount=char_item.use_amount,
         )
 
     if item_desc.skillEffects != None:
@@ -2032,6 +2034,7 @@ def give_item(request, **kwargs):
                     durability=clamp_item_durability(itemDesc, char_item.durability),
                     amount=1,
                     additional_description=char_item.additional_description,
+                    use_amount=char_item.use_amount,
                 )
 
                 delete_char_item(char_item)
@@ -2064,6 +2067,7 @@ def give_item(request, **kwargs):
                     durability=clamp_item_durability(itemDesc, eq_item.durability),
                     amount=given_amount,
                     additional_description=eq_item.additional_description,
+                    use_amount=eq_item.use_amount,
                 )
 
                 messages.success(request, f"Transferred {eq_item.name} to {to_char.name}.")
@@ -2132,7 +2136,8 @@ def swap_side_to_hand(request, **kwargs):
                 weight = rightItemDesc.weight,
                 durability = clamp_item_durability(rightItemDesc, rightItem.durability),
                 amount = 1,
-                additional_description = rightItem.additional_description
+                additional_description = rightItem.additional_description,
+                use_amount = rightItem.use_amount,
             )
             rightItem.delete()
 
@@ -2681,7 +2686,8 @@ def char_wear_item(request, **kwargs):
                 durability = clamp_item_durability(item, item_eq_obj.durability),
                 hand = place.capitalize(),
                 position = '',
-                additional_description = item_eq_obj.additional_description
+                additional_description = item_eq_obj.additional_description,
+                use_amount = item_eq_obj.use_amount,
                 )
         else:
             models.CharItems.objects.create(
@@ -2691,12 +2697,14 @@ def char_wear_item(request, **kwargs):
                 durability = clamp_item_durability(item, item_eq_obj.durability),
                 hand = '',
                 position = place.capitalize(),
-                additional_description = item_eq_obj.additional_description
+                additional_description = item_eq_obj.additional_description,
+                use_amount = item_eq_obj.use_amount,
                 )            
     else:
         charItObj.name = item.name
         charItObj.durability = clamp_item_durability(item, item_eq_obj.durability)
         charItObj.additional_description = item_eq_obj.additional_description
+        charItObj.use_amount = item_eq_obj.use_amount
         charItObj.save()  
 
     if item.skillEffects != None:
@@ -2910,6 +2918,7 @@ def char_swap_item(request, **kwargs):
         weight=it1D.weight,
         durability=clamp_item_durability(it1D, it1.durability),
         additional_description=it1.additional_description,
+        use_amount=it1.use_amount,
     )
 
     if it1D.skillEffects != None:
@@ -2920,6 +2929,7 @@ def char_swap_item(request, **kwargs):
     it1.name = it2.name
     it1.durability = it2.durability
     it1.additional_description = it2.additional_description
+    it1.use_amount = it2.use_amount
     it1.save()
 
     if it2D.skillEffects != None:
@@ -3096,6 +3106,7 @@ class ItemsView(ListView):
                 char_item_id=None,
                 equipped=False,
                 inventory_weight=None,
+                use_amount=None,
             ):
                 display_weight = inventory_weight if inventory_weight is not None else item_desc.weight * amount
                 item_data = {
@@ -3116,12 +3127,13 @@ class ItemsView(ListView):
                     'on_use': item_desc.on_use,
                     'use_cost': item_desc.use_cost,
                     'use_info': item_desc.use_info,
-                    'use_amount': item_desc.use_amount,
+                    'use_amount': use_amount,
                     'equipped': equipped,
                 }
                 queryset.append(item_data)
 
                 category_data = item_desc.__dict__ | {
+                    'use_amount': item_data['use_amount'],
                     'dur': durability,
                     'amount': amount,
                     'weight': display_weight,
@@ -3163,6 +3175,7 @@ class ItemsView(ListView):
                     item.amount,
                     item.id,
                     inventory_weight=item.weight,
+                    use_amount=item.use_amount,
                 )
 
             for item in models.CharItems.objects.filter(character=self.character.name):
@@ -3174,6 +3187,7 @@ class ItemsView(ListView):
                         char_item_id=item.id,
                         equipped=True,
                         inventory_weight=item_obj.weight,
+                        use_amount=item.use_amount,
                     )
         return queryset
     
@@ -3325,6 +3339,7 @@ class ItemDetailView(DetailView):
 
             if referenced_item:
                 additional_description = referenced_item.additional_description
+                item.use_amount = referenced_item.use_amount
                 inventory_character = models.Character.objects.filter(
                     owner=referenced_item.owner,
                     name=referenced_item.character
@@ -3370,7 +3385,11 @@ class useItem(APIView):
 
             char_id = kwargs['char_id']
             char = get_object_or_404(models.Character, id=char_id)
-            eq_item = models.Eq.objects.filter(name=item.name, character=char.name).first()
+            eq_items = models.Eq.objects.filter(name=item.name, character=char.name, owner=char.owner)
+            eq_id = request.GET.get('eq_id')
+            if not eq_id:
+                eq_id = eq_items.order_by('id').values_list('id', flat=True).first()
+            eq_item = get_object_or_404(eq_items, id=eq_id)
 
             if not char.inFight:
                 cost = 0.0
@@ -3395,9 +3414,26 @@ class useItem(APIView):
                 char, foodMsg = manageFoodAndWater(char, -1, "food")
             char.save()
 
-            if item.use_amount and item.use_amount >= 2:
-                item.use_amount -= 1
-                item.save()
+            if eq_item.use_amount and eq_item.use_amount >= 2:
+                with transaction.atomic():
+                    if eq_item.amount > 1:
+                        unit_weight = eq_item.weight / eq_item.amount
+                        models.Eq.objects.create(
+                            owner=eq_item.owner,
+                            character=eq_item.character,
+                            name=eq_item.name,
+                            type=eq_item.type,
+                            weight=eq_item.weight - unit_weight,
+                            durability=eq_item.durability,
+                            amount=eq_item.amount - 1,
+                            use_amount=eq_item.use_amount,
+                            reloaded=eq_item.reloaded,
+                            additional_description=eq_item.additional_description,
+                        )
+                        eq_item.amount = 1
+                        eq_item.weight = unit_weight
+                    eq_item.use_amount -= 1
+                    eq_item.save()
             else:
                 if eq_item.amount == 1:
                     eq_item.delete()
@@ -3903,6 +3939,7 @@ class GMPanel(FormView):
                 character=character.name,
                 durability=form_data.durability,
                 additional_description=form_data.additional_description,
+                use_amount=item.use_amount,
             )
             existing_item.amount += form_data.amount
             existing_item.weight += item_weight
@@ -4413,7 +4450,7 @@ class BuyItem(APIView):
                 #    item_amount = item_amount*10
                 try:
                     item_durability = clamp_item_durability(item, item_durability)
-                    existing_item = get_object_or_404(models.Eq, name=item.name, character=character.name, durability=item_durability)
+                    existing_item = get_object_or_404(models.Eq, name=item.name, character=character.name, durability=item_durability, use_amount=item.use_amount)
                     existing_item.amount += item_amount
                     existing_item.weight += item.weight*item_amount
                     existing_item.save()                    

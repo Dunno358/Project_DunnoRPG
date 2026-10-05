@@ -137,8 +137,14 @@ class Eq(models.Model):
     weight = models.DecimalField(decimal_places=1, max_digits=50)
     durability = models.IntegerField(default=50)
     amount = models.IntegerField(default=1)
+    use_amount = models.IntegerField(null=True, blank=True)
     reloaded = models.BooleanField(default=True)
     additional_description = models.TextField(blank=True)
+
+    def save(self, *args, **kwargs):
+        if self._state.adding and self.use_amount is None:
+            self.use_amount = Items.objects.filter(name=self.name).values_list('use_amount', flat=True).first()
+        super().save(*args, **kwargs)
 
 class Skills(models.Model):
     owner = models.CharField(max_length=50)
@@ -243,6 +249,7 @@ class CharItems(models.Model):
     category = models.CharField(max_length = 50, null=True)
     on_use = models.CharField(max_length = 150, null=True)
     use_cost = models.CharField(max_length=30, null=True)
+    use_amount = models.IntegerField(null=True, blank=True)
     effectsafterpen = models.CharField(max_length = 150, null=True)
     effectsall = models.CharField(max_length = 150, null=True)
     name = models.CharField(max_length = 150, null=True, blank=True)
@@ -251,6 +258,11 @@ class CharItems(models.Model):
     position = models.CharField(max_length = 20, null=True, blank=True)
     reloaded = models.BooleanField(default=True)
     additional_description = models.TextField(blank=True)
+
+    def save(self, *args, **kwargs):
+        if self._state.adding and self.use_amount is None:
+            self.use_amount = Items.objects.filter(name=self.name).values_list('use_amount', flat=True).first()
+        super().save(*args, **kwargs)
 
     def __str__(self):
         max_durability = get_object_or_404(Items, name=self.name).maxDurability
