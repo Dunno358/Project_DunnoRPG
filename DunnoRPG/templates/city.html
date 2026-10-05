@@ -29,11 +29,32 @@
         </div>
     </div>
     <div id="city-refresh-content">
-    <div class="row m-0">
-        <div class="col p-0">
-            <h1 class='c-gold text-center fst-italic mb-0' style='-webkit-text-stroke: 0.5px blue; font-size:300%;' id='city-name'>
+    <div class="row m-0 justify-content-center">
+        <div class="col-12 col-md-8 col-lg-6 p-0">
+            <h1 class='c-gold text-center fst-italic mb-1' style='-webkit-text-stroke: 0.5px blue; font-size:300%;' id='city-name'>
                 {{ city.city_name }}
             </h1>
+            {% if request.user.is_superuser %}
+            <div class="px-2">
+                <input
+                    type="search"
+                    id="city-search"
+                    class="form-control bg-dark c-gold border border-warning text-center mb-1"
+                    placeholder="Szukaj miasta"
+                    oninput="filterCitySelect()">
+                <select
+                    id="city-select"
+                    data-current-city-id="{{ city.id }}"
+                    class="form-select bg-dark c-gold border border-warning text-center"
+                    onchange="changeVisitingCity(this)">
+                    {% for available_city in cities %}
+                        <option value="{{ available_city.id }}" data-city-name="{{ available_city.city_name }}" {% if available_city.id == city.id %}selected{% endif %}>
+                            {{ available_city.city_name }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+            {% endif %}
         </div>
     </div>
 
@@ -737,7 +758,9 @@
 {% endif %}
 
 <script>
-    document.title = document.getElementById('city-name').innerHTML + " | DunnoRPG"
+    const changeVisitingCityUrl = "{% url 'change_visiting_city' %}"
+
+    document.title = document.getElementById('city-name').textContent.trim() + " | DunnoRPG"
     document.getElementById('tb-city').classList.remove('btn-outline-warning')
     document.getElementById('tb-city').classList.add('btn-outline-primary')
     
@@ -770,12 +793,59 @@
 
             currentContent.innerHTML = refreshedContent.innerHTML
             document.title = document.getElementById('city-name').textContent.trim() + " | DunnoRPG"
+            filterCitySelect()
         } catch (error) {
             console.error('Nie udało się odświeżyć miasta:', error)
             alert('Nie udało się pobrać aktualnych danych miasta.')
         } finally {
             button.disabled = false
             button.innerHTML = originalContent
+        }
+    }
+
+    function filterCitySelect(){
+        const searchInput = document.getElementById('city-search')
+        const citySelect = document.getElementById('city-select')
+        if(!searchInput || !citySelect){
+            return
+        }
+
+        const query = searchInput.value.toLowerCase()
+        Array.from(citySelect.options).forEach(option => {
+            const cityName = (option.dataset.cityName || option.textContent).toLowerCase()
+            option.hidden = !cityName.includes(query)
+        })
+    }
+
+    async function changeVisitingCity(select){
+        const selectedCityId = select.value
+        const previousCityId = select.dataset.currentCityId || selectedCityId
+        if(selectedCityId === previousCityId){
+            return
+        }
+
+        select.disabled = true
+        const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+
+        try {
+            const response = await fetch(changeVisitingCityUrl, {
+                method: "POST",
+                body: JSON.stringify({ city_id: selectedCityId }),
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRFToken": token
+                }
+            })
+            if(!response.ok){
+                throw new Error(`HTTP ${response.status}`)
+            }
+            window.location.href = "{% url 'city_view' %}"
+        } catch(error) {
+            console.error('Nie udalo sie zmienic miasta:', error)
+            select.value = previousCityId
+            alert('Nie udalo sie zmienic miasta.')
+        } finally {
+            select.disabled = false
         }
     }
 

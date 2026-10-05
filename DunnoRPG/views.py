@@ -4093,6 +4093,9 @@ class CityView(ListView):
         is_empty = True if city == None else False
 
         context['is_empty'] = is_empty
+        context['city'] = city
+        if self.request.user.is_superuser:
+            context['cities'] = models.Cities.objects.order_by(Lower("city_name"))
         if not is_empty:
             items = sorted(city.items.split(';'))
             parsed_items = [parse_city_item_entry(entry) for entry in items]
@@ -4243,7 +4246,6 @@ class CityView(ListView):
             context['tavern'] = tavern
             context['tavern_buy_items'] = tavern_buy_items
             context['other'] = other
-            context['city'] = city
             context['x5packets'] = x5packets
             context['x10packets'] = x10packets
             context['amounts'] = amounts
@@ -4294,6 +4296,27 @@ class CityView(ListView):
 
 
         return context       
+
+@require_POST
+def change_visiting_city(request):
+    if not request.user.is_superuser:
+        return JsonResponse({"error": "Brak uprawnien do zmiany miasta."}, status=403)
+
+    try:
+        data = json.loads(request.body or "{}")
+        city_id = int(data.get("city_id"))
+    except (TypeError, ValueError, json.JSONDecodeError):
+        return JsonResponse({"error": "Nieprawidlowe miasto."}, status=400)
+
+    with transaction.atomic():
+        city = get_object_or_404(models.Cities.objects.select_for_update(), id=city_id)
+        models.Cities.objects.exclude(id=city.id).update(visiting=False)
+        if not city.visiting:
+            city.visiting = True
+            city.save(update_fields=["visiting"])
+
+    return JsonResponse({"city_id": city.id, "city_name": city.city_name})
+
 class BuyItem(APIView):
     def get(self,request,**kwargs):
         item = get_object_or_404(models.Items, id=kwargs['item_id'])

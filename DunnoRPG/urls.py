@@ -68,6 +68,7 @@ urlpatterns = [
     path('info/', views.Info.as_view(), name='info'),
     path('info/acc-rules/', views.AccRules.as_view(), name='info_acc_rules'),
     path('city/', views.CityView.as_view(), name='city_view'),
+    path('city/change-visiting', views.change_visiting_city, name='change_visiting_city'),
     path('city/buyitem-<int:item_id>-<int:character_id>-<int:amount>', views.BuyItem.as_view(), name='buy_item'),
     path('city/orderitem-<int:item_id>-<int:character_id>', views.OrderTavernItem.as_view(), name='order_tavern_item'),
     path('city/<int:char_id>h<int:val>', views.healCharacter.as_view(), name='heal_character'),
