@@ -2,6 +2,25 @@
 {% load filters static %}
 
 {% block content %}
+<style>
+    #city-select,
+    #city-search,
+    #city-search:focus {
+        color-scheme: dark;
+        color: #ffc107;
+        background-color: #212529;
+    }
+
+    #city-search::placeholder {
+        color: #adb5bd;
+        opacity: 1;
+    }
+
+    #city-select option {
+        color: #ffc107;
+        background-color: #212529;
+    }
+</style>
 {% include 'top_bar.html' %}
 {% include 'dunnorpg/messages.html' %}
 
