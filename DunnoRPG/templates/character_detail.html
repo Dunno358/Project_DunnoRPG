@@ -693,7 +693,7 @@ style="width: 98%; z-index: 20; margin-left: 0.1rem !important; margin-top: -1re
                         /{{ helmet.name|getMaxDurability }}
                     </div>
                     <div class="col h6 text-end p-2 pb-0 border-start border-warning">
-                        Głowa - {{ helmet.name|getArmorWeightType }}
+                        {{ helmet.name|getArmorWeightType }}
                     </div>
                 </div>
 
@@ -815,7 +815,7 @@ style="width: 98%; z-index: 20; margin-left: 0.1rem !important; margin-top: -1re
                         /{{ torso.name|getMaxDurability }}
                     </div>
                     <div class="col h6 text-end p-2 pb-0 border-start border-warning">
-                        Tors - {{ torso.name|getArmorWeightType }}
+                        {{ torso.name|getArmorWeightType }}
                     </div>
                 </div>
 
@@ -949,6 +949,10 @@ style="width: 98%; z-index: 20; margin-left: 0.1rem !important; margin-top: -1re
             </div>
         {% elif leftItem %}
 
+            <form id="leftItem-to-side" method="post" action="{% url 'move_hand_item_to_side' value.id leftItem.id %}" class="d-none">
+                {% csrf_token %}
+            </form>
+
             <form name='head' method='post' action='changedur-{{ leftItem.id }}' class='row mt-2 border border-warning rounded bg-gray m-0 p-0'>
                 {% csrf_token %}
 
@@ -964,7 +968,10 @@ style="width: 98%; z-index: 20; margin-left: 0.1rem !important; margin-top: -1re
                         /{{ leftItem.name|getMaxDurability }}
                     </div>
                     <div class="col h6 text-end p-2 pb-0 border-start border-warning">
-                        Lewa ręka - <span id="l-type">{{ leftItem.name|getItemType:'pl' }}</span>
+                        <span id="l-type">{{ leftItem.name|getItemType:'pl' }}</span>
+                        {% with damage_type=leftItem.name|getItemDamageType %}
+                            {% if damage_type %}<br>{{ damage_type }}{% endif %}
+                        {% endwith %}
                     </div>
                 </div>
 
@@ -1002,11 +1009,8 @@ style="width: 98%; z-index: 20; margin-left: 0.1rem !important; margin-top: -1re
                     <div class="col-2 border-end border-warning p-3 h6 mb-0 d-flex align-items-center justify-content-center">
                         <span class="text-white-50"></span> <span class="c-gold ms-1" id="l-weight">{{ leftItem.name|getItemWeight }}kg</span>
                     </div>                
-                    <div class="col-3 border-end border-warning h6 mb-0 d-flex align-items-center justify-content-center">
-                        <a class="btn btn-info p-3 pt-2 pb-2 text-white" onclick='show_or_hideById("leftItem-swap")'>Zmień</a>
-                    </div>                  
-                    <div class="col-3 h6 mb-0 d-flex align-items-center justify-content-center">
-                        <a class="btn btn-danger p-3 pt-2 pb-2 text-white" href='move_eq-{{ leftItem.id }}'>Odłóż</a>
+                    <div class="col-6 h6 mb-0 p-2 d-flex align-items-center justify-content-center">
+                        <span>Zasięg: {{ leftItem.name|getItemRange }}</span>
                     </div>
 
                 </div>
@@ -1016,6 +1020,12 @@ style="width: 98%; z-index: 20; margin-left: 0.1rem !important; margin-top: -1re
                 >
                     <span class="h4">Wykonaj atak</span>
                 </a>
+
+                <div class="row g-0 m-0 border-top border-warning">
+                    <div class="col-4 p-1"><button type="button" class="btn btn-info text-white w-100 px-1" onclick='show_or_hideById("leftItem-swap")'>Zmień</button></div>
+                    <div class="col-4 p-1"><a class="btn btn-danger text-white w-100 px-1" href='move_eq-{{ leftItem.id }}'>Odłóż</a></div>
+                    <div class="col-4 p-1"><button type="submit" form="leftItem-to-side" class="btn btn-warning w-100 px-1">Pasek</button></div>
+                </div>
 
                 <div id='leftItem-swap' class='d-none row text-end m-0 p-0 mt-2 mb-2'>
                     <div class="col-8">
@@ -1108,6 +1118,10 @@ style="width: 98%; z-index: 20; margin-left: 0.1rem !important; margin-top: -1re
             </div>
         {% elif rightItem %}
 
+            <form id="rightItem-to-side" method="post" action="{% url 'move_hand_item_to_side' value.id rightItem.id %}" class="d-none">
+                {% csrf_token %}
+            </form>
+
             <form name='head' method='post' action='changedur-{{ rightItem.id }}' class='row mt-2 border border-warning rounded bg-gray m-0 p-0'>
                 {% csrf_token %}
 
@@ -1123,7 +1137,10 @@ style="width: 98%; z-index: 20; margin-left: 0.1rem !important; margin-top: -1re
                         /{{ rightItem.name|getMaxDurability }}
                     </div>
                     <div class="col h6 text-end p-2 pb-0 border-start border-warning">
-                        Prawa ręka - <span id="r-type">{{ rightItem.name|getItemType:'pl' }}</span>
+                        <span id="r-type">{{ rightItem.name|getItemType:'pl' }}</span>
+                        {% with damage_type=rightItem.name|getItemDamageType %}
+                            {% if damage_type %}<br>{{ damage_type }}{% endif %}
+                        {% endwith %}
                     </div>
                 </div>
 
@@ -1158,11 +1175,8 @@ style="width: 98%; z-index: 20; margin-left: 0.1rem !important; margin-top: -1re
                     <div class="col-2 border-end border-warning p-3 h6 mb-0 d-flex align-items-center justify-content-center">
                         <span class="text-white-50"></span> <span class="c-gold ms-1" id="r-weight">{{ rightItem.name|getItemWeight }}kg</span>
                     </div>                
-                    <div class="col-3 border-end border-warning h6 mb-0 d-flex align-items-center justify-content-center">
-                        <a class="btn btn-info p-3 pt-2 pb-2 text-white" onclick='show_or_hideById("rightItem-swap")'>Zmień</a>
-                    </div>                  
-                    <div class="col-3 h6 mb-0 d-flex align-items-center justify-content-center">
-                        <a class="btn btn-danger p-3 pt-2 pb-2 text-white" href='move_eq-{{ rightItem.id }}'>Odłóż</a>
+                    <div class="col-6 h6 mb-0 p-2 d-flex align-items-center justify-content-center">
+                        <span>Zasięg: {{ rightItem.name|getItemRange }}</span>
                     </div>
 
                 </div>
@@ -1172,6 +1186,12 @@ style="width: 98%; z-index: 20; margin-left: 0.1rem !important; margin-top: -1re
                 >
                     <span class="h4">Wykonaj atak</span>
                 </a>
+
+                <div class="row g-0 m-0 border-top border-warning">
+                    <div class="col-4 p-1"><button type="button" class="btn btn-info text-white w-100 px-1" onclick='show_or_hideById("rightItem-swap")'>Zmień</button></div>
+                    <div class="col-4 p-1"><a class="btn btn-danger text-white w-100 px-1" href='move_eq-{{ rightItem.id }}'>Odłóż</a></div>
+                    <div class="col-4 p-1"><button type="submit" form="rightItem-to-side" class="btn btn-warning w-100 px-1">Pasek</button></div>
+                </div>
 
                 <div id='rightItem-swap' class='d-none row text-end m-0 p-0 mt-2 mb-2'>
                     <div class="col-8">
@@ -1380,7 +1400,7 @@ style="width: 98%; z-index: 20; margin-left: 0.1rem !important; margin-top: -1re
                         /{{ boots.name|getMaxDurability }}
                     </div>
                     <div class="col h6 text-end p-2 pb-0 border-start border-warning">
-                        Nogi - {{ boots.name|getArmorWeightType }}
+                        {{ boots.name|getArmorWeightType }}
                     </div>
                 </div>
 
@@ -1502,7 +1522,7 @@ style="width: 98%; z-index: 20; margin-left: 0.1rem !important; margin-top: -1re
                         /{{ gloves.name|getMaxDurability }}
                     </div>
                     <div class="col h6 text-end p-2 pb-0 border-start border-warning">
-                        Ręce - {{ gloves.name|getArmorWeightType }}
+                        {{ gloves.name|getArmorWeightType }}
                     </div>
                 </div>
 
@@ -1624,7 +1644,7 @@ style="width: 98%; z-index: 20; margin-left: 0.1rem !important; margin-top: -1re
                         /{{ amulet.name|getMaxDurability }}
                     </div>
                     <div class="col h6 text-end p-2 pb-0 border-start border-warning">
-                        Amulet - {{ amulet.name|getArmorWeightType }}
+                        {{ amulet.name|getArmorWeightType }}
                     </div>
                 </div>
 

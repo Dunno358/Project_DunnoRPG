@@ -107,6 +107,11 @@ def getItemWeight(itemName):
     return get_object_or_404(models.Items, name=itemName).weight
 
 @register.filter
+def getItemDamageType(itemName):
+    damage_type = (get_object_or_404(models.Items, name=itemName).dmg_type or "").strip()
+    return "" if damage_type in {"None", "-"} else damage_type
+
+@register.filter
 def getItemUseInfo(itemName):
     if hasattr(itemName, "use_info"):
         return itemName.use_info

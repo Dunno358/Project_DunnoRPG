@@ -2106,6 +2106,46 @@ def give_item(request, **kwargs):
             messages.error(request, f"{from_char.name} is too poor for that.")
     return redirect(f"/dunnorpg/items/ch{from_char.id}")
 
+@require_POST
+def move_hand_item_to_side(request, char_id, item_id):
+    with transaction.atomic():
+        char = get_object_or_404(models.Character.objects.select_for_update(), id=char_id)
+        if not request.user.is_authenticated or (not request.user.is_superuser and char.owner != request.user.username):
+            return HttpResponse(status=403)
+
+        item = get_object_or_404(
+            models.CharItems.objects.select_for_update(),
+            id=item_id, character=char.name,
+        )
+        if item.hand not in {"Left", "Right"} or item.position:
+            messages.error(request, "Na pasek można przenieść tylko przedmiot trzymany w ręce.")
+            return redirect('character_detail', char.id)
+
+        item_desc = get_object_or_404(models.Items, name=item.name)
+        if not is_weapon_item(item_desc):
+            messages.error(request, "Na pasek można założyć tylko broń.")
+            return redirect('character_detail', char.id)
+
+        side_item = models.CharItems.objects.select_for_update().filter(
+            character=char.name, hand="Side",
+        ).first()
+        if side_item:
+            side_desc = get_object_or_404(models.Items, name=side_item.name)
+            if not is_weapon_item(side_desc):
+                messages.error(request, "Nie można zamienić: przedmiot na pasku nie jest bronią.")
+                return redirect('character_detail', char.id)
+            can_equip, _ = can_equip_hand_item(char, side_desc, item.hand)
+            if not can_equip:
+                messages.error(request, "Nie można zamienić przedmiotów: broń z paska nie pasuje do tej ręki lub koliduje z bronią w drugiej ręce.")
+                return redirect('character_detail', char.id)
+            side_item.hand = item.hand
+            side_item.save(update_fields=['hand'])
+
+        item.hand = "Side"
+        item.save(update_fields=['hand'])
+    return redirect('character_detail', char.id)
+
+
 def swap_side_to_hand(request, **kwargs):
     char = get_object_or_404(models.Character, id=kwargs['char_id'])
     sideItem = get_object_or_404(models.CharItems, character=char.name, hand="Side")
