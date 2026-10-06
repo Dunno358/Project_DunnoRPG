@@ -1676,6 +1676,19 @@ def enter_or_leave_fight(request,char_id):
         character.counter = 0
         character.counter2 = 0
         character.advantageBalance = 0
+        skills = list(models.Skills.objects.filter(character=character.name, owner=character.owner))
+        skill_descriptions = {
+            description.name: description
+            for description in models.Skills_Decs.objects.filter(name__in=[skill.skill for skill in skills])
+        }
+        skills_to_reset = []
+        for skill in skills:
+            description = skill_descriptions.get(skill.skill)
+            max_uses = getattr(description, f"useslvl{skill.level}", None)
+            if max_uses is not None:
+                skill.uses_left = max_uses
+                skills_to_reset.append(skill)
+        models.Skills.objects.bulk_update(skills_to_reset, ['uses_left'])
     else:
         character.inFight = True
         character.advantageBalance = 0
