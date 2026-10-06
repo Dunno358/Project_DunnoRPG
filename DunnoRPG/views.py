@@ -4095,7 +4095,6 @@ class CityShopItem(str):
         obj.item_id = item.id
         obj.item_type = item.type
         obj.rarity = item.rarity
-        obj.use_info = item.use_info or ""
         obj.armor_weight_label = get_city_armor_weight_label(item)
         if (item.type or "").lower() == "shield":
             obj.item_stat = f"Blok: {item.block}"
@@ -4105,6 +4104,9 @@ class CityShopItem(str):
         skill = item.skill or ""
         if is_superuser and item.hiddenSkill:
             skill = f"{skill} | {item.hiddenSkill}" if skill else item.hiddenSkill
+        obj.use_info = item.use_info or ""
+        if (item.category or "").strip().lower() == "tawerna" and skill:
+            obj.use_info = f"{obj.use_info} | {skill}" if obj.use_info else skill
         full_description = f"{skill} | {item.desc}" if skill else (item.desc or "")
         obj.visible_description = full_description[:80] + "..." if len(full_description) > 80 else full_description
         return obj
