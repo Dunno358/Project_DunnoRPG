@@ -4172,6 +4172,7 @@ class CityView(ListView):
             weaponry_twohand=[]
             ranged_weaponry = []
             gunpowder_weaponry = []
+            musical_weaponry = []
             potions = []
             trophies = []
             other = []
@@ -4226,6 +4227,8 @@ class CityView(ListView):
                         tavern.append(shop_item)
                     elif item_category.startswith("trophy_"):
                         trophies.append(shop_item)
+                    elif item_category == "weapon_music":
+                        musical_weaponry.append(shop_item)
                     elif is_city_range_shop_item(item_category):
                         ranged_weaponry.append(shop_item)
                     elif is_city_gunpowder_shop_item(item_category):
@@ -4288,6 +4291,7 @@ class CityView(ListView):
             context['weaponry_twohand'] = weaponry_twohand
             context['ranged_weaponry'] = ranged_weaponry
             context['gunpowder_weaponry'] = gunpowder_weaponry
+            context['musical_weaponry'] = musical_weaponry
             context['armor'] = armor
             context['cloth'] = cloth
             context['armor_elegant'] = armor_elegant
