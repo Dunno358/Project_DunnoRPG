@@ -15,6 +15,13 @@ EMPTY_BOTTLE_ACTIONS = {"addHP_Potion", "addWater_Bottle"}
 VALID_STAT_MOD_FIELDS = {"INT", "SIŁ", "ZRE", "CHAR", "CEL", "SPO"}
 
 
+def parse_amount(value):
+    value = value.strip()
+    if value.endswith("M"):
+        return -abs(int(value[:-1]))
+    return int(value)
+
+
 def apply_item_use_effects(char, actions, cost, manage_food_and_water, sync_alcohol_mods=None, add_consumed_container=True):
     messages = []
 
@@ -62,25 +69,29 @@ def apply_item_use_effects(char, actions, cost, manage_food_and_water, sync_alco
             ))
             continue
 
-        amount = int(amount_value)
+        if action_name.startswith(("addHP", "addFood", "addWater", "addAlcohol")):
+            amount = parse_amount(amount_value)
+        else:
+            amount = int(amount_value)
+        change_label = "Odjęto" if amount < 0 else "Dodano"
 
         if action_name.startswith("addHP"):
             used_amount = add_hp(char, amount)
             messages.append(ItemEffectMessage(
                 "success",
-                f"Uleczono {used_amount} PŻ, wykorzystano {cost}/{char.actionLeft-cost} akcji",
+                f"{'Odjęto' if used_amount < 0 else 'Uleczono'} {abs(used_amount)} PŻ, wykorzystano {cost}/{char.actionLeft-cost} akcji",
             ))
         elif action_name.startswith("addFood"):
             char, _ = manage_food_and_water(char, amount, "food")
             messages.append(ItemEffectMessage(
                 "success",
-                f"Dodano {amount} nasycenia, wykorzystano {cost}/{char.actionLeft-cost} akcji",
+                f"{change_label} {abs(amount)} nasycenia, wykorzystano {cost}/{char.actionLeft-cost} akcji",
             ))
         elif action_name.startswith("addWater"):
             char, _ = manage_food_and_water(char, amount, "water")
             messages.append(ItemEffectMessage(
                 "success",
-                f"Dodano {amount} napojenia, wykorzystano {cost}/{char.actionLeft-cost} akcji",
+                f"{change_label} {abs(amount)} napojenia, wykorzystano {cost}/{char.actionLeft-cost} akcji",
             ))
         elif action_name.startswith("addAlcohol"):
             previous_alcohol_level = add_alcohol(char, amount)
@@ -88,7 +99,7 @@ def apply_item_use_effects(char, actions, cost, manage_food_and_water, sync_alco
                 sync_alcohol_mods(char, previous_alcohol_level)
             messages.append(ItemEffectMessage(
                 "success",
-                f"Dodano {amount} alkoholu, wykorzystano {cost}/{char.actionLeft-cost} akcji",
+                f"{change_label} {abs(amount)} alkoholu, wykorzystano {cost}/{char.actionLeft-cost} akcji",
             ))
         elif action_name.startswith("addEffect:"):
             effect_name = action_name.split(":", 1)[1].strip()
@@ -177,7 +188,7 @@ def increase_mod(char, field, payload, source):
 
     try:
         value_text, time_text = payload.split("|", 1)
-        value = int(value_text)
+        value = parse_amount(value_text)
         time = int(time_text)
     except ValueError:
         return None
