@@ -709,7 +709,10 @@
             <h2>Karczma<span class="fas fa-utensils ms-2"></span></h2>
         </div>
         <div id='tavern-items' class='container text-center c-gold rounded border border-primary bg-dark d-none p-0 m-0' style="width: 100%;">
-            {% for item in tavern %}
+            {% for group_label, group_items in tavern_groups %}
+            {% if group_items %}
+            <h3 class="h6 text-start px-2 pt-2 mb-1 fw-bold">{{ group_label }}</h3>
+            {% for item in group_items %}
                 <div class='row bg-gray rounded m-1 border border-primary'>
 
                     <div class="col-9 border-end">
@@ -730,7 +733,7 @@
                     <div class="col-3 p-0">
                         <div class="row-3 border-bottom pt-1 pb-1 h6 mb-0">{{ city_prices|dict_get:item }}&nbsp;<i class="fa-solid fa-coins" role="img" aria-label="monety"></i></div>
                         <div class="row-3 border-bottom pt-1 pb-1">
-                            <div class="col"><span class="h6">Posiłek</span></div>
+                            <div class="col"><span class="h6">{{ group_label }}</span></div>
                         </div>
                         <div class="row-3" style="height: 5.2vh;">
                             <div class="col h-100">
@@ -744,6 +747,11 @@
 
                 </div>
             {% endfor %}
+            {% endif %}
+            {% endfor %}
+            {% if tavern_buy_items %}
+            <h3 class="h6 text-start px-2 pt-2 mb-1 fw-bold">Jedzenie / Alkohol</h3>
+            {% endif %}
             {% for item in tavern_buy_items %}
                 <div class='row bg-gray rounded m-1 border border-primary'>
 

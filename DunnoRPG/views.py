@@ -4345,6 +4345,10 @@ class CityView(ListView):
             context['trophies'] = trophies
             context['animals'] = animals
             context['tavern'] = tavern
+            context['tavern_groups'] = [
+                ("Pokój", [item for item in tavern if item.item_type == "Pokój"]),
+                ("Posiłek", [item for item in tavern if item.item_type != "Pokój"]),
+            ]
             context['tavern_buy_items'] = tavern_buy_items
             context['other'] = other
             context['x5packets'] = x5packets
