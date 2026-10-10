@@ -585,7 +585,7 @@ style="width: 98%; z-index: 20; margin-left: 0.1rem !important; margin-top: -1re
                 <form id="coins-form" method="post" action="change-coins" onsubmit="changeCoins(event)">
                     {% csrf_token %}
                     <span class="text-white-50">Monety:</span>
-                    <input type='text' inputmode="decimal" id='coins' class='c-gold text-center bg-gray bg-gradient border-0 h6' style='width: 18vw' value='{{ value.coins }}' name="coins-amount">
+                    <input type='text' inputmode="decimal" id='coins' class='c-gold text-center bg-gray bg-gradient border-0 h6' style='width: 18vw' value='{{ value.coins|floatformat:"-1" }}' name="coins-amount">
                 </form>
             </div>
         </div>

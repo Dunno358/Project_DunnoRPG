@@ -60,6 +60,14 @@ class Character(models.Model):
     hidden = models.BooleanField(default=False)
     
 
+    def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
+        if update_fields is None or "coins" in update_fields:
+            self.coins = round(float(self.coins), 1)
+        return super().save(
+            force_insert=force_insert, force_update=force_update,
+            using=using, update_fields=update_fields,
+        )
+
     def __str__(self):
         return f"{self.owner}: {self.name} ({self.id})"
 

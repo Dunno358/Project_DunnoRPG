@@ -352,7 +352,7 @@
         <div class="col text-center">
             <select id="give-item-id" class="give-item-select text-center p-1 rounded bg-dark text-warning border border-warning">
                 <option value="0">
-                    Monety ({{ character.coins }})
+                    Monety ({{ character.coins|floatformat:"-1" }})
                 </option>
                 {% for item in transfer_items %}
                     <option value="{{ item.transfer_id }}">
