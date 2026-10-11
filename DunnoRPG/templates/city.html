@@ -71,8 +71,7 @@
     }
 
     #char-to-buy,
-    #char-to-order,
-    #buy-price-confirm {
+    #char-to-order {
         left: 50%;
         top: 50%;
         transform: translate(-50%, -50%);
@@ -86,14 +85,12 @@
     }
 
     #char-to-buy > .row,
-    #char-to-order > .row,
-    #buy-price-confirm > .row {
+    #char-to-order > .row {
         margin: 0 !important;
     }
 
     #char-to-buy .col,
-    #char-to-order .col,
-    #buy-price-confirm .col {
+    #char-to-order .col {
         min-width: 0;
         overflow-wrap: anywhere;
     }
@@ -105,6 +102,29 @@
         max-width: 100%;
         min-width: 0;
         text-overflow: ellipsis;
+    }
+
+    #city-buy-controls > .col {
+        min-width: 0;
+    }
+
+    #choosing_char_select,
+    #Item-amount {
+        color: #ffc107;
+        background-color: #212529;
+        color-scheme: dark;
+    }
+
+    .city-buy-quantity {
+        display: grid;
+        grid-template-columns: auto minmax(5rem, 8rem);
+        align-items: center;
+        justify-content: center;
+        gap: 0.75rem;
+    }
+
+    #Item {
+        overflow-wrap: anywhere;
     }
 
     #city-item-iframe-card {
@@ -303,8 +323,19 @@
 
 
     <meta name="csrf-token" content="{{ csrf_token }}">
-    <div class="row m-0 px-2">
-        <div class="col text-end p-0">
+    <div id="city-buy-controls" class="row m-0 px-2 align-items-center gap-2">
+        <div class="col p-0">
+            <select class="text-center form-select form-select-sm bg-dark c-gold border border-warning"
+                    name="chosen_character" id="choosing_char_select" aria-label="Postać kupująca"
+                    onchange="changeBuyingCharacter()" {% if not characters %}disabled{% endif %}>
+                {% for char in characters %}
+                <option value="{{ char.id }}" data-charisma="{{ char.CHAR }}" data-charisma-mod="{{ char.city_char_mod }}">{{ char.name }}</option>
+                {% empty %}
+                <option value="">Brak postaci</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-auto p-0">
         <button
             type="button"
             class="btn btn-sm btn-dark btn-outline-warning bg-gradient px-2 py-1"
@@ -314,6 +345,12 @@
             Odśwież
         </button>
         </div>
+    </div>
+    <div id="city-charisma-data" class="d-none">
+        {% for char in characters %}
+        <span id="{{ char.id }}-char">{{ char.CHAR }}</span>
+        <span id="{{ char.id }}-char-mod">{{ char.city_char_mod }}</span>
+        {% endfor %}
     </div>
     <div id="city-refresh-content">
     <div id='city-item-iframe-card' class="container position-fixed m-0 p-0 d-none">
@@ -359,38 +396,22 @@
         </div>
     </div>
 
-    <div id='char-to-buy' class='d-none position-fixed container-fluid'>
-        <div class='row bg-dark c-gold rounded border border-warning me-1'>
-          <div class='col text-center'>
-            <select class='bg-dark text-primary h4 my-3 border border-warning rounded text-center'
-            name="chosen_character" id="choosing_char_select">
-                {% for char in characters %}
-                    <option value='{{ char.id }}' class='h4'>{{ char.name }}</option>
-                    <option id="{{ char.id }}-char" class="d-none">{{ char.CHAR }}</option>
-                    <option id="{{ char.id }}-char-mod" class="d-none">{{ char.city_char_mod }}</option>
-                {% endfor %}
-            </select>
-            <div class="row">
-                <div class="col"><p id='Item' class='c-gold h5'>Item</p> <span id="Item-additional" class="c-gold"></span></div>
+    <div id='char-to-buy' class='d-none position-fixed container-fluid' role="dialog" aria-labelledby="Item">
+        <form class="bg-dark c-gold rounded border border-warning p-3 text-center"
+              onsubmit="event.preventDefault(); confirmBuy()">
+            <h2 id="Item" class="h5 mb-3"></h2>
+            <div class="city-buy-quantity mb-3">
+                <label for="Item-amount" class="h6 mb-0">Ilość:</label>
+                <input class="form-control form-control-sm text-center c-gold bg-dark border border-warning"
+                       type="number" min="1" step="1" value="1" id="Item-amount"
+                       oninput="updateBuyPrice()" onchange="normalizeBuyAmount()" required />
             </div>
-            <div class="row">
-                <div class="col-6 text-end"><span class="c-gold h6">Ilość: </span></div>
-                <div class="col-2"><input class="text-center w-100 c-gold bg-dark border border-warning rounded" type="number" value="1" id="Item-amount" /></div>
+            <p class="mb-3">Cena: <output id="buy-price-total" for="Item-amount choosing_char_select" class="h5"></output>&nbsp;<i class="fa-solid fa-coins" role="img" aria-label="monety"></i></p>
+            <div class="d-flex justify-content-center gap-2">
+                <button type="button" onclick="closeBuyDialog()" class="btn btn-sm btn-danger">Anuluj</button>
+                <button type="submit" id="confirm-success" class="btn btn-sm btn-success">Kupno</button>
             </div>
-            <a onclick='this.parentNode.parentNode.parentNode.classList.add("d-none")' id='confirm-failure' class='btn btn-danger m-3'>Powrót</a>
-            <a onclick="confirmBuy()" id='confirm-success' class='btn btn-success m-3'>Kupno</a>
-          </div>
-        </div>
-    </div>
-
-    <div id='buy-price-confirm' class='d-none position-fixed container-fluid'>
-        <div class='row bg-dark c-gold rounded border border-warning me-1'>
-          <div class='col text-center'>
-            <h2 id='buy-price-title' class='c-gold h4 m-3'></h2>
-            <a onclick='document.getElementById("buy-price-confirm").classList.add("d-none")' class='btn btn-danger m-3'>Anuluj</a>
-            <a onclick="executeConfirmedBuy()" class='btn btn-success m-3'>Okej</a>
-          </div>
-        </div>
+        </form>
     </div>
 
     <div id='char-to-order' class='d-none position-fixed container-fluid'>
@@ -1224,7 +1245,7 @@
     document.getElementById('tb-city').classList.add('btn-outline-primary')
     
 
-    let pendingBuyUrl = ""
+    restoreBuyingCharacter()
 
     async function refreshCityData(button){
         const originalContent = button.innerHTML
@@ -1250,7 +1271,22 @@
                 throw new Error('Brak danych miasta w odpowiedzi')
             }
 
+            const characterSelect = document.getElementById('choosing_char_select')
+            const refreshedCharacterSelect = documentFromDatabase.getElementById('choosing_char_select')
+            if(characterSelect && refreshedCharacterSelect){
+                const selectedCharacterId = characterSelect.value
+                characterSelect.replaceChildren(...Array.from(refreshedCharacterSelect.options, option => option.cloneNode(true)))
+                characterSelect.disabled = refreshedCharacterSelect.disabled
+                if(Array.from(characterSelect.options).some(option => option.value === selectedCharacterId)){
+                    characterSelect.value = selectedCharacterId
+                }
+            }
+            const refreshedCharismaData = documentFromDatabase.getElementById('city-charisma-data')
+            if(refreshedCharismaData){
+                document.getElementById('city-charisma-data').innerHTML = refreshedCharismaData.innerHTML
+            }
             currentContent.innerHTML = refreshedContent.innerHTML
+            changeBuyingCharacter()
             document.title = document.getElementById('city-name').textContent.trim() + " | DunnoRPG"
             filterCitySelect()
         } catch (error) {
@@ -1309,55 +1345,87 @@
     }
 
     function buyItem(item,item_id,item_durability,item_unit_price,item_available_amount){
+        const itemLine = document.getElementById('Item')
+        itemLine.textContent = item
+        itemLine.dataset.itemId = item_id
+        itemLine.dataset.durability = item_durability
+        itemLine.dataset.unitPrice = item_unit_price
+        itemLine.dataset.availableAmount = item_available_amount
+        const amountInput = document.getElementById('Item-amount')
+        amountInput.value = 1
+        amountInput.max = item_available_amount
         document.getElementById('char-to-buy').classList.remove('d-none')
-        document.getElementById('buy-price-confirm').classList.add('d-none')
-        document.getElementById('Item-amount').value = 1
-        let add_txt = document.getElementById('Item-additional')
-        add_txt.textContent = ''
-        
-        //let x10packs = ["Strzała", "Pocisk do broni prochowej"]
-        //if(x10packs.includes(item)){
-        //    add_txt.textContent = "(Paczki po 10 sztuk)"
-        //}
+        updateBuyPrice()
+        amountInput.focus()
+        amountInput.select()
+    }
 
-        item_line = document.getElementById('Item')
-        item_line.innerHTML = item
-        item_line.setAttribute('name', item_id)
-        item_line.setAttribute('durability', item_durability)
-        item_line.setAttribute('unit-price', item_unit_price)
-        item_line.setAttribute('available-amount', item_available_amount)
+    function restoreBuyingCharacter(){
+        const select = document.getElementById('choosing_char_select')
+        if(!select){
+            return
+        }
+        try {
+            const selectedCharacterId = sessionStorage.getItem('city-buying-character')
+            if(Array.from(select.options).some(option => option.value === selectedCharacterId)){
+                select.value = selectedCharacterId
+            }
+        } catch(error) {}
+    }
 
+    function changeBuyingCharacter(){
+        const select = document.getElementById('choosing_char_select')
+        if(!select){
+            return
+        }
+        try {
+            sessionStorage.setItem('city-buying-character', select.value)
+        } catch(error) {}
+        updateBuyPrice()
+    }
+
+    function updateBuyPrice(){
+        const item = document.getElementById('Item')
+        const amountInput = document.getElementById('Item-amount')
+        const select = document.getElementById('choosing_char_select')
+        const character = select.selectedOptions[0]
+        const amount = Number(amountInput.value)
+        const availableAmount = Number(item.dataset.availableAmount)
+        const valid = Boolean(item.dataset.itemId && select.value && Number.isInteger(amount) && amount >= 1 && amount <= availableAmount)
+        document.getElementById('confirm-success').disabled = !valid
+        const priceOutput = document.getElementById('buy-price-total')
+        if(!valid){
+            priceOutput.textContent = '--'
+            return null
+        }
+
+        const unitPrice = Number(item.dataset.unitPrice) || 0
+        const basePrice = Number((unitPrice * amount).toFixed(1))
+        const charisma = (Number(character.dataset.charisma) || 0) + (Number(character.dataset.charismaMod) || 0)
+        const discount = Number((basePrice * charisma * 2 / 100).toFixed(1))
+        priceOutput.textContent = (basePrice - discount).toFixed(1)
+        return {itemId: item.dataset.itemId, characterId: select.value, amount, durability: item.dataset.durability}
+    }
+
+    function normalizeBuyAmount(){
+        const amountInput = document.getElementById('Item-amount')
+        const availableAmount = Number(document.getElementById('Item').dataset.availableAmount)
+        const amount = Math.floor(Number(amountInput.value)) || 1
+        amountInput.value = Math.max(1, Math.min(amount, availableAmount))
+        return updateBuyPrice()
     }
 
     function confirmBuy(){
-        let item = document.getElementById('Item');
-        let item_id = item.getAttribute('name');
-        let item_durability = item.getAttribute('durability');
-        let char_id = document.getElementById('choosing_char_select').value;
-    
-        let amount_input = document.getElementById('Item-amount');
-        let amount = parseInt(amount_input.value) || 1;
-        let available_amount = parseInt(item.getAttribute('available-amount')) || amount;
-        amount = Math.max(1, Math.min(amount, available_amount));
-        amount_input.value = amount;
-
-        let unit_price = parseFloat(item.getAttribute('unit-price')) || 0;
-        let base_price = parseFloat((unit_price * amount).toFixed(1));
-        let characterCharisma = parseInt(document.getElementById(`${char_id}-char`).innerHTML) || 0;
-        let characterCharismaMod = parseInt(document.getElementById(`${char_id}-char-mod`).innerHTML) || 0;
-        let charisma = characterCharisma + characterCharismaMod;
-        let char_bonus = parseFloat((base_price * (charisma * 2) / 100).toFixed(1));
-        let price = parseFloat((base_price - char_bonus).toFixed(1));
-    
-        pendingBuyUrl = "buyitem-" + item_id + "-" + char_id + "-" + amount + "?durability=" + encodeURIComponent(item_durability);
-        document.getElementById('buy-price-title').innerHTML = `Sprzedawca proponuje ${price} monet za ${amount}x ${item.innerHTML}.`
-        document.getElementById('buy-price-confirm').classList.remove('d-none')
+        const purchase = normalizeBuyAmount()
+        if(!purchase){
+            return
+        }
+        document.getElementById('confirm-success').disabled = true
+        window.location.href = "buyitem-" + purchase.itemId + "-" + purchase.characterId + "-" + purchase.amount + "?durability=" + encodeURIComponent(purchase.durability)
     }
 
-    function executeConfirmedBuy(){
-        if(pendingBuyUrl !== ""){
-            window.location.href = pendingBuyUrl;
-        }
+    function closeBuyDialog(){
+        document.getElementById('char-to-buy').classList.add('d-none')
     }
 
     function orderItem(item,item_id){
