@@ -1,10 +1,20 @@
 {% extends 'master.html' %}
-{% load filters %}
+{% load filters static %}
 {% block content %}
 {% include 'top_bar.html' %}
 {% include 'dunnorpg/messages.html' %}
 
 <style>
+    .character-backpack-icon {
+        display: inline-block;
+        width: 1.25em;
+        height: 1.25em;
+        vertical-align: -0.15em;
+        background-color: currentColor;
+        -webkit-mask: url('{% static 'DunnoRPG/img/icons/light-backpack.svg' %}') center / contain no-repeat;
+        mask: url('{% static 'DunnoRPG/img/icons/light-backpack.svg' %}') center / contain no-repeat;
+    }
+
     #iframe-card {
         inset: 0.5rem;
         width: auto;
@@ -444,15 +454,17 @@ style="width: 98%; z-index: 20; margin-left: 0.1rem !important; margin-top: -1re
             <i class="fa fa-bars" aria-hidden="true"></i>
         </button>
 
+        {% if chosen_character.0.inFight %}
         <div class='col-3 m-0 p-1 btn btn-dark btn-outline-warning border border-warning rounded' id='Move' onclick="show_result_at_window('Move')">
             <span class='fas fa-running'></span><br>Ruch
         </div>
+        {% endif %}
 
-        <div class='col-4 m-0 p-1 btn btn-dark btn-outline-warning border border-warning rounded' id='Skills' onclick="show_or_hideByName(this)">
+        <div class='{% if chosen_character.0.inFight %}col-4{% else %}col-5{% endif %} m-0 p-1 btn btn-dark btn-outline-warning border border-warning rounded' id='Skills' onclick="show_or_hideByName(this)">
             <span class='fas fa-meteor' id="skills-tab-icon"></span><br>Umiejętności
         </div>
 
-        <div class='col-3 m-0 p-1 btn btn-dark btn-outline-warning border border-warning rounded' id='Effects' onclick="show_or_hideByName(this)">
+        <div class='{% if chosen_character.0.inFight %}col-3{% else %}col-5{% endif %} m-0 p-1 btn btn-dark btn-outline-warning border border-warning rounded' id='Effects' onclick="show_or_hideByName(this)">
             <span class='fas fa-theater-masks'></span><br>Efekty
         </div>
     </div>
@@ -2444,6 +2456,7 @@ style="width: 98%; z-index: 20; margin-left: 0.1rem !important; margin-top: -1re
 
 <div class='container mt-2' style="position: sticky; bottom: 0.5px;">
     <div class='row'>
+        {% if chosen_character.0.inFight %}
         <div onclick='show_result_at_window("Parry")' class='col-3 m-0 p-1 btn btn-dark btn-outline-warning border border-warning rounded'>
             <span class='fas fa-shield-alt'></span><br>Parowanie
         </div>
@@ -2456,6 +2469,14 @@ style="width: 98%; z-index: 20; margin-left: 0.1rem !important; margin-top: -1re
         <div onclick='document.getElementById("notes-block").classList.remove("d-none")' class='col-2 m-0 p-0 btn btn-dark btn-outline-warning border border-warning rounded'>
             <span class='fas fa-pencil-alt mt-4'></span><br>
         </div>
+        {% else %}
+        <button class="col-6 m-0 p-1 btn btn-dark btn-outline-warning border border-warning rounded" type="button" onclick="openInventoryIframe()">
+            <span class="character-backpack-icon" aria-hidden="true"></span><br>Ekwipunek
+        </button>
+        <button onclick='document.getElementById("notes-block").classList.remove("d-none")' class='col-6 m-0 p-1 btn btn-dark btn-outline-warning border border-warning rounded' type="button">
+            <span class="fas fa-pencil-alt" aria-hidden="true"></span><br>Notatki
+        </button>
+        {% endif %}
     </div>
 </div>
 

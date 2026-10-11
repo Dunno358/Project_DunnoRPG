@@ -52,3 +52,9 @@
 - `full-folder.svg` - "Full folder" by Delapouite, from Game-icons.net, licensed under CC BY 3.0.
   Source: https://game-icons.net/1x1/delapouite/full-folder.html
   License: https://creativecommons.org/licenses/by/3.0/
+- `backpack.svg` - "Backpack" by Delapouite, from Game-icons.net, licensed under CC BY 3.0.
+  Source: https://game-icons.net/1x1/delapouite/backpack.html
+  License: https://creativecommons.org/licenses/by/3.0/
+- `light-backpack.svg` - "Light backpack" by Delapouite, from Game-icons.net, licensed under CC BY 3.0.
+  Source: https://game-icons.net/1x1/delapouite/light-backpack.html
+  License: https://creativecommons.org/licenses/by/3.0/
