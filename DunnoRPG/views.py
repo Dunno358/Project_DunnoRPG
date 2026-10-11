@@ -2886,7 +2886,11 @@ def update_field(request, **kwargs):
     if model == "Character":
         obj = get_object_or_404(models.Character, id=field_id)
         obj.notes = text
-        obj.save()
+        obj.save(update_fields=["notes"])
+        if is_partial_request(request):
+            return JsonResponse({"message": "Notatki zapisane."})
+    elif is_partial_request(request):
+        return JsonResponse({"error": "Nieprawidłowy model notatek."}, status=400)
     
     return redirect('character_detail', field_id)
 

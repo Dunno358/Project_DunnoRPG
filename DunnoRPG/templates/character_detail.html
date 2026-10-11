@@ -2334,7 +2334,7 @@ style="width: 98%; z-index: 20; margin-left: 0.1rem !important; margin-top: -1re
     </div>    
     
     <form id="notes-block" class="d-none position-fixed mt-2 border border-primary bg-gray rounded" 
-    style="width: 99%;left: 0%;top: 10vh;height: 75%; z-index: 6;" method="post" action="/dunnorpg/update_field/{{ value.id }}?model=Character">
+    style="width: 99%;left: 0%;top: 10vh;height: 75%; z-index: 6;" method="post" action="/dunnorpg/update_field/{{ value.id }}?model=Character" onsubmit="saveCharacterNotes(event)">
         {% csrf_token %}
         <div class="row">
             <div class="col"></div>
@@ -2347,7 +2347,7 @@ style="width: 98%; z-index: 20; margin-left: 0.1rem !important; margin-top: -1re
             <h5 class="fw-bold col text-center">Notatki:</h5>
         </div>    
         <div class="row">
-            <textarea value="test" class="card-body m-2 rounded" name="notes-text"
+            <textarea class="card-body m-2 rounded" name="notes-text"
             style="height: 55vh; background-color: #dbc78a;">{{ value.notes }}</textarea>
         </div>
         <div class="row ms-3 me-3">
@@ -2500,6 +2500,42 @@ function catchErrorForValueChanges(id){
         console.log('Cannot track changes for '+id+'. Ignore if you are not GM.')
     }
      
+}
+
+async function saveCharacterNotes(event){
+    event.preventDefault()
+    const form = event.currentTarget
+    if(form.dataset.submitting === 'true'){
+        return
+    }
+    const button = form.querySelector('button[type="submit"]')
+    const originalText = button.textContent
+    form.dataset.submitting = 'true'
+    button.disabled = true
+    button.textContent = 'Zapisywanie...'
+
+    try{
+        const response = await fetch(form.action, {
+            method: 'POST',
+            body: new FormData(form),
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+            },
+        })
+        const data = await response.json()
+        if(!response.ok){
+            throw new Error(data.error || 'Nie udało się zapisać notatek.')
+        }
+        showMessage(data.message || 'Notatki zapisane.', 'success')
+    }
+    catch(error){
+        showMessage('Nie udało się zapisać notatek.', 'error')
+    }
+    finally{
+        form.dataset.submitting = 'false'
+        button.disabled = false
+        button.textContent = originalText
+    }
 }
 
 function initAjaxInput(inputId, formId){
