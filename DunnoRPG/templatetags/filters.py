@@ -1,5 +1,6 @@
 from django import template
 from django.utils.safestring import mark_safe
+from django.utils.text import Truncator
 from DunnoRPG import models
 from django.apps import apps
 from django.shortcuts import get_object_or_404
@@ -650,7 +651,7 @@ def _text_with_definition_html(text):
     return "".join(parts)
 
 @register.filter
-def itemSkillWithLinks(text):
+def itemSkillWithLinks(text, max_length=None):
     rendered = []
     raw_text = str(text or "")
     cursor = 0
@@ -671,7 +672,12 @@ def itemSkillWithLinks(text):
         cursor = match.end()
 
     rendered.append(_text_with_definition_html(raw_text[cursor:]))
-    return mark_safe("".join(rendered))
+    html = "".join(rendered)
+    if max_length is not None:
+        preview = Truncator(html).chars(int(max_length), truncate="", html=True)
+        if preview != html:
+            html = preview + "..."
+    return mark_safe(html)
 
 @register.filter
 def beautifySplit(text, splitBy):

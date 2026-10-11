@@ -4137,31 +4137,107 @@ def is_city_range_shop_item(item_category):
 def is_city_gunpowder_shop_item(item_category):
     return "gun" in item_category or "gunpowder" in item_category
 
+def get_city_item_stat(item):
+    if (item.type or "").strip().lower() == "shield":
+        return f"Blok: {item.block}"
+    if (item.type or "").strip().lower() == "amunicja":
+        return f"{item.dmgModifier:g}x"
+    return f"{item.dmgDice}, {item.AP}% AP"
+
+def should_show_city_capacity(item):
+    item_category = (item.category or "").strip().lower()
+    item_type = (item.type or "").strip().lower()
+    item_name = (item.name or "").lower()
+    return item_category == "bag" or (
+        item_category == "cloth"
+        and item_type == "akcesoria"
+        and "pas" in item_name
+    )
+
+def get_city_animal_groups(items, categories):
+    labels = {
+        "animal_saddle": "Siodło/Juki",
+        "animal_horseshoes": "Podkowy",
+        "animal_armor": "Pancerz",
+        "animal": "Zwierzę",
+        "other": "Pozostałe",
+    }
+    groups = {key: [] for key in labels}
+    for item in items:
+        category = categories.get(item, "")
+        if category not in groups:
+            item_type = (item.item_type or "").strip().lower()
+            category = {"animal": "animal", "mount armor": "animal_armor"}.get(item_type, "other")
+        groups[category].append(item)
+    return [(label, groups[key]) for key, label in labels.items()]
+
+def get_city_armor_groups(items, categories):
+    labels = {
+        "helmet": "Hełm",
+        "torso": "Napierśnik",
+        "gloves": "Rękawice",
+        "boots": "Nogi",
+        "akcesoria": "Akcesoria",
+        "amulet": "Amulet",
+        "bag": "Torby",
+        "other": "Pozostałe",
+    }
+    groups = {key: [] for key in labels}
+    for item in items:
+        item_type = (item.item_type or "").strip().lower()
+        if categories.get(item) == "bag":
+            item_type = "bag"
+        groups[item_type if item_type in groups else "other"].append(item)
+    return [(label, groups[key]) for key, label in labels.items()]
+
+def get_city_weapon_groups(items):
+    singlehand = []
+    twohand = []
+    ammunition = []
+    for item in items:
+        if (item.item_type or "").strip().lower() == "amunicja":
+            ammunition.append(item)
+        elif item.dual_handed:
+            twohand.append(item)
+        else:
+            singlehand.append(item)
+    return [
+        ("Jednoręczne", singlehand),
+        ("Dwuręczne", twohand),
+        ("Amunicja", ammunition),
+    ]
+
 CITY_TAVERN_BUY_CATEGORIES = {"alkohol", "jedzenie"}
 
 class CityShopItem(str):
-    def __new__(cls, item, durability_percent, sale_index, is_superuser=False):
+    def __new__(cls, item, durability_percent, sale_index):
         name = item.name
         obj = str.__new__(cls, name)
         obj.durability_percent = durability_percent
         obj.sale_index = sale_index
         obj.item_id = item.id
         obj.item_type = item.type
+        obj.item_category = (item.category or "").strip().lower()
+        obj.is_city_equipment = (item.type or "").strip().lower() in {
+            "helmet", "torso", "gloves", "boots", "akcesoria", "amulet",
+        }
+        obj.is_ammunition = (item.type or "").strip().lower() == "amunicja"
+        obj.item_ap = f"{item.AP:+d}%AP"
+        obj.dual_handed = item.dualHanded
         obj.rarity = item.rarity
+        obj.extra_capacity = item.extra_capacity
+        obj.show_city_capacity = should_show_city_capacity(item)
         obj.armor_weight_label = get_city_armor_weight_label(item)
-        if (item.type or "").lower() == "shield":
-            obj.item_stat = f"Blok: {item.block}"
-        else:
-            obj.item_stat = f"{item.dmgDice}, {item.AP}% AP"
+        obj.item_stat = get_city_item_stat(item)
+        obj.item_range = item_effective_range(item) if is_weapon_item(item) else None
 
         skill = item.skill or ""
-        if is_superuser and item.hiddenSkill:
-            skill = f"{skill} | {item.hiddenSkill}" if skill else item.hiddenSkill
         obj.use_info = item.use_info or ""
         if (item.category or "").strip().lower() == "tawerna" and skill:
             obj.use_info = f"{obj.use_info} | {skill}" if obj.use_info else skill
-        full_description = f"{skill} | {item.desc}" if skill else (item.desc or "")
-        obj.visible_description = full_description[:80] + "..." if len(full_description) > 80 else full_description
+        obj.skill_text = skill
+        obj.skill_preview_limit = 100
+        obj.visible_skill = skill[:100] + "..." if len(skill) > 100 else skill
         return obj
 
     def __hash__(self):
@@ -4248,7 +4324,7 @@ class CityView(ListView):
                     if not item.found:
                         found_item_ids.append(item.id)
 
-                    shop_item = CityShopItem(item, durability, sale_index, self.request.user.is_superuser)
+                    shop_item = CityShopItem(item, durability, sale_index)
 
                     amounts[shop_item] = amount
                     durabilities[shop_item] = item_durability
@@ -4262,12 +4338,16 @@ class CityView(ListView):
                     city_categories[shop_item] = item_category
                     if item_category == "trash":
                         other.append(shop_item)
+                    elif item_category == "eliksir":
+                        potions.append(shop_item)
                     elif item_category in CITY_TAVERN_BUY_CATEGORIES:
                         tavern_buy_items.append(shop_item)
                     elif item_category == "tawerna":
                         tavern.append(shop_item)
                     elif item_category.startswith("trophy_"):
                         trophies.append(shop_item)
+                    elif item_category == "animal" or item_category.startswith("animal_") or (item.type or "").strip().lower() in {"animal", "mount armor"}:
+                        animals.append(shop_item)
                     elif item_category == "weapon_music":
                         musical_weaponry.append(shop_item)
                     elif is_city_range_shop_item(item_category):
@@ -4281,12 +4361,7 @@ class CityView(ListView):
                     elif item.type == 'Amulet':
                         amulets.append(shop_item)
                     elif item.type == 'Other':
-                        if item.name.split(' ')[0] in ['Eliksir','Mikstura']:
-                            potions.append(shop_item)
-                        else:   
-                            other.append(shop_item)
-                    elif item.type == 'Animal' or item.type.lower() == 'mount armor' or item_category.startswith("animal_"):
-                        animals.append(shop_item)
+                        other.append(shop_item)
                     else:
                         if item.type in armor_types:
                             if item.type=="Helmet":
@@ -4335,19 +4410,24 @@ class CityView(ListView):
             context['weaponry_twohand'] = weaponry_twohand
             context['ranged_weaponry'] = ranged_weaponry
             context['gunpowder_weaponry'] = gunpowder_weaponry
+            context['ranged_weapon_groups'] = get_city_weapon_groups(ranged_weaponry)
+            context['gunpowder_weapon_groups'] = get_city_weapon_groups(gunpowder_weaponry)
             context['musical_weaponry'] = musical_weaponry
             context['armor'] = armor
             context['cloth'] = cloth
             context['tailor_items'] = tailor_items
+            context['armor_groups'] = get_city_armor_groups(armor, city_categories)
+            context['tailor_groups'] = get_city_armor_groups(tailor_items, city_categories)
             context['armor_elegant'] = armor_elegant
             context['amulets'] = amulets
             context['potions'] = potions
             context['trophies'] = trophies
             context['animals'] = animals
+            context['animal_groups'] = get_city_animal_groups(animals, city_categories)
             context['tavern'] = tavern
             context['tavern_groups'] = [
-                ("Pokój", [item for item in tavern if item.item_type == "Pokój"]),
-                ("Posiłek", [item for item in tavern if item.item_type != "Pokój"]),
+                ("Pokoje", [item for item in tavern if item.item_type == "Pokój"]),
+                ("Posiłki", [item for item in tavern if item.item_type != "Pokój"]),
             ]
             context['tavern_buy_items'] = tavern_buy_items
             context['other'] = other

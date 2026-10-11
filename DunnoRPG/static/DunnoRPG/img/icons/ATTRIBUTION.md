@@ -8,6 +8,10 @@
   Source: https://game-icons.net/1x1/delapouite/chest-armor.html
   License: https://creativecommons.org/licenses/by/3.0/
 
+- `crosshair.svg` - "Crosshair" by Delapouite, from Game-icons.net, licensed under CC BY 3.0.
+  Source: https://game-icons.net/1x1/delapouite/crosshair.html
+  License: https://creativecommons.org/licenses/by/3.0/
+
 - `banjo.svg` - "Banjo" by Delapouite, from Game-icons.net, licensed under CC BY 3.0.
   Source: https://game-icons.net/1x1/delapouite/banjo.html
   License: https://creativecommons.org/licenses/by/3.0/

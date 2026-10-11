@@ -3,8 +3,13 @@
 
 {% block content %}
 <style>
+    .city-item-skill {
+        font-size: 90%;
+    }
+
     .city-armor-stat,
-    .city-weight-stat {
+    .city-weight-stat,
+    .city-range-stat {
         display: inline-flex;
         align-items: center;
         justify-content: center;
@@ -13,7 +18,8 @@
     }
 
     .city-armor-icon,
-    .city-weight-icon {
+    .city-weight-icon,
+    .city-range-icon {
         display: inline-block;
         width: 1.25em;
         height: 1.25em;
@@ -29,6 +35,21 @@
     .city-weight-icon {
         -webkit-mask: url('{% static 'DunnoRPG/img/icons/weight.svg' %}') center / contain no-repeat;
         mask: url('{% static 'DunnoRPG/img/icons/weight.svg' %}') center / contain no-repeat;
+    }
+
+    .city-range-icon {
+        -webkit-mask: url('{% static 'DunnoRPG/img/icons/crosshair.svg' %}') center / contain no-repeat;
+        mask: url('{% static 'DunnoRPG/img/icons/crosshair.svg' %}') center / contain no-repeat;
+    }
+
+    .city-weapon-damage {
+        min-width: 0;
+        line-height: 1.1;
+        overflow-wrap: anywhere;
+    }
+
+    .city-weapon-damage .h6 {
+        font-size: 0.9rem;
     }
 
     #city-select,
@@ -86,18 +107,28 @@
         text-overflow: ellipsis;
     }
 
-    @media (max-width: 576px) {
-        #city-item-iframe-card {
-            left: 0.5rem;
-            top: 1rem;
-            width: calc(100% - 0.5rem) !important;
-            margin-left: 0 !important;
-            margin-top: 0 !important;
-        }
+    #city-item-iframe-card {
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+        width: calc(100% - 2rem);
+        max-width: 48rem;
+        z-index: 6;
+    }
 
-        #city-item-iframe-card > .row:last-child {
-            height: calc(100dvh - 7.5rem) !important;
-        }
+    #city-item-iframe-card > .row {
+        margin: 0;
+    }
+
+    #city-item-iframe-card .city-iframe-body {
+        height: min(28rem, 70dvh);
+    }
+
+    #city-item-iframe-card.city-definition-preview .city-iframe-body {
+        height: min(18rem, 50dvh);
+    }
+
+    @media (max-width: 576px) {
 
         :is(#smith-items, #bowyer-items, #gunsmith-items, #music-merchant-items, #armorer-items, #tailor-items, #jeweler-items, #tavern-items, #potions, #hunter, #merchant, #animals) > .row.bg-gray {
             display: grid;
@@ -166,7 +197,45 @@
             border-right: 0;
         }
 
-        :is(#armorer-items, #tailor-items, #jeweler-items) > .row.bg-gray {
+        :is(#smith-items, #bowyer-items, #gunsmith-items, #music-merchant-items) > .row.bg-gray:has(.city-weapon-range, .city-weapon-ap) {
+            grid-template-columns: minmax(0, 1.2fr) minmax(2.5rem, 0.5fr) minmax(0, 0.85fr) minmax(0, 0.85fr);
+        }
+
+        :is(#smith-items, #bowyer-items, #gunsmith-items, #music-merchant-items) > .row.bg-gray:has(.city-weapon-range, .city-weapon-ap) > .col-3 > div:first-child {
+            order: 3;
+            grid-column: 3;
+            grid-row: 3;
+        }
+
+        :is(#smith-items, #bowyer-items, #gunsmith-items, #music-merchant-items) > .row.bg-gray > .col-3 > div.city-weapon-damage {
+            order: 1;
+            grid-column: 1;
+            border-right: 1px solid currentColor;
+        }
+
+        :is(#smith-items, #bowyer-items, #gunsmith-items, #music-merchant-items) > .row.bg-gray > .col-3 > div:is(.city-weapon-range, .city-weapon-ap) {
+            order: 2;
+            grid-column: 2;
+            grid-row: 3;
+            border-right: 1px solid currentColor;
+        }
+
+        :is(#smith-items, #bowyer-items, #gunsmith-items, #music-merchant-items) > .row.bg-gray:has(.city-weapon-range, .city-weapon-ap) > .col-3 > div.city-weapon-damage {
+            grid-row: 3;
+        }
+
+        :is(#smith-items, #bowyer-items, #gunsmith-items, #music-merchant-items) > .row.bg-gray:has(.city-weapon-range, .city-weapon-ap) > .col-3 > div:nth-last-child(2) {
+            order: 4;
+            grid-column: 4;
+            grid-row: 3;
+            border-right: 0;
+        }
+
+        :is(#smith-items, #bowyer-items, #gunsmith-items, #music-merchant-items) > .row.bg-gray:has(.city-weapon-ap) {
+            grid-template-columns: minmax(0, 0.7fr) minmax(0, 0.9fr) minmax(0, 0.9fr) minmax(0, 0.9fr);
+        }
+
+        :is(#armorer-items, #tailor-items, #jeweler-items, #hunter) > .row.bg-gray:has(.city-item-category) {
             grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr) minmax(3rem, 0.65fr) minmax(0, 0.95fr);
         }
 
@@ -174,23 +243,23 @@
             grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr) minmax(5.5rem, 0.9fr) minmax(0, 0.95fr);
         }
 
-        :is(#armorer-items, #tailor-items, #jeweler-items) > .row.bg-gray > .col-3 > .city-item-category {
+        :is(#armorer-items, #tailor-items, #jeweler-items, #hunter) > .row.bg-gray > .col-3 > .city-item-category {
             order: 1;
             grid-column: 1;
         }
 
-        :is(#armorer-items, #tailor-items, #jeweler-items) > .row.bg-gray > .col-3 > div:nth-last-child(4) {
+        :is(#armorer-items, #tailor-items, #jeweler-items, #hunter) > .row.bg-gray:has(.city-item-category) > .col-3 > div:nth-last-child(4) {
             order: 2;
             grid-column: 2;
         }
 
-        :is(#armorer-items, #tailor-items, #jeweler-items) > .row.bg-gray > .col-3 > div:nth-last-child(3) {
+        :is(#armorer-items, #tailor-items, #jeweler-items, #hunter) > .row.bg-gray:has(.city-item-category) > .col-3 > div:nth-last-child(3) {
             order: 3;
             grid-column: 3;
             border-right: 1px solid currentColor;
         }
 
-        :is(#armorer-items, #tailor-items, #jeweler-items) > .row.bg-gray > .col-3 > div:nth-last-child(2):not(:first-child) {
+        :is(#armorer-items, #tailor-items, #jeweler-items, #hunter) > .row.bg-gray:has(.city-item-category) > .col-3 > div:nth-last-child(2):not(:first-child) {
             order: 4;
             grid-column: 4;
             border-right: 0;
@@ -247,15 +316,14 @@
         </div>
     </div>
     <div id="city-refresh-content">
-    <div id='city-item-iframe-card' class="container position-fixed m-0 p-0 pb-3 mt-0 d-none"
-    style="width: 98%; z-index: 5; margin-left: 0.22rem !important; margin-top: 0 !important">
+    <div id='city-item-iframe-card' class="container position-fixed m-0 p-0 d-none">
         <div class="row">
             <div class="col c-gold p-0">
-                <button class='btn btn-dark btn-outline-danger w-100' onclick="hideCityItemIframe()">X Zamknij podglad przedmiotu X</button>
+                <button class='btn btn-dark btn-outline-danger w-100' onclick="hideCityItemIframe()">X Zamknij podgląd X</button>
             </div>
         </div>
 
-        <div class="row w-100" style="height: 35rem !important;">
+        <div class="row city-iframe-body">
             <div class="col c-gold text-start p-0">
                 <iframe src="" class="border border-warning w-100 h-100 bg-dark" id="city-item-iframe"></iframe>
             </div>
@@ -354,7 +422,7 @@
         </div>
         <div id='smith-items' class='container text-center c-gold rounded border border-primary bg-dark d-none p-0 m-0' style="width: 100%;">
             {% for item in weaponry_singlehand %}
-                <div class='row bg-gray rounded m-1 border border-primary'>
+                <div class='mt-2 row bg-gray rounded m-1 border border-primary'>
 
                     <div class="col-9 border-end">
                         <div class="row-10" style="text-align: center;">
@@ -367,16 +435,25 @@
                         </div>
                         <div class="row-10">
                             <div class="col p-2" style="text-align: left;">
-                                <i class="neutral-high">{{ item|getVisibleSkillAndDesc:user }}</i>
+                                <i class="neutral-high city-item-skill">{{ item.skill_text|itemSkillWithLinks:item.skill_preview_limit }}</i>
                             </div>
                         </div>
                     </div>
 
                     <div class="col-3 p-0">
                         <div class="row-3 border-bottom pt-1 pb-1 h6 mb-0">{{ city_prices|dict_get:item }}&nbsp;<i class="fa-solid fa-coins" role="img" aria-label="monety"></i></div>
-                        <div class="row-3 border-bottom pt-1 pb-1">
-                            <div class="col"><span class="h6">{{ item|getItemStatByName }}</span></div>
+                        <div class="city-weapon-damage row-3 border-bottom pt-1 pb-1">
+                            <span class="h6">{{ item.item_stat }}</span>
                         </div>
+                        {% if item.is_ammunition %}
+                        <div class="city-weapon-ap row-3 border-bottom pt-1 pb-1">
+                            <span class="h6">{{ item.item_ap }}</span>
+                        </div>
+                        {% elif item.item_range %}
+                        <div class="city-weapon-range row-3 border-bottom pt-1 pb-1">
+                            <span class="h6 city-range-stat"><span class="city-range-icon" role="img" aria-label="Zasieg" title="Zasieg"></span>{{ item.item_range }}</span>
+                        </div>
+                        {% endif %}
                         <div class="row-3 border-bottom pt-1 pb-1 h6 mb-0"><span class="neutral-high">Ilość:</span> {{ amounts|dict_get:item }}</div>
                         <div class="row-3" style="height: 4vh;">
                             <div class="col h-100">
@@ -398,7 +475,7 @@
                 </div>
             {% endif %}
             {% for item in weaponry_twohand %}
-                <div class='row bg-gray rounded m-1 border border-primary'>
+                <div class='mt-2 row bg-gray rounded m-1 border border-primary'>
 
                     <div class="col-9 border-end">
                         <div class="row-10" style="text-align: center;">
@@ -411,16 +488,25 @@
                         </div>
                         <div class="row-10">
                             <div class="col p-2" style="text-align: left;">
-                                <i class="neutral-high">{{ item|getVisibleSkillAndDesc:user }}</i>
+                                <i class="neutral-high city-item-skill">{{ item.skill_text|itemSkillWithLinks:item.skill_preview_limit }}</i>
                             </div>
                         </div>
                     </div>
 
                     <div class="col-3 p-0">
                         <div class="row-3 border-bottom pt-1 pb-1 h6 mb-0">{{ city_prices|dict_get:item }}&nbsp;<i class="fa-solid fa-coins" role="img" aria-label="monety"></i></div>
-                        <div class="row-3 border-bottom pt-1 pb-1">
-                            <div class="col"><span class="h6">{{ item|getItemStatByName }}</span></div>
+                        <div class="city-weapon-damage row-3 border-bottom pt-1 pb-1">
+                            <span class="h6">{{ item.item_stat }}</span>
                         </div>
+                        {% if item.is_ammunition %}
+                        <div class="city-weapon-ap row-3 border-bottom pt-1 pb-1">
+                            <span class="h6">{{ item.item_ap }}</span>
+                        </div>
+                        {% elif item.item_range %}
+                        <div class="city-weapon-range row-3 border-bottom pt-1 pb-1">
+                            <span class="h6 city-range-stat"><span class="city-range-icon" role="img" aria-label="Zasieg" title="Zasieg"></span>{{ item.item_range }}</span>
+                        </div>
+                        {% endif %}
                         <div class="row-3 border-bottom pt-1 pb-1 h6 mb-0"><span class="neutral-high">Ilość:</span> {{ amounts|dict_get:item }}</div>
                         <div class="row-3" style="height: 5.2vh;">
                             <div class="col h-100">
@@ -443,8 +529,15 @@
             <h2>Łuczarz<span class="ms-2 d-inline-block" style="width: 1em; height: 1em; vertical-align: -0.12em; background-color: currentColor; -webkit-mask: url('{% static 'DunnoRPG/img/icons/crossbow.svg' %}') center / contain no-repeat; mask: url('{% static 'DunnoRPG/img/icons/crossbow.svg' %}') center / contain no-repeat;"></span></h2>
         </div>
         <div id='bowyer-items' class='container text-center c-gold rounded border border-primary bg-dark d-none p-0 m-0' style="width: 100%;">
-            {% for item in ranged_weaponry %}
-                <div class='row bg-gray rounded m-1 border border-primary'>
+            {% for group_label, group_items in ranged_weapon_groups %}
+            {% if group_items %}
+                <div class="row align-items-center">
+                    <div class="col"><hr></div>
+                    <div class="col-auto"><b>{{ group_label }}</b></div>
+                    <div class="col"><hr></div>
+                </div>
+            {% for item in group_items %}
+                <div class='mt-2 row bg-gray rounded m-1 border border-primary'>
                     <div class="col-9 border-end">
                         <div class="row-10" style="text-align: center;">
                             <div class="col pt-1">
@@ -456,16 +549,25 @@
                         </div>
                         <div class="row-10">
                             <div class="col p-2" style="text-align: left;">
-                                <i class="neutral-high">{{ item|getVisibleSkillAndDesc:user }}</i>
+                                <i class="neutral-high city-item-skill">{{ item.skill_text|itemSkillWithLinks:item.skill_preview_limit }}</i>
                             </div>
                         </div>
                     </div>
 
                     <div class="col-3 p-0">
                         <div class="row-3 border-bottom pt-1 pb-1 h6 mb-0">{{ city_prices|dict_get:item }}&nbsp;<i class="fa-solid fa-coins" role="img" aria-label="monety"></i></div>
-                        <div class="row-3 border-bottom pt-1 pb-1">
-                            <div class="col"><span class="h6">{{ item|getItemStatByName }}</span></div>
+                        <div class="city-weapon-damage row-3 border-bottom pt-1 pb-1">
+                            <span class="h6">{{ item.item_stat }}</span>
                         </div>
+                        {% if item.is_ammunition %}
+                        <div class="city-weapon-ap row-3 border-bottom pt-1 pb-1">
+                            <span class="h6">{{ item.item_ap }}</span>
+                        </div>
+                        {% elif item.item_range %}
+                        <div class="city-weapon-range row-3 border-bottom pt-1 pb-1">
+                            <span class="h6 city-range-stat"><span class="city-range-icon" role="img" aria-label="Zasieg" title="Zasieg"></span>{{ item.item_range }}</span>
+                        </div>
+                        {% endif %}
                         <div class="row-3 border-bottom pt-1 pb-1 h6 mb-0"><span class="neutral-high">Ilość:</span> {{ amounts|dict_get:item }}</div>
                         <div class="row-3" style="height: 4vh;">
                             <div class="col h-100">
@@ -478,6 +580,8 @@
                     </div>
                 </div>
             {% endfor %}
+            {% endif %}
+            {% endfor %}
         </div>
         {% endif %}
 
@@ -486,8 +590,15 @@
             <h2>Rusznikarz<span class="ms-2 d-inline-block" style="width: 1em; height: 1em; vertical-align: -0.12em; background-color: currentColor; -webkit-mask: url('{% static 'DunnoRPG/img/icons/crossed-pistols.svg' %}') center / contain no-repeat; mask: url('{% static 'DunnoRPG/img/icons/crossed-pistols.svg' %}') center / contain no-repeat;"></span></h2>
         </div>
         <div id='gunsmith-items' class='container text-center c-gold rounded border border-primary bg-dark d-none p-0 m-0' style="width: 100%;">
-            {% for item in gunpowder_weaponry %}
-                <div class='row bg-gray rounded m-1 border border-primary'>
+            {% for group_label, group_items in gunpowder_weapon_groups %}
+            {% if group_items %}
+                <div class="row align-items-center">
+                    <div class="col"><hr></div>
+                    <div class="col-auto"><b>{{ group_label }}</b></div>
+                    <div class="col"><hr></div>
+                </div>
+            {% for item in group_items %}
+                <div class='mt-2 row bg-gray rounded m-1 border border-primary'>
                     <div class="col-9 border-end">
                         <div class="row-10" style="text-align: center;">
                             <div class="col pt-1">
@@ -499,16 +610,25 @@
                         </div>
                         <div class="row-10">
                             <div class="col p-2" style="text-align: left;">
-                                <i class="neutral-high">{{ item|getVisibleSkillAndDesc:user }}</i>
+                                <i class="neutral-high city-item-skill">{{ item.skill_text|itemSkillWithLinks:item.skill_preview_limit }}</i>
                             </div>
                         </div>
                     </div>
 
                     <div class="col-3 p-0">
                         <div class="row-3 border-bottom pt-1 pb-1 h6 mb-0">{{ city_prices|dict_get:item }}&nbsp;<i class="fa-solid fa-coins" role="img" aria-label="monety"></i></div>
-                        <div class="row-3 border-bottom pt-1 pb-1">
-                            <div class="col"><span class="h6">{{ item|getItemStatByName }}</span></div>
+                        <div class="city-weapon-damage row-3 border-bottom pt-1 pb-1">
+                            <span class="h6">{{ item.item_stat }}</span>
                         </div>
+                        {% if item.is_ammunition %}
+                        <div class="city-weapon-ap row-3 border-bottom pt-1 pb-1">
+                            <span class="h6">{{ item.item_ap }}</span>
+                        </div>
+                        {% elif item.item_range %}
+                        <div class="city-weapon-range row-3 border-bottom pt-1 pb-1">
+                            <span class="h6 city-range-stat"><span class="city-range-icon" role="img" aria-label="Zasieg" title="Zasieg"></span>{{ item.item_range }}</span>
+                        </div>
+                        {% endif %}
                         <div class="row-3 border-bottom pt-1 pb-1 h6 mb-0"><span class="neutral-high">Ilość:</span> {{ amounts|dict_get:item }}</div>
                         <div class="row-3" style="height: 4vh;">
                             <div class="col h-100">
@@ -520,6 +640,8 @@
                         </div>
                     </div>
                 </div>
+            {% endfor %}
+            {% endif %}
             {% endfor %}
         </div>
         {% endif %}
@@ -530,7 +652,7 @@
         </div>
         <div id='music-merchant-items' class='container text-center c-gold rounded border border-primary bg-dark d-none p-0 m-0' style="width: 100%;">
             {% for item in musical_weaponry %}
-                <div class='row bg-gray rounded m-1 border border-primary'>
+                <div class='mt-2 row bg-gray rounded m-1 border border-primary'>
                     <div class="col-9 border-end">
                         <div class="row-10" style="text-align: center;">
                             <div class="col pt-1">
@@ -542,15 +664,24 @@
                         </div>
                         <div class="row-10">
                             <div class="col p-2" style="text-align: left;">
-                                <i class="neutral-high">{{ item|getVisibleSkillAndDesc:user }}</i>
+                                <i class="neutral-high city-item-skill">{{ item.skill_text|itemSkillWithLinks:item.skill_preview_limit }}</i>
                             </div>
                         </div>
                     </div>
                     <div class="col-3 p-0">
                         <div class="row-3 border-bottom pt-1 pb-1 h6 mb-0">{{ city_prices|dict_get:item }}&nbsp;<i class="fa-solid fa-coins" role="img" aria-label="monety"></i></div>
-                        <div class="row-3 border-bottom pt-1 pb-1">
-                            <div class="col"><span class="h6">{{ item|getItemStatByName }}</span></div>
+                        <div class="city-weapon-damage row-3 border-bottom pt-1 pb-1">
+                            <span class="h6">{{ item.item_stat }}</span>
                         </div>
+                        {% if item.is_ammunition %}
+                        <div class="city-weapon-ap row-3 border-bottom pt-1 pb-1">
+                            <span class="h6">{{ item.item_ap }}</span>
+                        </div>
+                        {% elif item.item_range %}
+                        <div class="city-weapon-range row-3 border-bottom pt-1 pb-1">
+                            <span class="h6 city-range-stat"><span class="city-range-icon" role="img" aria-label="Zasieg" title="Zasieg"></span>{{ item.item_range }}</span>
+                        </div>
+                        {% endif %}
                         <div class="row-3 border-bottom pt-1 pb-1 h6 mb-0"><span class="neutral-high">Ilość:</span> {{ amounts|dict_get:item }}</div>
                         <div class="row-3" style="height: 4vh;">
                             <div class="col h-100">
@@ -571,8 +702,15 @@
             <h2>Płatnerz<span class="ms-2 d-inline-block" style="width: 1em; height: 1em; vertical-align: -0.12em; background-color: currentColor; -webkit-mask: url('{% static 'DunnoRPG/img/icons/visored-helm.svg' %}') center / contain no-repeat; mask: url('{% static 'DunnoRPG/img/icons/visored-helm.svg' %}') center / contain no-repeat;"></span></h2>
         </div>
         <div id='armorer-items' class='container text-center c-gold rounded border border-primary bg-dark d-none p-0 m-0' style="width: 100%;">
-            {% for item in armor %}
-                <div class='row bg-gray rounded m-1 border border-primary'>
+            {% for group_label, group_items in armor_groups %}
+            {% if group_items %}
+                <div class="row align-items-center">
+                    <div class="col"><hr></div>
+                    <div class="col-auto"><b>{{ group_label }}</b></div>
+                    <div class="col"><hr></div>
+                </div>
+            {% for item in group_items %}
+                <div class='mt-2 row bg-gray rounded m-1 border border-primary'>
 
                     <div class="col-9 border-end">
                         <div class="row-10" style="text-align: center;">
@@ -585,7 +723,7 @@
                         </div>
                         <div class="row-10">
                             <div class="col p-2" style="text-align: left;">
-                                <i class="neutral-high">{{ item|getVisibleSkillAndDesc:user }}</i>
+                                <i class="neutral-high city-item-skill">{{ item.skill_text|itemSkillWithLinks:item.skill_preview_limit }}</i>
                             </div>
                         </div>
                     </div>
@@ -609,6 +747,8 @@
 
                 </div>
             {% endfor %}
+            {% endif %}
+            {% endfor %}
         </div>
         {% endif %}
 
@@ -617,8 +757,15 @@
             <h2>Krawiec<span class="ms-2 d-inline-block" style="width: 1em; height: 1em; vertical-align: -0.12em; background-color: currentColor; -webkit-mask: url('{% static 'DunnoRPG/img/icons/pirate-coat.svg' %}') center / contain no-repeat; mask: url('{% static 'DunnoRPG/img/icons/pirate-coat.svg' %}') center / contain no-repeat;"></span></h2>
         </div>
         <div id='tailor-items' class='container text-center c-gold rounded border border-primary bg-dark d-none p-0 m-0' style="width: 100%;">
-            {% for item in tailor_items %}
-                <div class='row bg-gray rounded m-1 border border-primary'>
+            {% for group_label, group_items in tailor_groups %}
+            {% if group_items %}
+                <div class="row align-items-center">
+                    <div class="col"><hr></div>
+                    <div class="col-auto"><b>{{ group_label }}</b></div>
+                    <div class="col"><hr></div>
+                </div>
+            {% for item in group_items %}
+                <div class='mt-2 row bg-gray rounded m-1 border border-primary'>
 
                     <div class="col-9 border-end">
                         <div class="row-10" style="text-align: center;">
@@ -631,7 +778,7 @@
                         </div>
                         <div class="row-10">
                             <div class="col p-2" style="text-align: left;">
-                                <i class="neutral-high">{{ item|getVisibleSkillAndDesc:user }}</i>
+                                <i class="neutral-high city-item-skill">{{ item.skill_text|itemSkillWithLinks:item.skill_preview_limit }}</i>
                             </div>
                         </div>
                     </div>
@@ -640,7 +787,7 @@
                         <div class="city-item-category row-3 border-bottom pt-1 pb-1 h6 mb-0 {{ item|getItemRarity }}">{% if city_categories|dict_get:item == 'bag' %}Torba{% else %}{{ item|getArmorWeightType }}{% endif %}</div>
                         <div class="row-3 border-bottom pt-1 pb-1 h6 mb-0">{{ city_prices|dict_get:item }}&nbsp;<i class="fa-solid fa-coins" role="img" aria-label="monety"></i></div>
                         <div class="row-3 border-bottom pt-1 pb-1">
-                            <div class="col"><span class="h6">{% if city_categories|dict_get:item == 'bag' %}<span class="city-weight-stat"><span class="city-weight-icon" role="img" aria-label="Udźwig" title="Udźwig"></span>+{{ item|getItemExtraCapacity }}kg</span>{% else %}<span class="city-armor-stat"><span class="city-armor-icon" role="img" aria-label="Pancerz" title="Pancerz"></span>{{ city_armors|dict_get:item }}</span>{% endif %}</span></div>
+                            <div class="col"><span class="h6">{% if item.show_city_capacity %}<span class="city-weight-stat"><span class="city-weight-icon" role="img" aria-label="Udźwig" title="Udźwig"></span>+{{ item.extra_capacity }}kg</span>{% else %}<span class="city-armor-stat"><span class="city-armor-icon" role="img" aria-label="Pancerz" title="Pancerz"></span>{{ city_armors|dict_get:item }}</span>{% endif %}</span></div>
                         </div>
                         <div class="row-3 border-bottom pt-1 pb-1 h6 mb-0"><span class="neutral-high">Ilość:</span> {{ amounts|dict_get:item }}</div>
                         <div class="row-3" style="height: 4vh;">
@@ -655,6 +802,8 @@
 
                 </div>
             {% endfor %}
+            {% endif %}
+            {% endfor %}
         </div>
         {% endif %}
 
@@ -664,7 +813,7 @@
         </div>
         <div id='jeweler-items' class='container text-center c-gold rounded border border-primary bg-dark d-none p-0 m-0' style="width: 100%;">
             {% for item in armor_elegant %}
-                <div class='row bg-gray rounded m-1 border border-primary'>
+                <div class='mt-2 row bg-gray rounded m-1 border border-primary'>
 
                     <div class="col-9 border-end">
                         <div class="row-10" style="text-align: center;">
@@ -677,7 +826,7 @@
                         </div>
                         <div class="row-10">
                             <div class="col p-2" style="text-align: left;">
-                                <i class="neutral-high">{{ item|getVisibleSkillAndDesc:user }}</i>
+                                <i class="neutral-high city-item-skill">{{ item.skill_text|itemSkillWithLinks:item.skill_preview_limit }}</i>
                             </div>
                         </div>
                     </div>
@@ -711,9 +860,9 @@
         <div id='tavern-items' class='container text-center c-gold rounded border border-primary bg-dark d-none p-0 m-0' style="width: 100%;">
             {% for group_label, group_items in tavern_groups %}
             {% if group_items %}
-            <h3 class="h6 text-start px-2 pt-2 mb-1 fw-bold">{{ group_label }}</h3>
+            <h3 class="h6 text-center px-2 pt-2 mb-1 fw-bold">{{ group_label }}</h3>
             {% for item in group_items %}
-                <div class='row bg-gray rounded m-1 border border-primary'>
+                <div class='mt-2 row bg-gray rounded m-1 border border-primary'>
 
                     <div class="col-9 border-end">
                         <div class="row-10" style="text-align: center;">
@@ -750,10 +899,10 @@
             {% endif %}
             {% endfor %}
             {% if tavern_buy_items %}
-            <h3 class="h6 text-start px-2 pt-2 mb-1 fw-bold">Jedzenie / Alkohol</h3>
+            <h3 class="h6 text-center px-2 pt-2 mb-1 fw-bold">Wynos</h3>
             {% endif %}
             {% for item in tavern_buy_items %}
-                <div class='row bg-gray rounded m-1 border border-primary'>
+                <div class='mt-2 row bg-gray rounded m-1 border border-primary'>
 
                     <div class="col-9 border-end">
                         <div class="row-10" style="text-align: center;">
@@ -765,7 +914,7 @@
                         </div>
                         <div class="row-10">
                             <div class="col p-2" style="text-align: left;">
-                                <i class="neutral-high">{{ item|getVisibleSkillAndDesc:user }}</i>
+                                <i class="neutral-high city-item-skill">{{ item.skill_text|itemSkillWithLinks:item.skill_preview_limit }}</i>
                             </div>
                         </div>
                     </div>
@@ -797,7 +946,7 @@
         </div>
         <div id='potions' class='container text-center c-gold rounded border border-primary bg-dark d-none p-0 m-0' style="width: 100%;">
             {% for item in potions %}
-                <div class='row bg-gray rounded m-1 border border-primary'>
+                <div class='mt-2 row bg-gray rounded m-1 border border-primary'>
 
                     <div class="col-9 border-end">
                         <div class="row-10" style="text-align: center;">
@@ -809,7 +958,7 @@
                         </div>
                         <div class="row-10">
                             <div class="col p-2" style="text-align: left;">
-                                <i class="neutral-high">{{ item|getVisibleSkillAndDesc:user }}</i>
+                                <i class="neutral-high city-item-skill">{{ item.skill_text|itemSkillWithLinks:item.skill_preview_limit }}</i>
                             </div>
                         </div>
                     </div>
@@ -841,11 +990,12 @@
         </div>
         <div id='hunter' class='container text-center c-gold rounded border border-primary bg-dark d-none p-0 m-0' style="width: 100%;">
             {% for item in trophies %}
-                <div class='row bg-gray rounded m-1 border border-primary'>
+                <div class='mt-2 row bg-gray rounded m-1 border border-primary'>
 
                     <div class="col-9 border-end">
                         <div class="row-10" style="text-align: center;">
                             <div class="col pt-1">
+                            {% if item.is_city_equipment %}<b class="{{ item|getItemRarity }}">{{ item|getItemType:"pl" }} |</b>{% endif %}
                             <a id='{{ item|getDescId }}' href='/dunnorpg/items/{{ item|getDescId }}'>
                                 <b class="{{ item|getItemRarity }}">{{ item }}</b>
                             </a>
@@ -853,15 +1003,22 @@
                         </div>
                         <div class="row-10">
                             <div class="col p-2" style="text-align: left;">
-                                <i class="neutral-high">{{ item|getVisibleSkillAndDesc:user }}</i>
+                                <i class="neutral-high city-item-skill">{{ item.skill_text|itemSkillWithLinks:item.skill_preview_limit }}</i>
                             </div>
                         </div>
                     </div>
 
                     <div class="col-3 p-0">
+                        {% if item.is_city_equipment %}
+                        <div class="city-item-category row-3 border-bottom pt-1 pb-1 h6 mb-0 {{ item|getItemRarity }}">{{ item|getArmorWeightType }}</div>
+                        {% endif %}
                         <div class="row-3 border-bottom pt-1 pb-1 h6 mb-0">{{ city_prices|dict_get:item }}&nbsp;<i class="fa-solid fa-coins" role="img" aria-label="monety"></i></div>
                         <div class="row-3 border-bottom pt-1 pb-1">
+                            {% if item.is_city_equipment %}
+                            <div class="col"><span class="h6 city-armor-stat"><span class="city-armor-icon" role="img" aria-label="Pancerz" title="Pancerz"></span>{{ city_armors|dict_get:item }}</span></div>
+                            {% else %}
                             <div class="col"><span class="h6">Polowanie</span></div>
+                            {% endif %}
                         </div>
                         <div class="row-3 border-bottom pt-1 pb-1 h6 mb-0"><span class="neutral-high">Ilość:</span> {{ amounts|dict_get:item }}</div>
                         <div class="row-3" style="height: 5.2vh;">
@@ -885,7 +1042,7 @@
         </div>
         <div id='merchant' class='container text-center c-gold rounded border border-primary bg-dark d-none p-0 m-0' style="width: 100%;">
             {% for item in other %}
-                <div class='row bg-gray rounded m-1 border border-primary'>
+                <div class='mt-2 row bg-gray rounded m-1 border border-primary'>
 
                     <div class="col-9 border-end">
                         <div class="row-10" style="text-align: center;">
@@ -897,7 +1054,7 @@
                         </div>
                         <div class="row-10">
                             <div class="col p-2" style="text-align: left;">
-                                <i class="neutral-high">{{ item|getVisibleSkillAndDesc:user }}</i>
+                                <i class="neutral-high city-item-skill">{{ item.skill_text|itemSkillWithLinks:item.skill_preview_limit }}</i>
                             </div>
                         </div>
                     </div>
@@ -928,8 +1085,15 @@
             <h2>Handlarz zwierząt<span class="ms-2 d-inline-block" style="width: 1em; height: 1em; vertical-align: -0.12em; background-color: currentColor; -webkit-mask: url('{% static 'DunnoRPG/img/icons/donkey.svg' %}') center / contain no-repeat; mask: url('{% static 'DunnoRPG/img/icons/donkey.svg' %}') center / contain no-repeat;"></span></h2>
         </div>
         <div id='animals' class='container text-center c-gold rounded border border-primary bg-dark d-none p-0 m-0' style="width: 100%;">
-            {% for item in animals %}
-                <div class='row bg-gray rounded m-1 border border-primary'>
+            {% for group_label, group_items in animal_groups %}
+            {% if group_items %}
+                <div class="row align-items-center">
+                    <div class="col"><hr></div>
+                    <div class="col-auto"><b>{{ group_label }}</b></div>
+                    <div class="col"><hr></div>
+                </div>
+            {% for item in group_items %}
+                <div class='mt-2 row bg-gray rounded m-1 border border-primary'>
 
                     <div class="col-9 border-end">
                         <div class="row-10" style="text-align: center;">
@@ -941,7 +1105,7 @@
                         </div>
                         <div class="row-10">
                             <div class="col p-2" style="text-align: left;">
-                                <i class="neutral-high">{{ item|getVisibleSkillAndDesc:user }}</i>
+                                <i class="neutral-high city-item-skill">{{ item.skill_text|itemSkillWithLinks:item.skill_preview_limit }}</i>
                             </div>
                         </div>
                     </div>
@@ -949,7 +1113,17 @@
                     <div class="col-3 p-0">
                         <div class="row-3 border-bottom pt-1 pb-1 h6 mb-0">{{ city_prices|dict_get:item }}&nbsp;<i class="fa-solid fa-coins" role="img" aria-label="monety"></i></div>
                         <div class="row-3 border-bottom pt-1 pb-1">
-                            <div class="col"><span class="h6">Animal</span></div>
+                            <div class="col">
+                                <span class="h6">
+                                    {% if item.item_category == 'animal_saddle' or item.item_category == 'animal' %}
+                                    <span class="city-weight-stat"><span class="city-weight-icon" role="img" aria-label="Udźwig" title="Udźwig"></span>+{{ item.extra_capacity }}kg</span>
+                                    {% elif item.item_category == 'animal_armor' %}
+                                    <span class="city-armor-stat"><span class="city-armor-icon" role="img" aria-label="Pancerz" title="Pancerz"></span>{{ city_armors|dict_get:item }}</span>
+                                    {% else %}
+                                    {{ group_label }}
+                                    {% endif %}
+                                </span>
+                            </div>
                         </div>
                         <div class="row-3 border-bottom pt-1 pb-1 h6 mb-0"><span class="neutral-high">Ilość:</span> {{ amounts|dict_get:item }}</div>
                         <div class="row-3" style="height: 5.2vh;">
@@ -964,6 +1138,8 @@
 
                 </div>
             {% endfor %}
+            {% endif %}
+            {% endfor %}
         </div>
         {% endif %}
 
@@ -973,7 +1149,7 @@
         </div>
         <div id='medic' class='container text-center c-gold rounded border border-primary bg-dark d-none p-0 m-0' style="width: 100%;">
             {% for char in characters %}
-                <div class='row bg-gray rounded m-1 border border-primary'>
+                <div class='mt-2 row bg-gray rounded m-1 border border-primary'>
                     <a class='col text-center c-gold h5 m-1' id='char.id'>
                         {{ char.name }}
                     </a>
@@ -996,7 +1172,7 @@
         <div id='fix' class='container text-center c-gold rounded border border-primary bg-dark d-none p-0 m-0' style="width: 100%;">
             {% for char in characters %}
                 {% for item in char.repair_items %}
-                        <div class='row bg-gray rounded m-1 border border-primary'>
+                        <div class='mt-2 row bg-gray rounded m-1 border border-primary'>
                             <a class="col text-center c-gold h5 m-1 {{ item.rarity }}" id='fix-{{ item.id }}-item'>
                                 [<span id="item-{{ item.id }}-owner">{{ item.character }}</span>] {{ item.name }} (<span id="fix-{{ item.id }}-dur">{{ item.durability }}</span>/{{ item.max_durability }})
                                 <span class="d-none" id="rarity-{{ item.id }}">{{ item.rarity }}</span>
@@ -1211,7 +1387,35 @@
             return
         }
 
+        iframe.removeAttribute('srcdoc')
         iframe.src = item_src
+        iframeCard.classList.remove('city-definition-preview')
+        iframeCard.classList.remove('d-none')
+    }
+
+    function showIframe(skill_src){
+        showCityItemIframe(skill_src)
+    }
+
+    function showInfoCard(title, text){
+        const iframe = document.getElementById('city-item-iframe')
+        const iframeCard = document.getElementById('city-item-iframe-card')
+        if(!iframe || !iframeCard){
+            return
+        }
+
+        const definitionDocument = document.implementation.createHTMLDocument(title)
+        const style = definitionDocument.createElement('style')
+        style.textContent = 'body { margin: 0; padding: 1rem; background: #212529; color: #ffc107; font-family: system-ui, sans-serif; overflow-wrap: anywhere; } h3 { font-size: 1.25rem; margin: 0 0 1rem; } p { color: #dee2e6; white-space: pre-line; line-height: 1.5; margin: 0; }'
+        definitionDocument.head.append(style)
+        const heading = definitionDocument.createElement('h3')
+        heading.textContent = title
+        const content = definitionDocument.createElement('p')
+        content.textContent = text
+        definitionDocument.body.append(heading, content)
+        iframe.src = 'about:blank'
+        iframe.srcdoc = '<!doctype html>' + definitionDocument.documentElement.outerHTML
+        iframeCard.classList.add('city-definition-preview')
         iframeCard.classList.remove('d-none')
     }
 
@@ -1219,9 +1423,11 @@
         const iframe = document.getElementById('city-item-iframe')
         const iframeCard = document.getElementById('city-item-iframe-card')
         if(iframe){
+            iframe.removeAttribute('srcdoc')
             iframe.src = ''
         }
         if(iframeCard){
+            iframeCard.classList.remove('city-definition-preview')
             iframeCard.classList.add('d-none')
         }
     }
