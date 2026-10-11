@@ -1399,6 +1399,8 @@ class calculateGettingHit(APIView):
                     "armor": self._armor_value(item),
                 }
 
+            if char.inFight:
+                char.fight_damage_taken += dmg
             char.save()
             actual_hp_loss = hp_before - char.HP
             deadly_wound = char.HP == 0
@@ -1671,6 +1673,14 @@ def skill_add(request,char_id,skill_id,lvl):
 def enter_or_leave_fight(request,char_id):
     character = get_object_or_404(models.Character, id=char_id)
     if character.inFight:
+        # TODO: Track damage dealt after the attack workflow is reworked.
+        summary = {
+            "exp_gained": character.fight_exp_gained,
+            "damage_taken": character.fight_damage_taken,
+            "damage_dealt": 0,
+            "hp_difference": character.HP - character.fight_start_hp if character.fight_start_hp is not None else 0,
+        }
+        character.fight_summary = summary if any(summary.values()) else {}
         character.inFight = False
         character.actionLeft = 1.0
         character.counter = 0
@@ -1692,8 +1702,21 @@ def enter_or_leave_fight(request,char_id):
     else:
         character.inFight = True
         character.advantageBalance = 0
+        character.fight_exp_gained = 0
+        character.fight_damage_taken = 0
+        character.fight_start_hp = character.HP
+        character.fight_summary = {}
     character.save()
     return redirect(f'/dunnorpg/character_detail/{char_id}/')
+
+@require_POST
+def dismiss_fight_summary(request, char_id):
+    character = get_object_or_404(models.Character, id=char_id)
+    if character.owner != request.user.username and not request.user.is_superuser:
+        return JsonResponse({"error": "Brak uprawnień."}, status=403)
+    character.fight_summary = {}
+    character.save(update_fields=["fight_summary"])
+    return JsonResponse({"success": True})
 
 def skill_delete(request,char_id,skill_id):
     skill = get_object_or_404(models.Skills, id=skill_id)

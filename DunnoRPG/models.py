@@ -22,6 +22,10 @@ class Character(models.Model):
     race = models.CharField(max_length=30)
     chosen_class = models.CharField(max_length=80, default='', blank=True)
     inFight = models.BooleanField(default=False)
+    fight_exp_gained = models.PositiveIntegerField(default=0)
+    fight_damage_taken = models.PositiveIntegerField(default=0)
+    fight_start_hp = models.IntegerField(null=True, blank=True)
+    fight_summary = models.JSONField(default=dict, blank=True)
     size = models.CharField(max_length=2)
     HP = models.IntegerField()
     actionLeft = models.FloatField(default=1.0)
@@ -61,6 +65,20 @@ class Character(models.Model):
     
 
     def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
+        if self.pk and self.inFight and (
+            update_fields is None or {"exp", "level"}.intersection(update_fields)
+        ):
+            previous = type(self).objects.using(using or self._state.db).filter(pk=self.pk).values(
+                "inFight", "level", "exp", "fight_exp_gained",
+            ).first()
+            if previous and previous["inFight"]:
+                saved_fields = set(update_fields) if update_fields is not None else None
+                previous_exp = (previous["level"] - 1) * 100 + previous["exp"]
+                level = self.level if saved_fields is None or "level" in saved_fields else previous["level"]
+                exp = self.exp if saved_fields is None or "exp" in saved_fields else previous["exp"]
+                self.fight_exp_gained = previous["fight_exp_gained"] + max(0, (level - 1) * 100 + exp - previous_exp)
+                if saved_fields is not None:
+                    update_fields = saved_fields | {"fight_exp_gained"}
         if update_fields is None or "coins" in update_fields:
             self.coins = round(float(self.coins), 1)
         return super().save(

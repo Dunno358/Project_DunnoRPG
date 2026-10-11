@@ -5,6 +5,25 @@
 {% include 'dunnorpg/messages.html' %}
 
 <style>
+    .fight-summary-backdrop {
+        position: fixed;
+        inset: 0;
+        background-color: rgba(0, 0, 0, 0.55);
+        z-index: 29;
+    }
+
+    .fight-summary-dialog {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: calc(100% - 2rem);
+        max-width: 26rem;
+        max-height: calc(100dvh - 2rem);
+        overflow-y: auto;
+        z-index: 30;
+    }
+
     .character-backpack-icon {
         display: inline-block;
         width: 1.25em;
@@ -320,6 +339,30 @@ style="width: 98%; z-index: 20; margin-left: 0.1rem !important; margin-top: -1re
 </div>
 
 <div id="character-details-refresh-root">
+{% if chosen_character.0.fight_summary and not chosen_character.0.inFight %}
+<div id="fight-summary">
+    <div class="fight-summary-backdrop"></div>
+    <form class="fight-summary-dialog bg-dark c-gold border border-warning rounded p-3"
+          role="dialog" aria-modal="true" aria-labelledby="fight-summary-title"
+          method="post" action="{% url 'dismiss_fight_summary' chosen_character.0.id %}"
+          onsubmit="dismissFightSummary(event)">
+        {% csrf_token %}
+        <h2 id="fight-summary-title" class="h5 mb-3">Podsumowanie walki</h2>
+        <dl class="mb-3">
+            <div class="d-flex justify-content-between gap-3">
+                <dt>Zdobyty EXP</dt><dd>{{ chosen_character.0.fight_summary.exp_gained }}</dd>
+            </div>
+            <div class="d-flex justify-content-between gap-3">
+                <dt>Przyjęte obrażenia</dt><dd>{{ chosen_character.0.fight_summary.damage_taken }}</dd>
+            </div>
+            <div class="d-flex justify-content-between gap-3">
+                <dt>Różnica PŻ</dt><dd>{% if chosen_character.0.fight_summary.hp_difference > 0 %}+{% endif %}{{ chosen_character.0.fight_summary.hp_difference|default:0 }} PŻ</dd>
+            </div>
+        </dl>
+        <button type="submit" class="btn btn-sm btn-success w-100">Zamknij</button>
+    </form>
+</div>
+{% endif %}
 {% if chosen_character.0.inFight %}
     <div class="container bg-dark bg-opacity-75 pb-3">
         {% if chosen_character.0.counterName %}
@@ -2500,6 +2543,31 @@ function catchErrorForValueChanges(id){
         console.log('Cannot track changes for '+id+'. Ignore if you are not GM.')
     }
      
+}
+
+async function dismissFightSummary(event){
+    event.preventDefault()
+    const form = event.currentTarget
+    const button = form.querySelector('button[type="submit"]')
+    if(button.disabled){
+        return
+    }
+    button.disabled = true
+    try{
+        const response = await fetch(form.action, {
+            method: 'POST',
+            body: new FormData(form),
+            headers: {'X-Requested-With': 'XMLHttpRequest'},
+        })
+        if(!response.ok){
+            throw new Error('Nie udało się zamknąć podsumowania walki.')
+        }
+        document.getElementById('fight-summary').remove()
+    }
+    catch(error){
+        button.disabled = false
+        showMessage(error.message, 'error')
+    }
 }
 
 async function saveCharacterNotes(event){
