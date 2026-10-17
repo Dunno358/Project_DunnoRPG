@@ -479,7 +479,7 @@ style="width: 98%; z-index: 20; margin-left: 0.1rem !important; margin-top: -1re
             <span class="text-white-50">CHAR:</span> <span id='stat-CHAR'>{{ chosen_character.0|dict_get:"CHAR" }}</span> (<span id='stat-CHAR-mod'>{{ chosen_character.0|getMod:"CHAR" }}</span>)
         </div>
         <div class="col-4 col-md-2 py-1 character-stat-divider">
-            <span class="text-white-50">CEL:</span> <span id='stat-CEL'>{{ chosen_character.0|dict_get:"CEL" }}</span> (<span id='stat-CEL-mod'>{{ chosen_character.0|getMod:"CEL" }}</span>)
+            <span class="text-white-50">CEL:</span> <span id='stat-CEL'>{{ chosen_character.0|dict_get:"CEL" }}</span> (<span id='stat-CEL-mod' data-base-mod='{{ chosen_character.0|getMod:"CEL" }}'>{{ chosen_character.0|getMod:"CEL" }}</span>)
         </div>
         <div class="col-4 col-md-2 py-1 character-stat-divider">
             <span class="text-white-50">SPO:</span> <span id='stat-SPO'>{{ chosen_character.0|dict_get:"SPO" }}</span> (<span id='stat-SPO-mod'>{{ chosen_character.0|getMod:"SPO" }}</span>)
@@ -635,7 +635,7 @@ style="width: 98%; z-index: 20; margin-left: 0.1rem !important; margin-top: -1re
             </div>
             <div class="col rounded bg-gray bg-gradient border border-warning m-2 p-2 h6" style="min-width: 0; cursor: pointer;" onclick="showArmorPenaltyInfo()">
                 <span class="text-white-50">Kara:</span> 
-                -<span id='armor-mod'></span> ZRE
+                -<span id='armor-mod'></span> ZRE, -<span id='armor-cel-mod'></span> CEL
             </div>
         </div>
 
@@ -3725,8 +3725,8 @@ function parseDisplayedNumber(elementId){
     return Number.isNaN(value) ? 0 : value
 }
 
-function calculateArmorPenalty(armorWeight, shieldWeight){
-    return Math.floor((armorWeight + shieldWeight) / 6)
+function calculateArmorPenalty(armorWeight, shieldWeight, weightPerPenalty=6){
+    return Math.floor((armorWeight + shieldWeight) / weightPerPenalty)
 }
 
 function getArmorMod(){
@@ -3742,7 +3742,9 @@ function getArmorMod(){
         console.log('No class chosen...')
     }
     document.getElementById('armor-mod').innerHTML = mod
+    document.getElementById('armor-cel-mod').innerHTML = calculateArmorPenalty(armor_weight, shield_weight, 15)
     updateZreModWithArmorPenalty()
+    updateCelModWithArmorPenalty()
 }
 getArmorMod()
 
@@ -3758,6 +3760,13 @@ function updateZreModWithArmorPenalty(){
     let armorMod = parseDisplayedNumber('armor-mod')
     let baseZreMod = parseInt(zreModElement.dataset.baseMod) || 0
     zreModElement.innerHTML = formatSignedMod(baseZreMod - armorMod)
+}
+
+function updateCelModWithArmorPenalty(){
+    const celModElement = document.getElementById('stat-CEL-mod')
+    const armorMod = parseDisplayedNumber('armor-cel-mod')
+    const baseCelMod = parseInt(celModElement.dataset.baseMod) || 0
+    celModElement.innerHTML = formatSignedMod(baseCelMod - armorMod)
 }
 
 function calculateMountArmor(){
@@ -3860,10 +3869,11 @@ function showArmorPenaltyInfo(){
     let shieldWeight = parseDisplayedNumber('shield-weight')
     let totalWeight = armorWeight + shieldWeight
     let armorMod = parseDisplayedNumber('armor-mod')
+    let celMod = parseDisplayedNumber('armor-cel-mod')
 
     showInfoCard(
         'Kara',
-        `Kara wynosi -1 ZRE za każde 6kg łącznej wagi pancerza i tarczy. Obecnie: -${armorMod} ZRE (${formatWeight(armorWeight)}kg pancerz + ${formatWeight(shieldWeight)}kg tarcza = ${formatWeight(totalWeight)}kg).`
+        `Kara wynosi -1 ZRE za każde 6kg oraz -1 CEL za każde 15kg łącznej wagi pancerza i tarczy. Obecnie: -${armorMod} ZRE, -${celMod} CEL (${formatWeight(armorWeight)}kg pancerz + ${formatWeight(shieldWeight)}kg tarcza = ${formatWeight(totalWeight)}kg).`
     )
 }
 
