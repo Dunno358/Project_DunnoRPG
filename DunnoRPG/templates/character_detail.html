@@ -1,10 +1,15 @@
 {% extends 'master.html' %}
-{% load filters static %}
+{% load filters static l10n %}
 {% block content %}
 {% include 'top_bar.html' %}
 {% include 'dunnorpg/messages.html' %}
 
 <style>
+    #attack-details[open] > summary {
+        background-color: var(--bs-info, #0dcaf0);
+        color: #000;
+    }
+
     .fight-summary-backdrop {
         position: fixed;
         inset: 0;
@@ -187,7 +192,7 @@ style="width: 98%; z-index: 20; margin-left: 0.1rem !important; margin-top: -1re
     </div>
 </div>
 
-<div id="result-div" class="d-none h5 position-fixed bg-dark c-gold container-fluid m-0 p-0 border border-primary" style="top: 20vh;">
+<div id="result-div" class="d-none h5 position-fixed bg-dark c-gold container-fluid m-0 p-0 border border-primary" style="top: 5vh; max-height: 80vh; overflow: auto; z-index: 10; left: 1vw; width: 99%;">
     <div class='row m-0 p-2'>
         <div class="col text-center h2">
             <span id="result-div-row1"></title>
@@ -211,6 +216,13 @@ style="width: 98%; z-index: 20; margin-left: 0.1rem !important; margin-top: -1re
         </div>
     </div>
 
+    <div id="attack-critical-result" class="d-none p-3 text-center" role="status"></div>
+
+    <details id="attack-details" class="mx-3 mb-3">
+        <summary class="btn btn-outline-info">Szczegóły</summary>
+        <div id="attack-details-content" class="mt-3 text-start small" style="white-space: pre-wrap; overflow-wrap: anywhere;"></div>
+    </details>
+
     <div class='row m-0'>
         <div class="col text-center h5 p-0 m-2">
             <button class="w-50 btn btn-success" onclick="window.location.reload()">OK</button>
@@ -219,7 +231,7 @@ style="width: 98%; z-index: 20; margin-left: 0.1rem !important; margin-top: -1re
 
 </div>
 
-<div id='dice-input' class='d-none h5 position-fixed bg-dark c-gold container-fluid m-0 p-0 border border-primary' style="top: 0vh; overflow: auto; z-index: 10;">
+<div id='dice-input' data-advantage-balance="{{ chosen_character.0.advantageBalance }}" data-confirm-url="{% url 'confirm_attack' chosen_character.0.id %}" class='d-none h5 position-fixed bg-dark c-gold container-fluid m-0 p-0 border border-primary' style="top: 5vh; max-height: 100vh; overflow: auto; z-index: 10; left: 1vw; width: 99%;">
 
     <div class='row m-0 p-2'>
         <div class="col text-center h2">
@@ -228,14 +240,8 @@ style="width: 98%; z-index: 20; margin-left: 0.1rem !important; margin-top: -1re
     </div>
 
     <div class='row m-0'>
-        <div class="col text-center h2">
-            <button class="btn btn-danger w-100 font-weight-bold" onclick="show_or_hideById('dice-input')">Wróć</button>
-        </div>
         <div class="col text-center h5 p-0 m-0">
-            <span id="dice-input-subtitle"></title>
-        </div>
-        <div class="col text-center h2">
-            <button class="btn btn-primary w-100" id="attack-confirm-btn">Dalej</button>
+            <span id="dice-input-subtitle"></span>
         </div>
     </div>
 
@@ -243,19 +249,38 @@ style="width: 98%; z-index: 20; margin-left: 0.1rem !important; margin-top: -1re
 
     <div class='row m-0 p-2'>
         <div class="col">
-            Wynik na kości (celność):
+            K20 (CEL):
         </div>
         <div class="col ">
-            <input type="number" min="0" value="10" class="w-75 text-center border border-warning bg-gray c-gold rounded p-1 ms-4" id="dice-cel"/>
+            <input type="number" required min="1" max="20" oninput="updateCriticalChoice()" class="w-75 text-center border border-warning bg-gray c-gold rounded p-1 ms-4" id="dice-cel"/>
+        </div>
+    </div>
+
+    <div class="row m-0 p-2 d-none" id="critical-choice-row">
+        <div class="col"><label for="critical-piercing-choice">Przebicie:</label></div>
+        <div class="col">
+            <select id="critical-piercing-choice" class="w-100 text-center border border-warning bg-gray c-gold rounded p-1">
+                <option value="ignore_block">Ignoruje blok tarczą</option>
+                <option value="ap">+25% AP</option>
+            </select>
         </div>
     </div>
 
     <div class='row m-0 p-2'>
-        <div class="col">
-            Wynik na kości (obrażenia):
+        <div class="col" id="dice-dmg-label">
+            Obrażenia:
         </div>
         <div class="col ">
-            <input type="number" min="0" value="10" class="w-75 text-center border border-warning bg-gray c-gold rounded p-1 ms-4" id="dice-dmg"/>
+            <input type="number" required min="0" class="w-75 text-center border border-warning bg-gray c-gold rounded p-1 ms-4" id="dice-dmg"/>
+        </div>
+    </div>
+
+    <div class="row m-0 p-2 d-none" id="advantage-dice-row">
+        <div class="col">
+            <label id="advantage-dice-label" for="advantage-dice"></label>
+        </div>
+        <div class="col">
+            <input type="number" required min="1" max="12" class="w-75 text-center border border-warning bg-gray c-gold rounded p-1 ms-4" id="advantage-dice"/>
         </div>
     </div>
 
@@ -265,29 +290,11 @@ style="width: 98%; z-index: 20; margin-left: 0.1rem !important; margin-top: -1re
         </div>
         <div class="col ">
             <select class="w-75 text-center border border-warning bg-gray c-gold rounded p-1 ms-4" id="body-target">
-                <option value='torso'>Torso</option>
-                <option value='head'>Głowa</option>
-                <option value='hands'>Ręce</option>
-                <option value='boots'>Nogi</option>
+                <option value='torso'>Torso (+0 CEL)</option>
+                <option value='head'>Głowa (+8 CEL)</option>
+                <option value='hands'>Ręce (+4 CEL)</option>
+                <option value='boots'>Nogi (+4 CEL)</option>
             </select>
-        </div>
-    </div>
-
-    <div class='row m-0 p-2'>
-        <div class="col">
-            Dodatkowy bonus (CEL):
-        </div>
-        <div class="col">
-            <input type="number" value="0" class="w-75 text-center border border-warning bg-gray c-gold rounded p-1 ms-4" id="dice-bonus-cel"/>
-        </div>
-    </div>
-
-    <div class='row m-0 p-2'>
-        <div class="col">
-            Dodatkowy bonus (DMG):
-        </div>
-        <div class="col">
-            <input type="number" value="0" class="w-75 text-center border border-warning bg-gray c-gold rounded p-1 ms-4" id="dice-bonus"/>
         </div>
     </div>
 
@@ -299,9 +306,9 @@ style="width: 98%; z-index: 20; margin-left: 0.1rem !important; margin-top: -1re
             <div class="col">
                 <select class="w-100 text-center border border-warning bg-gray c-gold rounded p-1 ms-1" id="chosen-ammo">
                     {% for item in ammo %}
-                        <option value='{{ item.id }}'>{{ item.name }} x{{ item.amount }}</option>
+                        <option value='{{ item.id }}' data-dmg-modifier="{{ item.attack_dmg_modifier|unlocalize }}" data-ap="{{ item.attack_ap }}" data-amount="{{ item.amount }}">{{ item.name }} x{{ item.amount }}</option>
                     {% endfor %}
-                    <option value='not-needed'>Nie wymaga</option>
+                    <option value='not-needed' data-dmg-modifier="1" data-ap="0">Brak</option>
                 </select>
             </div>
         </div>
@@ -311,29 +318,26 @@ style="width: 98%; z-index: 20; margin-left: 0.1rem !important; margin-top: -1re
                 Ilość amunicji:
             </div>
             <div class="col">
-                <input type="number" value="1" class="w-75 text-center border border-warning bg-gray c-gold rounded p-1 ms-4" id="ammo-count"/>
+                <input type="number" min="1" step="1" value="1" class="w-75 text-center border border-warning bg-gray c-gold rounded p-1 ms-4" id="ammo-count"/>
             </div>
         </div>
     </div>
 
-    <div class='row m-0 p-2'>
+    <div class='row m-0 p-2 mb-2'>
         <div class="col">
-            Mnożnik obrażeń:
+            <label for="is-destructible">Uszkadza się:</label>
         </div>
         <div class="col">
-            <input type="number" value="1" step="0.1" class="w-75 text-center border border-warning bg-gray c-gold rounded p-1 ms-4" id="dmg-multiplier"/>
+            <input type="checkbox" checked class="form-check-input ms-4" id="is-destructible"/>
         </div>
     </div>
 
-    <div class='row m-0 p-2 mb-5'>
-        <div class="col">
-            Zniszczalność:
+    <div class="row m-0 p-2 pb-3">
+        <div class="col text-center">
+            <button type="button" class="btn btn-danger w-100 font-weight-bold" onclick="show_or_hideById('dice-input')">Wróć</button>
         </div>
-        <div class="col">
-            <select class="w-100 text-center border border-warning bg-gray c-gold rounded p-1 ms-1" id="is-destructible">
-                <option value='destructible'>Zniszczalne</option>
-                <option value='undestructible'>Niezniszczalne</option>
-            </select>
+        <div class="col text-center">
+            <button type="button" class="btn btn-primary w-100" id="attack-confirm-btn">Dalej</button>
         </div>
     </div>
 </div>
@@ -983,7 +987,7 @@ style="width: 98%; z-index: 20; margin-left: 0.1rem !important; margin-top: -1re
         </div>
 
 
-        <span id="l-name" class="d-none">{{ leftItem.name }}</span>
+        <span id="l-name" class="d-none" data-needed-accuracy="{{ leftWeapon.neededAccuraccy }}" data-dmg-dice="{{ leftWeapon.dmgDice }}" data-category="{{ leftWeapon.category }}" data-damage-type="{{ leftWeapon.dmg_type }}" data-ap="{{ leftWeapon.AP }}">{{ leftItem.name }}</span>
         {% if value.name|handNotAllowed:'left' %}
             <div name='head' class='row mt-2 border border-warning rounded bg-gray m-0 p-0'>
                 <div class="row c-gold me-0 pe-0">
@@ -1053,7 +1057,7 @@ style="width: 98%; z-index: 20; margin-left: 0.1rem !important; margin-top: -1re
 
                 <div class="row ps-0 ms-1 me-0 pe-0">
 
-                    <div class="col-4 border-end border-warning p-1 h6 mb-0 d-flex align-items-center justify-content-center">
+                    <div class="col-5 border-end border-warning p-1 h6 mb-0 d-flex align-items-center justify-content-center">
                         <span class="c-gold ms-1">
                             <span id="l_stats" class="item-stats">
                                 {{ leftItem.name|getStaffMagicDmg:0 }}
@@ -1061,10 +1065,10 @@ style="width: 98%; z-index: 20; margin-left: 0.1rem !important; margin-top: -1re
                             </span> <span id='l_bonus'>{{ value.name|isPreffereOrUnliked:leftItem.name }}</span>
                         </span>
                     </div>                
-                    <div class="col-2 border-end border-warning p-3 h6 mb-0 d-flex align-items-center justify-content-center">
+                    <div class="col-3 border-end border-warning p-3 h6 mb-0 d-flex align-items-center justify-content-center">
                         <span class="text-white-50"></span> <span class="c-gold ms-1" id="l-weight">{{ leftItem.name|getItemWeight }}kg</span>
                     </div>                
-                    <div class="col-6 h6 mb-0 p-2 d-flex align-items-center justify-content-center">
+                    <div class="col-4 h6 mb-0 p-2 d-flex align-items-center justify-content-center">
                         <span>Zasięg: {{ leftItem.name|getItemRange }}</span>
                     </div>
 
@@ -1152,7 +1156,7 @@ style="width: 98%; z-index: 20; margin-left: 0.1rem !important; margin-top: -1re
             <div class="col-4 p-0 m-0"><hr class="bg-danger mt-4"></div>
         </div>
 
-        <span id="r-name" class="d-none">{{ rightItem.name }}</span>
+        <span id="r-name" class="d-none" data-needed-accuracy="{{ rightWeapon.neededAccuraccy }}" data-dmg-dice="{{ rightWeapon.dmgDice }}" data-category="{{ rightWeapon.category }}" data-damage-type="{{ rightWeapon.dmg_type }}" data-ap="{{ rightWeapon.AP }}">{{ rightItem.name }}</span>
         {% if value.name|handNotAllowed:'right' %}
             <div name='head' class='row mt-2 border border-warning rounded bg-gray m-0 p-0'>
                 <div class="row c-gold me-0 pe-0">
@@ -3445,211 +3449,270 @@ function getWeaponMod(){
 getWeaponMod()
 
 function isHit(hand, dualHanded=false){
-    let dice = parseInt(document.getElementById('dice-cel').value)
-
-    accurs = {
-        "Pistolet": 8,
-        "Muszkiet": 7,
-        "Kostur": 6,
-        "Tarcza": 6,
-        "Kusza": 6,
-        "Łuk": 6,
-        "Flamethrower": 1
-    }
-
-    if(hand=='left'){
-        itemName = document.getElementById('l-name').textContent
-        itemType = document.getElementById('l-type').textContent
-    }else if(hand=='right'){
-        itemName = document.getElementById('r-name').textContent
-        itemType = document.getElementById('r-type').textContent
-    }
-
-    let neededAcc = 6
-    neededAcc = accurs[itemType]
-    if(!neededAcc){
-        if(dualHanded){
-            neededAcc=8
-        }else{
-            neededAcc=6
-        }
-    }
-
-    let body_target = document.getElementById('body-target').value
-    let multipliers = {
-        'head': 2, "torso": 1, "hands": 1.5, "boots": 1.5
-    }
-    neededAcc = neededAcc*multipliers[body_target]
-    
-    count_armor = false
-    special_classes = ["kusznik", "strzelec wyborowy", "rewolwerowiec", "łucznik"]
-    try{
-        char_class = document.getElementById("char-class").innerHTML
-        if(special_classes.includes(char_class.trim().toLowerCase())){
-            count_armor = true
-        }
-    }catch{
-        count_armor = false
-    }
-
-    cel_effect_bonus = parseInt(document.getElementById('effects-accuraccy').innerHTML)
-    cel = parseInt(document.getElementById('stat-CEL').innerHTML)
-    cel_mod = parseInt(document.getElementById('stat-CEL-mod').innerHTML)
-    armor_mod = parseInt(document.getElementById('armor-mod').innerHTML) 
-    additional_bonus = parseInt(document.getElementById('dice-bonus-cel').value)
-
-    cel_mods = additional_bonus+cel+cel_mod+cel_effect_bonus
-
-    if(count_armor){
-        cel_mods -= armor_mod
-    }
-
-    dice_result = dice+cel_mods
-
-    if(dice_result >= neededAcc){
-        return [true, dice_result, neededAcc]
-    }else{
-        return [false, dice_result, neededAcc]
-    }
-
+    const dice = Number(document.getElementById('dice-cel').value)
+    const weapon = document.getElementById(hand === 'left' ? 'l-name' : 'r-name')
+    const target = document.getElementById('body-target')
+    const penalties = {head: 8, torso: 0, hands: 4, boots: 4}
+    const baseAccuracy = Number(weapon.dataset.neededAccuracy)
+    const penalty = penalties[target.value]
+    const neededAccuracy = baseAccuracy + penalty
+    const specialClasses = ['kusznik', 'strzelec wyborowy', 'rewolwerowiec', 'łucznik']
+    const characterClass = document.getElementById('char-class')?.textContent.trim().toLowerCase()
+    const armorPenalty = specialClasses.includes(characterClass) ? parseDisplayedNumber('armor-mod') : 0
+    const accuracy = parseDisplayedNumber('stat-CEL')
+    const modifier = parseDisplayedNumber('stat-CEL-mod')
+    const effects = parseDisplayedNumber('effects-accuraccy')
+    const total = dice + accuracy + modifier + effects - armorPenalty
+    const hit = dice === 20 || (dice !== 1 && total >= neededAccuracy)
+    return [hit, total, neededAccuracy, {
+        dice, accuracy, modifier, effects, armorPenalty, baseAccuracy, penalty,
+        target: target.selectedOptions[0].textContent,
+    }]
 }
 
 function finishAttackSequence(){
     show_or_hideById('result-div')
 }
 
-async function showAttackResult(hand, dualHanded=false, item_id=null){
-    let itName = ""
-    let itType = ""
-    let stats = ""
-    let bonus = ""
-    let dur = 100
-    let staffDmg = ""
-    let itRange = document.getElementById("dice-input-subtitle").textContent.split(' ')[1]
-    let multiplier = parseFloat(document.getElementById('dmg-multiplier').value)
-    let div = document.getElementById('result-div')
-    let txt1 = document.getElementById('result-div-row1')
-    let txt2 = document.getElementById('result-div-row2')
-    let txt3 = document.getElementById('result-div-row3-col2')
-    let body_target = document.getElementById('body-target').value
-    let isDestr = document.getElementById('is-destructible').value
-    let url = window.location.href
-    let ammo_unavailable = document.getElementById('ammo-row').classList.contains('d-none')
-    let ammo = document.getElementById('chosen-ammo').value
-    let ammo_amount = document.getElementById('ammo-count').value
+function getAttackAdvantage(){
+    const balanceInput = document.getElementById('advantageBalance-val')
+    const balance = Number(balanceInput ? balanceInput.value : document.getElementById('dice-input').dataset.advantageBalance)
+    return Math.max(-2, Math.min(2, balance))
+}
 
-    if(body_target=='head' && multiplier<1.5){
-        multiplier=1.5
+function updateAttackAdvantage(){
+    const used = getAttackAdvantage()
+    const row = document.getElementById('advantage-dice-row')
+    const input = document.getElementById('advantage-dice')
+    const sides = Math.abs(used) === 1 ? 6 : 12
+    row.classList.toggle('d-none', used === 0)
+    document.getElementById('advantage-dice-label').textContent = `${used < 0 ? '-' : ''}K${sides}:`
+    input.max = sides
+    input.value = ''
+    document.getElementById('dice-input').dataset.advantageUsed = used
+}
+
+function calculateAttackDamage(dice, strength, bonuses, advantageRoll, ammoModifier, durability){
+    const damage = (dice + Math.floor(strength / 2) + bonuses + advantageRoll) * ammoModifier * durability
+    return Math.floor(damage + Number.EPSILON * Math.max(1, Math.abs(damage)) * 4)
+}
+
+function setAttackDescription(element, text, critical){
+    element.replaceChildren()
+    if(!critical.effect_name || !critical.effect_description){
+        element.textContent = text
+        return
     }
+    const parts = text.split(critical.effect_name)
+    parts.forEach((part, index) => {
+        if(index){
+            const link = document.createElement('button')
+            link.type = 'button'
+            link.className = 'border-0 bg-transparent p-0 text-decoration-underline'
+            link.style.color = 'inherit'
+            link.style.font = 'inherit'
+            link.textContent = critical.effect_name
+            link.onclick = () => showInfoCard(critical.effect_name, critical.effect_description)
+            element.append(link)
+        }
+        element.append(document.createTextNode(part))
+    })
+}
 
-    if(isDestr=='destructible'){
-        let take_ammo = await fetch(url+`take_dur-${item_id}`, {
-            method: "GET"
+function renderAttackDetails(attack, hit, critical, saved, finalAp){
+    const number = value => Number(value).toLocaleString('pl-PL', {maximumFractionDigits: 10, useGrouping: false})
+    const signed = value => `${value >= 0 ? '+' : ''}${number(value)}`
+    const lines = []
+    const bonus = (label, value, suffix='') => {
+        if(value !== 0){ lines.push(`${label}: ${signed(value)}${suffix}`) }
+    }
+    const accuracy = hit[3]
+    const strengthBonus = Math.floor(attack.strength / 2)
+    const baseDamage = attack.dice + strengthBonus + attack.effectBonus + attack.amuletBonus + attack.weaponBonus + attack.advantageRoll
+    const ammoDamage = baseDamage * attack.ammoModifier
+    const criticalAp = attack.baseAp * (critical.ap_multiplier - 1) + critical.ap_bonus
+
+    lines.push('Celność:', `K20: ${number(accuracy.dice)}`)
+    bonus('Statystyka CEL', accuracy.accuracy)
+    bonus('Modyfikator', accuracy.modifier)
+    bonus('Efekty', accuracy.effects)
+    bonus('Pancerz', -accuracy.armorPenalty)
+    lines.push(`Wynik: ${number(hit[1])}`, `Próg trafienia: ${number(hit[2])} (${number(accuracy.baseAccuracy)} z broni${accuracy.penalty ? ` + ${number(accuracy.penalty)} za cel` : ''})`)
+    if(accuracy.dice === 20){ lines.push('Naturalne 20: trafienie krytyczne.') }
+    if(accuracy.dice === 1){ lines.push('Naturalne 1: krytyczne niepowodzenie.') }
+
+    lines.push('', 'Obrażenia:', `${attack.damageDice}: ${number(attack.dice)}`)
+    bonus('Efekty', attack.effectBonus)
+    bonus('SIŁ', strengthBonus)
+    bonus('Klasa', attack.weaponBonus)
+    bonus('Przedmioty', attack.amuletBonus)
+    if(attack.used){ bonus(Math.abs(attack.used) === 1 ? 'K6' : 'K12', attack.advantageRoll) }
+    lines.push(`Suma = ${number(baseDamage)}`)
+    if(attack.ammoModifier !== 1){ lines.push(`Amunicja: ${number(baseDamage)}*${number(attack.ammoModifier)}=${number(ammoDamage)}`) }
+    lines.push(`Wytrzymałość: ${number(attack.durability * 100)}%*${number(ammoDamage)}=${number(attack.result)}`)
+
+    lines.push('', 'AP:')
+    if(attack.baseAp !== 0){ lines.push(`Broń: ${number(attack.baseAp)}%`) }
+    bonus('Krytyk', criticalAp, '%')
+    bonus('Amunicja', attack.ammoAp, '%')
+    lines.push(`Wynik: ${number(finalAp)}%`)
+    if(critical.ap_cap !== null){ lines.push(`Limit: ${number(critical.ap_cap)}%`) }
+    if(critical.kind){
+        lines.push('', `${critical.name}: ${critical.description}`)
+        if(critical.failure_roll === 5){ lines.push(`Obrażenia sojusznika (jeśli jest na linii ataku): ${number(Math.round(attack.result * 0.5))}`) }
+    }
+    lines.push('')
+    if(attack.ammoAmount){ lines.push(`Zużyta amunicja: ${number(attack.ammoAmount)}`) }
+    const durabilityUsed = Math.max(0, attack.durabilityBefore - saved.durability)
+    if(durabilityUsed){ lines.push(`Zużyta wytrzymałość: ${number(durabilityUsed)}`) }
+    setAttackDescription(document.getElementById('attack-details-content'), lines.join('\n').trim(), critical)
+    document.getElementById('attack-details').open = false
+}
+
+function updateCriticalChoice(){
+    const modal = document.getElementById('dice-input')
+    const weapon = document.getElementById(modal.dataset.attackHand === 'left' ? 'l-name' : 'r-name')
+    const piercing = (weapon?.dataset.damageType || '').trim().toLocaleLowerCase() === 'kłute'
+    document.getElementById('critical-choice-row').classList.toggle('d-none', !piercing || Number(document.getElementById('dice-cel').value) !== 20)
+}
+
+async function showAttackResult(hand, item_id){
+    const btn = document.getElementById('attack-confirm-btn')
+    if(btn.disabled){ return }
+    const modal = document.getElementById('dice-input')
+    const prefix = hand === 'left' ? 'l' : 'r'
+    const weapon = document.getElementById(`${prefix}-name`)
+    const ranged = ['weapon_range', 'weapon_gun'].includes(weapon.dataset.category)
+    const ammoSelect = document.getElementById('chosen-ammo')
+    const ammo = ranged && ammoSelect.value !== 'not-needed' ? ammoSelect.selectedOptions[0] : null
+    const ammoAmount = Number(document.getElementById('ammo-count').value)
+    const used = Number(modal.dataset.advantageUsed)
+    const advantageInput = document.getElementById('advantage-dice')
+    const diceInput = document.getElementById('dice-dmg')
+    const accuracyInput = document.getElementById('dice-cel')
+    if(!diceInput.reportValidity() || !accuracyInput.reportValidity() || (used && !advantageInput.reportValidity())){ return }
+    if(ammo && (!Number.isInteger(ammoAmount) || ammoAmount < 1 || ammoAmount > Number(ammo.dataset.amount))){
+        showMessage('Sprawdź ilość dostępnej amunicji.', 'error')
+        return
+    }
+    const durability = Number(document.getElementById(`${prefix}-dur-perc`).textContent.replace(/[()%]/g, '').trim()) / 100
+    const bonusText = document.getElementById(`${prefix}_bonus`).textContent.trim()
+    const weaponBonus = Number(bonusText.replace(/[()]/g, '')) || 0
+    const baseStrength = parseDisplayedNumber('stat-SIŁ')
+    const strengthModifier = parseDisplayedNumber('stat-SIŁ-mod')
+    const strength = ranged ? 0 : baseStrength + strengthModifier
+    const effectBonus = parseDisplayedNumber('effects-attack')
+    const amuletBonus = parseDisplayedNumber('amulet-attack-mod')
+    const bonuses = effectBonus + amuletBonus + weaponBonus
+    const advantageRoll = used ? Math.sign(used) * Number(advantageInput.value) : 0
+    const result = calculateAttackDamage(Number(diceInput.value), strength, bonuses, advantageRoll, ammo ? Number(ammo.dataset.dmgModifier) : 1, durability)
+    let ap = Number(weapon.dataset.ap) + (ammo ? Number(ammo.dataset.ap) : 0)
+    const hit = isHit(hand)
+    const attack = {
+        dice: Number(diceInput.value), damageDice: weapon.dataset.dmgDice,
+        baseStrength, strengthModifier, strength, ranged, effectBonus, amuletBonus, weaponBonus,
+        used, advantageRoll, durability, result,
+        ammoName: ammo ? ammo.textContent.replace(/ x\d+$/, '').trim() : 'Brak',
+        ammoModifier: ammo ? Number(ammo.dataset.dmgModifier) : 1,
+        ammoAp: ammo ? Number(ammo.dataset.ap) : 0,
+        ammoAmount: ammo ? ammoAmount : 0, baseAp: Number(weapon.dataset.ap),
+        damagesWeapon: document.getElementById('is-destructible').checked,
+        durabilityBefore: Number(document.getElementById(`${prefix}-dur-perc`).closest('form').querySelector('[name=dur]').value),
+    }
+    const body = new FormData()
+    body.set('weapon_id', item_id)
+    body.set('accuracy_roll', accuracyInput.value)
+    body.set('piercing_choice', document.getElementById('critical-piercing-choice').value)
+    body.set('advantage_used', used)
+    body.set('damages_weapon', attack.damagesWeapon)
+    if(ammo){
+        body.set('ammo_id', ammo.value)
+        body.set('ammo_amount', ammoAmount)
+    }
+    btn.disabled = true
+    try{
+        const response = await fetch(modal.dataset.confirmUrl, {
+            method: 'POST',
+            body,
+            headers: {'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value},
         })
+        const data = await response.json()
+        if(!response.ok){
+            if(data.advantageBalance !== undefined){
+                modal.dataset.advantageBalance = data.advantageBalance
+                const balanceInput = document.getElementById('advantageBalance-val')
+                if(balanceInput){ balanceInput.value = data.advantageBalance }
+                updateAttackAdvantage()
+            }
+            throw new Error(data.error || 'Nie udało się zatwierdzić ataku.')
+        }
+        modal.dataset.advantageBalance = data.advantageBalance
+        const hpInput = document.getElementById('hp-val')
+        if(hpInput){
+            hpInput.value = data.hp
+            hpInput.setAttribute('value', data.hp)
+        }
+        const balanceInput = document.getElementById('advantageBalance-val')
+        if(balanceInput){
+            balanceInput.value = data.advantageBalance
+            balanceInput.setAttribute('value', data.advantageBalance)
+            balanceInput.dataset.lastSubmittedValue = String(data.advantageBalance)
+        }
+        document.getElementById(`${prefix}-dur-perc`).textContent = `(${data.durability_percent}%)`
+        const durabilityInput = document.getElementById(`${prefix}-dur-perc`).closest('form').querySelector('[name=dur]')
+        if(durabilityInput){ durabilityInput.value = data.durability }
+        if(ammo){
+            const remaining = Number(ammo.dataset.amount) - ammoAmount
+            if(remaining){
+                ammo.dataset.amount = remaining
+                ammo.textContent = ammo.textContent.replace(/x\d+$/, `x${remaining}`)
+            }else{
+                ammo.remove()
+            }
+        }
+        const critical = data.critical
+        ap = attack.baseAp * critical.ap_multiplier + attack.ammoAp + critical.ap_bonus
+        if(critical.ap_cap !== null){ ap = Math.min(critical.ap_cap, ap) }
+        renderAttackDetails(attack, hit, critical, data, ap)
+        const criticalResult = document.getElementById('attack-critical-result')
+        criticalResult.classList.toggle('d-none', !critical.kind)
+        setAttackDescription(criticalResult, critical.kind ? `${critical.name}: ${critical.description}` : '', critical)
+        if(critical.failure_roll === 5){
+            criticalResult.textContent += ` Obrażenia sojusznika: ${Math.round(result * 0.5)}.`
+        }
+        const hitText = document.getElementById('result-div-row1')
+        hitText.classList.toggle('text-danger', !hit[0])
+        hitText.classList.toggle('unique', hit[0])
+        const hitLabel = critical.kind === 'hit' ? 'Trafienie krytyczne' : critical.kind === 'failure' ? 'Krytyczne niepowodzenie' : hit[0] ? 'Trafiony' : 'Chybiony'
+        hitText.textContent = `${hitLabel} (Wynik: ${hit[1]}/${hit[2]})`
+        document.getElementById('result-div-row2').textContent = `${weapon.textContent} - ${document.getElementById(`${prefix}-type`).textContent}`
+        document.getElementById('result-div-row3-col2').textContent = `${result}, ${ap}% AP`
+        modal.classList.add('d-none')
+        document.getElementById('result-div').classList.remove('d-none')
+    }catch(error){
+        showMessage(error.message, 'error')
+    }finally{
+        btn.disabled = false
     }
-
-    if(!ammo_unavailable && ammo!='not-needed'){
-        let take_dur = await fetch(url+`take_ammo-${ammo}-${ammo_amount}`, {
-            method: "GET"
-        })
-    }
-
-    let hit = isHit(hand, dualHanded)
-
-    if(hand=='left'){
-        dur = parseFloat(parseInt(document.getElementById('l-dur-perc').textContent.replace('%)','').slice(1))/100)
-        itName = document.getElementById('l-name').textContent
-        itType = document.getElementById('l-type').textContent
-        stats = document.getElementById('l_stats').textContent
-        bonus = document.getElementById('l_bonus').textContent
-        staffDmg = document.getElementById('l-staff-dmg').textContent.split(";")[0].slice(1)
-    }else{
-        dur = parseFloat(parseInt(document.getElementById('r-dur-perc').textContent.replace('%)','').slice(1))/100)
-        itName = document.getElementById('r-name').textContent
-        itType = document.getElementById('r-type').textContent
-        stats = document.getElementById('r_stats').textContent
-        bonus = document.getElementById('r_bonus').textContent
-        staffDmg = document.getElementById('r-staff-dmg').textContent.split(";")[0].slice(1)
-    }
-
-    if(bonus==''){
-        bonus = 0
-    }else{
-        bonus = parseInt(bonus.slice(1,-1))
-    }
-
-    let weapon_dmg = parseInt(stats.split(', ')[0].replace('1K',''))
-    let weapon_ap = Math.round(parseInt(stats.split(', ')[1].replace('AP',''))*multiplier*dur)
-    if(itType=='Kostur'){
-        weapon_dmg = parseInt(staffDmg.split(', ')[0].replace('1K',''))
-        weapon_ap = Math.round(parseInt(staffDmg.split(', ')[1].replace('AP',''))*multiplier)
-    }
-
-    if(hit[0]){
-        txt1.classList.remove("text-danger")
-        txt1.classList.add("unique")
-        txt1.textContent = `Trafiony (Wynik: ${hit[1]}/${hit[2]})`
-    }else{
-        txt1.classList.add("text-danger")
-        txt1.classList.remove("unique")
-        txt1.textContent = `Chybiony (Wynik: ${hit[1]}/${hit[2]})`
-    }
-
-    let dice = parseInt(document.getElementById('dice-dmg').value)
-    let dice_bonus = parseInt(document.getElementById('dice-bonus').value)
-    let attack_effect_bonus = parseInt(document.getElementById('effects-attack').textContent)
-    let sil = parseInt(document.getElementById('stat-SIŁ').textContent)
-    let sil_mod = parseInt(document.getElementById('stat-SIŁ-mod').textContent) 
-    let amulet_bonus = parseInt(document.getElementById('amulet-attack-mod').textContent)
-
-    if(itRange>3){
-        sil=0
-        sil_mod=0
-    }
-
-    let result = Math.round((attack_effect_bonus+sil+sil_mod+amulet_bonus+dice+dice_bonus+bonus+weapon_dmg)*multiplier*dur)
-    txt3.textContent = `${result} + ${weapon_ap}% AP`
-
-    txt2.textContent = `${itName} - ${itType}`
-    div.classList.remove("d-none")
 }
 
 function gatherAttackInfo(hand, item_id){
-    let div = document.getElementById('dice-input')
-    let title = document.getElementById('dice-input-title')
-    let subtitle = document.getElementById('dice-input-subtitle')
-    let btn = document.getElementById('attack-confirm-btn')
-    let dualHanded = ""
-    let itemName = ""
-    let itemType = ""
-    let itemRange = ""
-
-    if(hand=='left'){
-        itemName = document.getElementById('l-name').textContent
-        itemType = document.getElementById('l-type').textContent
-        dualHanded = document.getElementById('l-dualhanded').textContent
-        itemRange = document.getElementById('l-range').textContent
-    }else if(hand=='right'){
-        itemName = document.getElementById('r-name').textContent
-        itemType = document.getElementById('r-type').textContent
-        itemRange = document.getElementById('r-range').textContent
-    }
-
-    if(itemRange<4){
-        document.getElementById('ammo-row').classList.add('d-none')
-    }else{
-        document.getElementById('ammo-row').classList.remove('d-none')
-    }
-
-    subtitle.textContent = `Zasięg: ${itemRange}`
-    title.textContent = `${itemName}`
-
-    btn.onclick = function(){
-        div.classList.add("d-none")
-        showAttackResult(hand, dualHanded, item_id)
-    }
-
-    div.classList.remove("d-none")
+    const modal = document.getElementById('dice-input')
+    const prefix = hand === 'left' ? 'l' : 'r'
+    const weapon = document.getElementById(`${prefix}-name`)
+    modal.dataset.attackHand = hand
+    document.getElementById('dice-cel').value = ''
+    document.getElementById('dice-dmg').value = ''
+    document.getElementById('critical-piercing-choice').value = 'ignore_block'
+    updateCriticalChoice()
+    document.getElementById('dice-dmg-label').textContent = `${weapon.dataset.dmgDice}:`
+    document.getElementById('dice-input-subtitle').textContent = `Zasięg: ${document.getElementById(`${prefix}-range`).textContent}`
+    document.getElementById('dice-input-title').textContent = weapon.textContent
+    document.getElementById('ammo-row').classList.toggle('d-none', !['weapon_range', 'weapon_gun'].includes(weapon.dataset.category))
+    document.getElementById('is-destructible').checked = true
+    updateAttackAdvantage()
+    document.getElementById('attack-confirm-btn').onclick = () => showAttackResult(hand, item_id)
+    modal.classList.remove('d-none')
 }
 
 function parseDisplayedNumber(elementId){

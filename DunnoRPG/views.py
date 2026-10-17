@@ -40,6 +40,7 @@ from DunnoRPG.serializers import (CharacterSerializer, ItemSerializer,
 from . import models
 from .forms import CharacterSkillsForm, AddEqItemForm #, AddEffectForm
 from .services.item_effects import apply_item_use_effects
+from .services.attack_criticals import resolve_critical
 
 raceSizes = {
     "S": 0.5,
@@ -1188,8 +1189,13 @@ class CharacterDetails(DetailView):
 
         eq_items = models.Eq.objects.all().filter(character=chosen.name)
         ammo = []
+        ammo_descriptions = {item.name: item for item in models.Items.objects.filter(name__in=eq_items.values_list('name', flat=True))}
         for item in eq_items:
-            if "pocisk" in item.name.lower() or "strzała" in item.name.lower() or "bełt" in item.name.lower():
+            description = ammo_descriptions.get(item.name)
+            is_ammo = description and (description.category == 'ammo' or (description.type or '').lower() == 'amunicja')
+            if is_ammo or any(word in item.name.lower() for word in ('pocisk', 'strzała', 'bełt')):
+                item.attack_dmg_modifier = description.dmgModifier if description else 1
+                item.attack_ap = description.AP if description else 0
                 ammo.append(item)
         race = models.Races.objects.all().filter(name=serializer.data['race']).values()[0]
         mods = models.Mods.objects.all().filter(owner=chosen.owner,character=serializer.data['name']).values()
@@ -1267,6 +1273,9 @@ class CharacterDetails(DetailView):
         context['mount_saddle'] = models.CharItems.objects.filter(character=serializer.data['name'], position='Mount_saddle').first()
         context['leftItem'] = models.CharItems.objects.filter(character=serializer.data['name'], hand='Left').first()
         context['rightItem'] = models.CharItems.objects.filter(character=serializer.data['name'], hand='Right').first()
+        for hand in ('left', 'right'):
+            equipped_item = context[f'{hand}Item']
+            context[f'{hand}Weapon'] = models.Items.objects.filter(name=equipped_item.name).first() if equipped_item else None
         context['sideItem'] = models.CharItems.objects.filter(character=serializer.data['name'], hand='Side').first()
         context['chosen_character'] = [serializer.data] 
         context['mods'] = mods
@@ -1306,6 +1315,67 @@ class CharacterDetails(DetailView):
 
         return context 
     
+@require_POST
+def confirm_attack(request, char_id):
+    with transaction.atomic():
+        char = get_object_or_404(models.Character.objects.select_for_update(), id=char_id)
+        if not request.user.is_authenticated or (char.owner != request.user.username and not request.user.is_superuser):
+            return JsonResponse({'error': 'Brak dostępu do postaci.'}, status=403)
+        try:
+            weapon_id = int(request.POST.get('weapon_id', ''))
+        except (TypeError, ValueError):
+            return JsonResponse({'error': 'Nieprawidłowa broń.'}, status=400)
+        weapon = get_object_or_404(models.CharItems.objects.select_for_update(), id=weapon_id, character=char.name, hand__in=('Left', 'Right'))
+        description = get_object_or_404(models.Items, name=weapon.name)
+        try:
+            used = int(request.POST.get('advantage_used', 0))
+            accuracy_roll = int(request.POST.get('accuracy_roll', 10))
+            piercing_choice = request.POST.get('piercing_choice', 'ignore_block')
+            if not 1 <= accuracy_roll <= 20 or piercing_choice not in ('ignore_block', 'ap'):
+                raise ValueError('Nieprawidłowy rzut lub wybór skutku krytycznego.')
+            expected_used = max(-2, min(2, char.advantageBalance))
+            if used != expected_used:
+                return JsonResponse({'error': 'Bilans przewag zmienił się. Otwórz ponownie formularz ataku.', 'advantageBalance': char.advantageBalance}, status=409)
+            ammo = None
+            ammo_id = request.POST.get('ammo_id')
+            if ammo_id:
+                ammo_id = int(ammo_id)
+                if description.category not in ('weapon_range', 'weapon_gun'):
+                    raise ValueError('Ta broń nie korzysta z amunicji.')
+                amount = int(request.POST.get('ammo_amount', 0))
+                ammo = get_object_or_404(models.Eq.objects.select_for_update(), id=ammo_id, character=char.name)
+                if amount < 1 or amount > ammo.amount:
+                    raise ValueError('Nieprawidłowa ilość amunicji lub za mało amunicji.')
+        except (TypeError, ValueError):
+            return JsonResponse({'error': 'Sprawdź bilans przewag i ilość dostępnej amunicji.'}, status=400)
+
+        char.advantageBalance -= used
+        critical = resolve_critical(accuracy_roll, description.dmg_type, piercing_choice)
+        if critical.get('self_damage'):
+            char.HP -= critical['self_damage']
+        char.save(update_fields=['advantageBalance', 'HP'])
+        if critical.get('effect_name'):
+            models.Effects.objects.create(
+                owner=char.owner, character=char.name, name=critical['effect_name'],
+                desc=critical['effect_description'], time=1,
+            )
+        durability_loss = math.ceil(max(0, description.maxDurability) * critical.get('durability_loss', 0))
+        if request.POST.get('damages_weapon') == 'true':
+            durability_loss += 1
+        if durability_loss:
+            weapon.durability = max(0, weapon.durability - durability_loss)
+            weapon.save(update_fields=['durability'])
+        if ammo:
+            ammo.amount -= amount
+            if ammo.amount:
+                ammo.save(update_fields=['amount'])
+            else:
+                ammo.delete()
+        durability_percent = round(100 * weapon.durability / description.maxDurability) if description.maxDurability > 0 else 0
+        return JsonResponse({'advantageBalance': char.advantageBalance, 'durability': weapon.durability,
+                             'durability_percent': durability_percent, 'critical': critical, 'hp': char.HP})
+
+
 class TakeItemDurFromAttack(APIView):
     def get(self, request, *args, **kwargs):
         item = get_object_or_404(models.CharItems, id=kwargs['item_id'])

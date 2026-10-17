@@ -1,0 +1,19 @@
+{
+  "hits": {
+    "cięte": {"name": "Krwawienie", "description": "K6 prawdziwych obrażeń na początku następnej tury celu."},
+    "sieczne": {"name": "Rozłupanie", "description": "+2K20% AP (minimum +20%)."},
+    "kłute": {"name": "Przebicie", "description": "Atak ignoruje blok tarczą lub otrzymuje +25% AP, do wyboru."},
+    "obuchowe": {"name": "Zamroczenie", "description": "Cel traci swoją najbliższą akcję."},
+    "dystansowe": {"name": "Precyzyjny strzał", "description": "Nie można wykonać uniku przed tym trafieniem. +20% AP."},
+    "prochowe": {"name": "Dewastujące trafienie", "description": "Atak ma dwa razy więcej podstawowego AP, maksymalnie 100% AP."},
+    "magiczne": {"name": "Przeciążenie", "description": "Atak ignoruje pancerz."}
+  },
+  "failures": [
+    {"name": "Poważne uszkodzenie broni", "description": "Broń traci 50% swojej maksymalnej Wytrzymałości.", "durability_loss": 0.5},
+    {"name": "Uszkodzenie broni", "description": "Broń traci 25% swojej maksymalnej Wytrzymałości.", "durability_loss": 0.25},
+    {"name": "Pudło", "description": "Nic dodatkowego się nie dzieje."},
+    {"name": "Samookaleczenie", "description": "Otrzymujesz K6 obrażeń w rękę lub nogę, rzuć na to które z tych się trafi."},
+    {"name": "Niefortunne trafienie", "description": "Jeśli sojusznik znajduje się przy celu lub na linii ataku, trafiasz go za 50% obrażeń ataku. Jeśli nie - zwykłe pudło."},
+    {"name": "Utrata równowagi", "description": "Przewracasz się. Nakładasz na siebie Powalenie."}
+  ]
+}
