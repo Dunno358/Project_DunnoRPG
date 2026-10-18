@@ -1314,15 +1314,21 @@ style="width: 98%; z-index: 20; margin-left: 0.1rem !important; margin-top: -1re
                 
         {% endif %}
 
+        {% for slot in belt_slots %}
+        {% with sideItem=slot.item %}
         <div class="row mt-3 mb-3 m-0 p-0 text-danger">
             <div class="col p-0 m-0"><hr class="bg-danger mt-4"></div>
             <div class="col-6 p-0 m-0">
-                <h3 class="mt-2 textdanger">Miejsce przy pasie</h3>
+                <h3 class="mt-2 textdanger">Miejsce przy pasie {{ slot.number }}</h3>
             </div>
             <div class="col p-0 m-0"><hr class="bg-danger mt-4"></div>
         </div>
 
-        {% if sideItem %}
+        {% if slot.blocked %}
+            <div class="row mt-2 border border-warning rounded bg-gray m-0 p-2">
+                <span class="c-gold">Zajęte przez broń dwuręczną z drugiego miejsca przy pasie</span>
+            </div>
+        {% elif sideItem %}
             <form name='head' method='post' action='changedur-{{ sideItem.id }}' class='row mt-2 border border-warning rounded bg-gray m-0 p-0'>
                 {% csrf_token %}
                 <div class="row c-gold me-0 pe-0">
@@ -1332,7 +1338,7 @@ style="width: 98%; z-index: 20; margin-left: 0.1rem !important; margin-top: -1re
                         /{{ sideItem.name|getMaxDurability }}
                     </div>
                     <div class="col h6 text-end p-2 pb-0 border-start border-warning">
-                        Miejsce przy pasie
+                        Miejsce przy pasie {{ slot.number }}
                     </div>
                 </div>
 
@@ -1366,7 +1372,7 @@ style="width: 98%; z-index: 20; margin-left: 0.1rem !important; margin-top: -1re
                         <span class="text-white-50"></span> <span class="c-gold ms-1">{{ sideItem.name|getItemWeight }}kg</span>
                     </div>                
                     <div class="col-3 border-end border-warning h6 mb-0 d-flex align-items-center justify-content-center">
-                        <a class="btn btn-info p-3 pt-2 pb-2 text-white" onclick='show_or_hideById("sideItem-swap")'>Zmień</a>
+                        <a class="btn btn-info p-3 pt-2 pb-2 text-white" onclick='show_or_hideById("belt-{{ slot.number }}-swap")'>Zmień</a>
                     </div>                  
                     <div class="col-3 h6 mb-0 d-flex align-items-center justify-content-center">
                         <a class="btn btn-danger p-3 pt-2 pb-2 text-white" href='move_eq-{{ sideItem.id }}'>Odłóż</a>
@@ -1375,14 +1381,14 @@ style="width: 98%; z-index: 20; margin-left: 0.1rem !important; margin-top: -1re
                 </div>
 
                 <div class="row ps-0 ms-1 me-0 pe-0 border-top border-warning">
-                    <a class="col btn btn-primary pt-1 p-0 m-1 ms-0 text-light" href="swap_side/left"><b>Do lewej ręki</b></a>
-                    <a class="col btn btn-primary pt-1 p-0 m-1 ms-0 text-light" href="swap_side/right"><b>Do prawej ręki</b></a>               
+                    <a class="col btn btn-primary pt-1 p-0 m-1 ms-0 text-light" href="{% url 'swap_belt_to_hand' value.id slot.place 'left' %}"><b>Do lewej ręki</b></a>
+                    <a class="col btn btn-primary pt-1 p-0 m-1 ms-0 text-light" href="{% url 'swap_belt_to_hand' value.id slot.place 'right' %}"><b>Do prawej ręki</b></a>
                 </div>
 
-                <div id='sideItem-swap' class='d-none row text-end m-0 p-0 mt-2 mb-2'>
+                <div id='belt-{{ slot.number }}-swap' class='d-none row text-end m-0 p-0 mt-2 mb-2'>
                     <div class="col-8">
                         <select class='w-100 p-2 ms-2 text-center border border-warning bg-dark text-white-50 rounded'>
-                            {% for item in eq_weapons %}
+                            {% for item in slot.weapons %}
                                 <option id='{{ item.id }}' name={{ item.durability }} value='{{ item.name }}'>
                                     {{ item.name }} 
                                     ({{ item.durability }}/{{ item.name|getMaxDurability }})
@@ -1391,7 +1397,7 @@ style="width: 98%; z-index: 20; margin-left: 0.1rem !important; margin-top: -1re
                         </select>
                     </div>
                     <div class="col text-start">
-                        <a onclick="swapItem('{{ sideItem.id }}', 'sideItem-swap')" class='btn w-75 btn-success'>Zamień</a>
+                        <a onclick="swapItem('{{ sideItem.id }}', 'belt-{{ slot.number }}-swap')" class='btn w-75 btn-success'>Zamień</a>
                     </div>
                 </div>
 
@@ -1400,7 +1406,7 @@ style="width: 98%; z-index: 20; margin-left: 0.1rem !important; margin-top: -1re
             <div name='head' class='row mt-2 border border-warning rounded bg-gray m-0 p-0'>
                 <div class="row c-gold me-0 pe-0">
                     <div class="col h6 text-start p-2 pb-0 ms-1">
-                        Miejsce przy pasie - Pusto
+                        Miejsce przy pasie {{ slot.number }} - Pusto
                     </div>
                 </div>
 
@@ -1417,14 +1423,14 @@ style="width: 98%; z-index: 20; margin-left: 0.1rem !important; margin-top: -1re
                 <div class="row ps-0 ms-1 me-0 pe-0">
 
                     <div class="col border-end border-warning mb-0 d-flex align-items-center justify-content-center">
-                        <a class="text-light h5 btn btn-info m-2 w-75" onclick='show_or_hideById("sideItem-add")'>Załóż</a>
+                        <a class="text-light h5 btn btn-info m-2 w-75" onclick='show_or_hideById("belt-{{ slot.number }}-add")'>Załóż</a>
                     </div>                
                 </div>
 
-                <div id='sideItem-add' class='d-none row text-end m-0 p-0 mt-2 mb-2'>
+                <div id='belt-{{ slot.number }}-add' class='d-none row text-end m-0 p-0 mt-2 mb-2'>
                     <div class="col-8">
                         <select class='w-100 p-2 ms-2 text-center border border-warning bg-dark text-white-50 rounded'>
-                            {% for item in eq_weapons %}
+                            {% for item in slot.weapons %}
                                 <option id='{{ item.id }}' value='{{ item.name }}'>
                                     {{ item.name }} 
                                     ({{ item.durability }}/{{ item.name|getMaxDurability }})
@@ -1433,13 +1439,16 @@ style="width: 98%; z-index: 20; margin-left: 0.1rem !important; margin-top: -1re
                         </select>
                     </div>
                     <div class="col text-start">
-                        <a onclick="wearItem('Side', 'sideItem-add')" class='btn w-75 btn-success'>OK</a>
+                        <a onclick="wearItem('{{ slot.place }}', 'belt-{{ slot.number }}-add')" class='btn w-75 btn-success'>OK</a>
                     </div>
                 </div> 
 
             </div>
                 
         {% endif %}
+
+        {% endwith %}
+        {% endfor %}
 
         <div class="row mt-3 mb-3 m-0 p-0 text-danger">
             <div class="col p-0 m-0"><hr class="bg-danger mt-4"></div>

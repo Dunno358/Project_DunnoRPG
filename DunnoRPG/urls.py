@@ -27,6 +27,7 @@ urlpatterns = [
     path('character_detail/<int:char_id>/<int:item_id>;<str:place>', views.char_wear_item, name='wear_item'),
     path('character_detail/<int:char_id>/<int:it1_id>-<int:it2_id>', views.char_swap_item, name='swap_item'),
     path('character_detail/<int:char_id>/swap_side/<str:hand>', views.swap_side_to_hand, name='swap_side'),
+    path('character_detail/<int:char_id>/swap_side/<str:place>/<str:hand>', views.swap_side_to_hand, name='swap_belt_to_hand'),
     path('character_detail/<int:char_id>/move-side/<int:item_id>', views.move_hand_item_to_side, name='move_hand_item_to_side'),
     path('character_detail/<char_id>/change_fight', views.enter_or_leave_fight, name='enter_or_leave_fight'),
     path('character_detail/<int:char_id>/dismiss-fight-summary', views.dismiss_fight_summary, name='dismiss_fight_summary'),

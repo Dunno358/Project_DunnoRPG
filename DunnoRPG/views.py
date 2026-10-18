@@ -310,7 +310,8 @@ CHARACTER_ACCESSORY_CATEGORIES = {"accessory", "akcesoria"}
 CHARACTER_ACCESSORY_TYPES = {"accessory", "akcesoria"}
 CHARACTER_ACCESSORY_POSITIONS = {"accessory", "akcesoria"}
 EQUIPPED_ONLY_CAPACITY_ITEM_TYPES = {"amulet", "helmet", "torso", "gloves", "boots"}
-HAND_ITEM_PLACES = {"left", "right", "side"}
+BELT_ITEM_PLACES = ("Side", "Side2")
+HAND_ITEM_PLACES = {"left", "right", "side", "side2"}
 MAX_BAG_ITEMS_IN_EQ = 2
 
 
@@ -399,6 +400,13 @@ def can_pair_hand_items(character, left_item, right_item):
 
 def can_equip_hand_item(character, item, hand):
     hand = hand.capitalize()
+    if hand in BELT_ITEM_PLACES:
+        opposite_hand = "Side2" if hand == "Side" else "Side"
+        opposite = models.CharItems.objects.filter(character=character.name, hand=opposite_hand).first()
+        opposite_item = models.Items.objects.filter(name=opposite.name).first() if opposite else None
+        if opposite and (item.dualHanded or (opposite_item and opposite_item.dualHanded)):
+            return False, "Broń dwuręczna wymaga obu wolnych miejsc przy pasie."
+        return True, ""
     if hand not in {"Left", "Right"}:
         return True, ""
 
@@ -1299,6 +1307,19 @@ class CharacterDetails(DetailView):
             hidden=False,
         ).exclude(id=chosen.id).order_by('name')
         
+        context['belt_slots'] = []
+        for number, place in enumerate(BELT_ITEM_PLACES, 1):
+            equipped = get_equipped_item_for_place(chosen.name, place)
+            opposite_place = "Side2" if place == "Side" else "Side"
+            opposite = get_equipped_item_for_place(chosen.name, opposite_place)
+            opposite_desc = models.Items.objects.filter(name=opposite.name).first() if opposite else None
+            context['belt_slots'].append({
+                'number': number,
+                'place': place,
+                'item': equipped,
+                'blocked': bool(opposite_desc and opposite_desc.dualHanded),
+                'weapons': filter_hand_weapon_options(chosen, eq_weapons_qs, place),
+            })
         context['eq_weapons'] = eq_weapons_qs
         context['eq_left_hand_weapons'] = filter_hand_weapon_options(chosen, eq_weapons_qs, "Left")
         context['eq_right_hand_weapons'] = filter_hand_weapon_options(chosen, eq_weapons_qs, "Right")
@@ -2219,86 +2240,68 @@ def move_hand_item_to_side(request, char_id, item_id):
             messages.error(request, "Na pasek można założyć tylko broń.")
             return redirect('character_detail', char.id)
 
-        side_item = models.CharItems.objects.select_for_update().filter(
-            character=char.name, hand="Side",
-        ).first()
-        if side_item:
-            side_desc = get_object_or_404(models.Items, name=side_item.name)
-            if not is_weapon_item(side_desc):
-                messages.error(request, "Nie można zamienić: przedmiot na pasku nie jest bronią.")
-                return redirect('character_detail', char.id)
-            can_equip, _ = can_equip_hand_item(char, side_desc, item.hand)
-            if not can_equip:
-                messages.error(request, "Nie można zamienić przedmiotów: broń z paska nie pasuje do tej ręki lub koliduje z bronią w drugiej ręce.")
-                return redirect('character_detail', char.id)
-            side_item.hand = item.hand
-            side_item.save(update_fields=['hand'])
+        target_place = None
+        for place in BELT_ITEM_PLACES:
+            if get_equipped_item_for_place(char.name, place):
+                continue
+            can_equip, _ = can_equip_hand_item(char, item_desc, place)
+            if can_equip:
+                target_place = place
+                break
+        if target_place is None:
+            messages.error(request, "Brak wolnych miejsc przy pasie. Broń dwuręczna wymaga dwóch wolnych miejsc.")
+            return redirect('character_detail', char.id)
 
-        item.hand = "Side"
+        item.hand = target_place
         item.save(update_fields=['hand'])
     return redirect('character_detail', char.id)
 
 
+@transaction.atomic
 def swap_side_to_hand(request, **kwargs):
-    char = get_object_or_404(models.Character, id=kwargs['char_id'])
-    sideItem = get_object_or_404(models.CharItems, character=char.name, hand="Side")
-    sideItemDesc = get_object_or_404(models.Items, name=sideItem.name)
-    left = False
-
-    if kwargs['hand'] == 'left':
-        try:
-            to_swap = get_object_or_404(models.CharItems, character=char.name, hand="Left")
-        except:
-            messages.error(request, "Nothing to swap with!") #TODO: Instead of message error we are to create new item at char_items
-            return redirect('character_detail', char.id)
-        left = True
-    else:
-        try:
-            to_swap = get_object_or_404(models.CharItems, character=char.name, hand="Right")
-        except:
-            messages.error(request, "Nothing to swap with!") #TODO: Instead of message error we are to create new item at char_items
+    char = get_object_or_404(models.Character.objects.select_for_update(), id=kwargs['char_id'])
+    if not request.user.is_authenticated or (not request.user.is_superuser and char.owner != request.user.username):
+        return HttpResponse(status=403)
+    place = kwargs.get('place', 'Side').capitalize()
+    hand = kwargs['hand'].capitalize()
+    if place not in BELT_ITEM_PLACES or hand not in {"Left", "Right"}:
+        return HttpResponse(status=404)
+    side_item = get_object_or_404(models.CharItems, character=char.name, hand=place)
+    side_desc = get_object_or_404(models.Items, name=side_item.name)
+    to_swap = get_equipped_item_for_place(char.name, hand)
+    if to_swap:
+        to_swap_desc = get_object_or_404(models.Items, name=to_swap.name)
+        can_equip, error = can_equip_hand_item(char, to_swap_desc, place)
+        if not can_equip:
+            messages.error(request, error)
             return redirect('character_detail', char.id)
 
-    to_swap_desc = get_object_or_404(models.Items, name=to_swap.name)
-    to_swap.hand = "Side"
-
-    try:
-        rightItem = get_object_or_404(models.CharItems, hand="Right", character=char.name)
-        rightItemDesc = get_object_or_404(models.Items, name=rightItem.name)
-        right = True
-    except:
-        right = False
-
-    if left:
-        if sideItemDesc.dualHanded and right:
-            rightItem = get_object_or_404(models.CharItems, hand="Right", character=char.name)
-            rightItemDesc = get_object_or_404(models.Items, name=rightItem.name)
-
-            models.Eq.objects.create(
-                owner = char.owner,
-                character = char.name,
-                name = rightItem.name,
-                type = rightItemDesc.type,
-                weight = rightItemDesc.weight,
-                durability = clamp_item_durability(rightItemDesc, rightItem.durability),
-                amount = 1,
-                additional_description = rightItem.additional_description,
-                use_amount = rightItem.use_amount,
-            )
-            rightItem.delete()
-
-        sideItem.hand = "Left"
-        to_swap.save()
-        sideItem.save()
-    else:
-        if not sideItemDesc.dualHanded:
-            sideItem.hand="Right"
-            to_swap.save()
-            sideItem.save()
-        else:
-            messages.error(request, "Dual-handed weapons cannot be added to right hand!")
-
+    # Preserve moving the right-hand item to the backpack when drawing a two-handed weapon.
+    right_item = get_equipped_item_for_place(char.name, "Right") if hand == "Left" else None
+    right_desc = get_object_or_404(models.Items, name=right_item.name) if right_item else None
+    stow_right = bool(side_desc.dualHanded and right_item and not can_pair_hand_items(char, side_desc, right_desc))
+    if not stow_right:
+        can_equip, error = can_equip_hand_item(char, side_desc, hand)
+        if not can_equip:
+            messages.error(request, error)
+            return redirect('character_detail', char.id)
+    if stow_right:
+        models.Eq.objects.create(
+            owner=char.owner, character=char.name, name=right_item.name,
+            type=right_desc.type, weight=right_desc.weight,
+            durability=clamp_item_durability(right_desc, right_item.durability),
+            amount=1, additional_description=right_item.additional_description,
+            use_amount=right_item.use_amount,
+        )
+        right_item.delete()
+    if to_swap:
+        to_swap.hand = place
+        to_swap.save(update_fields=['hand'])
+    side_item.hand = hand
+    side_item.save(update_fields=['hand'])
     return redirect('character_detail', char.id)
+
+
 def change_item_durability(request,**kwargs):
     char = get_object_or_404(models.Character, id=kwargs['char_id'])
     dur = request.POST.get('dur')
@@ -2824,7 +2827,7 @@ def char_wear_item(request, **kwargs):
             
     charItObj = get_equipped_item_for_place(char.name, place)
     if charItObj == None: 
-        if place.lower() in ['left','right','side']:
+        if place.lower() in HAND_ITEM_PLACES:
             models.CharItems.objects.create(
                 owner = request.user,
                 character = char.name,
