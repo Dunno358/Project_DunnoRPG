@@ -231,7 +231,7 @@ style="width: 98%; z-index: 20; margin-left: 0.1rem !important; margin-top: -1re
 
 </div>
 
-<div id='dice-input' data-advantage-balance="{{ chosen_character.0.advantageBalance }}" data-confirm-url="{% url 'confirm_attack' chosen_character.0.id %}" class='d-none h5 position-fixed bg-dark c-gold container-fluid m-0 p-0 border border-primary' style="top: 5vh; max-height: 100vh; overflow: auto; z-index: 10; left: 1vw; width: 99%;">
+<div id='dice-input' data-in-fight="{{ chosen_character.0.inFight|yesno:'true,false' }}" data-actions-left="{{ chosen_character.0.actionLeft|unlocalize }}" data-advantage-balance="{{ chosen_character.0.advantageBalance }}" data-confirm-url="{% url 'confirm_attack' chosen_character.0.id %}" class='d-none h5 position-fixed bg-dark c-gold container-fluid m-0 p-0 border border-primary' style="top: 5vh; max-height: 100vh; overflow: auto; z-index: 10; left: 1vw; width: 99%;">
 
     <div class='row m-0 p-2'>
         <div class="col text-center h2">
@@ -1074,11 +1074,13 @@ style="width: 98%; z-index: 20; margin-left: 0.1rem !important; margin-top: -1re
 
                 </div>
 
-                <a class="row ps-0 ms-0 me-0 pe-0 border-0 border-top border-warning btn btn-success rounded-0"
-                onclick='gatherAttackInfo("left", {{ leftItem.id }})'
+                <button type="button" id="left-attack-btn" class="row w-100 ps-0 ms-0 me-0 pe-0 border-0 border-top border-warning btn btn-success rounded-0"
+                data-needs-reload="{{ leftItem.needs_reload|yesno:'true,false' }}" data-attack-cost="{{ leftItem.attack_cost|unlocalize }}"
+                data-reload-url="{% url 'reload_weapon' value.id leftItem.id %}"
+                onclick='handleWeaponAction("left", {{ leftItem.id }})'
                 >
-                    <span class="h4">Wykonaj atak</span>
-                </a>
+                    <span class="h4">{% if leftItem.needs_reload %}Przeładuj{% else %}Wykonaj atak{% endif %}</span>
+                </button>
 
                 <div class="row g-0 m-0 border-top border-warning">
                     <div class="col-4 p-1"><button type="button" class="btn btn-info text-white w-100 px-1" onclick='show_or_hideById("leftItem-swap")'>Zmień</button></div>
@@ -1240,11 +1242,13 @@ style="width: 98%; z-index: 20; margin-left: 0.1rem !important; margin-top: -1re
 
                 </div>
 
-                <a class="row ps-0 ms-0 me-0 pe-0 border-0 border-top border-warning btn btn-success rounded-0"
-                onclick='gatherAttackInfo("right", {{ rightItem.id }})'
+                <button type="button" id="right-attack-btn" class="row w-100 ps-0 ms-0 me-0 pe-0 border-0 border-top border-warning btn btn-success rounded-0"
+                data-needs-reload="{{ rightItem.needs_reload|yesno:'true,false' }}" data-attack-cost="{{ rightItem.attack_cost|unlocalize }}"
+                data-reload-url="{% url 'reload_weapon' value.id rightItem.id %}"
+                onclick='handleWeaponAction("right", {{ rightItem.id }})'
                 >
-                    <span class="h4">Wykonaj atak</span>
-                </a>
+                    <span class="h4">{% if rightItem.needs_reload %}Przeładuj{% else %}Wykonaj atak{% endif %}</span>
+                </button>
 
                 <div class="row g-0 m-0 border-top border-warning">
                     <div class="col-4 p-1"><button type="button" class="btn btn-info text-white w-100 px-1" onclick='show_or_hideById("rightItem-swap")'>Zmień</button></div>
@@ -3562,9 +3566,65 @@ function updateCriticalChoice(){
     document.getElementById('critical-choice-row').classList.toggle('d-none', !piercing || Number(document.getElementById('dice-cel').value) !== 20)
 }
 
+function syncWeaponAction(hand, data){
+    if(data.actionLeft !== undefined){
+        document.getElementById('dice-input').dataset.actionsLeft = String(data.actionLeft)
+        const input = document.getElementById('actions-amount')
+        if(input){
+            input.value = data.actionLeft
+            input.setAttribute('value', data.actionLeft)
+            input.dataset.lastSubmittedValue = String(data.actionLeft)
+        }
+    }
+    if(data.needs_reload !== undefined){
+        const button = document.getElementById(`${hand}-attack-btn`)
+        button.dataset.needsReload = String(data.needs_reload)
+        button.querySelector('span').textContent = data.needs_reload ? 'Przeładuj' : 'Wykonaj atak'
+    }
+}
+
+function hasActionsForWeapon(hand, reload=false){
+    if(document.getElementById('dice-input').dataset.inFight !== 'true'){ return true }
+    const button = document.getElementById(`${hand}-attack-btn`)
+    const cost = reload ? 0.5 : Number(button.dataset.attackCost)
+    const input = document.getElementById('actions-amount')
+    const available = Number(input ? input.value : document.getElementById('dice-input').dataset.actionsLeft)
+    if(!Number.isFinite(available) || available < cost){
+        showMessage(`Za mało akcji. ${reload ? 'Przeładowanie wymaga' : 'Atak wymaga'} ${cost} akcji. Pozostało ${available} akcji.`, 'error')
+        return false
+    }
+    return true
+}
+
+async function handleWeaponAction(hand, item_id){
+    const button = document.getElementById(`${hand}-attack-btn`)
+    if(button.disabled){ return }
+    const reload = button.dataset.needsReload === 'true'
+    if(!hasActionsForWeapon(hand, reload)){ return }
+    if(!reload){
+        gatherAttackInfo(hand, item_id)
+        return
+    }
+    button.disabled = true
+    try{
+        const response = await fetch(button.dataset.reloadUrl, {
+            method: 'POST',
+            headers: {'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value},
+        })
+        const data = await response.json()
+        syncWeaponAction(hand, data)
+        if(!response.ok){ throw new Error(data.error || 'Nie udało się przeładować broni.') }
+    }catch(error){
+        showMessage(error.message, 'error')
+    }finally{
+        button.disabled = false
+    }
+}
+
 async function showAttackResult(hand, item_id){
     const btn = document.getElementById('attack-confirm-btn')
     if(btn.disabled){ return }
+    if(!hasActionsForWeapon(hand)){ return }
     const modal = document.getElementById('dice-input')
     const prefix = hand === 'left' ? 'l' : 'r'
     const weapon = document.getElementById(`${prefix}-name`)
@@ -3623,6 +3683,7 @@ async function showAttackResult(hand, item_id){
             headers: {'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value},
         })
         const data = await response.json()
+        syncWeaponAction(hand, data)
         if(!response.ok){
             if(data.advantageBalance !== undefined){
                 modal.dataset.advantageBalance = data.advantageBalance

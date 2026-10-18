@@ -320,6 +320,21 @@ def is_weapon_item(item):
     return category == "weapon" or category.startswith("weapon_")
 
 
+def attack_action_cost(item):
+    light_or_medium_bow = (
+        (item.type or "").strip().lower() == "bow"
+        and (item.armor_weight or "").strip().lower() in {"light", "medium"}
+    )
+    return 1.0 if item.dualHanded and not light_or_medium_bow else 0.5
+
+
+def weapon_requires_reload(item):
+    return (
+        (item.category or "").strip().lower() in {"weapon_range", "weapon_gun"}
+        and (item.type or "").strip().lower() != "bow"
+    )
+
+
 MILITARY_TRAINING_SKILL = "wojskowe przeszkolenie"
 
 
@@ -539,6 +554,7 @@ def move_char_item_to_eq(char_item):
         durability=durability,
         additional_description=char_item.additional_description,
         use_amount=char_item.use_amount,
+        reloaded=char_item.reloaded,
     ).first()
 
     if eq_item:
@@ -555,6 +571,7 @@ def move_char_item_to_eq(char_item):
             durability=durability,
             additional_description=char_item.additional_description,
             use_amount=char_item.use_amount,
+            reloaded=char_item.reloaded,
         )
 
     if item_desc.skillEffects != None:
@@ -1273,6 +1290,10 @@ class CharacterDetails(DetailView):
         for hand in ('left', 'right'):
             equipped_item = context[f'{hand}Item']
             context[f'{hand}Weapon'] = models.Items.objects.filter(name=equipped_item.name).first() if equipped_item else None
+            description = context[f'{hand}Weapon']
+            if equipped_item and description:
+                equipped_item.attack_cost = attack_action_cost(description)
+                equipped_item.needs_reload = weapon_requires_reload(description) and not equipped_item.reloaded
         context['sideItem'] = models.CharItems.objects.filter(character=serializer.data['name'], hand='Side').first()
         context['chosen_character'] = [serializer.data] 
         context['mods'] = mods
@@ -1337,6 +1358,13 @@ def confirm_attack(request, char_id):
             return JsonResponse({'error': 'Nieprawidłowa broń.'}, status=400)
         weapon = get_object_or_404(models.CharItems.objects.select_for_update(), id=weapon_id, character=char.name, hand__in=('Left', 'Right'))
         description = get_object_or_404(models.Items, name=weapon.name)
+        if weapon_requires_reload(description) and not weapon.reloaded:
+            return JsonResponse({'error': 'Najpierw przeładuj broń.', 'reloaded': False, 'needs_reload': True,
+                                 'actionLeft': char.actionLeft}, status=409)
+        cost = attack_action_cost(description) if char.inFight else 0
+        if char.actionLeft < cost:
+            return JsonResponse({'error': f'Za mało akcji. Atak wymaga {cost:g} akcji. Pozostało {char.actionLeft:g} akcji.',
+                                 'actionLeft': char.actionLeft}, status=400)
         try:
             used = int(request.POST.get('advantage_used', 0))
             accuracy_roll = int(request.POST.get('accuracy_roll', 10))
@@ -1360,10 +1388,11 @@ def confirm_attack(request, char_id):
             return JsonResponse({'error': 'Sprawdź bilans przewag i ilość dostępnej amunicji.'}, status=400)
 
         char.advantageBalance -= used
+        char.actionLeft -= cost
         critical = resolve_critical(accuracy_roll, description.dmg_type, piercing_choice)
         if critical.get('self_damage'):
             char.HP -= critical['self_damage']
-        char.save(update_fields=['advantageBalance', 'HP'])
+        char.save(update_fields=['advantageBalance', 'HP', 'actionLeft'])
         if critical.get('effect_name'):
             models.Effects.objects.create(
                 owner=char.owner, character=char.name, name=critical['effect_name'],
@@ -1376,6 +1405,9 @@ def confirm_attack(request, char_id):
             weapon.durability = max(0, weapon.durability - durability_loss)
             weapon.save(update_fields=['durability'])
         if ammo:
+            if weapon_requires_reload(description):
+                weapon.reloaded = False
+                weapon.save(update_fields=['reloaded'])
             ammo.amount -= amount
             if ammo.amount:
                 ammo.save(update_fields=['amount'])
@@ -1383,7 +1415,36 @@ def confirm_attack(request, char_id):
                 ammo.delete()
         durability_percent = round(100 * weapon.durability / description.maxDurability) if description.maxDurability > 0 else 0
         return JsonResponse({'advantageBalance': char.advantageBalance, 'durability': weapon.durability,
-                             'durability_percent': durability_percent, 'critical': critical, 'hp': char.HP})
+                             'durability_percent': durability_percent, 'critical': critical, 'hp': char.HP,
+                             'actionLeft': char.actionLeft, 'reloaded': weapon.reloaded,
+                             'needs_reload': weapon_requires_reload(description) and not weapon.reloaded})
+
+
+@require_POST
+def reload_weapon(request, char_id, item_id):
+    with transaction.atomic():
+        char = get_object_or_404(models.Character.objects.select_for_update(), id=char_id)
+        if not request.user.is_authenticated or (char.owner != request.user.username and not request.user.is_superuser):
+            return JsonResponse({'error': 'Brak dostępu do postaci.'}, status=403)
+        weapon = get_object_or_404(
+            models.CharItems.objects.select_for_update(), id=item_id,
+            character=char.name, hand__in=('Left', 'Right'),
+        )
+        description = get_object_or_404(models.Items, name=weapon.name)
+        if not weapon_requires_reload(description):
+            return JsonResponse({'error': 'Ta broń nie wymaga przeładowania.'}, status=400)
+        if weapon.reloaded:
+            return JsonResponse({'error': 'Broń jest już przeładowana.', 'reloaded': True, 'needs_reload': False,
+                                 'actionLeft': char.actionLeft}, status=409)
+        if char.inFight and char.actionLeft < 0.5:
+            return JsonResponse({'error': f'Za mało akcji. Przeładowanie wymaga 0,5 akcji. Pozostało {char.actionLeft:g} akcji.',
+                                 'actionLeft': char.actionLeft}, status=400)
+        if char.inFight:
+            char.actionLeft -= 0.5
+            char.save(update_fields=['actionLeft'])
+        weapon.reloaded = True
+        weapon.save(update_fields=['reloaded'])
+        return JsonResponse({'actionLeft': char.actionLeft, 'reloaded': True, 'needs_reload': False})
 
 
 class TakeItemDurFromAttack(APIView):
@@ -2281,6 +2342,7 @@ def swap_side_to_hand(request, **kwargs):
             durability=clamp_item_durability(right_desc, right_item.durability),
             amount=1, additional_description=right_item.additional_description,
             use_amount=right_item.use_amount,
+            reloaded=right_item.reloaded,
         )
         right_item.delete()
     if to_swap:
@@ -2826,6 +2888,7 @@ def char_wear_item(request, **kwargs):
                 position = '',
                 additional_description = item_eq_obj.additional_description,
                 use_amount = item_eq_obj.use_amount,
+                reloaded = item_eq_obj.reloaded,
                 )
         else:
             models.CharItems.objects.create(
@@ -2837,12 +2900,14 @@ def char_wear_item(request, **kwargs):
                 position = place.capitalize(),
                 additional_description = item_eq_obj.additional_description,
                 use_amount = item_eq_obj.use_amount,
+                reloaded = item_eq_obj.reloaded,
                 )            
     else:
         charItObj.name = item.name
         charItObj.durability = clamp_item_durability(item, item_eq_obj.durability)
         charItObj.additional_description = item_eq_obj.additional_description
         charItObj.use_amount = item_eq_obj.use_amount
+        charItObj.reloaded = item_eq_obj.reloaded
         charItObj.save()  
 
     if item.skillEffects != None:
@@ -3061,6 +3126,7 @@ def char_swap_item(request, **kwargs):
         durability=clamp_item_durability(it1D, it1.durability),
         additional_description=it1.additional_description,
         use_amount=it1.use_amount,
+        reloaded=it1.reloaded,
     )
 
     if it1D.skillEffects != None:
@@ -3072,6 +3138,7 @@ def char_swap_item(request, **kwargs):
     it1.durability = it2.durability
     it1.additional_description = it2.additional_description
     it1.use_amount = it2.use_amount
+    it1.reloaded = it2.reloaded
     it1.save()
 
     if it2D.skillEffects != None:
