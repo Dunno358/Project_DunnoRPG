@@ -543,7 +543,7 @@ style="width: 98%; z-index: 20; margin-left: 0.1rem !important; margin-top: -1re
         <p id='effects-attack'>{{ value.name|getEffectsBonus:"attack" }}</p>
         <p id='effects-parry'>{{ value.name|getEffectsBonus:"parry" }}</p>
         <p id='effects-dodge'>{{ value.name|getEffectsBonus:"dodge" }}</p>
-        <p id='shield-weight'>0</p>
+        <p id='belt-weight'>{{ value.name|getBeltWeight }}kg</p>
         <p id='amulet-attack-mod'>{{ value.name|getAmuletAttackBonus }}</p>
         <p id='armor-weight'>{{ value.name|getArmorWeight }}kg</p>
     </div>
@@ -3434,29 +3434,6 @@ async function calculateGettingHit(){
     }
 }
 
-function getWeaponMod(){
-    let l_weight_shield = 0   
-    try{
-        let l_item_type = document.getElementById('l-type').textContent.trim().toLowerCase()
-        if(l_item_type=="tarcza" || l_item_type=="shield"){
-            l_weight_shield = parseFloat(document.getElementById('l-weight').innerHTML)
-        }
-    }catch(error){console.log(error)}
-
-    let r_weight_shield = 0
-    try{
-        let r_item_type = document.getElementById('r-type').textContent.trim().toLowerCase()
-        if(r_item_type=="tarcza" || r_item_type=="shield"){
-            r_weight_shield = parseFloat(document.getElementById('r-weight').innerHTML)
-        }
-    }catch(error){console.log(error)}
-
-    shieldWeight = r_weight_shield+l_weight_shield
-
-    document.getElementById('shield-weight').innerHTML = shieldWeight
-}
-getWeaponMod()
-
 function isHit(hand, dualHanded=false){
     const dice = Number(document.getElementById('dice-cel').value)
     const weapon = document.getElementById(hand === 'left' ? 'l-name' : 'r-name')
@@ -3734,14 +3711,14 @@ function parseDisplayedNumber(elementId){
     return Number.isNaN(value) ? 0 : value
 }
 
-function calculateArmorPenalty(armorWeight, shieldWeight, weightPerPenalty=6){
-    return Math.floor((armorWeight + shieldWeight) / weightPerPenalty)
+function calculateArmorPenalty(armorWeight, beltWeight, weightPerPenalty=6){
+    return Math.floor((armorWeight + beltWeight) / weightPerPenalty)
 }
 
 function getArmorMod(){
     const armor_weight = parseDisplayedNumber('armor-weight')
-    const shield_weight = parseDisplayedNumber('shield-weight')
-    let mod = calculateArmorPenalty(armor_weight, shield_weight)
+    const belt_weight = parseDisplayedNumber('belt-weight')
+    let mod = calculateArmorPenalty(armor_weight, belt_weight)
     try{
         if(document.getElementById('char-class').innerHTML.trim() == 'Berserker'){
             mod = mod*2
@@ -3751,7 +3728,7 @@ function getArmorMod(){
         console.log('No class chosen...')
     }
     document.getElementById('armor-mod').innerHTML = mod
-    document.getElementById('armor-cel-mod').innerHTML = calculateArmorPenalty(armor_weight, shield_weight, 15)
+    document.getElementById('armor-cel-mod').innerHTML = calculateArmorPenalty(armor_weight, belt_weight, 15)
     updateZreModWithArmorPenalty()
     updateCelModWithArmorPenalty()
 }
@@ -3875,14 +3852,14 @@ function showArmorPenaltyInfo(){
     getArmorMod()
 
     let armorWeight = parseDisplayedNumber('armor-weight')
-    let shieldWeight = parseDisplayedNumber('shield-weight')
-    let totalWeight = armorWeight + shieldWeight
+    let beltWeight = parseDisplayedNumber('belt-weight')
+    let totalWeight = armorWeight + beltWeight
     let armorMod = parseDisplayedNumber('armor-mod')
     let celMod = parseDisplayedNumber('armor-cel-mod')
 
     showInfoCard(
         'Kara',
-        `Kara wynosi -1 ZRE za każde 6kg oraz -1 CEL za każde 15kg łącznej wagi pancerza i tarczy. Obecnie: -${armorMod} ZRE, -${celMod} CEL (${formatWeight(armorWeight)}kg pancerz + ${formatWeight(shieldWeight)}kg tarcza = ${formatWeight(totalWeight)}kg).`
+        `Kara wynosi -1 ZRE za każde 6kg oraz -1 CEL za każde 15kg łącznej wagi pancerza i przedmiotów przy pasie. Przedmioty w rękach nie są wliczane. Obecnie: -${armorMod} ZRE, -${celMod} CEL (${formatWeight(armorWeight)}kg pancerz + ${formatWeight(beltWeight)}kg przy pasie = ${formatWeight(totalWeight)}kg).`
     )
 }
 

@@ -558,15 +558,6 @@ def rightItemNotAllowed(character):
         "wojskowe przeszkolenie": ["spear", "halberd", "glaive"]
     }
 
-    allowing_classes = [
-        "Paladyn: Przysięga Miecza",
-        "Barbarzyńca: Droga Rosomaka"
-        ""
-    ]
-
-    if char.chosen_class in allowing_classes:
-        return False
-
     for skill in skills:
         if skill.skill.lower() in allowing_skills.keys():
             print(leftItemDesc.type.lower(), allowing_skills[skill.skill.lower()])
@@ -881,6 +872,16 @@ def getArmor(charName):
             pass
     
     return armor
+
+@register.filter
+def getBeltWeight(charName):
+    weight = 0
+    for equipped in models.CharItems.objects.filter(character=charName, hand__in=("Side", "Side2")):
+        item = models.Items.objects.filter(name=equipped.name).first()
+        if item:
+            weight += item.weight
+    return weight
+
 
 @register.filter
 def getArmorWeight(charName):

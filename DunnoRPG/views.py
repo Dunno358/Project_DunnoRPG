@@ -321,10 +321,6 @@ def is_weapon_item(item):
 
 
 MILITARY_TRAINING_SKILL = "wojskowe przeszkolenie"
-TWO_HANDED_IGNORE_CLASSES = {
-    'barbarzyĹ„ca: droga rosomaka',
-    'paladyn: przysiÄ™ga miecza',
-}
 
 
 def character_has_skill(character, skill_name):
@@ -375,14 +371,8 @@ def is_military_training_polearm(item):
     )
 
 
-def character_ignores_two_handed_limits(character):
-    return (character.chosen_class or "").lower() in TWO_HANDED_IGNORE_CLASSES
-
-
 def can_pair_hand_items(character, left_item, right_item):
     if not left_item or not right_item:
-        return True
-    if character_ignores_two_handed_limits(character):
         return True
     if not left_item.dualHanded and not right_item.dualHanded:
         return True
@@ -417,7 +407,6 @@ def can_equip_hand_item(character, item, hand):
     if (
         hand == "Right"
         and item.dualHanded
-        and not character_ignores_two_handed_limits(character)
         and not (
             opposite_item
             and is_shield_item(opposite_item)
@@ -896,7 +885,7 @@ class charGET(ListView):
     
 class AddCharacterView(APIView):
     template_name = 'character_add.html'
-    rendered_classes = [TemplateHTMLRenderer]
+    renderer_classes = [TemplateHTMLRenderer]
 
     def get(self,request):
         races = models.Races.objects.order_by('name')
@@ -1005,7 +994,7 @@ class CopyCharacter(APIView):
 
 class EditCharacterView(APIView):
     template_name = 'character_add_skills.html'
-    rendered_classes = [TemplateHTMLRenderer]
+    renderer_classes = [TemplateHTMLRenderer]
 
     def get(self, request, *args, **kwargs):
         user = self.request.user
@@ -1613,7 +1602,7 @@ class DowngradeCharacterStats(APIView):
 class Skills(APIView):
     serializer_class = SkillsDecsSerializer
     template_name = 'skills.html'
-    rendered_classes = [TemplateHTMLRenderer]
+    renderer_classes = [TemplateHTMLRenderer]
 
     def get(self,request):
         skills = models.Skills_Decs.objects.all()
@@ -1667,7 +1656,7 @@ class Skills(APIView):
 class SkillDetail(APIView):
     serializer_class = SkillsDecsSerializer
     template_name = 'skill_detail.html'
-    rendered_classes = [TemplateHTMLRenderer]
+    renderer_classes = [TemplateHTMLRenderer]
 
     def get(self,request,id):
         current_user = request.user

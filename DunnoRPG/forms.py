@@ -57,7 +57,7 @@ class AddEqItemForm(forms.ModelForm):
         'min': 1
     }))  
     
-    amount = forms.IntegerField(label='Ilość',widget=forms.NumberInput(attrs={
+    amount = forms.IntegerField(label='Ilość', min_value=1, widget=forms.NumberInput(attrs={
         'class': 'text-center bg-dark c-gold rounded border border-info m-1 w-75',
         'value': 1,
         'min': 1
