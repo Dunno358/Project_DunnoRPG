@@ -40,7 +40,7 @@
     }
 
     #iframe-card {
-        inset: 0.5rem;
+        inset: 0.5rem 0;
         width: auto;
         height: calc(100vh - 1rem);
         height: calc(100dvh - 1rem);
@@ -56,6 +56,19 @@
     #iframe-card .character-iframe-body {
         flex: 1 1 auto;
         min-height: 0;
+    }
+
+    #end-round {
+        background-color: #6f42c1;
+        border-color: #6f42c1;
+        color: #fff;
+    }
+
+    #end-round:hover,
+    #end-round:focus-visible,
+    #end-round:active {
+        background-color: #59359a;
+        border-color: #59359a;
     }
 
     .counter-adjust-btn {
@@ -235,13 +248,16 @@ style="width: 98%; z-index: 20; margin-left: 0.1rem !important; margin-top: -1re
 
     <div class='row m-0 p-2'>
         <div class="col text-center h2">
-            <span id="dice-input-title">Wykonaj atak</title>
+            <span id="dice-input-title">Wykonaj atak</span>
         </div>
     </div>
 
     <div class='row m-0'>
-        <div class="col text-center h5 p-0 m-0">
+        <div class="col-5 text-center h5 p-2 m-0">
             <span id="dice-input-subtitle"></span>
+        </div>
+        <div class="col text-center h5 p-2 m-0 border-start border-primary">
+            <span id="dice-input-accuracy"></span>
         </div>
     </div>
 
@@ -289,7 +305,7 @@ style="width: 98%; z-index: 20; margin-left: 0.1rem !important; margin-top: -1re
             Cel ataku:
         </div>
         <div class="col ">
-            <select class="w-75 text-center border border-warning bg-gray c-gold rounded p-1 ms-4" id="body-target">
+            <select class="w-75 text-center border border-warning bg-gray c-gold rounded p-1 ms-4" id="body-target" onchange="updateAttackAccuracy()">
                 <option value='torso'>Torso (+0 CEL)</option>
                 <option value='head'>Głowa (+8 CEL)</option>
                 <option value='hands'>Ręce (+4 CEL)</option>
@@ -437,28 +453,31 @@ style="width: 98%; z-index: 20; margin-left: 0.1rem !important; margin-top: -1re
 {% endif %}
 
 <div class="container-fluid bg-dark bg-opacity-75 m-0 p-0">
-    <div class="row w-100 m-0 pt-1 pb-1">
-        <div class="col text-center">
-            <a class="btn btn-primary text-white w-100" href="{% url 'character_add_skills' chosen_character.0.id %}">
+    <div class="row g-0 w-100 m-0 p-0">
+        <div class="col text-center m-0 p-0">
+            <a class="btn btn-primary text-white w-100 h-100 rounded-0 m-0" href="{% url 'character_add_skills' chosen_character.0.id %}">
                 Edycja
             </a>
         </div>
-    </div>
-    <div class="row w-100 m-0 pt-1 pb-1 text-info">
-        <div class="col text-center">
-            <button class="btn w-100 h-100 {% if chosen_character.0.inFight %}btn-secondary{% else %}btn-success{% endif %}" id="outside-fight" onclick="maybeChangeFight(this)">
-                {% if chosen_character.0.inFight %}Zakończ walkę{% else %}Poza walką{% endif %}
-            </button>
+        {% if not chosen_character.0.inFight %}
+        <div class="col text-center m-0 p-0">
+            <button class="btn btn-danger w-100 h-100 rounded-0 m-0" id="in-fight" onclick="maybeChangeFight(this)">Walka</button>
         </div>
-        <div class="col text-center">
-            <button class="btn w-100 h-100 {% if chosen_character.0.inFight %}btn-danger{% else %}btn-secondary{% endif %}" id="in-fight" onclick="maybeChangeFight(this)">Walka</button>
-        </div>
-        {% if chosen_character.0.inFight %}
-            <div class="col text-center">
-                <button class="btn w-100 h-100 btn-primary" id="end-round" onclick="endRound()">Zakończ rundę</button>
-            </div>
         {% endif %}
     </div>
+    {% if chosen_character.0.inFight %}
+    <div class="row w-100 m-0 pt-1 pb-1 text-info">
+        <div class="col text-center">
+            <button class="btn btn-danger w-100 h-100" id="outside-fight" onclick="maybeChangeFight(this)">
+                Zakończ walkę
+            </button>
+        </div>
+
+            <div class="col text-center">
+                <button class="btn w-100 h-100" id="end-round" onclick="endRound()">Zakończ rundę</button>
+            </div>
+    </div>
+    {% endif %}
 </div>
 
 <div class="container-fluid bg-dark border-top border-bottom border-warning c-gold text-center p-1">
@@ -734,250 +753,6 @@ style="width: 98%; z-index: 20; margin-left: 0.1rem !important; margin-top: -1re
             </div>
         </div>
         
-        <div class="row mt-2 mb-3 m-0 p-0 text-danger">
-            <div class="col-5 p-0 m-0"><hr class="bg-danger mt-4"></div>
-            <div class="col-2 p-0 m-0">
-                <h3 class="mt-2 textdanger">Głowa</h3>
-            </div>
-            <div class="col-5 p-0 m-0"><hr class="bg-danger mt-4"></div>
-        </div>
-
-        {% if helmet %}
-            <form name='head' method='post' action='changedur-{{ helmet.id }}' class='row mt-2 border border-warning rounded bg-gray m-0 p-0'>
-                {% csrf_token %}
-                <div class="row c-gold me-0 pe-0">
-                    <div class="col-7 h6 text-start pt-2 ps-1 pb-0 pe-0">
-                        <span class="text-white-50">Wytrzymałość:</span>
-                        <input id="armor-head-durability" value="{{ helmet.durability }}" class="bg-gray border-0 c-gold p-0 m-0 h6 text-end" style="width: 15%" name="dur"/>
-                        /{{ helmet.name|getMaxDurability }}
-                    </div>
-                    <div class="col h6 text-end p-2 pb-0 border-start border-warning">
-                        {{ helmet.name|getArmorWeightType }}
-                    </div>
-                </div>
-
-                <div class="row me-0 pe-0">
-                    <div class="col text-center">
-                        <a href='javascript:void(0)' onclick="showIframe('/dunnorpg/items/{{ helmet.name|getDescId }}?ref=char;{{ helmet.id }}')" class="{{ helmet.name|getItemRarity }} h4">
-                            {{ helmet.name }} <span id="armor-head-durability-percent" class="item-durability-percent">{{ helmet.name|getDurabilityPercent:helmet.durability }}</span> 
-                            {% if user.is_superuser %}
-                                <a href="/admin/DunnoRPG/charitems/{{ helmet.id }}/change/" class="fa fa-link" target="_blank" onclick="event.stopPropagation()"></a>
-                            {% endif %}
-                        </a>
-                    </div>
-                </div>
-
-                <hr class="mb-0 mt-1">
-                {% if helmet.name|getVisibleSkill:user %}
-                    <div class="row me-0 pe-0">
-                        <div class="col text-justified {{ helmet.name|getItemRarity }} p-0 ps-1 pt-1">
-                            {{ helmet.name|getVisibleSkill:user|itemSkillWithLinks }}
-                        </div>
-                    </div>
-                    <hr class="mb-0 mt-1">
-                {% endif %}
-
-                <div class="row ps-0 ms-1 me-0 pe-0">
-
-                    <div class="col-4 border-end border-warning p-3 h6 mb-0 d-flex align-items-center justify-content-center">
-                        <span class="text-white-50">Pancerz:</span> <span id="armor-head-value" class="c-gold ms-1">{{ helmet.name|getItemArmorByDurability:helmet.durability }}</span>
-                    </div>                
-                    <div class="col-2 border-end border-warning p-3 h6 mb-0 d-flex align-items-center justify-content-center">
-                        <span class="text-white-50"></span> <span class="c-gold ms-1">{{ helmet.name|getItemWeight }}kg</span>
-                    </div>                
-                    <div class="col-3 border-end border-warning h6 mb-0 d-flex align-items-center justify-content-center">
-                        <a class="btn btn-info p-3 pt-2 pb-2 text-white" onclick='show_or_hideById("helmet-swap")'>Zmień</a>
-                    </div>                  
-                    <div class="col-3 h6 mb-0 d-flex align-items-center justify-content-center">
-                        <a class="btn btn-danger p-3 pt-2 pb-2 text-white" href='move_eq-{{ helmet.id }}'>Odłóż</a>
-                    </div>
-
-                </div>
-
-                <div id='helmet-swap' class='d-none row text-end m-0 p-0 mt-2 mb-2'>
-                    <div class="col-8">
-                        <select class='w-100 p-2 ms-2 text-center border border-warning bg-dark text-white-50 rounded'>
-                            {% for item in eq_helmets %}
-                                <option id='{{ item.id }}' name={{ item.durability }} value='{{ item.name }}'>
-                                    {{ item.name }} 
-                                    ({{ item.durability }}/{{ item.name|getMaxDurability }})
-                                </option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                    <div class="col text-start">
-                        <a onclick="swapItem('{{ helmet.id }}', 'helmet-swap')" class='btn w-75 btn-success'>Zamień</a>
-                    </div>
-                </div>
-
-            </form>
-        {% else %}
-            <div name='head' class='row mt-2 border border-warning rounded bg-gray m-0 p-0'>
-                <div class="row c-gold me-0 pe-0">
-                    <div class="col h6 text-start p-2 pb-0 ms-1">
-                        Głowa - Brak
-                    </div>
-                </div>
-
-                <div class="row me-0 pe-0">
-                    <div class="col text-center">
-                        <a href='' class="c-gold h4">
-                            Brak hełmu
-                        </a>
-                    </div>
-                </div>
-
-                <hr class="mb-0 mt-1">
-
-                <div class="row ps-0 ms-1 me-0 pe-0">
-
-                    <div class="col border-end border-warning mb-0 d-flex align-items-center justify-content-center">
-                        <a class="text-light h5 btn btn-info m-2 w-75" onclick='show_or_hideById("helmet-add")'>Załóż</a>
-                    </div>                
-                </div>
-
-                <div id='helmet-add' class='d-none row text-end m-0 p-0 mt-2 mb-2'>
-                    <div class="col-8">
-                        <select class='w-100 p-2 ms-2 text-center border border-warning bg-dark text-white-50 rounded'>
-                            {% for item in eq_helmets %}
-                                <option id='{{ item.id }}' value='{{ item.name }}'>
-                                    {{ item.name }} 
-                                    ({{ item.durability }}/{{ item.name|getMaxDurability }})
-                                </option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                    <div class="col text-start">
-                        <a onclick="wearItem('Helmet', 'helmet-add')" class='btn w-75 btn-success'>OK</a>
-                    </div>
-                </div> 
-
-            </div>
-                
-        {% endif %}
-
-        <div class="row mt-3 mb-3 m-0 p-0 text-danger">
-            <div class="col-5 p-0 m-0"><hr class="bg-danger mt-4"></div>
-            <div class="col-2 p-0 m-0">
-                <h3 class="mt-2 textdanger">Tors</h3>
-            </div>
-            <div class="col-5 p-0 m-0"><hr class="bg-danger mt-4"></div>
-        </div>
-
-        {% if torso %}
-            <form name='head' method='post' action='changedur-{{ torso.id }}' class='row mt-2 border border-warning rounded bg-gray m-0 p-0'>
-                {% csrf_token %}
-                <div class="row c-gold me-0 pe-0">
-                    <div class="col-7 h6 text-start pt-2 ps-1 pb-0 pe-0">
-                        <span class="text-white-50">Wytrzymałość:</span>
-                        <input id="armor-torso-durability" value="{{ torso.durability }}" class="bg-gray border-0 c-gold p-0 m-0 h6 text-end" style="width: 15%" name="dur"/>
-                        /{{ torso.name|getMaxDurability }}
-                    </div>
-                    <div class="col h6 text-end p-2 pb-0 border-start border-warning">
-                        {{ torso.name|getArmorWeightType }}
-                    </div>
-                </div>
-
-                <div class="row me-0 pe-0">
-                    <div class="col text-center">
-                        <a href='javascript:void(0)' onclick="showIframe('/dunnorpg/items/{{ torso.name|getDescId }}?ref=char;{{ torso.id }}')" class="{{ torso.name|getItemRarity }} h4">
-                            {{ torso.name }} <span id="armor-torso-durability-percent" class="item-durability-percent">{{ torso.name|getDurabilityPercent:torso.durability }}</span> 
-                            {% if user.is_superuser %}
-                                <a href="/admin/DunnoRPG/charitems/{{ torso.id }}/change/" class="fa fa-link" target="_blank" onclick="event.stopPropagation()"></a>
-                            {% endif %}
-                        </a>
-                    </div>
-                </div>
-
-                <hr class="mb-0 mt-1">
-                {% if torso.name|getVisibleSkill:user %}
-                    <div class="row me-0 pe-0">
-                        <div class="col text-justified {{ torso.name|getItemRarity }} p-0 ps-1 pt-1">
-                            {{ torso.name|getVisibleSkill:user|itemSkillWithLinks }}
-                        </div>
-                    </div>
-                    <hr class="mb-0 mt-1">
-                {% endif %}
-
-                <div class="row ps-0 ms-1 me-0 pe-0">
-
-                    <div class="col-4 border-end border-warning p-3 h6 mb-0 d-flex align-items-center justify-content-center">
-                        <span class="text-white-50">Pancerz:</span> <span id="armor-torso-value" class="c-gold ms-1">{{ torso.name|getItemArmorByDurability:torso.durability }}</span>
-                    </div>                
-                    <div class="col-2 border-end border-warning p-3 h6 mb-0 d-flex align-items-center justify-content-center">
-                        <span class="text-white-50"></span> <span class="c-gold ms-1">{{ torso.name|getItemWeight }}kg</span>
-                    </div>                
-                    <div class="col-3 border-end border-warning h6 mb-0 d-flex align-items-center justify-content-center">
-                        <a class="btn btn-info p-3 pt-2 pb-2 text-white" onclick='show_or_hideById("torso-swap")'>Zmień</a>
-                    </div>                  
-                    <div class="col-3 h6 mb-0 d-flex align-items-center justify-content-center">
-                        <a class="btn btn-danger p-3 pt-2 pb-2 text-white" href='move_eq-{{ torso.id }}'>Odłóż</a>
-                    </div>
-
-                </div>
-
-                <div id='torso-swap' class='d-none row text-end m-0 p-0 mt-2 mb-2'>
-                    <div class="col-8">
-                        <select class='w-100 p-2 ms-2 text-center border border-warning bg-dark text-white-50 rounded'>
-                            {% for item in eq_torsos %}
-                                <option id='{{ item.id }}' name={{ item.durability }} value='{{ item.name }}'>
-                                    {{ item.name }} 
-                                    ({{ item.durability }}/{{ item.name|getMaxDurability }})
-                                </option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                    <div class="col text-start">
-                        <a onclick="swapItem('{{ torso.id }}', 'torso-swap')" class='btn w-75 btn-success'>Zamień</a>
-                    </div>
-                </div>
-
-            </form>
-        {% else %}
-            <div name='head' class='row mt-2 border border-warning rounded bg-gray m-0 p-0'>
-                <div class="row c-gold me-0 pe-0">
-                    <div class="col h6 text-start p-2 pb-0 ms-1">
-                        Tors - Brak
-                    </div>
-                </div>
-
-                <div class="row me-0 pe-0">
-                    <div class="col text-center">
-                        <a href='' class="c-gold h4">
-                            Brak napierśnika
-                        </a>
-                    </div>
-                </div>
-
-                <hr class="mb-0 mt-1">
-
-                <div class="row ps-0 ms-1 me-0 pe-0">
-
-                    <div class="col border-end border-warning mb-0 d-flex align-items-center justify-content-center">
-                        <a class="text-light h5 btn btn-info m-2 w-75" onclick='show_or_hideById("torso-add")'>Załóż</a>
-                    </div>                
-                </div>
-
-                <div id='torso-add' class='d-none row text-end m-0 p-0 mt-2 mb-2'>
-                    <div class="col-8">
-                        <select class='w-100 p-2 ms-2 text-center border border-warning bg-dark text-white-50 rounded'>
-                            {% for item in eq_torsos %}
-                                <option id='{{ item.id }}' value='{{ item.name }}'>
-                                    {{ item.name }} 
-                                    ({{ item.durability }}/{{ item.name|getMaxDurability }})
-                                </option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                    <div class="col text-start">
-                        <a onclick="wearItem('Torso', 'torso-add')" class='btn w-75 btn-success'>OK</a>
-                    </div>
-                </div> 
-
-            </div>
-                
-        {% endif %}
-
         <div class="row mt-3 mb-3 m-0 p-0 text-danger">
             <div class="col-4 p-0 m-0"><hr class="bg-danger mt-4"></div>
             <div class="col-4 p-0 m-0">
@@ -1057,7 +832,7 @@ style="width: 98%; z-index: 20; margin-left: 0.1rem !important; margin-top: -1re
 
                 <div class="row ps-0 ms-1 me-0 pe-0">
 
-                    <div class="col-5 border-end border-warning p-1 h6 mb-0 d-flex align-items-center justify-content-center">
+                    <div class="col-6 border-end border-warning p-1 h6 mb-0 d-flex align-items-center justify-content-center">
                         <span class="c-gold ms-1">
                             <span id="l_stats" class="item-stats">
                                 {{ leftItem.name|getStaffMagicDmg:0 }}
@@ -1065,10 +840,7 @@ style="width: 98%; z-index: 20; margin-left: 0.1rem !important; margin-top: -1re
                             </span> <span id='l_bonus'>{{ value.name|isPreffereOrUnliked:leftItem.name }}</span>
                         </span>
                     </div>                
-                    <div class="col-3 border-end border-warning p-3 h6 mb-0 d-flex align-items-center justify-content-center">
-                        <span class="text-white-50"></span> <span class="c-gold ms-1" id="l-weight">{{ leftItem.name|getItemWeight }}kg</span>
-                    </div>                
-                    <div class="col-4 h6 mb-0 p-2 d-flex align-items-center justify-content-center">
+                    <div class="col-6 h6 mb-0 p-2 d-flex align-items-center justify-content-center">
                         <span>Zasięg: {{ leftItem.name|getItemRange }}</span>
                     </div>
 
@@ -1079,7 +851,7 @@ style="width: 98%; z-index: 20; margin-left: 0.1rem !important; margin-top: -1re
                 data-reload-url="{% url 'reload_weapon' value.id leftItem.id %}"
                 onclick='handleWeaponAction("left", {{ leftItem.id }})'
                 >
-                    <span class="h4">{% if leftItem.needs_reload %}Przeładuj{% else %}Wykonaj atak{% endif %}</span>
+                    <span class="h4">{% if leftItem.needs_reload %}Przeładuj{% else %}Wykonaj atak [{{ leftItem.attack_cost|floatformat:"-1" }} akcji]{% endif %}</span>
                 </button>
 
                 <div class="row g-0 m-0 border-top border-warning">
@@ -1228,15 +1000,12 @@ style="width: 98%; z-index: 20; margin-left: 0.1rem !important; margin-top: -1re
 
                 <div class="row ps-0 ms-1 me-0 pe-0">
 
-                    <div class="col-4 border-end border-warning p-1 h6 mb-0 d-flex align-items-center justify-content-center">
+                    <div class="col-6 border-end border-warning p-1 h6 mb-0 d-flex align-items-center justify-content-center">
                         <span class="c-gold ms-1">
                             <span id="r_stats" class="item-stats">{{ rightItem.name|getItemStatByDurability:rightItem.durability }}</span> <span id='r_bonus'>{{ value.name|isPreffereOrUnliked:rightItem.name }}</span>
                         </span>
                     </div>                
-                    <div class="col-3 border-end border-warning p-3 h6 mb-0 d-flex align-items-center justify-content-center">
-                        <span class="text-white-50"></span> <span class="c-gold ms-1" id="r-weight">{{ rightItem.name|getItemWeight }}kg</span>
-                    </div>                
-                    <div class="col-5 h6 mb-0 p-2 d-flex align-items-center justify-content-center">
+                    <div class="col-6 h6 mb-0 p-2 d-flex align-items-center justify-content-center">
                         <span>Zasięg: {{ rightItem.name|getItemRange }}</span>
                     </div>
 
@@ -1247,7 +1016,7 @@ style="width: 98%; z-index: 20; margin-left: 0.1rem !important; margin-top: -1re
                 data-reload-url="{% url 'reload_weapon' value.id rightItem.id %}"
                 onclick='handleWeaponAction("right", {{ rightItem.id }})'
                 >
-                    <span class="h4">{% if rightItem.needs_reload %}Przeładuj{% else %}Wykonaj atak{% endif %}</span>
+                    <span class="h4">{% if rightItem.needs_reload %}Przeładuj{% else %}Wykonaj atak [{{ rightItem.attack_cost|floatformat:"-1" }} akcji]{% endif %}</span>
                 </button>
 
                 <div class="row g-0 m-0 border-top border-warning">
@@ -1453,6 +1222,250 @@ style="width: 98%; z-index: 20; margin-left: 0.1rem !important; margin-top: -1re
 
         {% endwith %}
         {% endfor %}
+
+        <div class="row mt-2 mb-3 m-0 p-0 text-danger">
+            <div class="col-5 p-0 m-0"><hr class="bg-danger mt-4"></div>
+            <div class="col-2 p-0 m-0">
+                <h3 class="mt-2 textdanger">Głowa</h3>
+            </div>
+            <div class="col-5 p-0 m-0"><hr class="bg-danger mt-4"></div>
+        </div>
+
+        {% if helmet %}
+            <form name='head' method='post' action='changedur-{{ helmet.id }}' class='row mt-2 border border-warning rounded bg-gray m-0 p-0'>
+                {% csrf_token %}
+                <div class="row c-gold me-0 pe-0">
+                    <div class="col-7 h6 text-start pt-2 ps-1 pb-0 pe-0">
+                        <span class="text-white-50">Wytrzymałość:</span>
+                        <input id="armor-head-durability" value="{{ helmet.durability }}" class="bg-gray border-0 c-gold p-0 m-0 h6 text-end" style="width: 15%" name="dur"/>
+                        /{{ helmet.name|getMaxDurability }}
+                    </div>
+                    <div class="col h6 text-end p-2 pb-0 border-start border-warning">
+                        {{ helmet.name|getArmorWeightType }}
+                    </div>
+                </div>
+
+                <div class="row me-0 pe-0">
+                    <div class="col text-center">
+                        <a href='javascript:void(0)' onclick="showIframe('/dunnorpg/items/{{ helmet.name|getDescId }}?ref=char;{{ helmet.id }}')" class="{{ helmet.name|getItemRarity }} h4">
+                            {{ helmet.name }} <span id="armor-head-durability-percent" class="item-durability-percent">{{ helmet.name|getDurabilityPercent:helmet.durability }}</span>
+                            {% if user.is_superuser %}
+                                <a href="/admin/DunnoRPG/charitems/{{ helmet.id }}/change/" class="fa fa-link" target="_blank" onclick="event.stopPropagation()"></a>
+                            {% endif %}
+                        </a>
+                    </div>
+                </div>
+
+                <hr class="mb-0 mt-1">
+                {% if helmet.name|getVisibleSkill:user %}
+                    <div class="row me-0 pe-0">
+                        <div class="col text-justified {{ helmet.name|getItemRarity }} p-0 ps-1 pt-1">
+                            {{ helmet.name|getVisibleSkill:user|itemSkillWithLinks }}
+                        </div>
+                    </div>
+                    <hr class="mb-0 mt-1">
+                {% endif %}
+
+                <div class="row ps-0 ms-1 me-0 pe-0">
+
+                    <div class="col-4 border-end border-warning p-3 h6 mb-0 d-flex align-items-center justify-content-center">
+                        <span class="text-white-50">Pancerz:</span> <span id="armor-head-value" class="c-gold ms-1">{{ helmet.name|getItemArmorByDurability:helmet.durability }}</span>
+                    </div>
+                    <div class="col-2 border-end border-warning p-3 h6 mb-0 d-flex align-items-center justify-content-center">
+                        <span class="text-white-50"></span> <span class="c-gold ms-1">{{ helmet.name|getItemWeight }}kg</span>
+                    </div>
+                    <div class="col-3 border-end border-warning h6 mb-0 d-flex align-items-center justify-content-center">
+                        <a class="btn btn-info p-3 pt-2 pb-2 text-white" onclick='show_or_hideById("helmet-swap")'>Zmień</a>
+                    </div>
+                    <div class="col-3 h6 mb-0 d-flex align-items-center justify-content-center">
+                        <a class="btn btn-danger p-3 pt-2 pb-2 text-white" href='move_eq-{{ helmet.id }}'>Odłóż</a>
+                    </div>
+
+                </div>
+
+                <div id='helmet-swap' class='d-none row text-end m-0 p-0 mt-2 mb-2'>
+                    <div class="col-8">
+                        <select class='w-100 p-2 ms-2 text-center border border-warning bg-dark text-white-50 rounded'>
+                            {% for item in eq_helmets %}
+                                <option id='{{ item.id }}' name={{ item.durability }} value='{{ item.name }}'>
+                                    {{ item.name }}
+                                    ({{ item.durability }}/{{ item.name|getMaxDurability }})
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col text-start">
+                        <a onclick="swapItem('{{ helmet.id }}', 'helmet-swap')" class='btn w-75 btn-success'>Zamień</a>
+                    </div>
+                </div>
+
+            </form>
+        {% else %}
+            <div name='head' class='row mt-2 border border-warning rounded bg-gray m-0 p-0'>
+                <div class="row c-gold me-0 pe-0">
+                    <div class="col h6 text-start p-2 pb-0 ms-1">
+                        Głowa - Brak
+                    </div>
+                </div>
+
+                <div class="row me-0 pe-0">
+                    <div class="col text-center">
+                        <a href='' class="c-gold h4">
+                            Brak hełmu
+                        </a>
+                    </div>
+                </div>
+
+                <hr class="mb-0 mt-1">
+
+                <div class="row ps-0 ms-1 me-0 pe-0">
+
+                    <div class="col border-end border-warning mb-0 d-flex align-items-center justify-content-center">
+                        <a class="text-light h5 btn btn-info m-2 w-75" onclick='show_or_hideById("helmet-add")'>Załóż</a>
+                    </div>
+                </div>
+
+                <div id='helmet-add' class='d-none row text-end m-0 p-0 mt-2 mb-2'>
+                    <div class="col-8">
+                        <select class='w-100 p-2 ms-2 text-center border border-warning bg-dark text-white-50 rounded'>
+                            {% for item in eq_helmets %}
+                                <option id='{{ item.id }}' value='{{ item.name }}'>
+                                    {{ item.name }}
+                                    ({{ item.durability }}/{{ item.name|getMaxDurability }})
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col text-start">
+                        <a onclick="wearItem('Helmet', 'helmet-add')" class='btn w-75 btn-success'>OK</a>
+                    </div>
+                </div>
+
+            </div>
+
+        {% endif %}
+
+        <div class="row mt-3 mb-3 m-0 p-0 text-danger">
+            <div class="col-5 p-0 m-0"><hr class="bg-danger mt-4"></div>
+            <div class="col-2 p-0 m-0">
+                <h3 class="mt-2 textdanger">Tors</h3>
+            </div>
+            <div class="col-5 p-0 m-0"><hr class="bg-danger mt-4"></div>
+        </div>
+
+        {% if torso %}
+            <form name='head' method='post' action='changedur-{{ torso.id }}' class='row mt-2 border border-warning rounded bg-gray m-0 p-0'>
+                {% csrf_token %}
+                <div class="row c-gold me-0 pe-0">
+                    <div class="col-7 h6 text-start pt-2 ps-1 pb-0 pe-0">
+                        <span class="text-white-50">Wytrzymałość:</span>
+                        <input id="armor-torso-durability" value="{{ torso.durability }}" class="bg-gray border-0 c-gold p-0 m-0 h6 text-end" style="width: 15%" name="dur"/>
+                        /{{ torso.name|getMaxDurability }}
+                    </div>
+                    <div class="col h6 text-end p-2 pb-0 border-start border-warning">
+                        {{ torso.name|getArmorWeightType }}
+                    </div>
+                </div>
+
+                <div class="row me-0 pe-0">
+                    <div class="col text-center">
+                        <a href='javascript:void(0)' onclick="showIframe('/dunnorpg/items/{{ torso.name|getDescId }}?ref=char;{{ torso.id }}')" class="{{ torso.name|getItemRarity }} h4">
+                            {{ torso.name }} <span id="armor-torso-durability-percent" class="item-durability-percent">{{ torso.name|getDurabilityPercent:torso.durability }}</span>
+                            {% if user.is_superuser %}
+                                <a href="/admin/DunnoRPG/charitems/{{ torso.id }}/change/" class="fa fa-link" target="_blank" onclick="event.stopPropagation()"></a>
+                            {% endif %}
+                        </a>
+                    </div>
+                </div>
+
+                <hr class="mb-0 mt-1">
+                {% if torso.name|getVisibleSkill:user %}
+                    <div class="row me-0 pe-0">
+                        <div class="col text-justified {{ torso.name|getItemRarity }} p-0 ps-1 pt-1">
+                            {{ torso.name|getVisibleSkill:user|itemSkillWithLinks }}
+                        </div>
+                    </div>
+                    <hr class="mb-0 mt-1">
+                {% endif %}
+
+                <div class="row ps-0 ms-1 me-0 pe-0">
+
+                    <div class="col-4 border-end border-warning p-3 h6 mb-0 d-flex align-items-center justify-content-center">
+                        <span class="text-white-50">Pancerz:</span> <span id="armor-torso-value" class="c-gold ms-1">{{ torso.name|getItemArmorByDurability:torso.durability }}</span>
+                    </div>
+                    <div class="col-2 border-end border-warning p-3 h6 mb-0 d-flex align-items-center justify-content-center">
+                        <span class="text-white-50"></span> <span class="c-gold ms-1">{{ torso.name|getItemWeight }}kg</span>
+                    </div>
+                    <div class="col-3 border-end border-warning h6 mb-0 d-flex align-items-center justify-content-center">
+                        <a class="btn btn-info p-3 pt-2 pb-2 text-white" onclick='show_or_hideById("torso-swap")'>Zmień</a>
+                    </div>
+                    <div class="col-3 h6 mb-0 d-flex align-items-center justify-content-center">
+                        <a class="btn btn-danger p-3 pt-2 pb-2 text-white" href='move_eq-{{ torso.id }}'>Odłóż</a>
+                    </div>
+
+                </div>
+
+                <div id='torso-swap' class='d-none row text-end m-0 p-0 mt-2 mb-2'>
+                    <div class="col-8">
+                        <select class='w-100 p-2 ms-2 text-center border border-warning bg-dark text-white-50 rounded'>
+                            {% for item in eq_torsos %}
+                                <option id='{{ item.id }}' name={{ item.durability }} value='{{ item.name }}'>
+                                    {{ item.name }}
+                                    ({{ item.durability }}/{{ item.name|getMaxDurability }})
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col text-start">
+                        <a onclick="swapItem('{{ torso.id }}', 'torso-swap')" class='btn w-75 btn-success'>Zamień</a>
+                    </div>
+                </div>
+
+            </form>
+        {% else %}
+            <div name='head' class='row mt-2 border border-warning rounded bg-gray m-0 p-0'>
+                <div class="row c-gold me-0 pe-0">
+                    <div class="col h6 text-start p-2 pb-0 ms-1">
+                        Tors - Brak
+                    </div>
+                </div>
+
+                <div class="row me-0 pe-0">
+                    <div class="col text-center">
+                        <a href='' class="c-gold h4">
+                            Brak napierśnika
+                        </a>
+                    </div>
+                </div>
+
+                <hr class="mb-0 mt-1">
+
+                <div class="row ps-0 ms-1 me-0 pe-0">
+
+                    <div class="col border-end border-warning mb-0 d-flex align-items-center justify-content-center">
+                        <a class="text-light h5 btn btn-info m-2 w-75" onclick='show_or_hideById("torso-add")'>Załóż</a>
+                    </div>
+                </div>
+
+                <div id='torso-add' class='d-none row text-end m-0 p-0 mt-2 mb-2'>
+                    <div class="col-8">
+                        <select class='w-100 p-2 ms-2 text-center border border-warning bg-dark text-white-50 rounded'>
+                            {% for item in eq_torsos %}
+                                <option id='{{ item.id }}' value='{{ item.name }}'>
+                                    {{ item.name }}
+                                    ({{ item.durability }}/{{ item.name|getMaxDurability }})
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col text-start">
+                        <a onclick="wearItem('Torso', 'torso-add')" class='btn w-75 btn-success'>OK</a>
+                    </div>
+                </div>
+
+            </div>
+
+        {% endif %}
 
         <div class="row mt-3 mb-3 m-0 p-0 text-danger">
             <div class="col p-0 m-0"><hr class="bg-danger mt-4"></div>
@@ -3438,14 +3451,25 @@ async function calculateGettingHit(){
     }
 }
 
+function getRequiredAttackAccuracy(hand){
+    const weapon = document.getElementById(hand === 'left' ? 'l-name' : 'r-name')
+    const penalties = {head: 8, torso: 0, hands: 4, boots: 4}
+    const baseAccuracy = Number(weapon.dataset.neededAccuracy)
+    const penalty = penalties[document.getElementById('body-target').value]
+    return {baseAccuracy, penalty, neededAccuracy: baseAccuracy + penalty}
+}
+
+function updateAttackAccuracy(){
+    const hand = document.getElementById('dice-input').dataset.attackHand
+    const {neededAccuracy} = getRequiredAttackAccuracy(hand)
+    document.getElementById('dice-input-accuracy').textContent = `Wym. celność: ${neededAccuracy}`
+}
+
 function isHit(hand, dualHanded=false){
     const dice = Number(document.getElementById('dice-cel').value)
     const weapon = document.getElementById(hand === 'left' ? 'l-name' : 'r-name')
     const target = document.getElementById('body-target')
-    const penalties = {head: 8, torso: 0, hands: 4, boots: 4}
-    const baseAccuracy = Number(weapon.dataset.neededAccuracy)
-    const penalty = penalties[target.value]
-    const neededAccuracy = baseAccuracy + penalty
+    const {baseAccuracy, penalty, neededAccuracy} = getRequiredAttackAccuracy(hand)
     const specialClasses = ['kusznik', 'strzelec wyborowy', 'rewolwerowiec', 'łucznik']
     const characterClass = document.getElementById('char-class')?.textContent.trim().toLowerCase()
     const armorPenalty = specialClasses.includes(characterClass) ? parseDisplayedNumber('armor-mod') : 0
@@ -3476,7 +3500,7 @@ function updateAttackAdvantage(){
     const input = document.getElementById('advantage-dice')
     const sides = Math.abs(used) === 1 ? 6 : 12
     row.classList.toggle('d-none', used === 0)
-    document.getElementById('advantage-dice-label').textContent = `${used < 0 ? '-' : ''}K${sides}:`
+    document.getElementById('advantage-dice-label').textContent = `[${used < 0 ? 'Utrudnienie' : 'Przewaga'}] K${sides}:`
     input.max = sides
     input.value = ''
     document.getElementById('dice-input').dataset.advantageUsed = used
@@ -3579,7 +3603,7 @@ function syncWeaponAction(hand, data){
     if(data.needs_reload !== undefined){
         const button = document.getElementById(`${hand}-attack-btn`)
         button.dataset.needsReload = String(data.needs_reload)
-        button.querySelector('span').textContent = data.needs_reload ? 'Przeładuj' : 'Wykonaj atak'
+        button.querySelector('span').textContent = data.needs_reload ? 'Przeładuj' : `Wykonaj atak [${Number(button.dataset.attackCost).toLocaleString('pl-PL')} akcji]`
     }
 }
 
@@ -3748,6 +3772,7 @@ function gatherAttackInfo(hand, item_id){
     const prefix = hand === 'left' ? 'l' : 'r'
     const weapon = document.getElementById(`${prefix}-name`)
     modal.dataset.attackHand = hand
+    updateAttackAccuracy()
     document.getElementById('dice-cel').value = ''
     document.getElementById('dice-dmg').value = ''
     document.getElementById('critical-piercing-choice').value = 'ignore_block'
@@ -4460,7 +4485,7 @@ function getDiceWMods(instance,modsPoints,getResult=false,text='Result', d0excep
 }
 
 function maybeChangeFight(element){
-    if(element.classList.contains('btn-secondary')){
+    if(element.id === 'in-fight' || (element.id === 'outside-fight' && document.getElementById('dice-input').dataset.inFight === 'true')){
         url = window.location.href+'change_fight'
         window.location.replace(url)
     }
