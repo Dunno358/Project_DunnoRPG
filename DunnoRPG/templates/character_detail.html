@@ -3465,7 +3465,7 @@ function updateAttackAccuracy(){
     document.getElementById('dice-input-accuracy').textContent = `Wym. celność: ${neededAccuracy}`
 }
 
-function isHit(hand, dualHanded=false){
+function isHit(hand, advantageRoll=0){
     const dice = Number(document.getElementById('dice-cel').value)
     const weapon = document.getElementById(hand === 'left' ? 'l-name' : 'r-name')
     const target = document.getElementById('body-target')
@@ -3476,10 +3476,10 @@ function isHit(hand, dualHanded=false){
     const accuracy = parseDisplayedNumber('stat-CEL')
     const modifier = parseDisplayedNumber('stat-CEL-mod')
     const effects = parseDisplayedNumber('effects-accuraccy')
-    const total = dice + accuracy + modifier + effects - armorPenalty
+    const total = dice + accuracy + modifier + effects - armorPenalty + advantageRoll
     const hit = dice === 20 || (dice !== 1 && total >= neededAccuracy)
     return [hit, total, neededAccuracy, {
-        dice, accuracy, modifier, effects, armorPenalty, baseAccuracy, penalty,
+        dice, accuracy, modifier, effects, armorPenalty, advantageRoll, baseAccuracy, penalty,
         target: target.selectedOptions[0].textContent,
     }]
 }
@@ -3551,6 +3551,7 @@ function renderAttackDetails(attack, hit, critical, saved, finalAp){
     bonus('Modyfikator', accuracy.modifier)
     bonus('Efekty', accuracy.effects)
     bonus('Pancerz', -accuracy.armorPenalty)
+    if(attack.used){ bonus(Math.abs(attack.used) === 1 ? 'K6' : 'K12', accuracy.advantageRoll) }
     lines.push(`Wynik: ${number(hit[1])}`, `Próg trafienia: ${number(hit[2])} (${number(accuracy.baseAccuracy)} z broni${accuracy.penalty ? ` + ${number(accuracy.penalty)} za cel` : ''})`)
     if(accuracy.dice === 20){ lines.push('Naturalne 20: trafienie krytyczne.') }
     if(accuracy.dice === 1){ lines.push('Naturalne 1: krytyczne niepowodzenie.') }
@@ -3677,7 +3678,7 @@ async function showAttackResult(hand, item_id){
     const advantageRoll = used ? Math.sign(used) * Number(advantageInput.value) : 0
     const result = calculateAttackDamage(Number(diceInput.value), strength, bonuses, advantageRoll, ammo ? Number(ammo.dataset.dmgModifier) : 1, durability)
     let ap = Number(weapon.dataset.ap) + (ammo ? Number(ammo.dataset.ap) : 0)
-    const hit = isHit(hand)
+    const hit = isHit(hand, advantageRoll)
     const attack = {
         dice: Number(diceInput.value), damageDice: weapon.dataset.dmgDice,
         baseStrength, strengthModifier, strength, ranged, effectBonus, amuletBonus, weaponBonus,
