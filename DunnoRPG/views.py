@@ -4660,11 +4660,28 @@ def change_visiting_city(request):
     return JsonResponse({"city_id": city.id, "city_name": city.city_name})
 
 class BuyItem(APIView):
+    def purchase_response(self, request, message, success=False, **data):
+        if request.method == "POST":
+            return JsonResponse({"success": success, "message": message, **data}, status=200 if success else 400)
+        (messages.success if success else messages.error)(request, message)
+        return redirect('/dunnorpg/city')
+
+    def post(self, request, **kwargs):
+        return self.get(request, **kwargs)
+
+    @transaction.atomic
     def get(self,request,**kwargs):
+        if not request.user.is_authenticated:
+            return JsonResponse({"success": False, "message": "Zaloguj się, aby kupować."}, status=403)
         item = get_object_or_404(models.Items, id=kwargs['item_id'])
-        character = get_object_or_404(models.Character, id=kwargs['character_id'])
-        city = get_object_or_404(models.Cities, visiting=True)
+        characters = models.Character.objects.select_for_update().filter(hidden=False)
+        if not request.user.is_superuser:
+            characters = characters.filter(owner=request.user.username)
+        character = get_object_or_404(characters, id=kwargs['character_id'])
+        city = get_object_or_404(models.Cities.objects.select_for_update(), visiting=True)
         item_amount = int(kwargs['amount'])
+        if item_amount < 1:
+            return self.purchase_response(request, "Podaj dodatnią liczbę sztuk.")
         item_durability = item.maxDurability
         item_durability_percent = 100
         requested_durability = request.GET.get("durability")
@@ -4686,15 +4703,13 @@ class BuyItem(APIView):
                 break
 
         if available_amount <= 0:
-            messages.error(request, f'Za pĂłĹşno, wszystkie juĹĽ wyszĹ‚y!')
-            return redirect('/dunnorpg/city')
+            return self.purchase_response(request, 'Za późno, wszystkie już wyszły!')
 
         if item_amount > available_amount:
             item_amount = available_amount
 
         if not can_add_item_to_eq_by_limits(character, item, item_amount):
-            messages.error(request, f"{character.name} moze miec maksymalnie {MAX_BAG_ITEMS_IN_EQ} torby w ekwipunku.")
-            return redirect('/dunnorpg/city')
+            return self.purchase_response(request, f"{character.name} moze miec maksymalnie {MAX_BAG_ITEMS_IN_EQ} torby w ekwipunku.")
 
         max_weight = get_character_max_weight(character)
         current_weight = get_character_current_weight(character)
@@ -4732,8 +4747,7 @@ class BuyItem(APIView):
                             ct_item_durability = 100
 
                         if int(amount)<=0:
-                            messages.error(request, f'Za późno, wszystkie już wyszły!')
-                            return redirect('/dunnorpg/city')
+                            return self.purchase_response(request, f'Za późno, wszystkie już wyszły!')
 
                         new_amount = int(amount)-int(item_amount)
                         if new_amount<0:
@@ -4770,11 +4784,17 @@ class BuyItem(APIView):
                         amount = item_amount
                     )
 
-                messages.success(request,f'[{character.name}] Zakupiono {item.name} za {price} monet.')
+                return self.purchase_response(
+                    request, f'[{character.name}] Zakupiono {item_amount}x {item.name} za {price} monet.',
+                    success=True, item_id=item.id, durability=item_durability_percent,
+                    available_amount=new_amount,
+                    unit_price=get_city_unit_price(item, new_amount, item_durability_percent / 100),
+                    character_id=character.id, coins=character.coins,
+                )
             else:
-                messages.error(request, f'Za mało monet. {character.name} ma ich {character.coins}, a potrzeba {price}.')
+                return self.purchase_response(request, f'Za mało monet. {character.name} ma ich {character.coins}, a potrzeba {price}.')
         else:
-            messages.error(request, f'Za mało miejsca! Nosisz już {current_weight}/{max_weight}kg.')
+            return self.purchase_response(request, f'Za mało miejsca! Nosisz już {current_weight}/{max_weight}kg.')
 
         return redirect('/dunnorpg/city')
 
