@@ -128,16 +128,27 @@
     }
 
     #city-item-iframe-card {
-        left: 50%;
+        left: 1rem;
+        right: 1rem;
         top: 50%;
-        transform: translate(-50%, -50%);
-        width: calc(100% - 2rem);
+        transform: translateY(-50%);
+        width: auto;
         max-width: 48rem;
+        margin: 0 auto;
         z-index: 6;
     }
 
     #city-item-iframe-card > .row {
+        --bs-gutter-x: 0;
         margin: 0;
+    }
+
+    #city-item-iframe-card .col {
+        min-width: 0;
+    }
+
+    #city-item-iframe {
+        display: block;
     }
 
     #city-item-iframe-card .city-iframe-body {
@@ -354,7 +365,7 @@
         {% endfor %}
     </div>
     <div id="city-refresh-content">
-    <div id='city-item-iframe-card' class="container position-fixed m-0 p-0 d-none">
+    <div id='city-item-iframe-card' class="position-fixed p-0 d-none">
         <div class="row">
             <div class="col c-gold p-0">
                 <button class='btn btn-dark btn-outline-danger w-100' onclick="hideCityItemIframe()">X Zamknij podgląd X</button>
