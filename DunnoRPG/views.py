@@ -4391,6 +4391,8 @@ class CityShopItem(str):
         obj.use_info = item.use_info or ""
         if (item.category or "").strip().lower() == "tawerna" and skill:
             obj.use_info = f"{obj.use_info} | {skill}" if obj.use_info else skill
+        if obj.item_category in CITY_TAVERN_BUY_CATEGORIES and obj.use_info:
+            skill = f"{obj.use_info.rstrip('. ')}. {skill}" if skill else obj.use_info
         obj.skill_text = skill
         obj.skill_preview_limit = 100
         obj.visible_skill = skill[:100] + "..." if len(skill) > 100 else skill
