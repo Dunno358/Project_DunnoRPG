@@ -327,6 +327,7 @@ def ammoTypePl(ammo_type):
     translations_pl = {
         "bullet": "Kule",
         "arrow": "Strzały",
+        "cannon_ball": "Kula armatnia",
         "bolt": "Bełty",
     }
     key = (ammo_type or "").strip().lower()
