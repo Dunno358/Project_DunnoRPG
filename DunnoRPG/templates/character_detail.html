@@ -3722,13 +3722,13 @@ async function showAttackResult(hand, item_id){
     const weaponBonus = Number(bonusText.replace(/[()]/g, '')) || 0
     const baseStrength = parseDisplayedNumber('stat-SIŁ')
     const strengthModifier = parseDisplayedNumber('stat-SIŁ-mod')
-    const strength = ranged ? 0 : baseStrength + strengthModifier
+    const attackValues = getAttackValues(hand)
+    const strength = Number(attackValues.range) <= 3 ? baseStrength + strengthModifier : 0
     const effectBonus = parseDisplayedNumber('effects-attack')
     const amuletBonus = parseDisplayedNumber('amulet-attack-mod')
     const bonuses = effectBonus + amuletBonus + weaponBonus
     const advantageRoll = used ? Math.sign(used) * Number(advantageInput.value) : 0
     const result = calculateAttackDamage(Number(diceInput.value), strength, bonuses, advantageRoll, ammo ? Number(ammo.dataset.dmgModifier) : 1, durability)
-    const attackValues = getAttackValues(hand)
     let ap = attackValues.ap + (ammo ? Number(ammo.dataset.ap) : 0)
     const hit = isHit(hand, advantageRoll)
     const attack = {
