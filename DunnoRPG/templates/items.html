@@ -293,10 +293,20 @@
 </div>
 {% endif %}
 
+{% if view.kwargs.char_id != 0 %}
+<div class="container mt-2">
+    <form id="inventory-search-form" class="d-flex justify-content-center gap-2" role="search" onsubmit="searchInventory(event)">
+        <input id="inventory-search" type="search" class="text-center bg-gray c-gold border rounded border-warning"
+               placeholder="Nazwa/Opis przedmiotu..." aria-label="Szukaj w ekwipunku postaci">
+        <button type="submit" class="fas fa-search bg-dark btn btn-outline-warning" style="width: 3rem;" aria-label="Szukaj"></button>
+    </form>
+</div>
+{% endif %}
+
 {% if view.kwargs.char_id == 0 %}
 <div class='container mt-2'>
     <div class='row text-center'>
-        <form action="{% url 'items' view.kwargs.char_id %}" method='GET' class='container-fluid'>
+        <form action="{% url 'items' view.kwargs.char_id %}" method='GET' class='container-fluid' id="catalogue-search-form" data-dynamic-search data-results-target="#catalogue-search-results">
             <div class="mb-2">
                 <select id="item-type-search" name="item_type" class="text-center bg-gray c-gold border rounded border-warning">
                     <option value="">Wszystkie</option>
@@ -434,54 +444,10 @@
 </div>
 
 <div id='search-result' class='container'>
-    {% for item in items %}
-    <div class='search-list-entry' data-rarity='{{ item.rarity }}'>
-        <div class='row bg-dark bg-opacity-75 rounded m-2 p-2'>
-
-            {% if view.kwargs.char_id != 0 %}
-                <button class='col-2 text-center text-white bg-danger p-2 m-1 rounded' onclick="deleteConfirmation('{{ item.name }}', {{ view.kwargs.char_id }}, '{{ item.delete_id }}')">X</button>
-            {% endif %}
-            
-            <a class='col text-center c-gold bg-dark p-2 rounded border border-primary' href='{{ item.id }}{% if item.eq_id %}?ref=eq;{{ item.eq_id }}{% elif item.char_item_id %}?ref=char;{{ item.char_item_id }}{% endif %}'>
-                <span
-                {% if item.rarity == 'neutral-low' or item.rarity == 'start-weapon' %}style='color: dimgray;'{% endif %}
-                {% if item.rarity == 'neutral-high' %}style='color: silver;'{% endif %}
-                {% if item.rarity == 'unique' %}style='color: #0ec800;'{% endif %}
-                {% if item.rarity == 'magical' %}style='color: #4a76c7;'{% endif %}
-                {% if item.rarity == 'uncommon' %}style='color: #b401b4;'{% endif %} 
-                >{% if item.equipped %}<span class="text-info">[Założone]</span> {% endif %}{% if view.kwargs.char_id != 0 %}[{{ item.weight }}kg] {% endif %}{{ item.name }}
-                {% if item.dur and item.type != 'Other' and item.type != 'Amulet' %}({{ item.dur }}/{{ item.max_dur }}){% endif %}
-                {% if view.kwargs.char_id != 0 %}x{{ item.amount }}{% endif %}
-                {% if user.is_superuser and item.eq_id %}
-                    <span
-                        class="fa fa-link fa-lg text-info ms-2"
-                        data-admin-url="{% url 'admin:DunnoRPG_eq_change' item.eq_id %}"
-                        onclick="openEqAdminRecord(event, this)"
-                        title="Otworz rekord ekwipunku">
-                    </span>
-                {% endif %}
-                </span>
-            </a>
-            {% if view.kwargs.char_id != 0 and item.sell_id %}
-                <button class='col-2 text-center text-white bg-success p-2 m-1 rounded'
-                onclick="sellConfirmation('{{ view.kwargs.char_id }}','{{ item.sell_id }}','{{ item.price }}','{{ item.dur }}','{{ item.max_dur }}','{{ item.name }}', '{{ item.amount }}', '{{ charisma }}')"
-                title="Sprzedaj"
-                aria-label="Sprzedaj">
-                    <span class="fa-solid fa-coins fa-lg" aria-hidden="true"></span>
-                </button>
-            {% endif %}
-                <div class="row m-0 mt-1 p-0">
-                    {% if view.kwargs.char_id != 0 and not item.equipped and item.on_use and item.on_use != '-' %}
-                        <div class="col m-0 p-0">
-                            <a class='btn btn-success w-100' href='useItem-{{ item.id }}-{{ view.kwargs.char_id }}?eq_id={{ item.eq_id }}'>
-                                {% if item.on_use == "fillWater" %}Napełnij wodą{% else %}Użyj {% if item.use_info %}[{{ item.use_info }}]{% endif %}{% if item.use_amount > 1 %} | Pozostało: {{ item.use_amount }}{% endif %}{% endif %}
-                            </a> 
-                        </div>
-                    {% endif %}
-                </div>
-        </div>
+    {% if view.kwargs.char_id != 0 %}<p id="inventory-search-empty" role="status" class="d-none text-center c-gold mt-3">Brak pasujących przedmiotów w ekwipunku.</p>{% endif %}
+    <div id="catalogue-search-results">
+        {% include 'dunnorpg/items_results.html' %}
     </div>
-    {% endfor %}
 
     {% if view.kwargs.char_id != 0 %}
         <div class='row bg-dark bg-opacity-75 rounded m-2 p-2 text-center ms-0 ps-0'>
@@ -524,7 +490,7 @@
 
 <div id='Broń' class='container d-none'>
     {% for item in items_singlehand %}
-        <div class='item-list-entry weapon-list-entry' data-rarity='{{ item.rarity }}' data-category='{{ item.category|default_if_none:""|lower }}' data-weapon-type='{{ item.type|default_if_none:""|lower }}' data-dual-handed='{{ item.dualHanded }}'>
+        <div class='item-list-entry weapon-list-entry' data-rarity='{{ item.rarity }}' data-search-text="{{ item.name }} {{ item.desc|default_if_none:'' }}" data-category='{{ item.category|default_if_none:""|lower }}' data-weapon-type='{{ item.type|default_if_none:""|lower }}' data-dual-handed='{{ item.dualHanded }}'>
             <div class='row bg-dark bg-opacity-75 rounded m-2 p-2'>
                 {% if view.kwargs.char_id != 0 %}
                     <button class='col-2 text-center text-white bg-danger p-2 m-1 rounded' onclick="deleteConfirmation('{{ item.name }}', {{ view.kwargs.char_id }}, '{{ item.delete_id }}')">X</button>
@@ -538,7 +504,7 @@
     {% endfor %}
 
     {% for item in items_twohand %}
-    <div class='item-list-entry weapon-list-entry' data-rarity='{{ item.rarity }}' data-category='{{ item.category|default_if_none:""|lower }}' data-weapon-type='{{ item.type|default_if_none:""|lower }}' data-dual-handed='{{ item.dualHanded }}'>
+    <div class='item-list-entry weapon-list-entry' data-rarity='{{ item.rarity }}' data-search-text="{{ item.name }} {{ item.desc|default_if_none:'' }}" data-category='{{ item.category|default_if_none:""|lower }}' data-weapon-type='{{ item.type|default_if_none:""|lower }}' data-dual-handed='{{ item.dualHanded }}'>
         <div class='row bg-dark bg-opacity-75 rounded m-2 p-2'>
             {% if view.kwargs.char_id != 0 %}
                 <button class='col-2 text-center text-white bg-danger p-2 m-1 rounded' onclick="deleteConfirmation('{{ item.name }}', {{ view.kwargs.char_id }}, '{{ item.delete_id }}')">X</button>
@@ -554,7 +520,7 @@
 
 <div id='Hełmy' class='container d-none'>
     {% for item in items_helmet %}
-    <div class='item-list-entry' data-rarity='{{ item.rarity }}'>
+    <div class='item-list-entry' data-rarity='{{ item.rarity }}' data-search-text="{{ item.name }} {{ item.desc|default_if_none:'' }}">
         <div class='row bg-dark bg-opacity-75 rounded m-2 p-2'>
             {% if view.kwargs.char_id != 0 %}
                 <button class='col-2 text-center text-white bg-danger p-2 m-1 rounded' onclick="deleteConfirmation('{{ item.name }}', {{ view.kwargs.char_id }}, '{{ item.delete_id }}')">X</button>
@@ -570,7 +536,7 @@
 
 <div id='Napierśniki' class='container d-none'>
     {% for item in items_torso %}
-    <div class='item-list-entry' data-rarity='{{ item.rarity }}'>
+    <div class='item-list-entry' data-rarity='{{ item.rarity }}' data-search-text="{{ item.name }} {{ item.desc|default_if_none:'' }}">
         <div class='row bg-dark bg-opacity-75 rounded m-2 p-2'>
             {% if view.kwargs.char_id != 0 %}
                 <button class='col-2 text-center text-white bg-danger p-2 m-1 rounded' onclick="deleteConfirmation('{{ item.name }}', {{ view.kwargs.char_id }}, '{{ item.delete_id }}')">X</button>
@@ -586,7 +552,7 @@
 
 <div id='Buty' class='container d-none'>
     {% for item in items_boots %}
-    <div class='item-list-entry' data-rarity='{{ item.rarity }}'>
+    <div class='item-list-entry' data-rarity='{{ item.rarity }}' data-search-text="{{ item.name }} {{ item.desc|default_if_none:'' }}">
         <div class='row bg-dark bg-opacity-75 rounded m-2 p-2'>
             {% if view.kwargs.char_id != 0 %}
                 <button class='col-2 text-center text-white bg-danger p-2 m-1 rounded' onclick="deleteConfirmation('{{ item.name }}', {{ view.kwargs.char_id }}, '{{ item.delete_id }}')">X</button>
@@ -602,7 +568,7 @@
 
 <div id='Rękawice' class='container d-none'>
     {% for item in items_gloves %}
-    <div class='item-list-entry' data-rarity='{{ item.rarity }}'>
+    <div class='item-list-entry' data-rarity='{{ item.rarity }}' data-search-text="{{ item.name }} {{ item.desc|default_if_none:'' }}">
         <div class='row bg-dark bg-opacity-75 rounded m-2 p-2'>
             {% if view.kwargs.char_id != 0 %}
                 <button class='col-2 text-center text-white bg-danger p-2 m-1 rounded' onclick="deleteConfirmation('{{ item.name }}', {{ view.kwargs.char_id }}, '{{ item.delete_id }}')">X</button>
@@ -618,7 +584,7 @@
 
 <div id='Amulety' class='container d-none'>
     {% for item in items_amulets %}
-    <div class='item-list-entry' data-rarity='{{ item.rarity }}'>
+    <div class='item-list-entry' data-rarity='{{ item.rarity }}' data-search-text="{{ item.name }} {{ item.desc|default_if_none:'' }}">
         <div class='row bg-dark bg-opacity-75 rounded m-2 p-2'>
             {% if view.kwargs.char_id != 0 %}
                 <button class='col-2 text-center text-white bg-danger p-2 m-1 rounded' onclick="deleteConfirmation('{{ item.name }}', {{ view.kwargs.char_id }}, '{{ item.delete_id }}')">X</button>
@@ -634,7 +600,7 @@
 
 <div id='Akcesoria' class='container d-none'>
     {% for item in items_accessories %}
-    <div class='item-list-entry' data-rarity='{{ item.rarity }}'>
+    <div class='item-list-entry' data-rarity='{{ item.rarity }}' data-search-text="{{ item.name }} {{ item.desc|default_if_none:'' }}">
         <div class='row bg-dark bg-opacity-75 rounded m-2 p-2'>
             {% if view.kwargs.char_id != 0 %}
                 <button class='col-2 text-center text-white bg-danger p-2 m-1 rounded' onclick="deleteConfirmation('{{ item.name }}', {{ view.kwargs.char_id }}, '{{ item.delete_id }}')">X</button>
@@ -650,7 +616,7 @@
 
 <div id='Amunicja' class='container d-none'>
     {% for item in items_ammo %}
-    <div class='item-list-entry' data-rarity='{{ item.rarity }}'>
+    <div class='item-list-entry' data-rarity='{{ item.rarity }}' data-search-text="{{ item.name }} {{ item.desc|default_if_none:'' }}">
         <div class='row bg-dark bg-opacity-75 rounded m-2 p-2'>
             {% if view.kwargs.char_id != 0 %}
                 <button class='col-2 text-center text-white bg-danger p-2 m-1 rounded' onclick="deleteConfirmation('{{ item.name }}', {{ view.kwargs.char_id }}, '{{ item.delete_id }}')">X</button>
@@ -666,7 +632,7 @@
 
 <div id='Wierzchowce' class='container d-none'>
     {% for item in animals %}
-    <div class='item-list-entry animal-list-entry' data-rarity='{{ item.rarity }}' data-category='{{ item.category|default_if_none:""|lower }}'>
+    <div class='item-list-entry animal-list-entry' data-rarity='{{ item.rarity }}' data-search-text="{{ item.name }} {{ item.desc|default_if_none:'' }}" data-category='{{ item.category|default_if_none:""|lower }}'>
         <div class='row bg-dark bg-opacity-75 rounded m-2 p-2'>
             {% if view.kwargs.char_id != 0 %}
                 <button class='col-2 text-center text-white bg-danger p-2 m-1 rounded' onclick="deleteConfirmation('{{ item.name }}', {{ view.kwargs.char_id }}, '{{ item.delete_id }}')">X</button>
@@ -682,7 +648,7 @@
 
 <div id='Inne' class='container d-none'>
     {% for item in items_other %}
-    <div class='item-list-entry' data-rarity='{{ item.rarity }}'>
+    <div class='item-list-entry' data-rarity='{{ item.rarity }}' data-search-text="{{ item.name }} {{ item.desc|default_if_none:'' }}">
         <div class='row bg-dark bg-opacity-75 rounded m-2 p-2'>
             {% if view.kwargs.char_id != 0 %}
                 <button class='col-2 text-center text-white bg-danger p-2 m-1 rounded' onclick="deleteConfirmation('{{ item.name }}', {{ view.kwargs.char_id }}, '{{ item.delete_id }}')">X</button>
@@ -701,6 +667,7 @@
     document.getElementById('tb-items').classList.remove('btn-outline-warning')
     document.getElementById('tb-items').classList.add('btn-outline-primary')
 
+    let inventorySearchQuery = ''
     let activeItemRarityFilters = []
     let activeWeaponCategoryFilter = null
     let activeWeaponTypeFilter = null
@@ -715,14 +682,43 @@
     const animalCategories = ['animal', 'animal_armor']
     const itemCategoryIds = ['Broń', 'Hełmy', 'Napierśniki', 'Buty', 'Rękawice', 'Amulety', 'Akcesoria', 'Amunicja', 'Wierzchowce', 'Inne']
 
-    document.getElementById('selected-eq-add-dur').oninput = () => {
-        document.getElementById('selected-eq-add-dur').setAttribute('value', document.getElementById('selected-eq-add-dur').value);
+    const addDurabilityInput = document.getElementById('selected-eq-add-dur')
+    if(addDurabilityInput){
+        addDurabilityInput.oninput = () => addDurabilityInput.setAttribute('value', addDurabilityInput.value)
+    }
+
+    document.getElementById('catalogue-search-form')?.addEventListener('dynamic-search-updated', () => {
+        hideItemCategoryLists()
+        document.querySelectorAll('.item-dependent-filter').forEach(group => group.classList.add('d-none'))
+        document.querySelectorAll('.item-type-filter').forEach(button => {
+            button.classList.remove('border-primary')
+            button.classList.add('border-warning')
+        })
+        document.getElementById('search-result').classList.remove('d-none')
+        applyItemRarityFilter()
+    })
+
+    function matchesInventorySearch(entry){
+        return !inventorySearchQuery || (entry.dataset.searchText || '').toLocaleLowerCase('pl-PL').includes(inventorySearchQuery)
+    }
+
+    function searchInventory(event){
+        event.preventDefault()
+        inventorySearchQuery = document.getElementById('inventory-search').value.trim().toLocaleLowerCase('pl-PL')
+        hideItemCategoryLists()
+        document.querySelectorAll('.item-dependent-filter').forEach(group => group.classList.add('d-none'))
+        document.querySelectorAll('.item-type-filter').forEach(button => {
+            button.classList.remove('border-primary')
+            button.classList.add('border-warning')
+        })
+        document.getElementById('search-result').classList.remove('d-none')
+        applyItemRarityFilter()
     }
 
     function applyItemRarityFilter(){
         document.querySelectorAll('.search-list-entry').forEach((entry) => {
             const matchesRarity = activeItemRarityFilters.length === 0 || activeItemRarityFilters.includes(entry.dataset.rarity)
-            entry.classList.toggle('d-none', !matchesRarity)
+            entry.classList.toggle('d-none', !matchesRarity || !matchesInventorySearch(entry))
         })
 
         document.querySelectorAll('.item-list-entry').forEach((entry) => {
@@ -771,13 +767,17 @@
                 }
             }
 
-            if(matchesRarity && matchesWeaponCategory && matchesWeaponType && matchesWeaponHand && matchesAnimalCategory){
+            if(matchesRarity && matchesWeaponCategory && matchesWeaponType && matchesWeaponHand && matchesAnimalCategory && matchesInventorySearch(entry)){
                 entry.classList.remove('d-none')
             }
             else{
                 entry.classList.add('d-none')
             }
         })
+        const emptyMessage = document.getElementById('inventory-search-empty')
+        if(emptyMessage){
+            emptyMessage.classList.toggle('d-none', !!document.querySelector('.search-list-entry:not(.d-none)'))
+        }
     }
 
     function filterItemsByTier(instance){

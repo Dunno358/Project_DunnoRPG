@@ -1,0 +1,52 @@
+    {% for item in items %}
+    <div class='search-list-entry' data-rarity='{{ item.rarity }}' data-search-text="{{ item.name }} {{ item.desc|default_if_none:'' }}">
+        <div class='row bg-dark bg-opacity-75 rounded m-2 p-2'>
+
+            {% if view.kwargs.char_id != 0 %}
+                <button class='col-2 text-center text-white bg-danger p-2 m-1 rounded' onclick="deleteConfirmation('{{ item.name }}', {{ view.kwargs.char_id }}, '{{ item.delete_id }}')">X</button>
+            {% endif %}
+            
+            <a class='col text-center c-gold bg-dark p-2 rounded border border-primary' href='{{ item.id }}{% if item.eq_id %}?ref=eq;{{ item.eq_id }}{% elif item.char_item_id %}?ref=char;{{ item.char_item_id }}{% endif %}'>
+                <span
+                {% if item.rarity == 'neutral-low' or item.rarity == 'start-weapon' %}style='color: dimgray;'{% endif %}
+                {% if item.rarity == 'neutral-high' %}style='color: silver;'{% endif %}
+                {% if item.rarity == 'unique' %}style='color: #0ec800;'{% endif %}
+                {% if item.rarity == 'magical' %}style='color: #4a76c7;'{% endif %}
+                {% if item.rarity == 'uncommon' %}style='color: #b401b4;'{% endif %} 
+                >{% if item.equipped %}<span class="text-info">[Założone]</span> {% endif %}{% if view.kwargs.char_id != 0 %}[{{ item.weight }}kg] {% endif %}{{ item.name }}
+                {% if item.dur and item.type != 'Other' and item.type != 'Amulet' %}({{ item.dur }}/{{ item.max_dur }}){% endif %}
+                {% if view.kwargs.char_id != 0 %}x{{ item.amount }}{% endif %}
+                {% if user.is_superuser and item.eq_id %}
+                    <span
+                        class="fa fa-link fa-lg text-info ms-2"
+                        data-admin-url="{% url 'admin:DunnoRPG_eq_change' item.eq_id %}"
+                        onclick="openEqAdminRecord(event, this)"
+                        title="Otworz rekord ekwipunku">
+                    </span>
+                {% endif %}
+                </span>
+            </a>
+            {% if view.kwargs.char_id != 0 and item.sell_id %}
+                <button class='col-2 text-center text-white bg-success p-2 m-1 rounded'
+                onclick="sellConfirmation('{{ view.kwargs.char_id }}','{{ item.sell_id }}','{{ item.price }}','{{ item.dur }}','{{ item.max_dur }}','{{ item.name }}', '{{ item.amount }}', '{{ charisma }}')"
+                title="Sprzedaj"
+                aria-label="Sprzedaj">
+                    <span class="fa-solid fa-coins fa-lg" aria-hidden="true"></span>
+                </button>
+            {% endif %}
+                <div class="row m-0 mt-1 p-0">
+                    {% if view.kwargs.char_id != 0 and not item.equipped and item.on_use and item.on_use != '-' %}
+                        <div class="col m-0 p-0">
+                            <a class='btn btn-success w-100' href='useItem-{{ item.id }}-{{ view.kwargs.char_id }}?eq_id={{ item.eq_id }}'>
+                                {% if item.on_use == "fillWater" %}Napełnij wodą{% else %}Użyj {% if item.use_info %}[{{ item.use_info }}]{% endif %}{% if item.use_amount > 1 %} | Pozostało: {{ item.use_amount }}{% endif %}{% endif %}
+                            </a> 
+                        </div>
+                    {% endif %}
+                </div>
+        </div>
+    </div>
+    {% empty %}
+        {% if view.kwargs.char_id == 0 and search_value or view.kwargs.char_id == 0 and selected_item_type or view.kwargs.char_id == 0 and selected_item_category %}
+            <p class="text-center c-gold mt-3" role="status">Brak pasujących przedmiotów.</p>
+        {% endif %}
+    {% endfor %}

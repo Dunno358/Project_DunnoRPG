@@ -244,6 +244,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 }
 
                 target.innerHTML = await response.text();
+                form.dispatchEvent(new Event("dynamic-search-updated"));
                 window.history.replaceState({}, "", publicUrl.toString());
             } catch (error) {
                 if (error.name !== "AbortError") {

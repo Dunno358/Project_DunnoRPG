@@ -3283,6 +3283,11 @@ class ItemsView(ListView):
     context_object_name = 'items'
     ordering = ['name']
 
+    def get_template_names(self):
+        if self.kwargs['char_id'] == 0 and is_partial_request(self.request):
+            return ['dunnorpg/items_results.html']
+        return [self.template_name]
+
     @staticmethod
     def sort_items_by_name(items):
         return sorted(items, key=lambda item: (item.get('name') or '').lower())
@@ -3336,6 +3341,7 @@ class ItemsView(ListView):
                     'rarity': item_desc.rarity,
                     'found': item_desc.found,
                     'name': item_desc.name,
+                    'desc': item_desc.desc,
                     'dur': durability,
                     'amount': amount,
                     'weight': display_weight,
