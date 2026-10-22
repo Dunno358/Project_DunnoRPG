@@ -252,6 +252,12 @@ style="width: 98%; z-index: 20; margin-left: 0.1rem !important; margin-top: -1re
         </div>
     </div>
 
+    <div class="row m-0 p-2 d-none" id="alternate-attack-row">
+        <div class="col text-center">
+            <button type="button" class="btn btn-info text-white w-100 px-1" id="alternate-attack-btn" aria-pressed="false" onclick="toggleAlternateAttack()">Zmień na atak alternatywny</button>
+        </div>
+    </div>
+
     <div class='row m-0'>
         <div class="col-5 text-center h5 p-2 m-0">
             <span id="dice-input-subtitle"></span>
@@ -762,7 +768,7 @@ style="width: 98%; z-index: 20; margin-left: 0.1rem !important; margin-top: -1re
         </div>
 
 
-        <span id="l-name" class="d-none" data-needed-accuracy="{{ leftWeapon.neededAccuraccy }}" data-dmg-dice="{{ leftWeapon.dmgDice }}" data-category="{{ leftWeapon.category }}" data-damage-type="{{ leftWeapon.dmg_type }}" data-ap="{{ leftWeapon.AP }}">{{ leftItem.name }}</span>
+        <span id="l-name" class="d-none" data-needed-accuracy="{{ leftWeapon.neededAccuraccy }}" data-dmg-dice="{{ leftWeapon.dmgDice }}" data-alt-attack="{{ leftWeapon.altAttack }}" data-category="{{ leftWeapon.category }}" data-damage-type="{{ leftWeapon.dmg_type }}" data-ap="{{ leftWeapon.AP }}">{{ leftItem.name }}</span>
         {% if value.name|handNotAllowed:'left' %}
             <div name='head' class='row mt-2 border border-warning rounded bg-gray m-0 p-0'>
                 <div class="row c-gold me-0 pe-0">
@@ -930,7 +936,7 @@ style="width: 98%; z-index: 20; margin-left: 0.1rem !important; margin-top: -1re
             <div class="col-4 p-0 m-0"><hr class="bg-danger mt-4"></div>
         </div>
 
-        <span id="r-name" class="d-none" data-needed-accuracy="{{ rightWeapon.neededAccuraccy }}" data-dmg-dice="{{ rightWeapon.dmgDice }}" data-category="{{ rightWeapon.category }}" data-damage-type="{{ rightWeapon.dmg_type }}" data-ap="{{ rightWeapon.AP }}">{{ rightItem.name }}</span>
+        <span id="r-name" class="d-none" data-needed-accuracy="{{ rightWeapon.neededAccuraccy }}" data-dmg-dice="{{ rightWeapon.dmgDice }}" data-alt-attack="{{ rightWeapon.altAttack }}" data-category="{{ rightWeapon.category }}" data-damage-type="{{ rightWeapon.dmg_type }}" data-ap="{{ rightWeapon.AP }}">{{ rightItem.name }}</span>
         {% if value.name|handNotAllowed:'right' %}
             <div name='head' class='row mt-2 border border-warning rounded bg-gray m-0 p-0'>
                 <div class="row c-gold me-0 pe-0">
@@ -3451,10 +3457,54 @@ async function calculateGettingHit(){
     }
 }
 
+function parseAlternateAttack(value){
+    const parts = (value || '').trim().split('|').map(part => part.trim())
+    if(parts.length !== 4 || !parts[0] || parts[0].toLowerCase() === 'none'){ return null }
+    const ap = parts[1].match(/^([+-]?\d+(?:[.,]\d+)?)\s*%\s*AP$/i)
+    const accuracy = parts[2].match(/^CEL:\s*(\d+)$/i)
+    const range = parts[3].match(/^Zasięg:\s*(\d+)$/i)
+    if(!ap || !accuracy || !range){ return null }
+    return {damageDice: parts[0], ap: Number(ap[1].replace(',', '.')), neededAccuracy: Number(accuracy[1]), range: range[1]}
+}
+
+function getAttackValues(hand){
+    const prefix = hand === 'left' ? 'l' : 'r'
+    const weapon = document.getElementById(`${prefix}-name`)
+    const modal = document.getElementById('dice-input')
+    if(modal.dataset.alternateAttack === 'true' && modal.dataset.attackHand === hand){
+        const alternate = parseAlternateAttack(weapon.dataset.altAttack)
+        if(alternate){ return alternate }
+    }
+    return {damageDice: weapon.dataset.dmgDice, ap: Number(weapon.dataset.ap), neededAccuracy: Number(weapon.dataset.neededAccuracy), range: document.getElementById(`${prefix}-range`).textContent}
+}
+
+function updateAttackValues(){
+    const modal = document.getElementById('dice-input')
+    const attack = getAttackValues(modal.dataset.attackHand)
+    const weapon = document.getElementById(modal.dataset.attackHand === 'left' ? 'l-name' : 'r-name')
+    const alternate = modal.dataset.alternateAttack === 'true'
+    document.getElementById('ammo-row').classList.toggle('d-none', !alternate && !['weapon_range', 'weapon_gun'].includes(weapon.dataset.category))
+    document.getElementById('dice-dmg-label').textContent = `${attack.damageDice}:`
+    document.getElementById('dice-input-subtitle').textContent = `Zasięg: ${attack.range}`
+    const button = document.getElementById('alternate-attack-btn')
+    button.textContent = modal.dataset.alternateAttack === 'true' ? 'Zmień na normalny atak' : 'Zmień na atak alternatywny'
+    button.setAttribute('aria-pressed', modal.dataset.alternateAttack === 'true' ? 'true' : 'false')
+    updateAttackAccuracy()
+}
+
+function toggleAlternateAttack(){
+    const modal = document.getElementById('dice-input')
+    modal.dataset.alternateAttack = modal.dataset.alternateAttack === 'true' ? 'false' : 'true'
+    document.getElementById('chosen-ammo').value = 'not-needed'
+    document.getElementById('ammo-count').value = '1'
+    document.getElementById('dice-dmg').value = ''
+    updateAttackValues()
+}
+
 function getRequiredAttackAccuracy(hand){
     const weapon = document.getElementById(hand === 'left' ? 'l-name' : 'r-name')
     const penalties = {head: 8, torso: 0, hands: 4, boots: 4}
-    const baseAccuracy = Number(weapon.dataset.neededAccuracy)
+    const baseAccuracy = getAttackValues(hand).neededAccuracy
     const penalty = penalties[document.getElementById('body-target').value]
     return {baseAccuracy, penalty, neededAccuracy: baseAccuracy + penalty}
 }
@@ -3655,7 +3705,8 @@ async function showAttackResult(hand, item_id){
     const weapon = document.getElementById(`${prefix}-name`)
     const ranged = ['weapon_range', 'weapon_gun'].includes(weapon.dataset.category)
     const ammoSelect = document.getElementById('chosen-ammo')
-    const ammo = ranged && ammoSelect.value !== 'not-needed' ? ammoSelect.selectedOptions[0] : null
+    const usesAmmo = ranged || modal.dataset.alternateAttack === 'true'
+    const ammo = usesAmmo && ammoSelect.value !== 'not-needed' ? ammoSelect.selectedOptions[0] : null
     const ammoAmount = Number(document.getElementById('ammo-count').value)
     const used = Number(modal.dataset.advantageUsed)
     const advantageInput = document.getElementById('advantage-dice')
@@ -3677,21 +3728,23 @@ async function showAttackResult(hand, item_id){
     const bonuses = effectBonus + amuletBonus + weaponBonus
     const advantageRoll = used ? Math.sign(used) * Number(advantageInput.value) : 0
     const result = calculateAttackDamage(Number(diceInput.value), strength, bonuses, advantageRoll, ammo ? Number(ammo.dataset.dmgModifier) : 1, durability)
-    let ap = Number(weapon.dataset.ap) + (ammo ? Number(ammo.dataset.ap) : 0)
+    const attackValues = getAttackValues(hand)
+    let ap = attackValues.ap + (ammo ? Number(ammo.dataset.ap) : 0)
     const hit = isHit(hand, advantageRoll)
     const attack = {
-        dice: Number(diceInput.value), damageDice: weapon.dataset.dmgDice,
+        dice: Number(diceInput.value), damageDice: attackValues.damageDice,
         baseStrength, strengthModifier, strength, ranged, effectBonus, amuletBonus, weaponBonus,
         used, advantageRoll, durability, result,
         ammoName: ammo ? ammo.textContent.replace(/ x\d+$/, '').trim() : 'Brak',
         ammoModifier: ammo ? Number(ammo.dataset.dmgModifier) : 1,
         ammoAp: ammo ? Number(ammo.dataset.ap) : 0,
-        ammoAmount: ammo ? ammoAmount : 0, baseAp: Number(weapon.dataset.ap),
+        ammoAmount: ammo ? ammoAmount : 0, baseAp: attackValues.ap,
         damagesWeapon: document.getElementById('is-destructible').checked,
         durabilityBefore: Number(document.getElementById(`${prefix}-dur-perc`).closest('form').querySelector('[name=dur]').value),
     }
     const body = new FormData()
     body.set('weapon_id', item_id)
+    body.set('alternate_attack', modal.dataset.alternateAttack)
     body.set('accuracy_roll', accuracyInput.value)
     body.set('piercing_choice', document.getElementById('critical-piercing-choice').value)
     body.set('advantage_used', used)
@@ -3773,15 +3826,14 @@ function gatherAttackInfo(hand, item_id){
     const prefix = hand === 'left' ? 'l' : 'r'
     const weapon = document.getElementById(`${prefix}-name`)
     modal.dataset.attackHand = hand
-    updateAttackAccuracy()
+    modal.dataset.alternateAttack = 'false'
+    document.getElementById('alternate-attack-row').classList.toggle('d-none', !parseAlternateAttack(weapon.dataset.altAttack))
+    updateAttackValues()
     document.getElementById('dice-cel').value = ''
     document.getElementById('dice-dmg').value = ''
     document.getElementById('critical-piercing-choice').value = 'ignore_block'
     updateCriticalChoice()
-    document.getElementById('dice-dmg-label').textContent = `${weapon.dataset.dmgDice}:`
-    document.getElementById('dice-input-subtitle').textContent = `Zasięg: ${document.getElementById(`${prefix}-range`).textContent}`
     document.getElementById('dice-input-title').textContent = weapon.textContent
-    document.getElementById('ammo-row').classList.toggle('d-none', !['weapon_range', 'weapon_gun'].includes(weapon.dataset.category))
     document.getElementById('is-destructible').checked = true
     updateAttackAdvantage()
     document.getElementById('attack-confirm-btn').onclick = () => showAttackResult(hand, item_id)

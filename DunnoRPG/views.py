@@ -39,7 +39,7 @@ from DunnoRPG.serializers import (CharacterSerializer, ItemSerializer,
 
 from . import models
 from .forms import CharacterSkillsForm, AddEqItemForm #, AddEffectForm
-from .services.item_effects import apply_item_use_effects
+from .services.item_effects import apply_item_use_effects, fill_water
 from .services.attack_criticals import resolve_critical
 
 raceSizes = {
@@ -171,21 +171,20 @@ def parse_free_skill(skill):
     skill = (skill or "").strip()
     if not skill:
         return None
-    if "-" in skill:
-        parts = skill.split("-")
-        lvl = parts.pop()
-        skill_name = "-".join(parts)
+    match = re.fullmatch(r"(.+?)[_-]\s*(\d+)", skill)
+    if match:
+        skill_name, lvl = match.groups()
     elif skill[0].isdigit():
-        lvl = skill[0]
-        skill_name = skill[1:]
+        lvl, skill_name = skill[0], skill[1:]
     elif skill[-1].isdigit():
-        lvl = skill[-1]
-        skill_name = skill[:-1]
+        skill_name, lvl = skill[:-1], skill[-1]
     else:
         return None
-    if not skill_name:
+    skill_name = skill_name.strip()
+    if not skill_name or int(lvl) < 1:
         return None
     return skill_name, int(lvl)
+
 
 def grant_free_skill(owner, character_name, skill):
     parsed_skill = parse_free_skill(skill)
@@ -233,10 +232,9 @@ def parse_item_granted_skills(granted_skills):
 
 
 def sync_item_granted_skills(character):
-    models.Skills.objects.filter(
-        owner=character.owner,
-        character=character.name,
-    ).filter(Q(source="item") | Q(source__startswith="item:")).delete()
+    character_skills = models.Skills.objects.filter(owner=character.owner, character=character.name)
+    item_skills = character_skills.filter(Q(source="item") | Q(source__startswith="item:"))
+    retained_ids = []
 
     granted = {}
     equipped_names = models.CharItems.objects.filter(
@@ -256,9 +254,7 @@ def sync_item_granted_skills(character):
                 }
 
     for skill_data in granted.values():
-        if models.Skills.objects.filter(
-            owner=character.owner,
-            character=character.name,
+        if character_skills.exclude(Q(source="item") | Q(source__startswith="item:")).filter(
             skill__iexact=skill_data["name"],
         ).exists():
             continue
@@ -269,16 +265,27 @@ def sync_item_granted_skills(character):
 
         level_desc = getattr(skill_desc, f"level{skill_data['level']}", None)
         max_uses = getattr(skill_desc, f"useslvl{skill_data['level']}", None)
-        models.Skills.objects.create(
-            owner=character.owner,
-            character=character.name,
-            skill=skill_desc.name,
-            category=skill_desc.category,
-            level=skill_data["level"],
-            desc=f"{skill_desc.desc} {level_desc}" if level_desc else skill_desc.desc,
-            uses_left=max_uses or 0,
-            source=skill_data["source"],
-        )
+        existing = item_skills.filter(skill__iexact=skill_desc.name).first()
+        defaults = {
+            "skill": skill_desc.name,
+            "category": skill_desc.category,
+            "level": skill_data["level"],
+            "desc": f"{skill_desc.desc} {level_desc}" if level_desc else skill_desc.desc,
+            "source": skill_data["source"],
+        }
+        if existing is None:
+            existing = models.Skills.objects.create(
+                owner=character.owner, character=character.name,
+                uses_left=max_uses or 0, **defaults,
+            )
+        else:
+            for field, value in defaults.items():
+                setattr(existing, field, value)
+            existing.save(update_fields=list(defaults))
+        retained_ids.append(existing.id)
+
+    item_skills.exclude(id__in=retained_ids).delete()
+
 
 maxAdvs = 2
 maxBigAdvs = 1
@@ -1191,6 +1198,7 @@ class CharacterDetails(DetailView):
     def get_context_data(self,**kwargs):
         context = super().get_context_data(**kwargs)
         chosen = self.get_object()
+        sync_item_granted_skills(chosen)
         serializer = CharacterSerializer(chosen)
         
         skills = models.Skills.objects.all().filter(owner=chosen.owner,character=serializer.data['name']).values()
@@ -1378,7 +1386,8 @@ def confirm_attack(request, char_id):
             ammo_id = request.POST.get('ammo_id')
             if ammo_id:
                 ammo_id = int(ammo_id)
-                if description.category not in ('weapon_range', 'weapon_gun'):
+                alternate = request.POST.get('alternate_attack') == 'true' and (description.altAttack or '').strip().lower() not in ('', 'none', '-')
+                if description.category not in ('weapon_range', 'weapon_gun') and not alternate:
                     raise ValueError('Ta broń nie korzysta z amunicji.')
                 amount = int(request.POST.get('ammo_amount', 0))
                 ammo = get_object_or_404(models.Eq.objects.select_for_update(), id=ammo_id, character=char.name)
@@ -3590,10 +3599,12 @@ class useItem(APIView):
             item = get_object_or_404(models.Items, id=item_id)
             action = item.on_use
             actions = [part.strip() for part in action.split(";") if part.strip()]
-            cost = float(item.use_cost)
+            cost = 0.0 if actions == ["fillWater"] and item.use_cost in (None, "", "-") else float(item.use_cost)
 
             char_id = kwargs['char_id']
             char = get_object_or_404(models.Character, id=char_id)
+            if not request.user.is_authenticated or (char.owner != request.user.username and not request.user.is_superuser):
+                return JsonResponse({'error': 'Brak dostępu do postaci.'}, status=403)
             eq_items = models.Eq.objects.filter(name=item.name, character=char.name, owner=char.owner)
             eq_id = request.GET.get('eq_id')
             if not eq_id:
@@ -3605,6 +3616,15 @@ class useItem(APIView):
 
             if float(char.actionLeft) < cost and char.inFight:
                 messages.error(request,f'Nie posiadasz wystarczająco akcji! Wymagane {cost} a dostępne {char.actionLeft}.')
+                return redirect(f'/dunnorpg/items/ch{char_id}')
+
+            if actions == ["fillWater"]:
+                with transaction.atomic():
+                    filled_name = fill_water(char, eq_item)
+                    if char.inFight:
+                        char.actionLeft -= cost
+                        char.save(update_fields=["actionLeft"])
+                messages.success(request, f'Napełniono wodą: {filled_name}.')
                 return redirect(f'/dunnorpg/items/ch{char_id}')
 
             char, effect_messages = apply_item_use_effects(char, actions, cost, manageFoodAndWater, sync_alcohol_mods)
@@ -3656,6 +3676,9 @@ class useItem(APIView):
             if foodMsg != "":
                 messages.error(request, foodMsg)
 
+            return redirect(f'/dunnorpg/items/ch{char_id}')
+        except ValueError as e:
+            messages.error(request, str(e))
             return redirect(f'/dunnorpg/items/ch{char_id}')
         except Exception as e:
             messages.error(request, f"Błąd: {e}")
@@ -4506,7 +4529,7 @@ class CityView(ListView):
                         trophies.append(shop_item)
                     elif item_category == "animal" or item_category.startswith("animal_") or (item.type or "").strip().lower() in {"animal", "mount armor"}:
                         animals.append(shop_item)
-                    elif item_category == "weapon_music":
+                    elif item_category in {"weapon_music", "item_music"}:
                         musical_weaponry.append(shop_item)
                     elif is_city_range_shop_item(item_category):
                         ranged_weaponry.append(shop_item)

@@ -11,7 +11,8 @@ class ItemEffectMessage:
     text: str
 
 
-EMPTY_BOTTLE_ACTIONS = {"addHP_Potion", "addWater_Bottle"}
+EMPTY_BOTTLE_ACTIONS = {"addhp_potion", "addwater_bottle"}
+EMPTY_SKIN_ACTIONS = {"addwater_skin"}
 VALID_STAT_MOD_FIELDS = {"INT", "SIŁ", "ZRE", "CHAR", "CEL", "SPO"}
 
 
@@ -210,24 +211,53 @@ def increase_mod(char, field, payload, source):
 
 
 def add_empty_bottle_if_needed(char, actions):
-    if not any(single_action.split("-", 1)[0] in EMPTY_BOTTLE_ACTIONS for single_action in actions):
-        return
+    action_names = {action.split("-", 1)[0].strip().lower() for action in actions}
+    containers = []
+    if action_names & EMPTY_BOTTLE_ACTIONS:
+        containers.append("Pusta buteleczka")
+    if action_names & EMPTY_SKIN_ACTIONS:
+        containers.append("Pusty bukłak")
+    for name in containers:
+        add_empty_container(char, name)
 
-    empty_bottle = get_object_or_404(models.Items, name="Pusta buteleczka")
-    bottle = models.Eq.objects.filter(character=char.name, name=empty_bottle.name).first()
 
-    if bottle is None:
+def add_empty_container(char, name):
+    container = get_object_or_404(models.Items, name=name)
+    owned = models.Eq.objects.filter(owner=char.owner, character=char.name, name=name).first()
+    if owned is None:
         models.Eq.objects.create(
-            owner=char.owner,
-            character=char.name,
-            name=empty_bottle.name,
-            type=empty_bottle.type,
-            weight=empty_bottle.weight,
-            durability=empty_bottle.maxDurability,
-            amount=1,
+            owner=char.owner, character=char.name, name=name,
+            type=container.type, weight=container.weight,
+            durability=container.maxDurability, amount=1,
         )
         return
+    owned.amount += 1
+    owned.weight = container.weight * owned.amount
+    owned.save(update_fields=["amount", "weight"])
 
-    bottle.amount += 1
-    bottle.weight = empty_bottle.weight * bottle.amount
-    bottle.save()
+
+def fill_water(char, empty_container):
+    target_names = {
+        "pusta buteleczka": "Butelka wody",
+        "pusta butelka": "Butelka wody",
+        "pusty bukłak": "Bukłak wody",
+    }
+    target_name = target_names.get(empty_container.name.strip().lower())
+    if target_name is None:
+        raise ValueError("Tego przedmiotu nie można napełnić wodą.")
+    target = models.Items.objects.filter(name__iexact=target_name).first()
+    if target is None:
+        raise ValueError(f"Brak definicji przedmiotu: {target_name}.")
+    models.Eq.objects.create(
+        owner=char.owner, character=char.name, name=target.name, type=target.type,
+        weight=target.weight, durability=target.maxDurability, amount=1,
+        use_amount=target.use_amount,
+        additional_description=empty_container.additional_description,
+    )
+    if empty_container.amount == 1:
+        empty_container.delete()
+    else:
+        empty_container.weight -= empty_container.weight / empty_container.amount
+        empty_container.amount -= 1
+        empty_container.save(update_fields=["weight", "amount"])
+    return target.name

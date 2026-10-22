@@ -474,7 +474,7 @@
                     {% if view.kwargs.char_id != 0 and not item.equipped and item.on_use and item.on_use != '-' %}
                         <div class="col m-0 p-0">
                             <a class='btn btn-success w-100' href='useItem-{{ item.id }}-{{ view.kwargs.char_id }}?eq_id={{ item.eq_id }}'>
-                                Użyj {% if item.use_info %}[{{ item.use_info }}]{% endif %}{% if item.use_amount > 1 %} | Pozostało: {{ item.use_amount }}{% endif %}
+                                {% if item.on_use == "fillWater" %}Napełnij wodą{% else %}Użyj {% if item.use_info %}[{{ item.use_info }}]{% endif %}{% if item.use_amount > 1 %} | Pozostało: {{ item.use_amount }}{% endif %}{% endif %}
                             </a> 
                         </div>
                     {% endif %}
