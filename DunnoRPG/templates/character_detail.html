@@ -857,7 +857,7 @@ style="width: 98%; z-index: 20; margin-left: 0.1rem !important; margin-top: -1re
                 data-reload-url="{% url 'reload_weapon' value.id leftItem.id %}"
                 onclick='handleWeaponAction("left", {{ leftItem.id }})'
                 >
-                    <span class="h4">{% if leftItem.needs_reload %}Przeładuj{% else %}Wykonaj atak [{{ leftItem.attack_cost|floatformat:"-1" }} akcji]{% endif %}</span>
+                    <span class="h4">{% if leftItem.needs_reload %}Przeładuj [0,5 akcji]{% else %}Wykonaj atak [{{ leftItem.attack_cost|floatformat:"-1" }} akcji]{% endif %}</span>
                 </button>
 
                 <div class="row g-0 m-0 border-top border-warning">
@@ -1022,7 +1022,7 @@ style="width: 98%; z-index: 20; margin-left: 0.1rem !important; margin-top: -1re
                 data-reload-url="{% url 'reload_weapon' value.id rightItem.id %}"
                 onclick='handleWeaponAction("right", {{ rightItem.id }})'
                 >
-                    <span class="h4">{% if rightItem.needs_reload %}Przeładuj{% else %}Wykonaj atak [{{ rightItem.attack_cost|floatformat:"-1" }} akcji]{% endif %}</span>
+                    <span class="h4">{% if rightItem.needs_reload %}Przeładuj [0,5 akcji]{% else %}Wykonaj atak [{{ rightItem.attack_cost|floatformat:"-1" }} akcji]{% endif %}</span>
                 </button>
 
                 <div class="row g-0 m-0 border-top border-warning">
@@ -3654,7 +3654,7 @@ function syncWeaponAction(hand, data){
     if(data.needs_reload !== undefined){
         const button = document.getElementById(`${hand}-attack-btn`)
         button.dataset.needsReload = String(data.needs_reload)
-        button.querySelector('span').textContent = data.needs_reload ? 'Przeładuj' : `Wykonaj atak [${Number(button.dataset.attackCost).toLocaleString('pl-PL')} akcji]`
+        button.querySelector('span').textContent = data.needs_reload ? 'Przeładuj [0,5 akcji]' : `Wykonaj atak [${Number(button.dataset.attackCost).toLocaleString('pl-PL')} akcji]`
     }
 }
 
