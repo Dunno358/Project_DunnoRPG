@@ -198,7 +198,7 @@ style="width: 98%; z-index: 20; margin-left: 0.1rem !important; margin-top: -1re
 
         <div class='row text-center ms-1'>
             <div class='col m-2'>
-                <a onclick='this.parentNode.parentNode.parentNode.parentNode.classList.add("d-none")' class='btn btn-lg btn-outline-danger'>Back</a>
+                <a id='window-action-close' onclick='this.parentNode.parentNode.parentNode.parentNode.classList.add("d-none")' class='btn btn-lg btn-success'>Okej</a>
             </div>
         </div>
 
@@ -244,7 +244,7 @@ style="width: 98%; z-index: 20; margin-left: 0.1rem !important; margin-top: -1re
 
 </div>
 
-<div id='dice-input' data-in-fight="{{ chosen_character.0.inFight|yesno:'true,false' }}" data-actions-left="{{ chosen_character.0.actionLeft|unlocalize }}" data-advantage-balance="{{ chosen_character.0.advantageBalance }}" data-confirm-url="{% url 'confirm_attack' chosen_character.0.id %}" class='d-none h5 position-fixed bg-dark c-gold container-fluid m-0 p-0 border border-primary' style="top: 5vh; max-height: 100vh; overflow: auto; z-index: 10; left: 1vw; width: 99%;">
+<div id='dice-input' data-in-fight="{{ chosen_character.0.inFight|yesno:'true,false' }}" data-actions-left="{{ chosen_character.0.actionLeft|unlocalize }}" data-advantage-balance="{{ chosen_character.0.advantageBalance }}" data-parry-url="{% url 'confirm_parry' chosen_character.0.id %}" data-confirm-url="{% url 'confirm_attack' chosen_character.0.id %}" class='d-none h5 position-fixed bg-dark c-gold container-fluid m-0 p-0 border border-primary' style="top: 5vh; max-height: 100vh; overflow: auto; z-index: 10; left: 1vw; width: 99%;">
 
     <div class='row m-0 p-2'>
         <div class="col text-center h2">
@@ -768,7 +768,7 @@ style="width: 98%; z-index: 20; margin-left: 0.1rem !important; margin-top: -1re
         </div>
 
 
-        <span id="l-name" class="d-none" data-needed-accuracy="{{ leftWeapon.neededAccuraccy }}" data-dmg-dice="{{ leftWeapon.dmgDice }}" data-alt-attack="{{ leftWeapon.altAttack }}" data-category="{{ leftWeapon.category }}" data-damage-type="{{ leftWeapon.dmg_type }}" data-ap="{{ leftWeapon.AP }}">{{ leftItem.name }}</span>
+        <span id="l-name" class="d-none" data-item-id="{{ leftItem.id }}" data-needed-accuracy="{{ leftWeapon.neededAccuraccy }}" data-dmg-dice="{{ leftWeapon.dmgDice }}" data-alt-attack="{{ leftWeapon.altAttack }}" data-category="{{ leftWeapon.category }}" data-damage-type="{{ leftWeapon.dmg_type }}" data-ap="{{ leftWeapon.AP }}">{{ leftItem.name }}</span>
         {% if value.name|handNotAllowed:'left' %}
             <div name='head' class='row mt-2 border border-warning rounded bg-gray m-0 p-0'>
                 <div class="row c-gold me-0 pe-0">
@@ -936,7 +936,7 @@ style="width: 98%; z-index: 20; margin-left: 0.1rem !important; margin-top: -1re
             <div class="col-4 p-0 m-0"><hr class="bg-danger mt-4"></div>
         </div>
 
-        <span id="r-name" class="d-none" data-needed-accuracy="{{ rightWeapon.neededAccuraccy }}" data-dmg-dice="{{ rightWeapon.dmgDice }}" data-alt-attack="{{ rightWeapon.altAttack }}" data-category="{{ rightWeapon.category }}" data-damage-type="{{ rightWeapon.dmg_type }}" data-ap="{{ rightWeapon.AP }}">{{ rightItem.name }}</span>
+        <span id="r-name" class="d-none" data-item-id="{{ rightItem.id }}" data-needed-accuracy="{{ rightWeapon.neededAccuraccy }}" data-dmg-dice="{{ rightWeapon.dmgDice }}" data-alt-attack="{{ rightWeapon.altAttack }}" data-category="{{ rightWeapon.category }}" data-damage-type="{{ rightWeapon.dmg_type }}" data-ap="{{ rightWeapon.AP }}">{{ rightItem.name }}</span>
         {% if value.name|handNotAllowed:'right' %}
             <div name='head' class='row mt-2 border border-warning rounded bg-gray m-0 p-0'>
                 <div class="row c-gold me-0 pe-0">
@@ -3561,6 +3561,18 @@ function calculateAttackDamage(dice, strength, bonuses, advantageRoll, ammoModif
     return Math.floor(damage + Number.EPSILON * Math.max(1, Math.abs(damage)) * 4)
 }
 
+function getWeaponRollBonuses(hand, action){
+    const prefix = hand === 'left' ? 'l' : 'r'
+    const baseStrength = parseDisplayedNumber('stat-SIŁ')
+    const strengthModifier = parseDisplayedNumber('stat-SIŁ-mod')
+    const strength = action === 'parry' || Number(getAttackValues(hand).range) <= 3 ? baseStrength + strengthModifier : 0
+    const effectBonus = parseDisplayedNumber(`effects-${action}`)
+    const amuletBonus = parseDisplayedNumber('amulet-attack-mod')
+    const weaponBonus = Number(document.getElementById(`${prefix}_bonus`).textContent.replace(/[()]/g, '').trim()) || 0
+    return {baseStrength, strengthModifier, strength, effectBonus, amuletBonus, weaponBonus,
+        bonuses: effectBonus + amuletBonus + weaponBonus}
+}
+
 function setAttackDescription(element, text, critical){
     element.replaceChildren()
     if(!critical.effect_name || !critical.effect_description){
@@ -3718,15 +3730,8 @@ async function showAttackResult(hand, item_id){
         return
     }
     const durability = Number(document.getElementById(`${prefix}-dur-perc`).textContent.replace(/[()%]/g, '').trim()) / 100
-    const bonusText = document.getElementById(`${prefix}_bonus`).textContent.trim()
-    const weaponBonus = Number(bonusText.replace(/[()]/g, '')) || 0
-    const baseStrength = parseDisplayedNumber('stat-SIŁ')
-    const strengthModifier = parseDisplayedNumber('stat-SIŁ-mod')
     const attackValues = getAttackValues(hand)
-    const strength = Number(attackValues.range) <= 3 ? baseStrength + strengthModifier : 0
-    const effectBonus = parseDisplayedNumber('effects-attack')
-    const amuletBonus = parseDisplayedNumber('amulet-attack-mod')
-    const bonuses = effectBonus + amuletBonus + weaponBonus
+    const {baseStrength, strengthModifier, strength, effectBonus, amuletBonus, weaponBonus, bonuses} = getWeaponRollBonuses(hand, 'attack')
     const advantageRoll = used ? Math.sign(used) * Number(advantageInput.value) : 0
     const result = calculateAttackDamage(Number(diceInput.value), strength, bonuses, advantageRoll, ammo ? Number(ammo.dataset.dmgModifier) : 1, durability)
     let ap = attackValues.ap + (ammo ? Number(ammo.dataset.ap) : 0)
@@ -3821,7 +3826,141 @@ async function showAttackResult(hand, item_id){
     }
 }
 
+function setParryMode(parry){
+    document.getElementById('dice-input-subtitle').parentElement.parentElement.classList.toggle('d-none', parry)
+    document.getElementById('dice-cel').parentElement.parentElement.classList.toggle('d-none', parry)
+    document.getElementById('body-target').parentElement.parentElement.classList.toggle('d-none', parry)
+}
+
+function setActionWindowSelection(selecting){
+    const button = document.getElementById('window-action-close')
+    button.textContent = selecting ? 'Powrót' : 'Okej'
+    button.classList.toggle('btn-danger', selecting)
+    button.classList.toggle('btn-success', !selecting)
+}
+
+function showParrySelection(){
+    const top = document.getElementById('window-action-text-top')
+    const hands = ['left', 'right'].filter(hand => {
+        const prefix = hand === 'left' ? 'l' : 'r'
+        return document.getElementById(`${prefix}-name`)?.dataset.itemId && document.getElementById(`${prefix}_stats`)
+    })
+    if(!hands.length){ top.textContent = 'Brak broni do parowania.'; return }
+    const name = hand => document.getElementById(hand === 'left' ? 'l-name' : 'r-name').textContent.trim()
+    if(hands.length === 1 || name(hands[0]) === name(hands[1])){
+        gatherParryInfo(hands[0])
+        return
+    }
+    setActionWindowSelection(true)
+    top.replaceChildren()
+    const row = document.createElement('div')
+    row.className = 'row flex-nowrap g-2 m-0'
+    hands.forEach(hand => {
+        const column = document.createElement('div')
+        column.className = 'col-6'
+        const button = document.createElement('button')
+        button.type = 'button'
+        button.className = 'btn btn-primary w-100 h-100 text-break'
+        button.textContent = name(hand)
+        button.onclick = () => gatherParryInfo(hand)
+        column.append(button)
+        row.append(column)
+    })
+    top.append(row)
+}
+
+function gatherParryInfo(hand){
+    const prefix = hand === 'left' ? 'l' : 'r'
+    const weapon = document.getElementById(`${prefix}-name`)
+    if(weapon.dataset.category === 'shield' || document.getElementById(`${prefix}-type`).textContent.trim() === 'Tarcza'){
+        setActionWindowSelection(false)
+        document.getElementById('window-action-text-top').textContent = document.getElementById(`${prefix}_stats`).textContent.trim()
+        document.getElementById('window-action-text-center').textContent = ''
+        return
+    }
+    const ranged = ['weapon_range', 'weapon_gun'].includes(weapon.dataset.category)
+    if(ranged && !parseAlternateAttack(weapon.dataset.altAttack)){
+        showMessage('Brak statystyk ataku alternatywnego do parowania tą bronią.', 'error')
+        return
+    }
+    const modal = document.getElementById('dice-input')
+    modal.dataset.attackHand = hand
+    modal.dataset.alternateAttack = String(ranged)
+    setParryMode(true)
+    updateAttackValues()
+    ;['alternate-attack-row', 'ammo-row', 'critical-choice-row'].forEach(id => document.getElementById(id).classList.add('d-none'))
+    document.getElementById('dice-input-title').textContent = `Parowanie | ${weapon.textContent.trim()}`
+    document.getElementById('dice-dmg').value = ''
+    document.getElementById('is-destructible').checked = true
+    updateAttackAdvantage()
+    document.getElementById('attack-confirm-btn').onclick = () => showParryResult(hand)
+    document.getElementById('pop-window').classList.add('d-none')
+    modal.classList.remove('d-none')
+}
+
+async function showParryResult(hand){
+    const modal = document.getElementById('dice-input')
+    const button = document.getElementById('attack-confirm-btn')
+    if(button.disabled){ return }
+    const dice = document.getElementById('dice-dmg')
+    const advantage = document.getElementById('advantage-dice')
+    const used = Number(modal.dataset.advantageUsed)
+    if(!dice.reportValidity() || (used && !advantage.reportValidity())){ return }
+    const prefix = hand === 'left' ? 'l' : 'r'
+    const weapon = document.getElementById(`${prefix}-name`)
+    const values = getAttackValues(hand)
+    const {strength, effectBonus, amuletBonus: itemBonus, weaponBonus: classBonus, bonuses} = getWeaponRollBonuses(hand, 'parry')
+    const advantageRoll = used ? Math.sign(used) * Number(advantage.value) : 0
+    const durabilityElement = document.getElementById(`${prefix}-dur-perc`)
+    const durability = Number(durabilityElement.textContent.replace(/[()%]/g, '').trim()) / 100
+    const baseBlock = Number(dice.value) + Math.floor(strength / 2) + bonuses + advantageRoll
+    const result = calculateAttackDamage(Number(dice.value), strength, bonuses, advantageRoll, 1, durability)
+    const body = new FormData()
+    body.set('weapon_id', weapon.dataset.itemId)
+    body.set('advantage_used', used)
+    body.set('damages_weapon', document.getElementById('is-destructible').checked)
+    button.disabled = true
+    try{
+        const response = await fetch(modal.dataset.parryUrl, {
+            method: 'POST', body,
+            headers: {'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value},
+        })
+        const data = await response.json()
+        if(!response.ok){ throw new Error(data.error || 'Nie udało się zatwierdzić parowania.') }
+        modal.dataset.advantageBalance = data.advantageBalance
+        const balance = document.getElementById('advantageBalance-val')
+        if(balance){
+            balance.value = data.advantageBalance
+            balance.setAttribute('value', data.advantageBalance)
+            balance.dataset.lastSubmittedValue = String(data.advantageBalance)
+        }
+        durabilityElement.textContent = `(${data.durability_percent}%)`
+        const durabilityInput = durabilityElement.closest('form').querySelector('[name=dur]')
+        durabilityInput.value = data.durability
+        durabilityInput.dataset.lastSubmittedValue = String(data.durability)
+        document.getElementById('result-div-row1').textContent = 'Parowanie'
+        document.getElementById('result-div-row1').classList.remove('text-danger')
+        document.getElementById('result-div-row2').textContent = weapon.textContent.trim()
+        document.getElementById('result-div-row3-col1').textContent = 'Wynik: '
+        document.getElementById('result-div-row3-col2').textContent = result
+        document.getElementById('attack-critical-result').classList.add('d-none')
+        document.getElementById('attack-details-content').textContent = [
+            `${values.damageDice}: ${dice.value}`, `SIŁ: ${Math.floor(strength / 2)}`,
+            `Efekty: ${effectBonus}`, `Klasa: ${classBonus}`, `Przedmioty: ${itemBonus}`,
+            `Przewaga / utrudnienie: ${advantageRoll}`, `Suma = ${baseBlock}`,
+            `Wytrzymałość: ${durability * 100}%*${baseBlock}=${result}`, `Wynik: ${result}`,
+        ].join('\n')
+        document.getElementById('attack-details').open = false
+        modal.classList.add('d-none')
+        document.getElementById('result-div').classList.remove('d-none')
+    }catch(error){ showMessage(error.message, 'error') }
+    finally{ button.disabled = false }
+}
+
 function gatherAttackInfo(hand, item_id){
+    setParryMode(false)
+    document.getElementById('result-div-row3-col1').textContent = 'Obrażenia: '
+
     const modal = document.getElementById('dice-input')
     const prefix = hand === 'left' ? 'l' : 'r'
     const weapon = document.getElementById(`${prefix}-name`)
@@ -4351,6 +4490,7 @@ function showMovementAction(baseMove, equippedMountMove = null){
 }
 
 function show_result_at_window(action){
+    setActionWindowSelection(false)
     document.getElementById('pop-window').classList.remove('d-none')
 
 
@@ -4426,85 +4566,7 @@ function show_result_at_window(action){
     }
     else if (action == 'Parry')
     {
-        try{l_range=parseInt(document.getElementById('l-range').textContent)}catch{l_range=0}
-        try{r_range=parseInt(document.getElementById('r-range').textContent)}catch{r_range=0}
-        //window_action.textContent = "Obecnie niedostępne"
-        parry_effect_bonus = parseInt(document.getElementById('effects-parry').innerHTML)
-        sil = parseInt(document.getElementById('stat-SIŁ').innerHTML)
-        sil_mod = parseInt(document.getElementById('stat-SIŁ-mod').innerHTML) 
-        try{l_type = document.getElementById('l-type').textContent}catch{l_type=null}
-        try{r_type = document.getElementById('r-type').textContent}catch{r_type=null}
-        try{
-            r_bonus = parseInt(document.getElementById('r_bonus').textContent.slice(1,-1))
-        }catch{
-            r_bonus = 0
-        }
-        if(isNaN(r_bonus)){r_bonus=0}
-
-        try{
-            l_bonus = parseInt(document.getElementById('l_bonus').textContent.slice(1,-1))
-        }catch{
-            l_bonus = 0
-        }
-        if(isNaN(l_bonus)){l_bonus=0}
-
-
-        if(l_range>8){
-            window_action_top.innerHTML = 'Parowanie | Lewa ręka: Brak modyfikatorów.'
-        }
-        else if(l_type)
-        {
-            leftWeapon = document.getElementById('l_weapon')
-
-            if(l_type == "Tarcza")
-            { //shield-left-hand-attack
-                l_stats = document.getElementById('l_stats').textContent
-                l_block = parseInt(l_stats.split(":")[1])
-                l_shield_dice_result = getDiceWMods(window_action_top,(l_block+l_bonus),getResult=true,text='Blok tarczą - Lewa ręka', d0exception=true)
-                l_shield_details = 'BLOCK'+'('+l_block+')'+ ' + ' + 'BONUS'+'('+l_bonus+')'
-                window_action_top.onclick = function() {change_result(l_shield_details,window_action_top,(l_block+l_bonus), l_shield_dice_result,additional=true)}
-            }
-            else
-            { //normal-left-hand-parry
-                l_stats = document.getElementById('l_stats').textContent
-                leftWeaponDmg = parseInt(l_stats.split(",")[0].replace('1K',''))
-                leftWeaponApBonus = Math.round(parseInt(l_stats.split(",")[1].replace('AP',''))/2)
-                l_mods = sil+sil_mod+leftWeaponDmg+l_bonus+parry_effect_bonus+leftWeaponApBonus
-                l_normal_dice_result = getDiceWMods(window_action_top,l_mods,getResult=true,text='Parowanie - Lewa ręka | Bonus do kości', d0exception=true)
-                l_normal_details = 'SIŁ'+'('+sil+')'+ ' + '+'MODS'+'('+(sil_mod+parry_effect_bonus)+')'+' + '+'WEAPON'+'('+leftWeaponDmg+')'+' + '+'BONUS'+'('+l_bonus+')'+' + '+'AP Bonus'+'('+leftWeaponApBonus+'%)'
-                window_action_top.onclick = function() {change_result(l_normal_details,window_action_top,l_mods, l_normal_dice_result,additional=true)}
-            }
-        }
-        else{window_action_top.innerHTML = 'Parowanie lewej ręki niedostępne'}
-
-
-        if(r_range>8){
-            window_action_bottom.innerHTML = 'Parowanie | Prawa ręka: Brak modyfikatorów.'
-        }
-        else if(r_type)
-        {
-            rightWeapon = document.getElementById('r_weapon')
-
-            if(r_type == "Tarcza")
-            { //shield-right-hand-attack
-                r_stats = document.getElementById('r_stats').textContent
-                r_block = parseInt(r_stats.split(":")[1])
-                r_shield_dice_result = getDiceWMods(window_action,(r_block+r_bonus),getResult=true,text='Right hand', d0exception=true)
-                r_shield_details = 'BLOCK'+'('+r_block+')'+ ' + ' + 'BONUS'+'('+r_bonus+')'
-                window_action_bottom.onclick = function() {change_result(r_shield_details,window_action_bottom,(r_block+r_bonus), r_shield_dice_result)}
-            }
-            else
-            { //normal-right-hand-parry
-                r_stats = document.getElementById('r_stats').textContent
-                rightWeaponDmg = parseInt(r_stats.split(",")[0].replace('1K',''))
-                rightWeaponApBonus = Math.round(parseInt(r_stats.split(",")[1].replace('AP',''))/2)
-                r_mods = sil+sil_mod+rightWeaponDmg+r_bonus+parry_effect_bonus+rightWeaponApBonus
-                r_normal_dice_result = getDiceWMods(window_action_bottom,r_mods,getResult=true,text='Parowanie - Prawa ręka | Bonus do kości', d0exception=true)
-                r_normal_details = 'SIŁ'+'('+sil+')'+ ' + '+'MODS'+'('+(sil_mod+parry_effect_bonus)+')'+' + '+'WEAPON'+'('+rightWeaponDmg+')'+' + '+'BONUS'+'('+r_bonus+')'+' + '+'AP Bonus'+'('+rightWeaponApBonus+'%)'
-                window_action_bottom.onclick = function() {change_result(r_normal_details,window_action_bottom,r_mods, r_normal_dice_result)}
-            }
-        }
-        else{window_action_bottom.innerHTML = 'Parowanie prawej ręki niedostępne'}
+        showParrySelection()
     }
 }
 

@@ -21,6 +21,7 @@ urlpatterns = [
     path('character_detail/<int:char_id>/change-skill-uses/<int:skill_id>', views.change_skill_uses, name='change_skill_uses'),
     path('character_detail/<int:char_id>/move_eq-<int:item_id>', views.MoveItemToEq.as_view(), name='move_item_to_eq'),
     path('character_detail/<int:char_id>/confirm-attack', views.confirm_attack, name='confirm_attack'),
+    path('character_detail/<int:char_id>/confirm-parry', views.confirm_parry, name='confirm_parry'),
     path('character_detail/<int:char_id>/reload/<int:item_id>', views.reload_weapon, name='reload_weapon'),
     path('character_detail/<int:char_id>/take_dur-<int:item_id>', views.TakeItemDurFromAttack.as_view(), name='take_attack_dur_from_item'),
     path('character_detail/<int:char_id>/take_ammo-<int:item_id>-<int:item_amount>', views.TakeAmmoFromAttack.as_view(), name='take_ammo_from_attack'),

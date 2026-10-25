@@ -1355,6 +1355,34 @@ class CharacterDetails(DetailView):
         return context 
     
 @require_POST
+def confirm_parry(request, char_id):
+    with transaction.atomic():
+        char = get_object_or_404(models.Character.objects.select_for_update(), id=char_id)
+        if not request.user.is_authenticated or (char.owner != request.user.username and not request.user.is_superuser):
+            return JsonResponse({'error': 'Brak dostępu do postaci.'}, status=403)
+        try:
+            weapon_id = int(request.POST.get('weapon_id', ''))
+            used = int(request.POST.get('advantage_used', 0))
+        except (TypeError, ValueError):
+            return JsonResponse({'error': 'Nieprawidłowe dane parowania.'}, status=400)
+        weapon = get_object_or_404(models.CharItems.objects.select_for_update(), id=weapon_id, character=char.name, hand__in=('Left', 'Right'))
+        description = get_object_or_404(models.Items, name=weapon.name)
+        if description.category == 'shield' or (description.type or '').lower() == 'shield':
+            return JsonResponse({'error': 'Tarcza używa wyłącznie wartości bloku.'}, status=400)
+        expected_used = max(-2, min(2, char.advantageBalance))
+        if used != expected_used:
+            return JsonResponse({'error': 'Bilans przewag zmienił się. Otwórz ponownie formularz parowania.'}, status=409)
+        char.advantageBalance -= used
+        char.save(update_fields=['advantageBalance'])
+        if request.POST.get('damages_weapon') == 'true':
+            weapon.durability = max(0, weapon.durability - 1)
+            weapon.save(update_fields=['durability'])
+        percent = round(100 * weapon.durability / description.maxDurability) if description.maxDurability > 0 else 0
+        return JsonResponse({'advantageBalance': char.advantageBalance, 'durability': weapon.durability,
+                             'durability_percent': percent})
+
+
+@require_POST
 def confirm_attack(request, char_id):
     with transaction.atomic():
         char = get_object_or_404(models.Character.objects.select_for_update(), id=char_id)
