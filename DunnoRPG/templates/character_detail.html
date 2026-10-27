@@ -798,7 +798,6 @@ style="width: 98%; z-index: 20; margin-left: 0.1rem !important; margin-top: -1re
 
                 <!-- call it some meta for weapon -->
                 <span class="d-none" id="l-range">{{ leftItem.name|getItemRange }}</span>
-                <span class="d-none" id="l-staff-dmg">{{ leftItem.name|getStaffMagicDmg:value.id }}</span>
                 <span class="d-none" id="l-dualhanded">{{ leftItem.name|isDualHanded }}</span>
 
                 <div class="row c-gold me-0 pe-0">
@@ -841,7 +840,6 @@ style="width: 98%; z-index: 20; margin-left: 0.1rem !important; margin-top: -1re
                     <div class="col-6 border-end border-warning p-1 h6 mb-0 d-flex align-items-center justify-content-center">
                         <span class="c-gold ms-1">
                             <span id="l_stats" class="item-stats">
-                                {{ leftItem.name|getStaffMagicDmg:0 }}
                                 {{ leftItem.name|getItemStatByDurability:leftItem.durability }}
                             </span> <span id='l_bonus'>{{ value.name|isPreffereOrUnliked:leftItem.name }}</span>
                         </span>
@@ -966,7 +964,6 @@ style="width: 98%; z-index: 20; margin-left: 0.1rem !important; margin-top: -1re
 
                 <!-- call it some meta for weapon -->
                 <span class="d-none" id="r-range">{{ rightItem.name|getItemRange }}</span>
-                <span class="d-none" id="r-staff-dmg">{{ rightItem.name|getStaffMagicDmg:value.id }}</span>
                 <span class="d-none" id="r-dualhanded">{{ rightItem.name|isDualHanded }}</span>
 
                 <div class="row c-gold me-0 pe-0">
