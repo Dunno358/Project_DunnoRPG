@@ -240,7 +240,7 @@ def sync_item_granted_skills(character):
     equipped_names = models.CharItems.objects.filter(
         owner=character.owner,
         character=character.name,
-    ).values_list("name", flat=True)
+    ).exclude(hand__in=BELT_ITEM_PLACES).values_list("name", flat=True)
     item_descs = models.Items.objects.filter(name__in=equipped_names).exclude(grantedSkills__isnull=True).exclude(grantedSkills="")
 
     for item_desc in item_descs:
@@ -2341,6 +2341,7 @@ def move_hand_item_to_side(request, char_id, item_id):
 
         item.hand = target_place
         item.save(update_fields=['hand'])
+        sync_item_granted_skills(char)
     return redirect('character_detail', char.id)
 
 
@@ -2387,6 +2388,7 @@ def swap_side_to_hand(request, **kwargs):
         to_swap.save(update_fields=['hand'])
     side_item.hand = hand
     side_item.save(update_fields=['hand'])
+    sync_item_granted_skills(char)
     return redirect('character_detail', char.id)
 
 
