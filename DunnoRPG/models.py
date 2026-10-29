@@ -333,6 +333,7 @@ class Requests(models.Model):
 class Cities(models.Model):
     city_name = models.CharField(max_length = 150)
     items = models.TextField()
+    allfree = models.BooleanField(default=False, verbose_name="Wszystkie przedmioty za darmo")
     healer = models.BooleanField(default=True, verbose_name="Uzdrowiciel")
     repair = models.BooleanField(default=True, verbose_name="Naprawa")
     magic_school = models.BooleanField(default=False)

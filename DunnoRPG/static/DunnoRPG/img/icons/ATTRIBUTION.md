@@ -58,3 +58,7 @@
 - `light-backpack.svg` - "Light backpack" by Delapouite, from Game-icons.net, licensed under CC BY 3.0.
   Source: https://game-icons.net/1x1/delapouite/light-backpack.html
   License: https://creativecommons.org/licenses/by/3.0/
+
+- `hazard-sign.svg` - "Hazard sign" by Lorc, from Game-icons.net, licensed under CC BY 3.0.
+  Source: https://game-icons.net/1x1/lorc/hazard-sign.html
+  License: https://creativecommons.org/licenses/by/3.0/
