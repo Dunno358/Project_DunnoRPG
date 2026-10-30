@@ -147,35 +147,40 @@
     }
 
     #city-item-iframe-card {
-        left: 1rem;
-        right: 1rem;
+        left: 0;
+        right: 0;
         top: 50%;
         transform: translateY(-50%);
-        width: auto;
+        display: flex;
+        flex-direction: column;
+        width: calc(100% - 1rem);
         max-width: 48rem;
+        max-height: calc(100vh - 1rem);
+        max-height: calc(100dvh - 1rem);
         margin: 0 auto;
         z-index: 6;
     }
 
-    #city-item-iframe-card > .row {
-        --bs-gutter-x: 0;
+    #city-item-iframe-card > .city-iframe-close {
+        flex: 0 0 auto;
+        width: 100%;
         margin: 0;
-    }
-
-    #city-item-iframe-card .col {
-        min-width: 0;
+        border-bottom-left-radius: 0;
+        border-bottom-right-radius: 0;
     }
 
     #city-item-iframe {
         display: block;
+        flex: 0 1 28rem;
+        width: 100%;
+        min-height: 0;
+        height: 28rem;
+        box-sizing: border-box;
     }
 
-    #city-item-iframe-card .city-iframe-body {
-        height: min(28rem, 70dvh);
-    }
-
-    #city-item-iframe-card.city-definition-preview .city-iframe-body {
-        height: min(18rem, 50dvh);
+    #city-item-iframe-card.city-definition-preview > #city-item-iframe {
+        flex-basis: 18rem;
+        height: 18rem;
     }
 
     @media (max-width: 576px) {
@@ -385,17 +390,8 @@
     </div>
     <div id="city-refresh-content">
     <div id='city-item-iframe-card' class="position-fixed p-0 d-none">
-        <div class="row">
-            <div class="col c-gold p-0">
-                <button class='btn btn-dark btn-outline-danger w-100' onclick="hideCityItemIframe()">X Zamknij podgląd X</button>
-            </div>
-        </div>
-
-        <div class="row city-iframe-body">
-            <div class="col c-gold text-start p-0">
-                <iframe src="" class="border border-warning w-100 h-100 bg-dark" id="city-item-iframe"></iframe>
-            </div>
-        </div>
+        <button type="button" class="city-iframe-close btn btn-dark btn-outline-danger" onclick="hideCityItemIframe()">X Zamknij podgląd X</button>
+        <iframe src="about:blank" class="border border-warning bg-dark" id="city-item-iframe" title="Podgląd przedmiotu lub umiejętności"></iframe>
     </div>
 
     <div class="row m-0 justify-content-center">
