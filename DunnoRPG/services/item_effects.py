@@ -27,6 +27,15 @@ def apply_item_use_effects(char, actions, cost, manage_food_and_water, sync_alco
     messages = []
 
     for single_action in actions:
+        if single_action in ("addAdvantage", "addDisadvantage"):
+            balance_change = 1 if single_action == "addAdvantage" else -1
+            char.advantageBalance += balance_change
+            messages.append(ItemEffectMessage(
+                "success",
+                f"Zmieniono bilans przewag o {balance_change:+d}, aktualny bilans: {char.advantageBalance}",
+            ))
+            continue
+
         if single_action == "heal-bandage":
             used_amount, removed_bleeding_count = heal_with_bandage(char)
             bleeding_message = ", usunieto Krwawienie" if removed_bleeding_count else ""
