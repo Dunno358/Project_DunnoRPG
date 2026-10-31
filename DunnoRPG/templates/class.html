@@ -6,12 +6,58 @@
 {% block content %}
 {% include 'top_bar.html' %}
 
+<style>
+    #class-section-overlay {
+        position: fixed;
+        inset: 0;
+        z-index: 1050;
+        background: rgba(0, 0, 0, 0.65);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 1rem;
+    }
+    #class-section-window {
+        width: 100%;
+        max-width: 48rem;
+        max-height: 85vh;
+        display: flex;
+        flex-direction: column;
+    }
+    #class-section-content {
+        overflow-y: auto;
+        min-height: 0;
+    }
+    #class-section-title {
+        text-align: center;
+        min-width: 0;
+        overflow-wrap: anywhere;
+    }
+    #iframe-card { z-index: 1060 !important; }
+    #info-card { z-index: 1070 !important; }
+    [onclick^="showSection"] { cursor: pointer; }
+</style>
+
+<div id="class-section-overlay" class="d-none">
+    <div id="class-section-window" class="bg-dark border border-warning rounded c-gold p-1"
+         role="dialog" aria-modal="true" aria-labelledby="class-section-title" tabindex="-1">
+        <div id="class-section-header" class="mb-2">
+            <div class="d-flex justify-content-end mb-2">
+                <button type="button" class="btn btn-danger" aria-label="Zamknij" onclick="closeSection()">X</button>
+            </div>
+            <h3 id="class-section-title" class="mb-0"></h3>
+        </div>
+        <hr>
+        <div id="class-section-content"></div>
+    </div>
+</div>
+
 <div class='container'>
 
     <div class='container mt-0'>
 
         <div id='iframe-card' class="container position-fixed m-0 p-0 pb-3 mt-0 d-none" 
-        style="width: 100%; z-index: 5; margin-left: -0.8rem !important;margin-top: -8rem !important">
+        style="width: 100%; z-index: 5; margin-left: -0.8rem !important;margin-top: -10rem !important">
     
             <div class="row">
                 <div class="col c-gold p-0">
@@ -83,6 +129,17 @@
         </div>
     {% endif %}
 
+    {% if class.counter and class.counter.strip %}
+    <div class="container bg-dark rounded p-2 border border-warning c-gold mt-1" onclick="showSection(this, 'class-resource')">
+        <div class="col text-center h3">Zasób: {{ class.counter }}</div>
+    </div>
+    <div class="row text-center mt-1 d-none" id="class-resource">
+        <div class="col bg-dark p-2 border border-warning rounded ms-3 me-3">
+            {% include "dunnorpg/class_resource_entries.html" %}
+        </div>
+    </div>
+    {% endif %}
+
     <div class="container bg-dark rounded p-2 border border-warning c-gold mt-1" onclick="showSection(this, 'special-abilities')">
         <div class="col text-center h3">
             Specjalne właściwości   
@@ -98,6 +155,8 @@
             </ul>
         </div>
     </div>
+
+
 
     <div class="container bg-dark rounded p-2 border border-warning c-gold mt-1" onclick="showSection(this, 'class-skills')">
         <div class="col text-center h3">
@@ -129,6 +188,7 @@
         </div>
     </div>
 
+    {% if class.mods %}
     <div class="container bg-dark rounded p-2 border border-warning c-gold mt-1" onclick="showSection(this, 'class-mods')">
         <div class="col text-center h3">
             Modyfikacje statystyk   
@@ -139,16 +199,13 @@
             <ul class="list-group">
                 {% for mod in class.mods %}
                     <li class="h5 list-group-item bg-dark c-gold"><span class="c-gold">
-                        {% if mod %}
-                            {{ mod }}
-                        {% else %}
-                            Brak
-                        {% endif %}
+                        {{ mod }}
                     </span></li>
                 {% endfor %}
             </ul>
         </div>
-    </div>    
+    </div>
+    {% endif %}
 
     <div class="row mt-4">
         <div class="col"></div>
@@ -189,23 +246,74 @@
         }
     }
 
-    function showSection(startElement, targetId){
-        let target = document.getElementById(targetId)
+    let activeSection = null
+    let sectionTrigger = null
+    let previousBodyOverflow = ''
 
-        if(startElement.classList.contains('border-warning')){
-            startElement.classList.remove("c-gold")
-            startElement.classList.remove("border-warning")
-            startElement.classList.add("text-primary")
-            startElement.classList.add("border-primary")
-            target.classList.remove("d-none")
-        }else{
-            startElement.classList.add("c-gold")
-            startElement.classList.add("border-warning")
-            startElement.classList.remove("text-primary")
-            startElement.classList.remove("border-primary")
-            target.classList.add("d-none")
-        }
+    function showSection(startElement, targetId){
+        if (activeSection) closeSection()
+        const target = document.getElementById(targetId)
+        sectionTrigger = startElement
+        activeSection = {element: target, parent: target.parentNode, next: target.nextSibling}
+        document.getElementById('class-section-title').textContent = startElement.textContent.trim()
+        document.getElementById('class-section-content').appendChild(target)
+        target.classList.remove('d-none')
+        document.getElementById('class-section-overlay').classList.remove('d-none')
+        previousBodyOverflow = document.body.style.overflow
+        document.body.style.overflow = 'hidden'
+        document.querySelector('#class-section-window button').focus()
     }
+
+    function closeSection(){
+        if (!activeSection) return
+        activeSection.element.classList.add('d-none')
+        activeSection.parent.insertBefore(activeSection.element, activeSection.next)
+        document.getElementById('class-section-overlay').classList.add('d-none')
+        document.body.style.overflow = previousBodyOverflow
+        activeSection = null
+        sectionTrigger.focus()
+    }
+
+    document.querySelectorAll('[onclick^="showSection"]').forEach(trigger => {
+        trigger.setAttribute('role', 'button')
+        trigger.setAttribute('tabindex', '0')
+        trigger.setAttribute('aria-haspopup', 'dialog')
+        trigger.addEventListener('keydown', event => {
+            if (event.key === 'Enter' || event.key === ' ') {
+                event.preventDefault()
+                trigger.click()
+            }
+        })
+    })
+
+    document.getElementById('class-section-overlay').addEventListener('click', event => {
+        if (event.target.id === 'class-section-overlay') closeSection()
+    })
+
+    document.addEventListener('keydown', event => {
+        if (!activeSection) return
+        const preview = document.getElementById('iframe-card')
+        const info = document.getElementById('info-card')
+        if (!info.classList.contains('d-none') || !preview.classList.contains('d-none')) {
+            if (event.key === 'Escape') {
+                (!info.classList.contains('d-none') ? info : preview).classList.add('d-none')
+            }
+            return
+        }
+        if (event.key === 'Escape') closeSection()
+        if (event.key === 'Tab') {
+            const focusable = document.getElementById('class-section-window').querySelectorAll('button, a[href], input, select, textarea, [tabindex="0"]')
+            const first = focusable[0]
+            const last = focusable[focusable.length - 1]
+            if (event.shiftKey && document.activeElement === first) {
+                event.preventDefault()
+                last.focus()
+            } else if (!event.shiftKey && document.activeElement === last) {
+                event.preventDefault()
+                first.focus()
+            }
+        }
+    })
 
     function showIframe(skill_src){
         if(skill_src!=''){

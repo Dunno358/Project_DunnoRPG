@@ -1,0 +1,19 @@
+{% load filters %}
+            <ul class="list-group">
+                {% for entry in class.gaining|resource_entries %}
+                    <li class="h5 list-group-item bg-dark text-success">
+                        {{ entry.description }}{% if entry.amount != None %}: +{{ entry.amount }}{% endif %}
+                    </li>
+                {% endfor %}
+                {% for entry in class.losing|resource_entries %}
+                    <li class="h5 list-group-item bg-dark text-danger">
+                        {{ entry.description }}{% if entry.amount != None %}: -{{ entry.amount }}{% endif %}
+                    </li>
+                {% endfor %}
+                {% if class.round_limit != None %}
+                    <li class="h5 list-group-item bg-dark text-primary">Limit na rundę: {{ class.round_limit }}</li>
+                {% endif %}
+                {% if class.max != None %}
+                    <li class="h5 list-group-item bg-dark" style="color: #b57aff;">Limit zasobu: {{ class.max }}</li>
+                {% endif %}
+            </ul>

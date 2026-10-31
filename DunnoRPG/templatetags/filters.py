@@ -14,6 +14,20 @@ import traceback
 register = template.Library()
 
 @register.filter
+def resource_entries(value):
+    entries = []
+    for entry in (value or '').split('|'):
+        entry = entry.strip()
+        if not entry:
+            continue
+        description, separator, amount = entry.rpartition('-')
+        if separator and description.strip() and amount.strip().isdigit():
+            entries.append({'description': description.strip(), 'amount': int(amount.strip())})
+        else:
+            entries.append({'description': entry, 'amount': None})
+    return entries
+
+@register.filter
 def as_percentage(value):
     try:
         percentage = float(value) * 100

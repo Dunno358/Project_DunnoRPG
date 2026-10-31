@@ -152,6 +152,11 @@ class Classes(models.Model):
     allowed_weapons = models.CharField(max_length=255,blank=True)
     forbidden_skills = models.TextField(blank=True)
     important = models.CharField(max_length=255,blank=True)
+    counter = models.CharField(max_length=100, blank=True, null=True)
+    gaining = models.TextField(blank=True, null=True)
+    losing = models.TextField(blank=True, null=True)
+    round_limit = models.IntegerField(blank=True, null=True, help_text="Maksymalna liczba punktów licznika zdobywanych na rundę.")
+    max = models.IntegerField(blank=True, null=True, help_text="Maksymalna wartość licznika.")
     def __str__(self):
         return self.name
 

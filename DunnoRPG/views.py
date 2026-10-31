@@ -3774,7 +3774,7 @@ class ClassView(DetailView):
                 except:
                     pass
 
-            chosen_class.mods = chosen_class.mods.split(";")
+            chosen_class.mods = [mod.strip() for mod in chosen_class.mods.split(";") if mod.strip()]
 
             class_skills = models.Skills_Decs.objects.filter(
                 restrictions__icontains=chosen_class.name
