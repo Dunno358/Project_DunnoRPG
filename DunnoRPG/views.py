@@ -3781,7 +3781,7 @@ class ClassView(DetailView):
             ).order_by('name')
 
             context['class'] = chosen_class
-            context['theme_list'] = chosen_class.positives.split(';')
+            context['theme_list'] = [theme.strip() for theme in (chosen_class.positives or '').split(';') if theme.strip()]
             context['class_skills'] = class_skills
 
             return context
