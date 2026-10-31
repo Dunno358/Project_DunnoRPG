@@ -35,7 +35,7 @@
     }
     #iframe-card { z-index: 1060 !important; }
     #info-card { z-index: 1070 !important; }
-    [onclick^="showSection"] { cursor: pointer; }
+    [onclick^="showSection"], [aria-controls] { cursor: pointer; }
 </style>
 
 <div id="class-section-overlay" class="d-none">
@@ -160,7 +160,7 @@
 
 
     {% endif %}
-    <div class="container bg-dark rounded p-2 border border-warning c-gold mt-1" onclick="showSection(this, 'class-skills')">
+    <div class="container bg-dark rounded p-2 border border-warning c-gold mt-1" onclick="show_or_hideById('class-skills')" aria-controls="class-skills" aria-expanded="false">
         <div class="col text-center h3">
             Dedykowane umiejętności   
         </div>
@@ -175,7 +175,7 @@
         </div>
     </div>
 
-    <div class="container bg-dark rounded p-2 border border-warning c-gold mt-1" onclick="showSection(this, 'free-skills')">
+    <div class="container bg-dark rounded p-2 border border-warning c-gold mt-1" onclick="show_or_hideById('free-skills')" aria-controls="free-skills" aria-expanded="false">
         <div class="col text-center h3">
             Darmowe umiejętności   
         </div>
@@ -246,6 +246,8 @@
         else{
             element.classList.add('d-none')
         }
+        const trigger = document.querySelector('[aria-controls="' + id + '"]')
+        if (trigger) trigger.setAttribute('aria-expanded', String(!element.classList.contains('d-none')))
     }
 
     let activeSection = null
@@ -276,10 +278,10 @@
         sectionTrigger.focus()
     }
 
-    document.querySelectorAll('[onclick^="showSection"]').forEach(trigger => {
+    document.querySelectorAll('[onclick^="showSection"], [aria-controls]').forEach(trigger => {
         trigger.setAttribute('role', 'button')
         trigger.setAttribute('tabindex', '0')
-        trigger.setAttribute('aria-haspopup', 'dialog')
+        if (!trigger.hasAttribute('aria-controls')) trigger.setAttribute('aria-haspopup', 'dialog')
         trigger.addEventListener('keydown', event => {
             if (event.key === 'Enter' || event.key === ' ') {
                 event.preventDefault()
