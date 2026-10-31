@@ -4604,7 +4604,8 @@ function show_result_at_window(action){
         mobility_mod = parseInt(document.getElementById('mobility-mod').innerHTML)
         full_zre = parseInt(zre+zre_mod)
         zre_move = Math.floor(full_zre/2)
-        full_move = Math.max(0, 4 + zre_move + mobility_mod)
+        const base_move = {% if chosen_character.0.chosen_class|lower == 'juggernaut' %}3{% else %}4{% endif %}
+        full_move = Math.max(0, base_move + zre_move + mobility_mod)
 
         showMovementAction(full_move, {% if mount %}{{ mount_mobility|default:0 }}{% else %}null{% endif %})
 
