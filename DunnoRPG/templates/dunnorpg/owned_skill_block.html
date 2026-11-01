@@ -1,14 +1,18 @@
 {% load filters %}
 
 <div class='w-100 bg-gray bg-gradient border border-warning rounded m-0 p-2 mt-2 mb-1'>
-    <div class="row m-0 p-0">
+    <div class="row m-0 p-0 align-items-center">
         <div class="col m-0 p-0 h5 text-center">
             <a class='c-gold fst-italic text-decoration-none' href='#' onclick="showIframe('/dunnorpg/skills/{{ skill.original_id }}'); return false;">
                 {{ skill.skill }}
             </a>
         </div>
+        <div class="col-auto m-0 p-0 ms-2">
+            <button type="button" class="btn btn-sm btn-primary text-light fw-bold" aria-expanded="true" aria-controls="skill-details-{{ skill.id }}" aria-label="Zwiń umiejętność" onclick="toggleSkillDetails(this)">-</button>
+        </div>
     </div>
 
+    <div id="skill-details-{{ skill.id }}">
     <hr class="border-warning m-0 mt-1 mb-1">
 
     <div class="row m-0 p-0 mt-1">
@@ -63,5 +67,6 @@
         {% if skill.ap %}
             <div class="col m-0 p-0 text-center border-start border-warning">AP: {{ skill.ap }}</div>
         {% endif %}
+    </div>
     </div>
 </div>

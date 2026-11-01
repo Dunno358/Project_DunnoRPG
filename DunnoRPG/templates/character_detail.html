@@ -2923,6 +2923,14 @@ function adjustCounter(counterField, delta){
     form.requestSubmit()
 }
 
+function toggleSkillDetails(button){
+    const details = document.getElementById(button.getAttribute('aria-controls'))
+    const collapsed = details.classList.toggle('d-none')
+    button.textContent = collapsed ? '+' : '-'
+    button.setAttribute('aria-expanded', String(!collapsed))
+    button.setAttribute('aria-label', collapsed ? 'Rozwiń umiejętność' : 'Zwiń umiejętność')
+}
+
 function showSkill(instance){
     if(instance.innerHTML == "Check skill"){
         instance.innerHTML = instance.title
