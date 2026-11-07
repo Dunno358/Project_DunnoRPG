@@ -30,6 +30,7 @@
         content: ' ▸';
     }
 
+    .city-search-hidden,
     .city-category-collapsed {
         display: none !important;
     }
@@ -100,13 +101,16 @@
 
     #city-select,
     #city-search,
-    #city-search:focus {
+    #city-search:focus,
+    #city-item-search,
+    #city-item-search:focus {
         color-scheme: dark;
         color: #ffc107;
         background-color: #212529;
     }
 
-    #city-search::placeholder {
+    #city-search::placeholder,
+    #city-item-search::placeholder {
         color: #adb5bd;
         opacity: 1;
     }
@@ -436,29 +440,38 @@
         <iframe src="about:blank" class="border border-warning bg-dark" id="city-item-iframe" title="Podgląd przedmiotu lub umiejętności"></iframe>
     </div>
 
-    <div class="row m-0 justify-content-center">
-        <div class="col-12 col-md-8 col-lg-6 p-0">
-            {% if request.user.is_superuser %}
-            <div class="px-2">
-                <input
-                    type="search"
-                    id="city-search"
-                    class="form-control bg-dark c-gold border border-warning text-center mb-1"
-                    placeholder="Szukaj miasta"
-                    oninput="filterCitySelect()">
-                <select
-                    id="city-select"
-                    data-current-city-id="{{ city.id }}"
-                    class="form-select bg-dark c-gold border border-warning text-center"
-                    onchange="changeVisitingCity(this)">
-                    {% for available_city in cities %}
-                        <option value="{{ available_city.id }}" data-city-name="{{ available_city.city_name }}" {% if available_city.id == city.id %}selected{% endif %}>
-                            {{ available_city.city_name }}
-                        </option>
-                    {% endfor %}
-                </select>
+    <div class="row m-0 justify-content-center mt-1">
+        <div class="col-12{% if request.user.is_superuser %} col-md-8 col-lg-6{% endif %} p-0">
+            <div class="row g-2 px-2">
+                <div class="{% if request.user.is_superuser %}col-6{% else %}col-12{% endif %}">
+                    <input type="search" id="city-item-search"
+                           class="form-control bg-dark c-gold border border-warning text-center"
+                           placeholder="Szukaj przedmiotu" aria-label="Szukaj przedmiotu"
+                           oninput="filterCityItems()">
+                </div>
+                {% if request.user.is_superuser %}
+                <div class="col-6">
+                    <input
+                        type="search"
+                        id="city-search"
+                        class="form-control bg-dark c-gold border border-warning text-center mb-1"
+                        placeholder="Szukaj miasta"
+                        oninput="filterCitySelect()">
+                    <select
+                        id="city-select"
+                        data-current-city-id="{{ city.id }}"
+                        class="form-select bg-dark c-gold border border-warning text-center"
+                        onchange="changeVisitingCity(this)">
+                        {% for available_city in cities %}
+                            <option value="{{ available_city.id }}" data-city-name="{{ available_city.city_name }}" {% if available_city.id == city.id %}selected{% endif %}>
+                                {{ available_city.city_name }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                {% endif %}
             </div>
-            {% endif %}
+            <p id="city-item-search-empty" class="text-warning text-center mt-2 d-none" role="status">Brak pasujących przedmiotów.</p>
         </div>
     </div>
 
@@ -510,7 +523,7 @@
         </div>
         <div id='smith-items' class='container text-center c-gold rounded border border-primary bg-dark d-none p-0 m-0' style="width: 100%;">
             {% for item in weaponry_singlehand %}
-                <div class='mt-2 row bg-gray rounded m-1 border border-primary'>
+                <div data-city-item-name="{{ item }}" class='mt-2 row bg-gray rounded m-1 border border-primary'>
 
                     <div class="col-9 border-end">
                         <div class="row-10" style="text-align: center;">
@@ -560,12 +573,12 @@
             {% if weaponry_twohand %}
                 <div class="row city-category-heading">
                     <div class="col"><hr></div>
-                    <div class="col-auto"><button type="button" class="city-category-toggle" aria-expanded="true" onclick="toggleCityCategory(this)">Dwuręczne</button></div>
+                    <div class="col-auto"><button type="button" class="city-category-toggle" aria-expanded="false" onclick="toggleCityCategory(this)">Dwuręczne</button></div>
                     <div class="col"><hr></div>
                 </div>
             {% endif %}
             {% for item in weaponry_twohand %}
-                <div class='mt-2 row bg-gray rounded m-1 border border-primary'>
+                <div data-city-item-name="{{ item }}" class='city-category-collapsed mt-2 row bg-gray rounded m-1 border border-primary'>
 
                     <div class="col-9 border-end">
                         <div class="row-10" style="text-align: center;">
@@ -625,11 +638,11 @@
             {% if group_items %}
                 <div class="row align-items-center city-category-heading">
                     <div class="col"><hr></div>
-                    <div class="col-auto"><button type="button" class="city-category-toggle" aria-expanded="true" onclick="toggleCityCategory(this)">{{ group_label }}</button></div>
+                    <div class="col-auto"><button type="button" class="city-category-toggle" aria-expanded="false" onclick="toggleCityCategory(this)">{{ group_label }}</button></div>
                     <div class="col"><hr></div>
                 </div>
             {% for item in group_items %}
-                <div class='mt-2 row bg-gray rounded m-1 border border-primary'>
+                <div data-city-item-name="{{ item }}" class='city-category-collapsed mt-2 row bg-gray rounded m-1 border border-primary'>
                     <div class="col-9 border-end">
                         <div class="row-10" style="text-align: center;">
                             <div class="col pt-1">
@@ -688,11 +701,11 @@
             {% if group_items %}
                 <div class="row align-items-center city-category-heading">
                     <div class="col"><hr></div>
-                    <div class="col-auto"><button type="button" class="city-category-toggle" aria-expanded="true" onclick="toggleCityCategory(this)">{{ group_label }}</button></div>
+                    <div class="col-auto"><button type="button" class="city-category-toggle" aria-expanded="false" onclick="toggleCityCategory(this)">{{ group_label }}</button></div>
                     <div class="col"><hr></div>
                 </div>
             {% for item in group_items %}
-                <div class='mt-2 row bg-gray rounded m-1 border border-primary'>
+                <div data-city-item-name="{{ item }}" class='city-category-collapsed mt-2 row bg-gray rounded m-1 border border-primary'>
                     <div class="col-9 border-end">
                         <div class="row-10" style="text-align: center;">
                             <div class="col pt-1">
@@ -748,7 +761,7 @@
         </div>
         <div id='music-merchant-items' class='container text-center c-gold rounded border border-primary bg-dark d-none p-0 m-0' style="width: 100%;">
             {% for item in musical_weaponry %}
-                <div class='mt-2 row bg-gray rounded m-1 border border-primary'>
+                <div data-city-item-name="{{ item }}" class='mt-2 row bg-gray rounded m-1 border border-primary'>
                     <div class="col-9 border-end">
                         <div class="row-10" style="text-align: center;">
                             <div class="col pt-1">
@@ -804,11 +817,11 @@
             {% if group_items %}
                 <div class="row align-items-center city-category-heading">
                     <div class="col"><hr></div>
-                    <div class="col-auto"><button type="button" class="city-category-toggle" aria-expanded="true" onclick="toggleCityCategory(this)">{{ group_label }}</button></div>
+                    <div class="col-auto"><button type="button" class="city-category-toggle" aria-expanded="false" onclick="toggleCityCategory(this)">{{ group_label }}</button></div>
                     <div class="col"><hr></div>
                 </div>
             {% for item in group_items %}
-                <div class='mt-2 row bg-gray rounded m-1 border border-primary'>
+                <div data-city-item-name="{{ item }}" class='city-category-collapsed mt-2 row bg-gray rounded m-1 border border-primary'>
 
                     <div class="col-9 border-end">
                         <div class="row-10" style="text-align: center;">
@@ -861,11 +874,11 @@
             {% if group_items %}
                 <div class="row align-items-center city-category-heading">
                     <div class="col"><hr></div>
-                    <div class="col-auto"><button type="button" class="city-category-toggle" aria-expanded="true" onclick="toggleCityCategory(this)">{{ group_label }}</button></div>
+                    <div class="col-auto"><button type="button" class="city-category-toggle" aria-expanded="false" onclick="toggleCityCategory(this)">{{ group_label }}</button></div>
                     <div class="col"><hr></div>
                 </div>
             {% for item in group_items %}
-                <div class='mt-2 row bg-gray rounded m-1 border border-primary'>
+                <div data-city-item-name="{{ item }}" class='city-category-collapsed mt-2 row bg-gray rounded m-1 border border-primary'>
 
                     <div class="col-9 border-end">
                         <div class="row-10" style="text-align: center;">
@@ -915,7 +928,7 @@
         </div>
         <div id='jeweler-items' class='container text-center c-gold rounded border border-primary bg-dark d-none p-0 m-0' style="width: 100%;">
             {% for item in armor_elegant %}
-                <div class='mt-2 row bg-gray rounded m-1 border border-primary'>
+                <div data-city-item-name="{{ item }}" class='mt-2 row bg-gray rounded m-1 border border-primary'>
 
                     <div class="col-9 border-end">
                         <div class="row-10" style="text-align: center;">
@@ -964,9 +977,9 @@
         <div id='tavern-items' class='container text-center c-gold rounded border border-primary bg-dark d-none p-0 m-0' style="width: 100%;">
             {% for group_label, group_items in tavern_groups %}
             {% if group_items %}
-            <h3 class="city-category-heading h6 text-center px-2 pt-2 mb-1 fw-bold"><button type="button" class="city-category-toggle" aria-expanded="true" onclick="toggleCityCategory(this)">{{ group_label }}</button></h3>
+            <h3 class="city-category-heading h6 text-center px-2 pt-2 mb-1 fw-bold"><button type="button" class="city-category-toggle" aria-expanded="false" onclick="toggleCityCategory(this)">{{ group_label }}</button></h3>
             {% for item in group_items %}
-                <div class='mt-2 row bg-gray rounded m-1 border border-primary'>
+                <div data-city-item-name="{{ item }}" class='city-category-collapsed mt-2 row bg-gray rounded m-1 border border-primary'>
 
                     <div class="col-9 border-end">
                         <div class="row-10" style="text-align: center;">
@@ -1006,7 +1019,7 @@
             <h3 class="h6 text-center px-2 pt-2 mb-1 fw-bold">Wynos</h3>
             {% endif %}
             {% for item in tavern_buy_items %}
-                <div class='mt-2 row bg-gray rounded m-1 border border-primary'>
+                <div data-city-item-name="{{ item }}" class='mt-2 row bg-gray rounded m-1 border border-primary'>
 
                     <div class="col-9 border-end">
                         <div class="row-10" style="text-align: center;">
@@ -1052,7 +1065,7 @@
         </div>
         <div id='potions' class='container text-center c-gold rounded border border-primary bg-dark d-none p-0 m-0' style="width: 100%;">
             {% for item in potions %}
-                <div class='mt-2 row bg-gray rounded m-1 border border-primary'>
+                <div data-city-item-name="{{ item }}" class='mt-2 row bg-gray rounded m-1 border border-primary'>
 
                     <div class="col-9 border-end">
                         <div class="row-10" style="text-align: center;">
@@ -1098,7 +1111,7 @@
         </div>
         <div id='hunter' class='container text-center c-gold rounded border border-primary bg-dark d-none p-0 m-0' style="width: 100%;">
             {% for item in trophies %}
-                <div class='mt-2 row bg-gray rounded m-1 border border-primary'>
+                <div data-city-item-name="{{ item }}" class='mt-2 row bg-gray rounded m-1 border border-primary'>
 
                     <div class="col-9 border-end">
                         <div class="row-10" style="text-align: center;">
@@ -1152,7 +1165,7 @@
         </div>
         <div id='merchant' class='container text-center c-gold rounded border border-primary bg-dark d-none p-0 m-0' style="width: 100%;">
             {% for item in other %}
-                <div class='mt-2 row bg-gray rounded m-1 border border-primary'>
+                <div data-city-item-name="{{ item }}" class='mt-2 row bg-gray rounded m-1 border border-primary'>
 
                     <div class="col-9 border-end">
                         <div class="row-10" style="text-align: center;">
@@ -1201,11 +1214,11 @@
             {% if group_items %}
                 <div class="row align-items-center city-category-heading">
                     <div class="col"><hr></div>
-                    <div class="col-auto"><button type="button" class="city-category-toggle" aria-expanded="true" onclick="toggleCityCategory(this)">{{ group_label }}</button></div>
+                    <div class="col-auto"><button type="button" class="city-category-toggle" aria-expanded="false" onclick="toggleCityCategory(this)">{{ group_label }}</button></div>
                     <div class="col"><hr></div>
                 </div>
             {% for item in group_items %}
-                <div class='mt-2 row bg-gray rounded m-1 border border-primary'>
+                <div data-city-item-name="{{ item }}" class='city-category-collapsed mt-2 row bg-gray rounded m-1 border border-primary'>
 
                     <div class="col-9 border-end">
                         <div class="row-10" style="text-align: center;">
@@ -1379,7 +1392,9 @@
             if(refreshedCharismaData){
                 document.getElementById('city-charisma-data').innerHTML = refreshedCharismaData.innerHTML
             }
+            const itemSearch = document.getElementById('city-item-search')?.value || ''
             currentContent.innerHTML = refreshedContent.innerHTML
+            document.getElementById('city-item-search').value = itemSearch
             document.getElementById('city-name').textContent = documentFromDatabase.getElementById('city-name').textContent
             changeBuyingCharacter()
             document.title = document.getElementById('city-name').textContent.trim() + " | DunnoRPG"
@@ -1405,6 +1420,68 @@
             const cityName = (option.dataset.cityName || option.textContent).toLowerCase()
             option.hidden = !cityName.includes(query)
         })
+    }
+
+    function filterCityItems(){
+        const query = (document.getElementById('city-item-search')?.value || '').trim().toLocaleLowerCase('pl')
+        const searching = Boolean(query)
+        document.querySelectorAll('[data-city-item-name]').forEach(row => {
+            const heading = row.querySelector('.col-9 > .row-10:first-child')
+            const searchText = (heading?.textContent || row.dataset.cityItemName).replace(/\s+/g, ' ').trim().toLocaleLowerCase('pl')
+            row.classList.toggle('city-search-hidden', searching && !searchText.includes(query))
+        })
+
+        document.querySelectorAll('#city-refresh-content [onclick^="showOrHideBlock("]').forEach(heading => {
+            const section = heading.nextElementSibling
+            const rows = Array.from(section.querySelectorAll('[data-city-item-name]'))
+            const hasMatches = rows.some(row => !row.classList.contains('city-search-hidden') && !row.classList.contains('d-none'))
+            heading.classList.toggle('city-search-hidden', searching && !hasMatches)
+            section.classList.toggle('city-search-hidden', searching && !hasMatches)
+            if(searching){
+                if(!('searchWasCollapsed' in section.dataset)){
+                    section.dataset.searchWasCollapsed = String(section.classList.contains('d-none'))
+                }
+                section.classList.remove('d-none')
+            } else if('searchWasCollapsed' in section.dataset){
+                section.classList.toggle('d-none', section.dataset.searchWasCollapsed === 'true')
+                delete section.dataset.searchWasCollapsed
+            }
+
+            section.querySelectorAll('.city-category-toggle').forEach(button => {
+                const category = button.closest('.city-category-heading')
+                let item = category.nextElementSibling
+                let categoryMatches = false
+                while(item && !item.matches('.city-category-heading, h3')){
+                    if(item.matches('[data-city-item-name]') && !item.classList.contains('city-search-hidden') && !item.classList.contains('d-none')){
+                        categoryMatches = true
+                    }
+                    item = item.nextElementSibling
+                }
+                category.classList.toggle('city-search-hidden', searching && !categoryMatches)
+                if(searching){
+                    if(!('searchWasExpanded' in button.dataset)){
+                        button.dataset.searchWasExpanded = button.getAttribute('aria-expanded')
+                    }
+                    if(button.getAttribute('aria-expanded') !== String(categoryMatches)) toggleCityCategory(button)
+                } else if('searchWasExpanded' in button.dataset){
+                    if(button.getAttribute('aria-expanded') !== button.dataset.searchWasExpanded) toggleCityCategory(button)
+                    delete button.dataset.searchWasExpanded
+                }
+            })
+            section.querySelectorAll('h3:not(.city-category-heading)').forEach(label => {
+                // The takeaway heading is followed by item rows without a collapsible category.
+                let item = label.nextElementSibling
+                let hasVisibleItems = false
+                while(item && item.matches('[data-city-item-name]')){
+                    if(!item.classList.contains('city-search-hidden') && !item.classList.contains('d-none')) hasVisibleItems = true
+                    item = item.nextElementSibling
+                }
+                label.classList.toggle('city-search-hidden', searching && !hasVisibleItems)
+            })
+        })
+        const hasResults = Array.from(document.querySelectorAll('[data-city-item-name]'))
+            .some(row => !row.classList.contains('city-search-hidden') && !row.classList.contains('d-none'))
+        document.getElementById('city-item-search-empty')?.classList.toggle('d-none', !searching || hasResults)
     }
 
     async function changeVisitingCity(select){
@@ -1476,7 +1553,7 @@
         const collapsed = button.getAttribute('aria-expanded') === 'true'
         button.setAttribute('aria-expanded', String(!collapsed))
         let item = button.closest('.city-category-heading').nextElementSibling
-        while(item && !item.classList.contains('city-category-heading')){
+        while(item && !item.matches('.city-category-heading, h3')){
             item.classList.toggle('city-category-collapsed', collapsed)
             item = item.nextElementSibling
         }
@@ -1501,6 +1578,7 @@
                 getCityPurchasePrice(Number(button.dataset.unitPrice), character) > Number(character.dataset.coins))
             row.classList.toggle('d-none', tooHeavy || tooExpensive)
         })
+        filterCityItems()
     }
 
     function changeBuyingCharacter(){
