@@ -4446,6 +4446,7 @@ class CityShopItem(str):
         obj.show_city_capacity = should_show_city_capacity(item)
         obj.armor_weight_label = get_city_armor_weight_label(item)
         obj.armor_weight_rank = get_city_armor_weight_order(item)
+        obj.has_class_armor_limit = (item.type or "").strip().lower() in ARMOR_WEIGHT_LIMITED_POSITIONS
         obj.item_stat = get_city_item_stat(item)
         obj.item_range = item_effective_range(item) if is_weapon_item(item) else None
 

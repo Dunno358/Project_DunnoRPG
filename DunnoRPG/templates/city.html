@@ -359,6 +359,16 @@
 
 
     <meta name="csrf-token" content="{{ csrf_token }}">
+    <h1 class='c-gold text-center fst-italic mb-1' style='-webkit-text-stroke: 0.5px blue; font-size:300%;' id='city-name'>
+        {{ city.city_name }}
+    </h1>
+    <div class="px-2 mb-2 c-gold">
+        <label for="city-available-items-only" class="d-flex align-items-center justify-content-center gap-2">
+            Pancerz tylko przystosowany do postaci
+            <input type="checkbox" id="city-available-items-only" class="form-check-input m-0"
+                   onchange="updateArmorWeightWarnings()">
+        </label>
+    </div>
     <div id="city-buy-controls" class="row m-0 px-2 align-items-center gap-2">
         <div class="col p-0">
             <select class="text-center form-select form-select-sm bg-dark c-gold border border-warning"
@@ -396,9 +406,6 @@
 
     <div class="row m-0 justify-content-center">
         <div class="col-12 col-md-8 col-lg-6 p-0">
-            <h1 class='c-gold text-center fst-italic mb-1' style='-webkit-text-stroke: 0.5px blue; font-size:300%;' id='city-name'>
-                {{ city.city_name }}
-            </h1>
             {% if request.user.is_superuser %}
             <div class="px-2">
                 <input
@@ -788,7 +795,7 @@
                     </div>
 
                     <div class="col-3 p-0">
-                        <div data-armor-weight-rank="{% if item.armor_weight_rank < 999 and item.item_category != 'bag' %}{{ item.armor_weight_rank }}{% endif %}" class="city-item-category row-3 border-bottom pt-1 pb-1 h6 mb-0 {{ item|getItemRarity }}">{{ item|getArmorWeightType }}<span class="city-hazard-icon" role="img" aria-label="Pancerz przekracza limit klasy postaci" title="Pancerz przekracza limit klasy postaci" hidden></span></div>
+                        <div data-armor-weight-rank="{% if item.has_class_armor_limit and item.armor_weight_rank < 999 and item.item_category != 'bag' %}{{ item.armor_weight_rank }}{% endif %}" class="city-item-category row-3 border-bottom pt-1 pb-1 h6 mb-0 {{ item|getItemRarity }}">{{ item|getArmorWeightType }}<span class="city-hazard-icon" role="img" aria-label="Pancerz przekracza limit klasy postaci" title="Pancerz przekracza limit klasy postaci" hidden></span></div>
                         <div class="row-3 border-bottom pt-1 pb-1 h6 mb-0"><span class="city-unit-price">{{ city_prices|dict_get:item }}</span>&nbsp;<i class="fa-solid fa-coins" role="img" aria-label="monety"></i></div>
                         <div class="row-3 border-bottom pt-1 pb-1">
                             <div class="col"><span class="h6 city-armor-stat"><span class="city-armor-icon" role="img" aria-label="Pancerz" title="Pancerz"></span>{{ city_armors|dict_get:item }}</span></div>
@@ -845,7 +852,7 @@
                     </div>
 
                     <div class="col-3 p-0">
-                        <div data-armor-weight-rank="{% if item.armor_weight_rank < 999 and item.item_category != 'bag' %}{{ item.armor_weight_rank }}{% endif %}" class="city-item-category row-3 border-bottom pt-1 pb-1 h6 mb-0 {{ item|getItemRarity }}">{% if city_categories|dict_get:item == 'bag' %}Torba{% else %}{{ item|getArmorWeightType }}{% endif %}<span class="city-hazard-icon" role="img" aria-label="Pancerz przekracza limit klasy postaci" title="Pancerz przekracza limit klasy postaci" hidden></span></div>
+                        <div data-armor-weight-rank="{% if item.has_class_armor_limit and item.armor_weight_rank < 999 and item.item_category != 'bag' %}{{ item.armor_weight_rank }}{% endif %}" class="city-item-category row-3 border-bottom pt-1 pb-1 h6 mb-0 {{ item|getItemRarity }}">{% if city_categories|dict_get:item == 'bag' %}Torba{% else %}{{ item|getArmorWeightType }}{% endif %}<span class="city-hazard-icon" role="img" aria-label="Pancerz przekracza limit klasy postaci" title="Pancerz przekracza limit klasy postaci" hidden></span></div>
                         <div class="row-3 border-bottom pt-1 pb-1 h6 mb-0"><span class="city-unit-price">{{ city_prices|dict_get:item }}</span>&nbsp;<i class="fa-solid fa-coins" role="img" aria-label="monety"></i></div>
                         <div class="row-3 border-bottom pt-1 pb-1">
                             <div class="col"><span class="h6">{% if item.show_city_capacity %}<span class="city-weight-stat"><span class="city-weight-icon" role="img" aria-label="Udźwig" title="Udźwig"></span>+{{ item.extra_capacity }}kg</span>{% else %}<span class="city-armor-stat"><span class="city-armor-icon" role="img" aria-label="Pancerz" title="Pancerz"></span>{{ city_armors|dict_get:item }}</span>{% endif %}</span></div>
@@ -895,7 +902,7 @@
                     </div>
 
                     <div class="col-3 p-0">
-                        <div data-armor-weight-rank="{% if item.armor_weight_rank < 999 and item.item_category != 'bag' %}{{ item.armor_weight_rank }}{% endif %}" class="city-item-category row-3 border-bottom pt-1 pb-1 h6 mb-0 {{ item|getItemRarity }}">{{ item|getArmorWeightType }}<span class="city-hazard-icon" role="img" aria-label="Pancerz przekracza limit klasy postaci" title="Pancerz przekracza limit klasy postaci" hidden></span></div>
+                        <div data-armor-weight-rank="{% if item.has_class_armor_limit and item.armor_weight_rank < 999 and item.item_category != 'bag' %}{{ item.armor_weight_rank }}{% endif %}" class="city-item-category row-3 border-bottom pt-1 pb-1 h6 mb-0 {{ item|getItemRarity }}">{{ item|getArmorWeightType }}<span class="city-hazard-icon" role="img" aria-label="Pancerz przekracza limit klasy postaci" title="Pancerz przekracza limit klasy postaci" hidden></span></div>
                         <div class="row-3 border-bottom pt-1 pb-1 h6 mb-0"><span class="city-unit-price">{{ city_prices|dict_get:item }}</span>&nbsp;<i class="fa-solid fa-coins" role="img" aria-label="monety"></i></div>
                         <div class="row-3 border-bottom pt-1 pb-1">
                             <div class="col"><span class="h6 city-armor-stat"><span class="city-armor-icon" role="img" aria-label="Pancerz" title="Pancerz"></span>{{ city_armors|dict_get:item }}</span></div>
@@ -1079,7 +1086,7 @@
 
                     <div class="col-3 p-0">
                         {% if item.is_city_equipment %}
-                        <div data-armor-weight-rank="{% if item.armor_weight_rank < 999 and item.item_category != 'bag' %}{{ item.armor_weight_rank }}{% endif %}" class="city-item-category row-3 border-bottom pt-1 pb-1 h6 mb-0 {{ item|getItemRarity }}">{{ item|getArmorWeightType }}<span class="city-hazard-icon" role="img" aria-label="Pancerz przekracza limit klasy postaci" title="Pancerz przekracza limit klasy postaci" hidden></span></div>
+                        <div data-armor-weight-rank="{% if item.has_class_armor_limit and item.armor_weight_rank < 999 and item.item_category != 'bag' %}{{ item.armor_weight_rank }}{% endif %}" class="city-item-category row-3 border-bottom pt-1 pb-1 h6 mb-0 {{ item|getItemRarity }}">{{ item|getArmorWeightType }}<span class="city-hazard-icon" role="img" aria-label="Pancerz przekracza limit klasy postaci" title="Pancerz przekracza limit klasy postaci" hidden></span></div>
                         {% endif %}
                         <div class="row-3 border-bottom pt-1 pb-1 h6 mb-0"><span class="city-unit-price">{{ city_prices|dict_get:item }}</span>&nbsp;<i class="fa-solid fa-coins" role="img" aria-label="monety"></i></div>
                         <div class="row-3 border-bottom pt-1 pb-1">
@@ -1341,6 +1348,7 @@
                 document.getElementById('city-charisma-data').innerHTML = refreshedCharismaData.innerHTML
             }
             currentContent.innerHTML = refreshedContent.innerHTML
+            document.getElementById('city-name').textContent = documentFromDatabase.getElementById('city-name').textContent
             changeBuyingCharacter()
             document.title = document.getElementById('city-name').textContent.trim() + " | DunnoRPG"
             filterCitySelect()
@@ -1435,11 +1443,13 @@
     function updateArmorWeightWarnings(){
         const character = document.getElementById('choosing_char_select')?.selectedOptions[0]
         const maxRank = Number(character?.dataset.armorWeightRank || 999)
+        const filterEnabled = document.getElementById('city-available-items-only')?.checked
         document.querySelectorAll('.city-item-category[data-armor-weight-rank]').forEach(category => {
             const tooHeavy = Boolean(character && category.dataset.armorWeightRank && Number(category.dataset.armorWeightRank) > maxRank)
             category.classList.toggle('city-armor-too-heavy', tooHeavy)
             const icon = category.querySelector('.city-hazard-icon')
             if(icon) icon.hidden = !tooHeavy
+            category.closest('.row.bg-gray')?.classList.toggle('d-none', Boolean(filterEnabled && tooHeavy))
         })
     }
 
