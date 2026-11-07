@@ -7,6 +7,28 @@
         font-size: 90%;
     }
 
+    .city-category-toggle {
+        color: inherit;
+        font: inherit;
+        font-weight: bold;
+        background: transparent;
+        border: 0;
+        padding: 0.35rem;
+        cursor: pointer;
+    }
+
+    .city-category-toggle::after {
+        content: ' ▾';
+    }
+
+    .city-category-toggle[aria-expanded="false"]::after {
+        content: ' ▸';
+    }
+
+    .city-category-collapsed {
+        display: none !important;
+    }
+
     .city-armor-stat,
     .city-weight-stat,
     .city-range-stat {
@@ -526,9 +548,9 @@
                 </div>
             {% endfor %}
             {% if weaponry_twohand %}
-                <div class="row">
+                <div class="row city-category-heading">
                     <div class="col"><hr></div>
-                    <div class="col-3"><b>Dwuręczne</b></div>
+                    <div class="col-auto"><button type="button" class="city-category-toggle" aria-expanded="true" onclick="toggleCityCategory(this)">Dwuręczne</button></div>
                     <div class="col"><hr></div>
                 </div>
             {% endif %}
@@ -591,9 +613,9 @@
         <div id='bowyer-items' class='container text-center c-gold rounded border border-primary bg-dark d-none p-0 m-0' style="width: 100%;">
             {% for group_label, group_items in ranged_weapon_groups %}
             {% if group_items %}
-                <div class="row align-items-center">
+                <div class="row align-items-center city-category-heading">
                     <div class="col"><hr></div>
-                    <div class="col-auto"><b>{{ group_label }}</b></div>
+                    <div class="col-auto"><button type="button" class="city-category-toggle" aria-expanded="true" onclick="toggleCityCategory(this)">{{ group_label }}</button></div>
                     <div class="col"><hr></div>
                 </div>
             {% for item in group_items %}
@@ -654,9 +676,9 @@
         <div id='gunsmith-items' class='container text-center c-gold rounded border border-primary bg-dark d-none p-0 m-0' style="width: 100%;">
             {% for group_label, group_items in gunpowder_weapon_groups %}
             {% if group_items %}
-                <div class="row align-items-center">
+                <div class="row align-items-center city-category-heading">
                     <div class="col"><hr></div>
-                    <div class="col-auto"><b>{{ group_label }}</b></div>
+                    <div class="col-auto"><button type="button" class="city-category-toggle" aria-expanded="true" onclick="toggleCityCategory(this)">{{ group_label }}</button></div>
                     <div class="col"><hr></div>
                 </div>
             {% for item in group_items %}
@@ -770,9 +792,9 @@
         <div id='armorer-items' class='container text-center c-gold rounded border border-primary bg-dark d-none p-0 m-0' style="width: 100%;">
             {% for group_label, group_items in armor_groups %}
             {% if group_items %}
-                <div class="row align-items-center">
+                <div class="row align-items-center city-category-heading">
                     <div class="col"><hr></div>
-                    <div class="col-auto"><b>{{ group_label }}</b></div>
+                    <div class="col-auto"><button type="button" class="city-category-toggle" aria-expanded="true" onclick="toggleCityCategory(this)">{{ group_label }}</button></div>
                     <div class="col"><hr></div>
                 </div>
             {% for item in group_items %}
@@ -827,9 +849,9 @@
         <div id='tailor-items' class='container text-center c-gold rounded border border-primary bg-dark d-none p-0 m-0' style="width: 100%;">
             {% for group_label, group_items in tailor_groups %}
             {% if group_items %}
-                <div class="row align-items-center">
+                <div class="row align-items-center city-category-heading">
                     <div class="col"><hr></div>
-                    <div class="col-auto"><b>{{ group_label }}</b></div>
+                    <div class="col-auto"><button type="button" class="city-category-toggle" aria-expanded="true" onclick="toggleCityCategory(this)">{{ group_label }}</button></div>
                     <div class="col"><hr></div>
                 </div>
             {% for item in group_items %}
@@ -932,7 +954,7 @@
         <div id='tavern-items' class='container text-center c-gold rounded border border-primary bg-dark d-none p-0 m-0' style="width: 100%;">
             {% for group_label, group_items in tavern_groups %}
             {% if group_items %}
-            <h3 class="h6 text-center px-2 pt-2 mb-1 fw-bold">{{ group_label }}</h3>
+            <h3 class="city-category-heading h6 text-center px-2 pt-2 mb-1 fw-bold"><button type="button" class="city-category-toggle" aria-expanded="true" onclick="toggleCityCategory(this)">{{ group_label }}</button></h3>
             {% for item in group_items %}
                 <div class='mt-2 row bg-gray rounded m-1 border border-primary'>
 
@@ -1167,9 +1189,9 @@
         <div id='animals' class='container text-center c-gold rounded border border-primary bg-dark d-none p-0 m-0' style="width: 100%;">
             {% for group_label, group_items in animal_groups %}
             {% if group_items %}
-                <div class="row align-items-center">
+                <div class="row align-items-center city-category-heading">
                     <div class="col"><hr></div>
-                    <div class="col-auto"><b>{{ group_label }}</b></div>
+                    <div class="col-auto"><button type="button" class="city-category-toggle" aria-expanded="true" onclick="toggleCityCategory(this)">{{ group_label }}</button></div>
                     <div class="col"><hr></div>
                 </div>
             {% for item in group_items %}
@@ -1438,6 +1460,16 @@
                 select.value = selectedCharacterId
             }
         } catch(error) {}
+    }
+
+    function toggleCityCategory(button){
+        const collapsed = button.getAttribute('aria-expanded') === 'true'
+        button.setAttribute('aria-expanded', String(!collapsed))
+        let item = button.closest('.city-category-heading').nextElementSibling
+        while(item && !item.classList.contains('city-category-heading')){
+            item.classList.toggle('city-category-collapsed', collapsed)
+            item = item.nextElementSibling
+        }
     }
 
     function updateArmorWeightWarnings(){
