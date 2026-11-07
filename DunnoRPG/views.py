@@ -4424,6 +4424,18 @@ def get_city_weapon_groups(items):
         ("Amunicja", ammunition),
     ]
 
+def get_city_nested_weapon_groups(items):
+    groups = []
+    for label, group_items in get_city_weapon_groups(items):
+        types = {}
+        for item in group_items:
+            item_type = (item.item_type or "").strip().lower()
+            if item_type == "amunicja" and item.ammo_type in {"bolt", "arrow"}:
+                item_type = item.ammo_type
+            types.setdefault(item_type, []).append(item)
+        groups.append((label, sorted(types.items())))
+    return groups
+
 CITY_TAVERN_BUY_CATEGORIES = {"alkohol", "jedzenie"}
 
 class CityShopItem(str):
@@ -4434,6 +4446,7 @@ class CityShopItem(str):
         obj.sale_index = sale_index
         obj.item_id = item.id
         obj.item_type = item.type
+        obj.ammo_type = (item.ammo_type or "").strip().lower()
         obj.item_category = (item.category or "").strip().lower()
         obj.is_city_equipment = (item.type or "").strip().lower() in {
             "helmet", "torso", "gloves", "boots", "akcesoria", "amulet",
@@ -4629,6 +4642,8 @@ class CityView(ListView):
 
             context['weaponry_singlehand'] = weaponry_singlehand
             context['weaponry_twohand'] = weaponry_twohand
+            context['smith_weapon_type_groups'] = get_city_nested_weapon_groups(weaponry_singlehand + weaponry_twohand)
+            context['ranged_weapon_type_groups'] = get_city_nested_weapon_groups(ranged_weaponry)
             context['ranged_weaponry'] = ranged_weaponry
             context['gunpowder_weaponry'] = gunpowder_weaponry
             context['ranged_weapon_groups'] = get_city_weapon_groups(ranged_weaponry)

@@ -258,6 +258,7 @@ ITEM_TYPE_TRANSLATIONS_PL = {
     "mount armor": "Pancerz wierzchowca",
     "musket": "Muszkiet",
     "other": "Inne",
+    "pickaxe": "Kilof",
     "pistol": "Pistolet",
     "saber": "Szabla",
     "shield": "Tarcza",

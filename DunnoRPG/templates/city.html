@@ -5,7 +5,11 @@
 <style>
     .city-shop-filters {
         color: #f8f9fa;
-        text-shadow: 0 1px 2px #000;
+    }
+
+    #city-name,
+    .city-shop-filters {
+        text-shadow: 0 2px 2px #000;
     }
 
     .city-item-skill {
@@ -20,6 +24,11 @@
         border: 0;
         padding: 0.35rem;
         cursor: pointer;
+    }
+
+    .city-category-toggle[aria-expanded="true"],
+    .city-category-heading:has(.city-category-toggle[aria-expanded="true"]) hr {
+        color: var(--bs-primary, #0d6efd);
     }
 
     .city-category-toggle::after {
@@ -122,10 +131,10 @@
 
     #char-to-buy,
     #char-to-order {
-        left: 50%;
+        left: 50vw;
         top: 50%;
         transform: translate(-50%, -50%);
-        width: calc(100% - 1rem);
+        width: 99vw;
         max-width: 36rem;
         max-height: calc(100vh - 1rem);
         max-height: calc(100dvh - 1rem);
@@ -216,27 +225,27 @@
 
     @media (max-width: 576px) {
 
-        :is(#smith-items, #bowyer-items, #gunsmith-items, #music-merchant-items, #armorer-items, #tailor-items, #jeweler-items, #tavern-items, #potions, #hunter, #merchant, #animals) > .row.bg-gray {
+        :is(#smith-items, #bowyer-items, #gunsmith-items, #music-merchant-items, #armorer-items, #tailor-items, #jeweler-items, #tavern-items, #potions, #hunter, #merchant, #animals) .row.bg-gray {
             display: grid;
             grid-template-columns: minmax(0, 0.85fr) minmax(0, 0.85fr) minmax(0, 1.3fr);
             overflow: hidden;
         }
 
-        :is(#smith-items, #bowyer-items, #gunsmith-items, #music-merchant-items, #armorer-items, #tailor-items, #jeweler-items, #tavern-items, #potions, #hunter, #merchant, #animals) > .row.bg-gray > :is(.col-9, .col-3) {
+        :is(#smith-items, #bowyer-items, #gunsmith-items, #music-merchant-items, #armorer-items, #tailor-items, #jeweler-items, #tavern-items, #potions, #hunter, #merchant, #animals) .row.bg-gray > :is(.col-9, .col-3) {
             display: contents;
         }
 
-        :is(#smith-items, #bowyer-items, #gunsmith-items, #music-merchant-items, #armorer-items, #tailor-items, #jeweler-items, #tavern-items, #potions, #hunter, #merchant, #animals) > .row.bg-gray > .col-9 > .row-10 {
+        :is(#smith-items, #bowyer-items, #gunsmith-items, #music-merchant-items, #armorer-items, #tailor-items, #jeweler-items, #tavern-items, #potions, #hunter, #merchant, #animals) .row.bg-gray > .col-9 > .row-10 {
             grid-column: 1 / -1;
             min-width: 0;
             overflow-wrap: anywhere;
         }
 
-        :is(#smith-items, #bowyer-items, #gunsmith-items, #music-merchant-items, #armorer-items, #tailor-items, #jeweler-items, #tavern-items, #potions, #hunter, #merchant, #animals) > .row.bg-gray > .col-9 > .row-10:last-child {
+        :is(#smith-items, #bowyer-items, #gunsmith-items, #music-merchant-items, #armorer-items, #tailor-items, #jeweler-items, #tavern-items, #potions, #hunter, #merchant, #animals) .row.bg-gray > .col-9 > .row-10:last-child {
             border-bottom: 1px solid currentColor;
         }
 
-        :is(#smith-items, #bowyer-items, #gunsmith-items, #music-merchant-items, #armorer-items, #tailor-items, #jeweler-items, #tavern-items, #potions, #hunter, #merchant, #animals) > .row.bg-gray > .col-3 > div {
+        :is(#smith-items, #bowyer-items, #gunsmith-items, #music-merchant-items, #armorer-items, #tailor-items, #jeweler-items, #tavern-items, #potions, #hunter, #merchant, #animals) .row.bg-gray > .col-3 > div {
             order: 2;
             min-width: 0;
             min-height: 2.6rem;
@@ -252,123 +261,123 @@
             margin: 0 !important;
         }
 
-        :is(#smith-items, #bowyer-items, #gunsmith-items, #music-merchant-items, #armorer-items, #tailor-items, #jeweler-items, #tavern-items, #potions, #hunter, #merchant, #animals) > .row.bg-gray > .col-3 > div:nth-last-child(2):not(:first-child) {
+        :is(#smith-items, #bowyer-items, #gunsmith-items, #music-merchant-items, #armorer-items, #tailor-items, #jeweler-items, #tavern-items, #potions, #hunter, #merchant, #animals) .row.bg-gray > .col-3 > div:nth-last-child(2):not(:first-child) {
             order: 1;
             grid-column: 1;
         }
 
-        :is(#smith-items, #bowyer-items, #gunsmith-items, #music-merchant-items, #armorer-items, #tailor-items, #jeweler-items, #tavern-items, #potions, #hunter, #merchant, #animals) > .row.bg-gray > .col-3 > div:nth-last-child(4) {
+        :is(#smith-items, #bowyer-items, #gunsmith-items, #music-merchant-items, #armorer-items, #tailor-items, #jeweler-items, #tavern-items, #potions, #hunter, #merchant, #animals) .row.bg-gray > .col-3 > div:nth-last-child(4) {
             grid-column: 2;
         }
 
-        :is(#smith-items, #bowyer-items, #gunsmith-items, #music-merchant-items, #armorer-items, #tailor-items, #jeweler-items, #tavern-items, #potions, #hunter, #merchant, #animals) > .row.bg-gray > .col-3 > div:nth-last-child(3) {
+        :is(#smith-items, #bowyer-items, #gunsmith-items, #music-merchant-items, #armorer-items, #tailor-items, #jeweler-items, #tavern-items, #potions, #hunter, #merchant, #animals) .row.bg-gray > .col-3 > div:nth-last-child(3) {
             order: 3;
             grid-column: 3;
             border-right: 0;
         }
 
-        :is(#smith-items, #bowyer-items, #gunsmith-items, #music-merchant-items) > .row.bg-gray {
+        :is(#smith-items, #bowyer-items, #gunsmith-items, #music-merchant-items) .row.bg-gray {
             grid-template-columns: minmax(0, 1.3fr) minmax(0, 0.85fr) minmax(0, 0.85fr);
         }
 
-        :is(#smith-items, #bowyer-items, #gunsmith-items, #music-merchant-items) > .row.bg-gray > .col-3 > div:nth-last-child(3) {
+        :is(#smith-items, #bowyer-items, #gunsmith-items, #music-merchant-items) .row.bg-gray > .col-3 > div:nth-last-child(3) {
             order: 1;
             grid-column: 1;
             border-right: 1px solid currentColor;
         }
 
-        :is(#smith-items, #bowyer-items, #gunsmith-items, #music-merchant-items) > .row.bg-gray > .col-3 > div:nth-last-child(2):not(:first-child) {
+        :is(#smith-items, #bowyer-items, #gunsmith-items, #music-merchant-items) .row.bg-gray > .col-3 > div:nth-last-child(2):not(:first-child) {
             order: 3;
             grid-column: 3;
             border-right: 0;
         }
 
-        :is(#smith-items, #bowyer-items, #gunsmith-items, #music-merchant-items) > .row.bg-gray:has(.city-weapon-range, .city-weapon-ap) {
+        :is(#smith-items, #bowyer-items, #gunsmith-items, #music-merchant-items) .row.bg-gray:has(.city-weapon-range, .city-weapon-ap) {
             grid-template-columns: minmax(0, 1.2fr) minmax(2.5rem, 0.5fr) minmax(0, 0.85fr) minmax(0, 0.85fr);
         }
 
-        :is(#smith-items, #bowyer-items, #gunsmith-items, #music-merchant-items) > .row.bg-gray:has(.city-weapon-range, .city-weapon-ap) > .col-3 > div:first-child {
+        :is(#smith-items, #bowyer-items, #gunsmith-items, #music-merchant-items) .row.bg-gray:has(.city-weapon-range, .city-weapon-ap) > .col-3 > div:first-child {
             order: 3;
             grid-column: 3;
             grid-row: 3;
         }
 
-        :is(#smith-items, #bowyer-items, #gunsmith-items, #music-merchant-items) > .row.bg-gray > .col-3 > div.city-weapon-damage {
+        :is(#smith-items, #bowyer-items, #gunsmith-items, #music-merchant-items) .row.bg-gray > .col-3 > div.city-weapon-damage {
             order: 1;
             grid-column: 1;
             border-right: 1px solid currentColor;
         }
 
-        :is(#smith-items, #bowyer-items, #gunsmith-items, #music-merchant-items) > .row.bg-gray > .col-3 > div:is(.city-weapon-range, .city-weapon-ap) {
+        :is(#smith-items, #bowyer-items, #gunsmith-items, #music-merchant-items) .row.bg-gray > .col-3 > div:is(.city-weapon-range, .city-weapon-ap) {
             order: 2;
             grid-column: 2;
             grid-row: 3;
             border-right: 1px solid currentColor;
         }
 
-        :is(#smith-items, #bowyer-items, #gunsmith-items, #music-merchant-items) > .row.bg-gray:has(.city-weapon-range, .city-weapon-ap) > .col-3 > div.city-weapon-damage {
+        :is(#smith-items, #bowyer-items, #gunsmith-items, #music-merchant-items) .row.bg-gray:has(.city-weapon-range, .city-weapon-ap) > .col-3 > div.city-weapon-damage {
             grid-row: 3;
         }
 
-        :is(#smith-items, #bowyer-items, #gunsmith-items, #music-merchant-items) > .row.bg-gray:has(.city-weapon-range, .city-weapon-ap) > .col-3 > div:nth-last-child(2) {
+        :is(#smith-items, #bowyer-items, #gunsmith-items, #music-merchant-items) .row.bg-gray:has(.city-weapon-range, .city-weapon-ap) > .col-3 > div:nth-last-child(2) {
             order: 4;
             grid-column: 4;
             grid-row: 3;
             border-right: 0;
         }
 
-        :is(#smith-items, #bowyer-items, #gunsmith-items, #music-merchant-items) > .row.bg-gray:has(.city-weapon-ap) {
+        :is(#smith-items, #bowyer-items, #gunsmith-items, #music-merchant-items) .row.bg-gray:has(.city-weapon-ap) {
             grid-template-columns: minmax(0, 0.7fr) minmax(0, 0.9fr) minmax(0, 0.9fr) minmax(0, 0.9fr);
         }
 
-        :is(#armorer-items, #tailor-items, #jeweler-items, #hunter, #merchant) > .row.bg-gray:has(.city-item-category) {
+        :is(#armorer-items, #tailor-items, #jeweler-items, #hunter, #merchant) .row.bg-gray:has(.city-item-category) {
             grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr) minmax(3rem, 0.65fr) minmax(0, 0.95fr);
         }
 
-        #tailor-items > .row.bg-gray:has(.city-weight-stat) {
+        #tailor-items .row.bg-gray:has(.city-weight-stat) {
             grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr) minmax(5.5rem, 0.9fr) minmax(0, 0.95fr);
         }
 
-        :is(#armorer-items, #tailor-items, #jeweler-items, #hunter, #merchant) > .row.bg-gray > .col-3 > .city-item-category {
+        :is(#armorer-items, #tailor-items, #jeweler-items, #hunter, #merchant) .row.bg-gray > .col-3 > .city-item-category {
             order: 1;
             grid-column: 1;
         }
 
-        :is(#armorer-items, #tailor-items, #jeweler-items, #hunter, #merchant) > .row.bg-gray:has(.city-item-category) > .col-3 > div:nth-last-child(4) {
+        :is(#armorer-items, #tailor-items, #jeweler-items, #hunter, #merchant) .row.bg-gray:has(.city-item-category) > .col-3 > div:nth-last-child(4) {
             order: 2;
             grid-column: 2;
         }
 
-        :is(#armorer-items, #tailor-items, #jeweler-items, #hunter, #merchant) > .row.bg-gray:has(.city-item-category) > .col-3 > div:nth-last-child(3) {
+        :is(#armorer-items, #tailor-items, #jeweler-items, #hunter, #merchant) .row.bg-gray:has(.city-item-category) > .col-3 > div:nth-last-child(3) {
             order: 3;
             grid-column: 3;
             border-right: 1px solid currentColor;
         }
 
-        :is(#armorer-items, #tailor-items, #jeweler-items, #hunter, #merchant) > .row.bg-gray:has(.city-item-category) > .col-3 > div:nth-last-child(2):not(:first-child) {
+        :is(#armorer-items, #tailor-items, #jeweler-items, #hunter, #merchant) .row.bg-gray:has(.city-item-category) > .col-3 > div:nth-last-child(2):not(:first-child) {
             order: 4;
             grid-column: 4;
             border-right: 0;
         }
 
-        :is(#smith-items, #bowyer-items, #gunsmith-items, #music-merchant-items, #armorer-items, #tailor-items, #jeweler-items, #tavern-items, #potions, #hunter, #merchant, #animals) > .row.bg-gray > .col-3 > div:last-child {
+        :is(#smith-items, #bowyer-items, #gunsmith-items, #music-merchant-items, #armorer-items, #tailor-items, #jeweler-items, #tavern-items, #potions, #hunter, #merchant, #animals) .row.bg-gray > .col-3 > div:last-child {
             order: 5;
             grid-column: 1 / -1;
             border-right: 0;
             padding: 0;
         }
 
-        :is(#smith-items, #bowyer-items, #gunsmith-items, #music-merchant-items, #armorer-items, #tailor-items, #jeweler-items, #tavern-items, #potions, #hunter, #merchant, #animals) > .row.bg-gray > .col-3 > div:last-child > .col {
+        :is(#smith-items, #bowyer-items, #gunsmith-items, #music-merchant-items, #armorer-items, #tailor-items, #jeweler-items, #tavern-items, #potions, #hunter, #merchant, #animals) .row.bg-gray > .col-3 > div:last-child > .col {
             align-self: stretch;
         }
 
-        #tavern-items > .row.bg-gray > .col-3 > div:first-child:nth-last-child(3) {
+        #tavern-items .row.bg-gray > .col-3 > div:first-child:nth-last-child(3) {
             order: 2;
             grid-column: 1 / 3;
             border-right: 1px solid currentColor;
         }
 
-        #tavern-items > .row.bg-gray > .col-3 > div:nth-child(2):nth-last-child(2) {
+        #tavern-items .row.bg-gray > .col-3 > div:nth-child(2):nth-last-child(2) {
             order: 3;
             grid-column: 3;
             border-right: 0;
@@ -522,116 +531,7 @@
             <h2>Kowal<span class="ms-2 d-inline-block" style="width: 1em; height: 1em; vertical-align: -0.12em; background-color: currentColor; -webkit-mask: url('{% static 'DunnoRPG/img/icons/axe-sword.svg' %}') center / contain no-repeat; mask: url('{% static 'DunnoRPG/img/icons/axe-sword.svg' %}') center / contain no-repeat;"></span></h2>
         </div>
         <div id='smith-items' class='container text-center c-gold rounded border border-primary bg-dark d-none p-0 m-0' style="width: 100%;">
-            {% if weaponry_singlehand %}
-                <div class="row city-category-heading">
-                    <div class="col"><hr></div>
-                    <div class="col-auto"><button type="button" class="city-category-toggle" aria-expanded="false" onclick="toggleCityCategory(this)">Jednoręczne</button></div>
-                    <div class="col"><hr></div>
-                </div>
-            {% endif %}
-            {% for item in weaponry_singlehand %}
-                <div data-city-item-name="{{ item }}" class='city-category-collapsed mt-2 row bg-gray rounded m-1 border border-primary'>
-
-                    <div class="col-9 border-end">
-                        <div class="row-10" style="text-align: center;">
-                            <div class="col pt-1">
-                            <b class="{{ item|getItemRarity }}">{{ item|getItemType:"pl" }} |</b> 
-                            <a id='{{ item|getDescId }}' href='/dunnorpg/items/{{ item|getDescId }}'>
-                                <b class="{{ item|getItemRarity }}">{{ item }} [{{ durability_percents|dict_get:item }}]</b>
-                            </a>
-                            </div>
-                        </div>
-                        <div class="row-10">
-                            <div class="col p-2" style="text-align: left;">
-                                <i class="neutral-high city-item-skill">{{ item.skill_text|itemSkillWithLinks:item.skill_preview_limit }}</i>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="col-3 p-0">
-                        <div class="row-3 border-bottom pt-1 pb-1 h6 mb-0"><span class="city-unit-price">{{ city_prices|dict_get:item }}</span>&nbsp;<i class="fa-solid fa-coins" role="img" aria-label="monety"></i></div>
-                        <div class="city-weapon-damage row-3 border-bottom pt-1 pb-1">
-                            <span class="h6">{{ item.item_stat }}</span>
-                        </div>
-                        {% if item.is_ammunition %}
-                        <div class="city-weapon-ap row-3 border-bottom pt-1 pb-1">
-                            <span class="h6">{{ item.item_ap }}</span>
-                        </div>
-                        {% elif item.item_range %}
-                        <div class="city-weapon-range row-3 border-bottom pt-1 pb-1">
-                            <span class="h6 city-range-stat"><span class="city-range-icon" role="img" aria-label="Zasieg" title="Zasieg"></span>{{ item.item_range }}</span>
-                        </div>
-                        {% endif %}
-                        <div class="row-3 border-bottom pt-1 pb-1 h6 mb-0"><span class="neutral-high">Ilość:</span> <span class="city-stock">{{ amounts|dict_get:item }}</span></div>
-                        <div class="row-3" style="height: 4vh;">
-                            <div class="col h-100">
-                                <button class="w-100 h-100 text-center btn btn-sm btn-success d-flex align-items-center justify-content-center rounded-0" 
-                                data-shop-item-id="{{ item|getDescId }}" data-item-name="{{ item }}"
-                                data-durability="{{ item.durability_percent }}" data-unit-price="{{ item.unit_price }}" data-available-amount="{{ item.available_amount }}"
-                                onclick="buyItem(this.dataset.itemName, this.dataset.shopItemId, this.dataset.durability, this.dataset.unitPrice, this.dataset.availableAmount)">
-                                    Zakup
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-
-                </div>
-            {% endfor %}
-            {% if weaponry_twohand %}
-                <div class="row city-category-heading">
-                    <div class="col"><hr></div>
-                    <div class="col-auto"><button type="button" class="city-category-toggle" aria-expanded="false" onclick="toggleCityCategory(this)">Dwuręczne</button></div>
-                    <div class="col"><hr></div>
-                </div>
-            {% endif %}
-            {% for item in weaponry_twohand %}
-                <div data-city-item-name="{{ item }}" class='city-category-collapsed mt-2 row bg-gray rounded m-1 border border-primary'>
-
-                    <div class="col-9 border-end">
-                        <div class="row-10" style="text-align: center;">
-                            <div class="col pt-1">
-                            <b class="{{ item|getItemRarity }}">{{ item|getItemType:"pl" }} |</b> 
-                            <a id='{{ item|getDescId }}' href='/dunnorpg/items/{{ item|getDescId }}'>
-                                <b class="{{ item|getItemRarity }}">{{ item }} [{{ durability_percents|dict_get:item }}]</b>
-                            </a>
-                            </div>
-                        </div>
-                        <div class="row-10">
-                            <div class="col p-2" style="text-align: left;">
-                                <i class="neutral-high city-item-skill">{{ item.skill_text|itemSkillWithLinks:item.skill_preview_limit }}</i>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="col-3 p-0">
-                        <div class="row-3 border-bottom pt-1 pb-1 h6 mb-0"><span class="city-unit-price">{{ city_prices|dict_get:item }}</span>&nbsp;<i class="fa-solid fa-coins" role="img" aria-label="monety"></i></div>
-                        <div class="city-weapon-damage row-3 border-bottom pt-1 pb-1">
-                            <span class="h6">{{ item.item_stat }}</span>
-                        </div>
-                        {% if item.is_ammunition %}
-                        <div class="city-weapon-ap row-3 border-bottom pt-1 pb-1">
-                            <span class="h6">{{ item.item_ap }}</span>
-                        </div>
-                        {% elif item.item_range %}
-                        <div class="city-weapon-range row-3 border-bottom pt-1 pb-1">
-                            <span class="h6 city-range-stat"><span class="city-range-icon" role="img" aria-label="Zasieg" title="Zasieg"></span>{{ item.item_range }}</span>
-                        </div>
-                        {% endif %}
-                        <div class="row-3 border-bottom pt-1 pb-1 h6 mb-0"><span class="neutral-high">Ilość:</span> <span class="city-stock">{{ amounts|dict_get:item }}</span></div>
-                        <div class="row-3" style="height: 5.2vh;">
-                            <div class="col h-100">
-                                <button class="w-100 h-100 text-center btn btn-sm btn-success d-flex align-items-center justify-content-center rounded-0" 
-                                data-shop-item-id="{{ item|getDescId }}" data-item-name="{{ item }}"
-                                data-durability="{{ item.durability_percent }}" data-unit-price="{{ item.unit_price }}" data-available-amount="{{ item.available_amount }}"
-                                onclick="buyItem(this.dataset.itemName, this.dataset.shopItemId, this.dataset.durability, this.dataset.unitPrice, this.dataset.availableAmount)">
-                                    Zakup
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-
-                </div>
-            {% endfor %}
+            {% include "dunnorpg/city_weapon_groups.html" with weapon_groups=smith_weapon_type_groups %}
         </div>
         {% endif %}
 
@@ -641,61 +541,7 @@
             <h2>Łuczarz<span class="ms-2 d-inline-block" style="width: 1em; height: 1em; vertical-align: -0.12em; background-color: currentColor; -webkit-mask: url('{% static 'DunnoRPG/img/icons/crossbow.svg' %}') center / contain no-repeat; mask: url('{% static 'DunnoRPG/img/icons/crossbow.svg' %}') center / contain no-repeat;"></span></h2>
         </div>
         <div id='bowyer-items' class='container text-center c-gold rounded border border-primary bg-dark d-none p-0 m-0' style="width: 100%;">
-            {% for group_label, group_items in ranged_weapon_groups %}
-            {% if group_items %}
-                <div class="row align-items-center city-category-heading">
-                    <div class="col"><hr></div>
-                    <div class="col-auto"><button type="button" class="city-category-toggle" aria-expanded="false" onclick="toggleCityCategory(this)">{{ group_label }}</button></div>
-                    <div class="col"><hr></div>
-                </div>
-            {% for item in group_items %}
-                <div data-city-item-name="{{ item }}" class='city-category-collapsed mt-2 row bg-gray rounded m-1 border border-primary'>
-                    <div class="col-9 border-end">
-                        <div class="row-10" style="text-align: center;">
-                            <div class="col pt-1">
-                            <b class="{{ item|getItemRarity }}">{{ item|getItemType:"pl" }} |</b> 
-                            <a id='{{ item|getDescId }}' href='/dunnorpg/items/{{ item|getDescId }}'>
-                                <b class="{{ item|getItemRarity }}">{{ item }} [{{ durability_percents|dict_get:item }}]</b>
-                            </a>
-                            </div>
-                        </div>
-                        <div class="row-10">
-                            <div class="col p-2" style="text-align: left;">
-                                <i class="neutral-high city-item-skill">{{ item.skill_text|itemSkillWithLinks:item.skill_preview_limit }}</i>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="col-3 p-0">
-                        <div class="row-3 border-bottom pt-1 pb-1 h6 mb-0"><span class="city-unit-price">{{ city_prices|dict_get:item }}</span>&nbsp;<i class="fa-solid fa-coins" role="img" aria-label="monety"></i></div>
-                        <div class="city-weapon-damage row-3 border-bottom pt-1 pb-1">
-                            <span class="h6">{{ item.item_stat }}</span>
-                        </div>
-                        {% if item.is_ammunition %}
-                        <div class="city-weapon-ap row-3 border-bottom pt-1 pb-1">
-                            <span class="h6">{{ item.item_ap }}</span>
-                        </div>
-                        {% elif item.item_range %}
-                        <div class="city-weapon-range row-3 border-bottom pt-1 pb-1">
-                            <span class="h6 city-range-stat"><span class="city-range-icon" role="img" aria-label="Zasieg" title="Zasieg"></span>{{ item.item_range }}</span>
-                        </div>
-                        {% endif %}
-                        <div class="row-3 border-bottom pt-1 pb-1 h6 mb-0"><span class="neutral-high">Ilość:</span> <span class="city-stock">{{ amounts|dict_get:item }}</span></div>
-                        <div class="row-3" style="height: 4vh;">
-                            <div class="col h-100">
-                                <button class="w-100 h-100 text-center btn btn-sm btn-success d-flex align-items-center justify-content-center rounded-0" 
-                                data-shop-item-id="{{ item|getDescId }}" data-item-name="{{ item }}"
-                                data-durability="{{ item.durability_percent }}" data-unit-price="{{ item.unit_price }}" data-available-amount="{{ item.available_amount }}"
-                                onclick="buyItem(this.dataset.itemName, this.dataset.shopItemId, this.dataset.durability, this.dataset.unitPrice, this.dataset.availableAmount)">
-                                    Zakup
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            {% endfor %}
-            {% endif %}
-            {% endfor %}
+            {% include "dunnorpg/city_weapon_groups.html" with weapon_groups=ranged_weapon_type_groups %}
         </div>
         {% endif %}
 
@@ -1464,14 +1310,10 @@
 
             section.querySelectorAll('.city-category-toggle').forEach(button => {
                 const category = button.closest('.city-category-heading')
-                let item = category.nextElementSibling
-                let categoryMatches = false
-                while(item && !item.matches('.city-category-heading, h3')){
-                    if(item.matches('[data-city-item-name]') && !item.classList.contains('city-search-hidden') && !item.classList.contains('d-none')){
-                        categoryMatches = true
-                    }
-                    item = item.nextElementSibling
-                }
+                const categoryMatches = getCityCategoryContent(button).some(content => {
+                    const rows = content.matches('[data-city-item-name]') ? [content] : Array.from(content.querySelectorAll('[data-city-item-name]'))
+                    return rows.some(row => !row.classList.contains('city-search-hidden') && !row.classList.contains('d-none'))
+                })
                 category.classList.toggle('city-search-hidden', searching && !categoryMatches)
                 if(searching){
                     if(!('searchWasExpanded' in button.dataset)){
@@ -1555,14 +1397,23 @@
         } catch(error) {}
     }
 
+    function getCityCategoryContent(button){
+        let content = button.closest('.city-category-heading').nextElementSibling
+        if(content?.classList.contains('city-category-content')) return [content]
+        const items = []
+        while(content && !content.matches('.city-category-heading, h3')){
+            items.push(content)
+            content = content.nextElementSibling
+        }
+        return items
+    }
+
     function toggleCityCategory(button){
         const collapsed = button.getAttribute('aria-expanded') === 'true'
         button.setAttribute('aria-expanded', String(!collapsed))
-        let item = button.closest('.city-category-heading').nextElementSibling
-        while(item && !item.matches('.city-category-heading, h3')){
-            item.classList.toggle('city-category-collapsed', collapsed)
-            item = item.nextElementSibling
-        }
+        getCityCategoryContent(button).forEach(content => {
+            content.classList.toggle('city-category-collapsed', collapsed)
+        })
     }
 
     function updateArmorWeightWarnings(){

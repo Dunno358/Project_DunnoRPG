@@ -1,0 +1,67 @@
+{% load filters %}
+{% for group_label, type_groups in weapon_groups %}
+    {% if type_groups %}
+    <div class="row align-items-center city-category-heading">
+        <div class="col"><hr></div>
+        <div class="col-auto"><button type="button" class="city-category-toggle" aria-expanded="false" onclick="toggleCityCategory(this)">{{ group_label }}</button></div>
+        <div class="col"><hr></div>
+    </div>
+    <div class="city-category-content city-category-collapsed">
+        {% for type_label, type_items in type_groups %}
+        <div class="row align-items-center city-category-heading">
+            <div class="col"><hr></div>
+            <div class="col-auto"><button type="button" class="city-category-toggle" aria-expanded="false" onclick="toggleCityCategory(this)">{% if type_label == "bolt" %}Bełt{% elif type_label == "arrow" %}Strzała{% else %}{{ type_items.0|getItemType:"pl" }}{% endif %}</button></div>
+            <div class="col"><hr></div>
+        </div>
+        <div class="city-category-content city-category-collapsed">
+            {% for item in type_items %}
+                <div data-city-item-name="{{ item }}" class='mt-2 row bg-gray rounded m-1 border border-primary'>
+                    <div class="col-9 border-end">
+                        <div class="row-10" style="text-align: center;">
+                            <div class="col pt-1">
+                            <b class="{{ item|getItemRarity }}">{{ item|getItemType:"pl" }} |</b> 
+                            <a id='{{ item|getDescId }}' href='/dunnorpg/items/{{ item|getDescId }}'>
+                                <b class="{{ item|getItemRarity }}">{{ item }} [{{ durability_percents|dict_get:item }}]</b>
+                            </a>
+                            </div>
+                        </div>
+                        <div class="row-10">
+                            <div class="col p-2" style="text-align: left;">
+                                <i class="neutral-high city-item-skill">{{ item.skill_text|itemSkillWithLinks:item.skill_preview_limit }}</i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-3 p-0">
+                        <div class="row-3 border-bottom pt-1 pb-1 h6 mb-0"><span class="city-unit-price">{{ city_prices|dict_get:item }}</span>&nbsp;<i class="fa-solid fa-coins" role="img" aria-label="monety"></i></div>
+                        <div class="city-weapon-damage row-3 border-bottom pt-1 pb-1">
+                            <span class="h6">{{ item.item_stat }}</span>
+                        </div>
+                        {% if item.is_ammunition %}
+                        <div class="city-weapon-ap row-3 border-bottom pt-1 pb-1">
+                            <span class="h6">{{ item.item_ap }}</span>
+                        </div>
+                        {% elif item.item_range %}
+                        <div class="city-weapon-range row-3 border-bottom pt-1 pb-1">
+                            <span class="h6 city-range-stat"><span class="city-range-icon" role="img" aria-label="Zasieg" title="Zasieg"></span>{{ item.item_range }}</span>
+                        </div>
+                        {% endif %}
+                        <div class="row-3 border-bottom pt-1 pb-1 h6 mb-0"><span class="neutral-high">Ilość:</span> <span class="city-stock">{{ amounts|dict_get:item }}</span></div>
+                        <div class="row-3" style="height: 4vh;">
+                            <div class="col h-100">
+                                <button class="w-100 h-100 text-center btn btn-sm btn-success d-flex align-items-center justify-content-center rounded-0" 
+                                data-shop-item-id="{{ item|getDescId }}" data-item-name="{{ item }}"
+                                data-durability="{{ item.durability_percent }}" data-unit-price="{{ item.unit_price }}" data-available-amount="{{ item.available_amount }}"
+                                onclick="buyItem(this.dataset.itemName, this.dataset.shopItemId, this.dataset.durability, this.dataset.unitPrice, this.dataset.availableAmount)">
+                                    Zakup
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+{% endfor %}
