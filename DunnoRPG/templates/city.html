@@ -522,8 +522,15 @@
             <h2>Kowal<span class="ms-2 d-inline-block" style="width: 1em; height: 1em; vertical-align: -0.12em; background-color: currentColor; -webkit-mask: url('{% static 'DunnoRPG/img/icons/axe-sword.svg' %}') center / contain no-repeat; mask: url('{% static 'DunnoRPG/img/icons/axe-sword.svg' %}') center / contain no-repeat;"></span></h2>
         </div>
         <div id='smith-items' class='container text-center c-gold rounded border border-primary bg-dark d-none p-0 m-0' style="width: 100%;">
+            {% if weaponry_singlehand %}
+                <div class="row city-category-heading">
+                    <div class="col"><hr></div>
+                    <div class="col-auto"><button type="button" class="city-category-toggle" aria-expanded="false" onclick="toggleCityCategory(this)">Jednoręczne</button></div>
+                    <div class="col"><hr></div>
+                </div>
+            {% endif %}
             {% for item in weaponry_singlehand %}
-                <div data-city-item-name="{{ item }}" class='mt-2 row bg-gray rounded m-1 border border-primary'>
+                <div data-city-item-name="{{ item }}" class='city-category-collapsed mt-2 row bg-gray rounded m-1 border border-primary'>
 
                     <div class="col-9 border-end">
                         <div class="row-10" style="text-align: center;">
