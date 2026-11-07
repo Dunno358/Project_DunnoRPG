@@ -1,8 +1,13 @@
 {% extends 'master.html' %}
-{% load filters static %}
+{% load filters static l10n %}
 
 {% block content %}
 <style>
+    .city-shop-filters {
+        color: #f8f9fa;
+        text-shadow: 0 1px 2px #000;
+    }
+
     .city-item-skill {
         font-size: 90%;
     }
@@ -384,10 +389,15 @@
     <h1 class='c-gold text-center fst-italic mb-1' style='-webkit-text-stroke: 0.5px blue; font-size:300%;' id='city-name'>
         {{ city.city_name }}
     </h1>
-    <div class="px-2 mb-2 c-gold">
-        <label for="city-available-items-only" class="d-flex align-items-center justify-content-center gap-2">
+    <div class="city-shop-filters px-2 mb-2">
+        <label for="city-available-items-only" class="text-warning d-flex align-items-center justify-content-center gap-2">
             Pancerz tylko przystosowany do postaci
             <input type="checkbox" id="city-available-items-only" class="form-check-input m-0"
+                   onchange="updateArmorWeightWarnings()">
+        </label>
+        <label for="city-affordable-items-only" class="text-warning d-flex align-items-center justify-content-center gap-2 mt-1">
+            Pokazuj tylko to, na co mnie stać
+            <input type="checkbox" id="city-affordable-items-only" class="form-check-input m-0"
                    onchange="updateArmorWeightWarnings()">
         </label>
     </div>
@@ -397,7 +407,7 @@
                     name="chosen_character" id="choosing_char_select" aria-label="Postać kupująca"
                     onchange="changeBuyingCharacter()" {% if not characters %}disabled{% endif %}>
                 {% for char in characters %}
-                <option value="{{ char.id }}" data-charisma="{{ char.CHAR }}" data-charisma-mod="{{ char.city_char_mod }}" data-armor-weight-rank="{{ char.city_armor_weight_rank }}">{{ char.name }}</option>
+                <option value="{{ char.id }}" data-coins="{{ char.coins|unlocalize }}" data-charisma="{{ char.CHAR }}" data-charisma-mod="{{ char.city_char_mod }}" data-armor-weight-rank="{{ char.city_armor_weight_rank }}">{{ char.name }}</option>
                 {% empty %}
                 <option value="">Brak postaci</option>
                 {% endfor %}
@@ -1476,12 +1486,20 @@
         const character = document.getElementById('choosing_char_select')?.selectedOptions[0]
         const maxRank = Number(character?.dataset.armorWeightRank || 999)
         const filterEnabled = document.getElementById('city-available-items-only')?.checked
+        const affordableOnly = document.getElementById('city-affordable-items-only')?.checked
         document.querySelectorAll('.city-item-category[data-armor-weight-rank]').forEach(category => {
             const tooHeavy = Boolean(character && category.dataset.armorWeightRank && Number(category.dataset.armorWeightRank) > maxRank)
             category.classList.toggle('city-armor-too-heavy', tooHeavy)
             const icon = category.querySelector('.city-hazard-icon')
             if(icon) icon.hidden = !tooHeavy
-            category.closest('.row.bg-gray')?.classList.toggle('d-none', Boolean(filterEnabled && tooHeavy))
+        })
+        document.querySelectorAll('[data-shop-item-id]').forEach(button => {
+            const row = button.closest('.row.bg-gray')
+            if(!row) return
+            const tooHeavy = Boolean(filterEnabled && row.querySelector('.city-armor-too-heavy'))
+            const tooExpensive = Boolean(affordableOnly && character?.value &&
+                getCityPurchasePrice(Number(button.dataset.unitPrice), character) > Number(character.dataset.coins))
+            row.classList.toggle('d-none', tooHeavy || tooExpensive)
         })
     }
 
@@ -1498,6 +1516,12 @@
     }
 
     let purchasePending = false
+
+    function getCityPurchasePrice(basePrice, character){
+        const charisma = (Number(character.dataset.charisma) || 0) + (Number(character.dataset.charismaMod) || 0)
+        const discount = Number((basePrice * charisma * 2 / 100).toFixed(1))
+        return Number((basePrice - discount).toFixed(1))
+    }
 
     function updateBuyPrice(){
         const item = document.getElementById('Item')
@@ -1516,9 +1540,7 @@
 
         const unitPrice = Number(item.dataset.unitPrice) || 0
         const basePrice = Number((unitPrice * amount).toFixed(1))
-        const charisma = (Number(character.dataset.charisma) || 0) + (Number(character.dataset.charismaMod) || 0)
-        const discount = Number((basePrice * charisma * 2 / 100).toFixed(1))
-        priceOutput.textContent = (basePrice - discount).toFixed(1)
+        priceOutput.textContent = getCityPurchasePrice(basePrice, character).toFixed(1)
         return {itemId: item.dataset.itemId, characterId: select.value, amount, durability: item.dataset.durability}
     }
 
@@ -1578,7 +1600,11 @@
                 showPurchaseMessage(data.message || data.detail || 'Nie udało się kupić przedmiotu.', false)
                 return
             }
+            const buyingCharacter = Array.from(document.getElementById('choosing_char_select').options)
+                .find(option => option.value === String(purchase.characterId))
+            if(buyingCharacter) buyingCharacter.dataset.coins = data.coins
             updatePurchasedItem(data)
+            updateArmorWeightWarnings()
             document.getElementById('Item').dataset.availableAmount = data.available_amount
             document.getElementById('Item').dataset.unitPrice = data.unit_price
             document.getElementById('Item-amount').max = data.available_amount
