@@ -180,15 +180,15 @@
     #city-item-iframe-card {
         left: 0;
         right: 0;
-        top: 50%;
+        top: 55%;
         transform: translateY(-50%);
         display: flex;
         flex-direction: column;
-        width: calc(100% - 1rem);
+        width: 100vw;
+        height: 100vh;
         max-width: 48rem;
         max-height: calc(100vh - 1rem);
         max-height: calc(100dvh - 1rem);
-        margin: 0 auto;
         z-index: 6;
     }
 
@@ -321,7 +321,7 @@
             grid-template-columns: minmax(0, 0.7fr) minmax(0, 0.9fr) minmax(0, 0.9fr) minmax(0, 0.9fr);
         }
 
-        :is(#armorer-items, #tailor-items, #jeweler-items, #hunter) > .row.bg-gray:has(.city-item-category) {
+        :is(#armorer-items, #tailor-items, #jeweler-items, #hunter, #merchant) > .row.bg-gray:has(.city-item-category) {
             grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr) minmax(3rem, 0.65fr) minmax(0, 0.95fr);
         }
 
@@ -329,23 +329,23 @@
             grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr) minmax(5.5rem, 0.9fr) minmax(0, 0.95fr);
         }
 
-        :is(#armorer-items, #tailor-items, #jeweler-items, #hunter) > .row.bg-gray > .col-3 > .city-item-category {
+        :is(#armorer-items, #tailor-items, #jeweler-items, #hunter, #merchant) > .row.bg-gray > .col-3 > .city-item-category {
             order: 1;
             grid-column: 1;
         }
 
-        :is(#armorer-items, #tailor-items, #jeweler-items, #hunter) > .row.bg-gray:has(.city-item-category) > .col-3 > div:nth-last-child(4) {
+        :is(#armorer-items, #tailor-items, #jeweler-items, #hunter, #merchant) > .row.bg-gray:has(.city-item-category) > .col-3 > div:nth-last-child(4) {
             order: 2;
             grid-column: 2;
         }
 
-        :is(#armorer-items, #tailor-items, #jeweler-items, #hunter) > .row.bg-gray:has(.city-item-category) > .col-3 > div:nth-last-child(3) {
+        :is(#armorer-items, #tailor-items, #jeweler-items, #hunter, #merchant) > .row.bg-gray:has(.city-item-category) > .col-3 > div:nth-last-child(3) {
             order: 3;
             grid-column: 3;
             border-right: 1px solid currentColor;
         }
 
-        :is(#armorer-items, #tailor-items, #jeweler-items, #hunter) > .row.bg-gray:has(.city-item-category) > .col-3 > div:nth-last-child(2):not(:first-child) {
+        :is(#armorer-items, #tailor-items, #jeweler-items, #hunter, #merchant) > .row.bg-gray:has(.city-item-category) > .col-3 > div:nth-last-child(2):not(:first-child) {
             order: 4;
             grid-column: 4;
             border-right: 0;
@@ -1016,10 +1016,10 @@
             {% endif %}
             {% endfor %}
             {% if tavern_buy_items %}
-            <h3 class="h6 text-center px-2 pt-2 mb-1 fw-bold">Wynos</h3>
+            <h3 class="city-category-heading h6 text-center px-2 pt-2 mb-1 fw-bold"><button type="button" class="city-category-toggle" aria-expanded="false" onclick="toggleCityCategory(this)">Wynos</button></h3>
             {% endif %}
             {% for item in tavern_buy_items %}
-                <div data-city-item-name="{{ item }}" class='mt-2 row bg-gray rounded m-1 border border-primary'>
+                <div data-city-item-name="{{ item }}" class='city-category-collapsed mt-2 row bg-gray rounded m-1 border border-primary'>
 
                     <div class="col-9 border-end">
                         <div class="row-10" style="text-align: center;">
@@ -1170,8 +1170,9 @@
                     <div class="col-9 border-end">
                         <div class="row-10" style="text-align: center;">
                             <div class="col pt-1">
+                            {% if item.item_type|lower == 'amulet' %}<b class="{{ item|getItemRarity }}">{{ item|getItemType:"pl" }} |</b>{% endif %}
                             <a id='{{ item|getDescId }}' href='/dunnorpg/items/{{ item|getDescId }}'>
-                                <b class="{{ item|getItemRarity }}">{{ item }}</b>
+                                <b class="{{ item|getItemRarity }}">{{ item }}{% if item.item_type|lower == 'amulet' %} [{{ durability_percents|dict_get:item }}]{% endif %}</b>
                             </a>
                             </div>
                         </div>
@@ -1183,9 +1184,16 @@
                     </div>
 
                     <div class="col-3 p-0">
+                        {% if item.item_type|lower == 'amulet' %}
+                        <div data-armor-weight-rank="{% if item.has_class_armor_limit and item.armor_weight_rank < 999 and item.item_category != 'bag' %}{{ item.armor_weight_rank }}{% endif %}" class="city-item-category row-3 border-bottom pt-1 pb-1 h6 mb-0 {{ item|getItemRarity }}">{{ item|getArmorWeightType }}<span class="city-hazard-icon" role="img" aria-label="Pancerz przekracza limit klasy postaci" title="Pancerz przekracza limit klasy postaci" hidden></span></div>
+                        {% endif %}
                         <div class="row-3 border-bottom pt-1 pb-1 h6 mb-0"><span class="city-unit-price">{{ city_prices|dict_get:item }}</span>&nbsp;<i class="fa-solid fa-coins" role="img" aria-label="monety"></i></div>
                         <div class="row-3 border-bottom pt-1 pb-1">
+                            {% if item.item_type|lower == 'amulet' %}
+                            <div class="col"><span class="h6 city-armor-stat"><span class="city-armor-icon" role="img" aria-label="Pancerz" title="Pancerz"></span>{{ city_armors|dict_get:item }}</span></div>
+                            {% else %}
                             <div class="col"><span class="h6">Inne</span></div>
+                            {% endif %}
                         </div>
                         <div class="row-3 border-bottom pt-1 pb-1 h6 mb-0"><span class="neutral-high">Ilość:</span> <span class="city-stock">{{ amounts|dict_get:item }}</span></div>
                         <div class="row-3" style="height: 5.2vh;">
@@ -1468,16 +1476,7 @@
                     delete button.dataset.searchWasExpanded
                 }
             })
-            section.querySelectorAll('h3:not(.city-category-heading)').forEach(label => {
-                // The takeaway heading is followed by item rows without a collapsible category.
-                let item = label.nextElementSibling
-                let hasVisibleItems = false
-                while(item && item.matches('[data-city-item-name]')){
-                    if(!item.classList.contains('city-search-hidden') && !item.classList.contains('d-none')) hasVisibleItems = true
-                    item = item.nextElementSibling
-                }
-                label.classList.toggle('city-search-hidden', searching && !hasVisibleItems)
-            })
+
         })
         const hasResults = Array.from(document.querySelectorAll('[data-city-item-name]'))
             .some(row => !row.classList.contains('city-search-hidden') && !row.classList.contains('d-none'))
