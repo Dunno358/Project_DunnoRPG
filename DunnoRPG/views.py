@@ -245,27 +245,40 @@ def sync_item_granted_skills(character):
 
     for item_desc in item_descs:
         for skill_name, skill_lvl in parse_item_granted_skills(item_desc.grantedSkills):
-            current = granted.get(skill_name.lower())
+            current = granted.get(skill_name.casefold())
             if current is None or skill_lvl > current["level"]:
-                granted[skill_name.lower()] = {
+                granted[skill_name.casefold()] = {
                     "name": skill_name,
                     "level": skill_lvl,
                     "source": f"item:{item_desc.name}",
                 }
 
-    for skill_data in granted.values():
-        if character_skills.exclude(Q(source="item") | Q(source__startswith="item:")).filter(
-            skill__iexact=skill_data["name"],
-        ).exists():
+    # Normalize in Python: SQLite's case-insensitive lookups only handle ASCII.
+    skill_descs = {}
+    if granted:
+        for skill_desc in models.Skills_Decs.objects.order_by("pk"):
+            skill_descs.setdefault(skill_desc.name.casefold(), skill_desc)
+    natural_skill_names = {
+        name.casefold()
+        for name in character_skills.exclude(
+            Q(source="item") | Q(source__startswith="item:")
+        ).values_list("skill", flat=True)
+    }
+    existing_item_skills = {}
+    for skill in item_skills.order_by("pk"):
+        existing_item_skills.setdefault(skill.skill.casefold(), skill)
+
+    for skill_key, skill_data in granted.items():
+        if skill_key in natural_skill_names:
             continue
 
-        skill_desc = models.Skills_Decs.objects.filter(name__iexact=skill_data["name"]).first()
+        skill_desc = skill_descs.get(skill_key)
         if skill_desc is None:
             continue
 
         level_desc = getattr(skill_desc, f"level{skill_data['level']}", None)
         max_uses = getattr(skill_desc, f"useslvl{skill_data['level']}", None)
-        existing = item_skills.filter(skill__iexact=skill_desc.name).first()
+        existing = existing_item_skills.get(skill_key)
         defaults = {
             "skill": skill_desc.name,
             "category": skill_desc.category,
