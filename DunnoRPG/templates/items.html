@@ -165,6 +165,9 @@
             <div class='col btn btn-dark btn-outline-warning p-2 m-1 weapon-hand-filter' data-dual-handed='True' onclick='filterWeaponItemsByHand(this)'>
                 Dwuręczne
             </div>
+            <div id="weapon-gunpowder-filter" class="col btn btn-dark btn-outline-warning p-2 m-1 weapon-hand-filter d-none" data-dual-handed="other" onclick="filterWeaponItemsByHand(this)">
+                Inne
+            </div>
         </div>
 
         <div id='weapon-type-filter-separator' class="row m-0 p-0 d-none item-dependent-filter">
@@ -516,6 +519,19 @@
         </div>
     </div>
     {% endfor %}
+    {% for item in items_gunpowder %}
+        <div class='item-list-entry weapon-list-entry' data-rarity='{{ item.rarity }}' data-search-text="{{ item.name }} {{ item.desc|default_if_none:'' }}" data-category='{{ item.category|default_if_none:""|lower }}' data-weapon-type='{{ item.type|default_if_none:""|lower }}' data-dual-handed='{{ item.dualHanded }}'>
+            <div class='row bg-dark bg-opacity-75 rounded m-2 p-2'>
+                {% if view.kwargs.char_id != 0 %}
+                    <button class='col-2 text-center text-white bg-danger p-2 m-1 rounded' onclick="deleteConfirmation('{{ item.name }}', {{ view.kwargs.char_id }}, '{{ item.delete_id }}')">X</button>
+                {% endif %}
+
+                <a class='col text-center c-gold bg-dark p-2 rounded border border-primary' href='{{ item.id }}{% if item.eq_id %}?ref=eq;{{ item.eq_id }}{% elif item.char_item_id %}?ref=char;{{ item.char_item_id }}{% endif %}'>
+                    <span class="{{ item.rarity }}">{% if item.equipped %}<span class="text-info">[Założone]</span> {% endif %}{{ item.name }}</span>
+                </a>
+            </div>
+        </div>
+    {% endfor %}
 </div>
 
 <div id='Hełmy' class='container d-none'>
@@ -730,16 +746,7 @@
             let matchesAnimalCategory = true
 
             if(entry.classList.contains('weapon-list-entry') && activeWeaponCategoryFilter !== null){
-                if(activeWeaponCategoryFilter === 'other'){
-                    matchesWeaponCategory = !weaponCategories.includes(itemCategory)
-                }
-                else if(activeWeaponCategoryFilter === 'weapon_melee'){
-                    matchesWeaponCategory = itemCategory === 'weapon_melee' || itemCategory === 'shield'
-                }
-                else{
-                    matchesWeaponCategory = itemCategory === activeWeaponCategoryFilter
-                }
-
+                matchesWeaponCategory = weaponEntryMatchesCategory(entry, activeWeaponCategoryFilter)
             }
 
             if(entry.classList.contains('weapon-list-entry') && activeWeaponTypeFilter !== null){
@@ -755,7 +762,7 @@
             }
 
             if(entry.classList.contains('weapon-list-entry') && activeWeaponHandFilter !== null){
-                matchesWeaponHand = entry.dataset.dualHanded === activeWeaponHandFilter
+                matchesWeaponHand = weaponEntryMatchesHand(entry, activeWeaponHandFilter)
             }
 
             if(entry.classList.contains('animal-list-entry') && activeAnimalCategoryFilter !== null){
@@ -802,14 +809,22 @@
         const itemCategory = entry.dataset.category || ''
 
         if(selectedCategory === 'other'){
-            return !weaponCategories.includes(itemCategory)
+            return itemCategory.includes('weapon_') && !weaponCategories.includes(itemCategory)
         }
         else if(selectedCategory === 'weapon_melee'){
             return itemCategory === 'weapon_melee' || itemCategory === 'shield'
         }
+        else if(selectedCategory === 'weapon_gun'){
+            return itemCategory === 'weapon_gun' || itemCategory === 'gunpowder_item'
+        }
         else{
             return itemCategory === selectedCategory
         }
+    }
+
+    function weaponEntryMatchesHand(entry, selectedHand){
+        const isGunpowder = entry.dataset.category === 'gunpowder_item'
+        return selectedHand === 'other' ? isGunpowder : !isGunpowder && entry.dataset.dualHanded === selectedHand
     }
 
     function getWeaponTypeButtonGroupId(selectedCategory){
@@ -834,7 +849,7 @@
     function showAvailableWeaponTypeButtons(){
         hideWeaponTypeButtons()
 
-        if(activeWeaponCategoryFilter === null || activeWeaponHandFilter === null){
+        if(activeWeaponCategoryFilter === null || activeWeaponHandFilter === null || activeWeaponHandFilter === 'other'){
             return
         }
 
@@ -852,7 +867,7 @@
                 return
             }
 
-            if(entry.dataset.dualHanded !== activeWeaponHandFilter){
+            if(!weaponEntryMatchesHand(entry, activeWeaponHandFilter)){
                 return
             }
 
@@ -881,6 +896,7 @@
 
     function showWeaponItemsByCategory(instance){
         const selectedCategory = instance.dataset.weaponCategory
+        document.getElementById('weapon-gunpowder-filter').classList.toggle('d-none', selectedCategory !== 'weapon_gun')
         const weaponBlock = document.getElementById('Broń')
         const weaponHandButtons = document.getElementById('weapon-hand-filter-buttons')
         const isAlreadyActive = activeWeaponCategoryFilter === selectedCategory && !weaponBlock.classList.contains('d-none')

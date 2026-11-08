@@ -3383,6 +3383,7 @@ class ItemsView(ListView):
         else:
             self.singlehand = []
             self.twohand = []
+            self.gunpowder = []
             self.animals = []
             self.armor_dict = {'helmet': [], 'torso': [], 'boots': [], 'gloves': [], 'amulets': [], 'accessories': [], 'ammo': [], 'other': []}
 
@@ -3444,7 +3445,12 @@ class ItemsView(ListView):
                     'amunicja': 'ammo',
                     'other': 'other',
                 }.get(item_desc.type.lower())
-                if armor_category:
+                item_category = (item_desc.category or "").strip().lower()
+                if item_category == 'gunpowder_item':
+                    self.gunpowder.append(category_data)
+                elif 'weapon_' in item_category or item_category == 'shield':
+                    (self.twohand if item_desc.dualHanded else self.singlehand).append(category_data)
+                elif armor_category:
                     self.armor_dict[armor_category].append(category_data)
                 else:
                     if item_desc.type == 'Animal' or item_desc.type == 'Mount Armor' or (item_desc.category or "").lower() in MOUNT_ITEM_CATEGORIES:
@@ -3503,22 +3509,18 @@ class ItemsView(ListView):
         
         names = ['items_helmet','items_torso','items_boots','items_gloves','items_amulets','items_accessories','items_ammo','items_other']
         types = ['Helmet','Torso','Boots','Gloves','Amulet','Accessory','Amunicja','Other']
-        excluded_types = types + ['Akcesoria']
         
         if self.character == None:
-            if self.request.user.is_superuser:
-                context['items_singlehand'] = models.Items.objects.filter(dualHanded=False).order_by(Lower('name')).exclude(type__in=excluded_types).exclude(type__iexact='Amunicja')
-                context['items_twohand'] = models.Items.objects.filter(dualHanded=True).order_by(Lower('name')).exclude(type__in=excluded_types).exclude(type__iexact='Amunicja')
-                context['animals'] =  models.Items.objects.filter(
-                    Q(type='Animal') | Q(type='Mount Armor') | Q(category__in=MOUNT_ITEM_CATEGORIES)
-                ).order_by(Lower('name'))
-            else:
-                context['items_singlehand'] = models.Items.objects.filter(dualHanded=False, found=True).order_by(Lower('name')).exclude(type__in=excluded_types).exclude(type__iexact='Amunicja')
-                context['items_twohand'] = models.Items.objects.filter(dualHanded=True, found=True) .order_by(Lower('name')).exclude(type__in=excluded_types).exclude(type__iexact='Amunicja')
-                context['animals'] =  models.Items.objects.filter(
-                    Q(type='Animal') | Q(type='Mount Armor') | Q(category__in=MOUNT_ITEM_CATEGORIES),
-                    found=True
-                ).order_by(Lower('name'))
+            visible_items = models.Items.objects.all()
+            if not self.request.user.is_superuser:
+                visible_items = visible_items.filter(found=True)
+            weapons = visible_items.filter(Q(category__icontains='weapon_') | Q(category__iexact='shield'))
+            context['items_singlehand'] = weapons.filter(dualHanded=False).order_by(Lower('name'))
+            context['items_twohand'] = weapons.filter(dualHanded=True).order_by(Lower('name'))
+            context['items_gunpowder'] = visible_items.filter(category__iexact='gunpowder_item').order_by(Lower('name'))
+            context['animals'] = visible_items.filter(
+                Q(type='Animal') | Q(type='Mount Armor') | Q(category__in=MOUNT_ITEM_CATEGORIES)
+            ).order_by(Lower('name'))
             
             for x in range(len(names)):
                 if self.request.user.is_superuser:
@@ -3557,6 +3559,7 @@ class ItemsView(ListView):
             context['max_weight'] = max_weight
             context['items_singlehand'] = self.sort_items_by_name(self.singlehand)
             context['items_twohand'] = self.sort_items_by_name(self.twohand)
+            context['items_gunpowder'] = self.sort_items_by_name(self.gunpowder)
             context['animals'] = self.sort_items_by_name(self.animals)
             context['items_helmet'] = self.sort_items_by_name(self.armor_dict['helmet'])
             context['items_torso'] = self.sort_items_by_name(self.armor_dict['torso'])
