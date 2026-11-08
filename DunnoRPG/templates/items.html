@@ -32,6 +32,31 @@
 </script>
 
 <style>
+    #items-item-preview {
+        width: min(48rem, calc(100vw - 1rem));
+        height: calc(100vh - 1rem);
+        height: calc(100dvh - 1rem);
+        max-width: none;
+        max-height: none;
+        padding: 0;
+        overflow: hidden;
+    }
+
+    #items-item-preview[open] {
+        display: flex;
+        flex-direction: column;
+    }
+
+    #items-item-preview::backdrop {
+        background: rgba(0, 0, 0, 0.65);
+    }
+
+    #items-item-preview iframe {
+        flex: 1;
+        width: 100%;
+        min-height: 0;
+    }
+
     .inventory-summary {
         align-items: center;
         display: flex;
@@ -491,6 +516,11 @@
     
 </div>
 
+<dialog id="items-item-preview" class="bg-dark border border-warning rounded" aria-label="Podgląd przedmiotu" onclose="clearItemsItemPreview()">
+    <button type="button" class="btn btn-dark btn-outline-danger w-100" onclick="document.getElementById('items-item-preview').close()">X Zamknij podgląd X</button>
+    <iframe id="items-item-iframe" src="about:blank" class="border border-warning bg-dark" title="Podgląd przedmiotu"></iframe>
+</dialog>
+
 <div id='Broń' class='container d-none'>
     {% for item in items_singlehand %}
         <div class='item-list-entry weapon-list-entry' data-rarity='{{ item.rarity }}' data-search-text="{{ item.name }} {{ item.desc|default_if_none:'' }}" data-category='{{ item.category|default_if_none:""|lower }}' data-weapon-type='{{ item.type|default_if_none:""|lower }}' data-dual-handed='{{ item.dualHanded }}'>
@@ -684,6 +714,35 @@
     document.getElementById('tb-items').classList.add('btn-outline-primary')
 
     let inventorySearchQuery = ''
+    function clearItemsItemPreview(){
+        document.getElementById('items-item-iframe').src = 'about:blank'
+    }
+
+    function showItemsItemPreview(itemUrl){
+        const dialog = document.getElementById('items-item-preview')
+        document.getElementById('items-item-iframe').src = itemUrl
+        if(!dialog.open){
+            dialog.showModal()
+        }
+    }
+
+    // Delegation also handles results inserted by dynamic search.
+    document.addEventListener('click', event => {
+        if(event.defaultPrevented || event.button !== 0 || event.ctrlKey || event.metaKey || event.shiftKey || event.altKey){
+            return
+        }
+        const link = event.target.closest('.item-list-entry a[href], .search-list-entry a[href]')
+        if(!link || link.hasAttribute('download') || link.target === '_blank'){
+            return
+        }
+        const itemUrl = new URL(link.href)
+        if(itemUrl.origin !== window.location.origin || !/^\/dunnorpg\/items\/\d+\/?$/.test(itemUrl.pathname)){
+            return
+        }
+        event.preventDefault()
+        showItemsItemPreview(itemUrl.href)
+    })
+
     let activeItemRarityFilters = []
     let activeWeaponCategoryFilter = null
     let activeWeaponTypeFilter = null
