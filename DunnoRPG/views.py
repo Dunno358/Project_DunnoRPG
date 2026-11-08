@@ -1203,6 +1203,11 @@ class CharacterDetails(DetailView):
     model = models.Character
     template_name = 'character_detail.html'
 
+    def get_template_names(self):
+        if self.request.headers.get("X-Character-Fragment") == "1":
+            return ['dunnorpg/character_details_data.html']
+        return super().get_template_names()
+
     def get_object(self,queryset=None):
         char_id = self.kwargs.get('id')
         character = get_object_or_404(models.Character, id=char_id)
