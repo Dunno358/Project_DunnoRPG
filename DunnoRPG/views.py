@@ -237,10 +237,12 @@ def sync_item_granted_skills(character):
     retained_ids = []
 
     granted = {}
-    equipped_names = models.CharItems.objects.filter(
-        owner=character.owner,
-        character=character.name,
-    ).exclude(hand__in=BELT_ITEM_PLACES).values_list("name", flat=True)
+    equipped_items = models.CharItems.objects.filter(character=character.name)
+    # Older equipment may store the GM who equipped it as its owner.
+    # Only use the name alone when it identifies a single character.
+    if models.Character.objects.filter(name=character.name).exclude(pk=character.pk).exists():
+        equipped_items = equipped_items.filter(owner=character.owner)
+    equipped_names = equipped_items.exclude(hand__in=BELT_ITEM_PLACES).values_list("name", flat=True)
     item_descs = models.Items.objects.filter(name__in=equipped_names).exclude(grantedSkills__isnull=True).exclude(grantedSkills="")
 
     for item_desc in item_descs:
@@ -2932,7 +2934,7 @@ def char_wear_item(request, **kwargs):
     if charItObj == None: 
         if place.lower() in HAND_ITEM_PLACES:
             models.CharItems.objects.create(
-                owner = request.user,
+                owner = char.owner,
                 character = char.name,
                 name = item.name,
                 durability = clamp_item_durability(item, item_eq_obj.durability),
@@ -2944,7 +2946,7 @@ def char_wear_item(request, **kwargs):
                 )
         else:
             models.CharItems.objects.create(
-                owner = request.user,
+                owner = char.owner,
                 character = char.name,
                 name = item.name,
                 durability = clamp_item_durability(item, item_eq_obj.durability),
@@ -2955,6 +2957,7 @@ def char_wear_item(request, **kwargs):
                 reloaded = item_eq_obj.reloaded,
                 )            
     else:
+        charItObj.owner = char.owner
         charItObj.name = item.name
         charItObj.durability = clamp_item_durability(item, item_eq_obj.durability)
         charItObj.additional_description = item_eq_obj.additional_description
