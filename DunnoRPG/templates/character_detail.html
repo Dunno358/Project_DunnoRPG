@@ -1198,6 +1198,7 @@ function wearItem(place, block_id){
 }
 
 function setDamagePartState(block, active){
+    block.setAttribute('aria-pressed', String(active))
     if(active){
         block.classList.add('active')
         block.classList.add('border-primary') 
@@ -1213,35 +1214,30 @@ function setDamagePartState(block, active){
     }
 }
 
-function syncWholeBodySelection(){
-    const allBlock = document.getElementById('get-dmg-all')
-    const partBlocks = document.getElementsByClassName('get-dmg-place')
-    let everyPartSelected = true
-
-    for (let i=0; i<partBlocks.length; i++) {
-        if(!partBlocks[i].classList.contains('active')){
-            everyPartSelected = false
-            break
-        }
+function updateDamageArmor(){
+    const selected = document.querySelector('.get-dmg-place.active, .get-dmg-all.active')
+    const field = document.getElementById('get-dmg-armor-field')
+    const input = document.getElementById('get-dmg-armor')
+    if(!field || !input) return
+    const wholeBody = selected?.id === 'get-dmg-all'
+    field.classList.remove('d-none')
+    input.disabled = !selected
+    input.step = '1'
+    if(wholeBody){
+        input.value = Math.ceil(['head', 'torso', 'hands', 'legs'].reduce((sum, part) => {
+            return sum + (parseInt(document.getElementById(`armor-${part}-value`)?.textContent) || 0)
+        }, 0) / 4)
+    }else if(selected){
+        const part = selected.id.replace('get-dmg-', '')
+        input.value = parseInt(document.getElementById(`armor-${part}-value`)?.textContent) || 0
     }
-
-    setDamagePartState(allBlock, everyPartSelected)
 }
 
 function setActive(id){
-    const block = document.getElementById(id)
-    const shouldActivate = !block.classList.contains('active')
-
-    if(id === 'get-dmg-all'){
-        setDamagePartState(block, shouldActivate)
-        document.querySelectorAll('.get-dmg-place').forEach((partBlock) => {
-            setDamagePartState(partBlock, shouldActivate)
-        })
-        return
-    }
-
-    setDamagePartState(block, shouldActivate)
-    syncWholeBodySelection()
+    document.querySelectorAll('.get-dmg-place, .get-dmg-all').forEach(block => {
+        setDamagePartState(block, block.id === id)
+    })
+    updateDamageArmor()
 }
 
 async function calculateGettingHit(){
@@ -1250,20 +1246,18 @@ async function calculateGettingHit(){
     let ap = parseInt(document.getElementById('get-dmg-ap').value) || 0
     let barrier = parseInt(document.getElementById('get-dmg-barrier').value) || 0
     let ignore_armor = document.getElementById('get-dmg-ignore-armor').checked
-    let parts_block = document.getElementsByClassName('active get-dmg-place')
-    let parts = []
-
-    for (let i=0; i<parts_block.length; i++) {
-        parts.push(parts_block[i].id.replace('get-dmg-',''))
-    }
+    const selected = document.querySelector('.get-dmg-place.active, .get-dmg-all.active')
+    const wholeBody = selected?.id === 'get-dmg-all'
+    const parts = wholeBody ? ['head', 'torso', 'hands', 'legs'] : selected ? [selected.id.replace('get-dmg-', '')] : []
+    const armor = Number(document.getElementById('get-dmg-armor').value)
 
     if(parts.length === 0){
         showMessage('Wybierz miejsce obrażeń.', 'error')
         return
     }
 
-    if(dmg < 0 || ap < 0 || ap > 100 || barrier < 0){
-        showMessage('Obrażenia, AP i bariera mają nieprawidłową wartość.', 'error')
+    if(dmg < 0 || ap < 0 || ap > 100 || barrier < 0 || !Number.isFinite(armor) || armor < 0){
+        showMessage('Obrażenia, AP, bariera lub pancerz mają nieprawidłową wartość.', 'error')
         return
     }
 
@@ -1272,7 +1266,7 @@ async function calculateGettingHit(){
     try{
         const response = await fetch(`${url}calculate_hit`, {
             method: 'POST',
-            body: JSON.stringify({dmg, ap, barrier, parts, ignore_armor}),
+            body: JSON.stringify({dmg, ap, barrier, parts, ignore_armor, armor}),
             headers: {
                 'Content-Type': 'application/json',
                 'X-CSRFToken': token,
@@ -1309,6 +1303,7 @@ async function calculateGettingHit(){
             }
         })
 
+        updateDamageArmor()
         showMessage(data.message, data.deadly_wound ? 'error' : 'success')
         show_or_hideById('get-damage')
     }

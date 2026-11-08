@@ -1545,6 +1545,15 @@ class calculateGettingHit(APIView):
             if not parts:
                 return JsonResponse({"error": "Wybierz miejsce obrażeń."}, status=400)
 
+            if len(parts) != 1 and (len(parts) != 4 or set(parts) != valid_parts):
+                return JsonResponse({"error": "Wybierz jedną część ciała albo całe ciało."}, status=400)
+            armor_override = None
+            if data.get('armor') is not None:
+                armor_override = float(data['armor'])
+                if not math.isfinite(armor_override) or armor_override < 0:
+                    return JsonResponse({"error": "Pancerz musi być nieujemną liczbą."}, status=400)
+                armor_override = math.ceil(armor_override)
+
             char = get_object_or_404(models.Character, id=kwargs['char_id'])
             hp_before = char.HP
 
@@ -1562,9 +1571,14 @@ class calculateGettingHit(APIView):
                 'hands': models.CharItems.objects.filter(character=char.name, position='Gloves').first(),
             }
 
+            whole_body_armor = math.ceil(sum(self._armor_value(items[part]) for part in valid_parts) / 4) if len(parts) == 4 else None
             penetration_by_part = {}
             for part in parts:
                 armor_value = 0 if ignore_armor else self._armor_value(items[part])
+                if not ignore_armor and whole_body_armor is not None:
+                    armor_value = whole_body_armor
+                if not ignore_armor and armor_override is not None:
+                    armor_value = armor_override
                 penetration_by_part[part] = max(dmg_for_armor - armor_value, 0)
 
             armor_damage = max(penetration_by_part.values(), default=0)

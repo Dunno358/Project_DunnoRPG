@@ -330,7 +330,7 @@
 
         <div class="row m-0 p-0 mt-1">
             <div class="col">
-                <a class="btn bg-danger bg-gradient text-white w-100 ps-2 pe-2" onclick="show_or_hideById('get-damage')"> <!-- Tutaj pokazanie formularza z wyborem części ciała i wartości dmg, ap oraz OK jako href do viewsa który ogarnie i potem powróci tutaj -->
+                <a class="btn bg-danger bg-gradient text-white w-100 ps-2 pe-2" onclick="updateDamageArmor(); show_or_hideById('get-damage')"> <!-- Tutaj pokazanie formularza z wyborem części ciała i wartości dmg, ap oraz OK jako href do viewsa który ogarnie i potem powróci tutaj -->
                     Otrzymano obrażenia
                 </a>
             </div>
@@ -344,21 +344,21 @@
             </div>
 
             <div class="row m-0 p-0">
-                <div id="get-dmg-all" class="col bg-gray p-2 m-1 rounded bg-gradient border border-warning get-dmg-all" onclick="setActive('get-dmg-all')">
+                <button type="button" id="get-dmg-all" aria-pressed="false" class="col c-gold bg-gray p-2 m-1 rounded bg-gradient border border-warning get-dmg-all" onclick="setActive('get-dmg-all')">
                     Całe ciało
-                </div>
-                <div id="get-dmg-head" class="col bg-gray p-2 m-1 rounded bg-gradient border border-warning get-dmg-place" onclick="setActive('get-dmg-head')">
+                </button>
+                <button type="button" id="get-dmg-head" aria-pressed="false" class="col c-gold bg-gray p-2 m-1 rounded bg-gradient border border-warning get-dmg-place" onclick="setActive('get-dmg-head')">
                     Głowa
-                </div>
-                <div id="get-dmg-torso" class="col bg-gray p-2 m-1 rounded bg-gradient border border-primary active text-primary get-dmg-place" onclick="setActive('get-dmg-torso')">
+                </button>
+                <button type="button" id="get-dmg-torso" aria-pressed="true" class="col c-gold bg-gray p-2 m-1 rounded bg-gradient border border-primary active text-primary get-dmg-place" onclick="setActive('get-dmg-torso')">
                     Torso
-                </div>
-                <div id="get-dmg-hands" class="col bg-gray p-2 m-1 rounded bg-gradient border border-warning get-dmg-place" onclick="setActive('get-dmg-hands')">
+                </button>
+                <button type="button" id="get-dmg-hands" aria-pressed="false" class="col c-gold bg-gray p-2 m-1 rounded bg-gradient border border-warning get-dmg-place" onclick="setActive('get-dmg-hands')">
                     Ręce
-                </div>
-                <div id="get-dmg-legs" class="col bg-gray p-2 m-1 rounded bg-gradient border border-warning get-dmg-place" onclick="setActive('get-dmg-legs')">
+                </button>
+                <button type="button" id="get-dmg-legs" aria-pressed="false" class="col c-gold bg-gray p-2 m-1 rounded bg-gradient border border-warning get-dmg-place" onclick="setActive('get-dmg-legs')">
                     Nogi
-                </div>
+                </button>
             </div>
 
             <div class="row m-0 p-0 mt-2">
@@ -392,6 +392,14 @@
                 </div>
                 <div class="col">
                     <input type="number" min="0" class="bg-gray border border-warning c-gold rounded text-center" value="{{ value.barrier }}" id="get-dmg-barrier"/>
+                </div>
+            </div>
+            <div id="get-dmg-armor-field" class="col mt-3 m-0 p-0">
+                <div class="col">
+                    <label for="get-dmg-armor">Pancerz:</label>
+                </div>
+                <div class="col">
+                    <input type="number" min="0" step="1" class="bg-gray border border-warning c-gold rounded text-center" value="{% if torso %}{{ torso.name|getItemArmorByDurability:torso.durability }}{% else %}0{% endif %}" id="get-dmg-armor"/>
                 </div>
             </div>
             <div class="row m-0 p-0 mt-3">
