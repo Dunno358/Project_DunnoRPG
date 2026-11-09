@@ -51,6 +51,7 @@ raceSizes = {
 CHAPTER_CHOICES = [
     "Tzeentch",
     "Bretonnia",
+    "Averland",
     "Krasnoludy",
     "Wschodnie Ziemie",
     "Cathay",
@@ -61,6 +62,7 @@ CHAPTER_CHOICES = [
 CHAPTER_404_BACKGROUND_CLASSES = {
     "Tzeentch": "body-bg404-tzeentch",
     "Bretonnia": "body-bg404-bretonnia",
+    "Averland": "body-bg404-nordland",
     "Krasnoludy": "body-bg404-krasnoludy",
     "Wschodnie Ziemie": "body-bg404-wschodnie-ziemie",
     "Wschód": "body-bg404-wschodnie-ziemie",
@@ -72,6 +74,7 @@ CHAPTER_404_BACKGROUND_CLASSES = {
 CHAPTER_404_TEXT_STROKE_CLASSES = {
     "Tzeentch": "text-404-stroke-tzeentch",
     "Bretonnia": "text-404-stroke-bretonnia",
+    "Averland": "text-404-stroke-nordland",
     "Krasnoludy": "text-404-stroke-krasnoludy",
     "Wschodnie Ziemie": "text-404-stroke-wschodnie-ziemie",
     "Wschód": "text-404-stroke-wschodnie-ziemie",
