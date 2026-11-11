@@ -1406,6 +1406,24 @@ def confirm_parry(request, char_id):
 
 
 @require_POST
+def confirm_dodge(request, char_id):
+    with transaction.atomic():
+        char = get_object_or_404(models.Character.objects.select_for_update(), id=char_id)
+        if not request.user.is_authenticated or (char.owner != request.user.username and not request.user.is_superuser):
+            return JsonResponse({'error': 'Brak dostępu do postaci.'}, status=403)
+        try:
+            used = int(request.POST.get('advantage_used', 0))
+        except (TypeError, ValueError):
+            return JsonResponse({'error': 'Nieprawidłowe dane uniku.'}, status=400)
+        if used != max(-2, min(2, char.advantageBalance)):
+            return JsonResponse({'error': 'Bilans przewag zmienił się. Otwórz ponownie formularz uniku.',
+                                 'advantageBalance': char.advantageBalance}, status=409)
+        char.advantageBalance -= used
+        char.save(update_fields=['advantageBalance'])
+        return JsonResponse({'advantageBalance': char.advantageBalance})
+
+
+@require_POST
 def confirm_attack(request, char_id):
     with transaction.atomic():
         char = get_object_or_404(models.Character.objects.select_for_update(), id=char_id)
@@ -1916,6 +1934,7 @@ def enter_or_leave_fight(request,char_id):
         models.Skills.objects.bulk_update(skills_to_reset, ['uses_left'])
     else:
         character.inFight = True
+        character.actionLeft = 1.0
         character.advantageBalance = 0
         character.fight_exp_gained = 0
         character.fight_damage_taken = 0
@@ -2544,11 +2563,13 @@ def change_char_details(request, **kwargs):
         print(traceback.format_exc())
         return JsonResponse({"error": str(e)}, status=400)
     
+@require_POST
 def end_round_infight(request, **kwargs):
+    char = get_object_or_404(models.Character, id=kwargs['char_id'])
+    if not request.user.is_authenticated or (char.owner != request.user.username and not request.user.is_superuser):
+        return JsonResponse({'error': 'Brak dostępu do postaci.'}, status=403)
     try:
-        char = get_object_or_404(models.Character, id=kwargs['char_id'])
         effects = models.Effects.objects.filter(character=char.name)
-        removedAny = False
 
         char.actionLeft = 1.0
         char.save()
@@ -2556,7 +2577,6 @@ def end_round_infight(request, **kwargs):
         for effect in effects:
             if effect.time == 1:
                 effect.delete()
-                removedAny = True
             elif effect.time < 100:
                 effect.time -= 1
                 effect.save()
@@ -2564,20 +2584,15 @@ def end_round_infight(request, **kwargs):
         for mod in models.Mods.objects.filter(character=char.name, time__gt=0):
             if mod.time == 1:
                 mod.delete()
-                removedAny = True
             else:
                 mod.time -= 1
                 mod.save()
 
-        if removedAny:
-            msg = "Zakończono rundę, odnowiono ilość akcji postaci oraz usunięto niektóre efekty/modyfikatory"
-        else:
-            msg = "Zakończono rundę oraz odnowiono ilość akcji postaci"
-
-        messages.success(request, msg)
         return redirect('character_detail', char.id) 
     except Exception as e:
         print(traceback.format_exc())
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+            return JsonResponse({'error': 'Nie udało się zakończyć rundy.'}, status=400)
         messages.success(request, f"Błąd: {e}")
         return redirect('character_detail', char.id) 
 

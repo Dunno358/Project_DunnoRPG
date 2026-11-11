@@ -280,7 +280,7 @@ style="width: 98%; z-index: 20; margin-left: 0.1rem !important; margin-top: -1re
 
 </div>
 
-<div id='dice-input' data-in-fight="{{ chosen_character.0.inFight|yesno:'true,false' }}" data-actions-left="{{ chosen_character.0.actionLeft|unlocalize }}" data-advantage-balance="{{ chosen_character.0.advantageBalance }}" data-parry-url="{% url 'confirm_parry' chosen_character.0.id %}" data-confirm-url="{% url 'confirm_attack' chosen_character.0.id %}" class='d-none h5 position-fixed bg-dark c-gold container-fluid m-0 p-0 border border-primary' style="top: 5vh; max-height: 100vh; overflow: auto; z-index: 10; left: 1vw; width: 99%;">
+<div id='dice-input' data-in-fight="{{ chosen_character.0.inFight|yesno:'true,false' }}" data-actions-left="{{ chosen_character.0.actionLeft|unlocalize }}" data-advantage-balance="{{ chosen_character.0.advantageBalance }}" data-dodge-url="{% url 'confirm_dodge' chosen_character.0.id %}" data-parry-url="{% url 'confirm_parry' chosen_character.0.id %}" data-confirm-url="{% url 'confirm_attack' chosen_character.0.id %}" class='d-none h5 position-fixed bg-dark c-gold container-fluid m-0 p-0 border border-primary' style="top: 5vh; max-height: 100vh; overflow: auto; z-index: 10; left: 1vw; width: 99%;">
 
     <div class='row m-0 p-2'>
         <div class="col text-center h2">
@@ -1682,6 +1682,10 @@ async function showAttackResult(hand, item_id){
 }
 
 function setParryMode(parry){
+    const dice = document.getElementById('dice-dmg')
+    dice.min = 0
+    dice.removeAttribute('max')
+    document.getElementById('is-destructible').closest('.row').classList.remove('d-none')
     document.getElementById('dice-input-subtitle').parentElement.parentElement.classList.toggle('d-none', parry)
     document.getElementById('dice-cel').parentElement.parentElement.classList.toggle('d-none', parry)
     document.getElementById('body-target').parentElement.parentElement.classList.toggle('d-none', parry)
@@ -1804,6 +1808,76 @@ async function showParryResult(hand){
             `Efekty: ${effectBonus}`, `Klasa: ${classBonus}`, `Przedmioty: ${itemBonus}`,
             `Przewaga / utrudnienie: ${advantageRoll}`, `Suma = ${baseBlock}`,
             `Wytrzymałość: ${durability * 100}%*${baseBlock}=${result}`, `Wynik: ${result}`,
+        ].join('\n')
+        document.getElementById('attack-details').open = false
+        modal.classList.add('d-none')
+        document.getElementById('result-div').classList.remove('d-none')
+    }catch(error){ showMessage(error.message, 'error') }
+    finally{ button.disabled = false }
+}
+
+function gatherDodgeInfo(){
+    const modal = document.getElementById('dice-input')
+    setParryMode(true)
+    ;['alternate-attack-row', 'ammo-row', 'critical-choice-row'].forEach(id => document.getElementById(id).classList.add('d-none'))
+    document.getElementById('is-destructible').closest('.row').classList.add('d-none')
+    document.getElementById('dice-input-title').textContent = 'Unik'
+    document.getElementById('dice-dmg-label').textContent = 'K20:'
+    const dice = document.getElementById('dice-dmg')
+    dice.min = 1
+    dice.max = 20
+    dice.value = ''
+    updateAttackAdvantage()
+    document.getElementById('attack-confirm-btn').onclick = showDodgeResult
+    document.getElementById('pop-window').classList.add('d-none')
+    modal.classList.remove('d-none')
+}
+
+async function showDodgeResult(){
+    const modal = document.getElementById('dice-input')
+    const button = document.getElementById('attack-confirm-btn')
+    if(button.disabled){ return }
+    const dice = document.getElementById('dice-dmg')
+    const advantage = document.getElementById('advantage-dice')
+    const used = Number(modal.dataset.advantageUsed)
+    if(!dice.reportValidity() || (used && !advantage.reportValidity())){ return }
+    const roll = Number(dice.value)
+    const agility = parseDisplayedNumber('stat-ZRE')
+    const modifier = parseDisplayedNumber('stat-ZRE-mod')
+    const effects = parseDisplayedNumber('effects-dodge')
+    const advantageRoll = used ? Math.sign(used) * Number(advantage.value) : 0
+    const result = roll + agility + modifier + effects + advantageRoll
+    const body = new FormData()
+    body.set('advantage_used', used)
+    button.disabled = true
+    try{
+        const response = await fetch(modal.dataset.dodgeUrl, {
+            method: 'POST', body,
+            headers: {'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value},
+        })
+        const data = await response.json()
+        if(data.advantageBalance !== undefined){
+            modal.dataset.advantageBalance = data.advantageBalance
+            const balance = document.getElementById('advantageBalance-val')
+            if(balance){
+                balance.value = data.advantageBalance
+                balance.setAttribute('value', data.advantageBalance)
+                balance.dataset.lastSubmittedValue = String(data.advantageBalance)
+            }
+        }
+        if(!response.ok){
+            updateAttackAdvantage()
+            throw new Error(data.error || 'Nie udało się zatwierdzić uniku.')
+        }
+        document.getElementById('result-div-row1').textContent = 'Unik'
+        document.getElementById('result-div-row1').classList.remove('text-danger')
+        document.getElementById('result-div-row2').textContent = ''
+        document.getElementById('result-div-row3-col1').textContent = 'Wynik: '
+        document.getElementById('result-div-row3-col2').textContent = result
+        document.getElementById('attack-critical-result').classList.add('d-none')
+        document.getElementById('attack-details-content').textContent = [
+            `K20: ${roll}`, `ZRE: ${agility}`, `Modyfikatory ZRE (z pancerzem): ${modifier}`,
+            `Efekty uniku: ${effects}`, `Przewaga / utrudnienie: ${advantageRoll}`, `Wynik: ${result}`,
         ].join('\n')
         document.getElementById('attack-details').open = false
         modal.classList.add('d-none')
@@ -2091,6 +2165,7 @@ async function refreshCharacterDetailsData(requestUrl = characterDetailsUrl.href
             headers: {
                 'X-Requested-With': 'XMLHttpRequest',
                 'X-Character-Fragment': '1',
+                ...requestOptions.headers,
             },
         })
 
@@ -2128,6 +2203,7 @@ async function refreshCharacterDetailsData(requestUrl = characterDetailsUrl.href
         })
         window.scrollTo({...scrollPosition, behavior: 'instant'})
         showMessage('Dane postaci odświeżone.', 'success')
+        return true
     }
     catch(error){
         showMessage(error.message, 'error')
@@ -2186,6 +2262,10 @@ function change_result(text, element, mods, result, additional=false){
     }
 }
 
+function calculateCharacterMovement(baseMove, agility, modifier, mobility){
+    return Math.max(0, baseMove + Math.floor((agility + modifier) / 2) + mobility)
+}
+
 let movementTracker = {
     baseMove: 0,
     totalMove: 0,
@@ -2210,9 +2290,25 @@ function clearMovementTracker(){
     }
 }
 
-function endRound(){
-    clearMovementTracker()
-    window.location.replace(window.location.href + 'end-round')
+async function endRound(){
+    const button = document.getElementById('end-round')
+    if(button.disabled){ return }
+    button.disabled = true
+    try{
+        const refreshed = await refreshCharacterDetailsData(new URL('end-round', characterDetailsUrl).href, {
+            method: 'POST',
+            headers: {'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value},
+        })
+        if(refreshed){
+            clearMovementTracker()
+            document.getElementById('pop-window').classList.add('d-none')
+            document.getElementById('dice-input').classList.add('d-none')
+            document.getElementById('result-div').classList.add('d-none')
+            showMessage('Zakończono rundę. Odnowiono akcje i ruch oraz zaktualizowano efekty i modyfikatory.', 'success')
+        }
+    }finally{
+        document.getElementById('end-round').disabled = false
+    }
 }
 
 function saveMovementTracker(){
@@ -2407,6 +2503,7 @@ function show_result_at_window(action){
     window_action_bottom.onclick = ''
 
     window_url = document.getElementById('window-footer-text')
+    window_url.onclick = action === 'Dice' ? null : event => event.preventDefault()
 
     const left_range  = document.getElementById('l-range')?.textContent  ?? '?'
     const right_range = document.getElementById('r-range')?.textContent ?? '?'
@@ -2417,54 +2514,39 @@ function show_result_at_window(action){
     
     if (action == 'Dodge')
     {
-        let dodge_icon = document.getElementById('dodge_icon')
-        dodge_effect_bonus = parseInt(document.getElementById('effects-dodge').innerHTML)
-        zre = parseInt(document.getElementById('stat-ZRE').innerHTML)
-        zre_mod = parseInt(document.getElementById('stat-ZRE-mod').innerHTML) 
-        dodge_mods = zre+zre_mod+dodge_effect_bonus
-
-        window_action_top.innerHTML = ''
-        window_action_top.onclick = ''
-
-        dice_result = getDiceWMods(window_action_top,dodge_mods,getResult=true,text="Unik | Bonus do wyniku kości")
-
-        details = 'ZRE'+'('+zre+')'+ ' + '+'MODS'+'('+(zre_mod+dodge_effect_bonus)+')'
-        window_action_top.onclick = function() {change_result(details,window_action,dodge_mods, dice_result)}
+        gatherDodgeInfo()
     }
     else if(action == "Overwatch")
     {
+        const overwatchLabel = '{{ "||Overwatch"|textWithDefinitionStandard|escapejs }}'
         try{
             let l_range = parseInt(document.getElementById('l-range').textContent)
             if(l_range>5){
-                window_action_top.textContent = `Zasięg Overwatch dla lewej ręki: 1 hex`
+                window_action_top.innerHTML = `Zasięg ${overwatchLabel} dla lewej ręki: 1 hex`
             }else{
-                window_action_top.textContent = `Zasięg Overwatch dla lewej ręki: ${l_range} hex`
+                window_action_top.innerHTML = `Zasięg ${overwatchLabel} dla lewej ręki: ${l_range} hex`
             }
         }catch{
-            window_action_top.textContent = `Brak Overwatch dla lewej ręki.`
+            window_action_top.innerHTML = `Brak ${overwatchLabel} dla lewej ręki.`
         }
 
 
         try{
             let r_range = parseInt(document.getElementById('r-range').textContent)
             if(r_range>5){
-                window_action_bottom.textContent = `Zasięg Overwatch dla prawej ręki: 1 hex`
+                window_action_bottom.innerHTML = `Zasięg ${overwatchLabel} dla prawej ręki: 1 hex`
             }else{
-                window_action_bottom.textContent = `Zasięg Overwatch dla prawej ręki: ${r_range} hex`
+                window_action_bottom.innerHTML = `Zasięg ${overwatchLabel} dla prawej ręki: ${r_range} hex`
             }
         }catch{
-            window_action_bottom.textContent = `Brak Overwatch dla prawej ręki.`
+            window_action_bottom.innerHTML = `Brak ${overwatchLabel} dla prawej ręki.`
         }
     }
     else if (action == 'Move')
     {
-        zre = parseInt(document.getElementById('stat-ZRE').innerHTML)
-        zre_mod = parseInt(document.getElementById('stat-ZRE-mod').innerHTML) 
-        mobility_mod = parseInt(document.getElementById('mobility-mod').innerHTML)
-        full_zre = parseInt(zre+zre_mod)
-        zre_move = Math.floor(full_zre/2)
-        const base_move = {% if chosen_character.0.chosen_class|lower == 'juggernaut' %}3{% else %}4{% endif %}
-        full_move = Math.max(0, base_move + zre_move + mobility_mod)
+        const baseMove = {% if chosen_character.0.chosen_class|lower == 'juggernaut' %}3{% else %}4{% endif %}
+        const full_move = calculateCharacterMovement(baseMove, parseDisplayedNumber('stat-ZRE'),
+            parseDisplayedNumber('stat-ZRE-mod'), parseDisplayedNumber('mobility-mod'))
 
         showMovementAction(full_move, {% if mount %}{{ mount_mobility|default:0 }}{% else %}null{% endif %})
 
