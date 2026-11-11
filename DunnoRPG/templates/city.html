@@ -1135,20 +1135,19 @@
         <div class='ms-0 ps-0 row text-center c-gold p-2 rounded border border-warning bg-dark mt-1' onclick="showOrHideBlock(this,'medic')" style="width: 100%;">
             <h2>Uzdrowiciel<span class="ms-2 d-inline-block" style="width: 1em; height: 1em; vertical-align: -0.12em; background-color: currentColor; -webkit-mask: url('{% static 'DunnoRPG/img/icons/plague-doctor-profile.svg' %}') center / contain no-repeat; mask: url('{% static 'DunnoRPG/img/icons/plague-doctor-profile.svg' %}') center / contain no-repeat;"></span></h2>
         </div>
-        <div id='medic' class='container text-center c-gold rounded border border-primary bg-dark d-none p-0 m-0' style="width: 100%;">
-            {% for char in characters %}
-                <div class='mt-2 row bg-gray rounded m-1 border border-primary'>
-                    <a class='col text-center c-gold h5 m-1' id='char.id'>
+        <div id='medic' data-ignore-charisma="{{ user.is_superuser|yesno:'true,false' }}" class='container text-center c-gold rounded border border-primary bg-dark d-none p-0 m-0' style="width: 100%;">
+            {% for char in injured_characters %}
+                <div data-healing-character="{{ char.id }}" class='mt-2 row bg-gray rounded m-1 border border-primary align-items-center'>
+                    <span class='col text-center c-gold h5 m-1'>
                         {{ char.name }}
-                    </a>
-                    <input type='number' max="{{ char.fullHP }}" min="0" id="{{ char.id }}-heal-val"
-                    class='col-3 c-gold m-1 bg-gray border border-warning rounded d-flex align-items-center justify-content-center'
-                    placeholder='{{ char.HP }}/{{ char.fullHP }} HP'>
-                    <a class='col-2 text-center btn btn-sm btn-success' onclick="heal('{{ char.id }}')">
-                        Heal
-                    </a>
+                    </span>
+                    <button type="button" class="col-auto text-center btn btn-sm btn-success m-1"
+                            data-heal-url="{% url 'heal_character' char.id %}" data-healing-base-price="{{ char.healing_base_cost|unlocalize }}" onclick="heal(this)">
+                        Wylecz za: {{ char.healing_cost|floatformat:"-1u" }} monet
+                    </button>
                 </div>
             {% endfor %}
+            <p id="healer-empty" class="m-2{% if injured_characters %} d-none{% endif %}">Brak postaci wymagających leczenia.</p>
         </div>
 
         {% endif %}
@@ -1198,6 +1197,7 @@
 
     restoreBuyingCharacter()
     updateArmorWeightWarnings()
+    updateHealingPrices()
 
     async function refreshCityData(button){
         const originalContent = button.innerHTML
@@ -1432,6 +1432,21 @@
         } catch(error) {}
         updateBuyPrice()
         updateArmorWeightWarnings()
+        updateHealingPrices()
+    }
+
+    function updateHealingPrices(){
+        const medic = document.getElementById('medic')
+        if(!medic){ return }
+        const character = document.getElementById('choosing_char_select')?.selectedOptions[0]
+        const charisma = medic.dataset.ignoreCharisma === 'true' ? 0 :
+            (Number(character?.dataset.charisma) || 0) + (Number(character?.dataset.charismaMod) || 0)
+        medic.querySelectorAll('[data-healing-base-price]').forEach(button => {
+            const baseTenths = Math.round(Number(button.dataset.healingBasePrice) * 10)
+            const discountTenths = Math.sign(charisma) * Math.floor(Math.abs(baseTenths * charisma) / 50 + 0.5)
+            const price = Math.max(0, baseTenths - discountTenths) / 10
+            button.textContent = `Wylecz za: ${price} monet`
+        })
     }
 
     let purchasePending = false
@@ -1629,14 +1644,54 @@
         showCityItemIframe(itemUrl.pathname + itemUrl.search)
     })
 
-    function heal(char_id){
-        id = char_id+"-heal-val"
-        val = document.getElementById(id).value
-        if(val==''){
-            alert('You must give any value to input first!')
-        }
-        else{
-            window.location.href = window.location.href + char_id + "h" + val
+    function showHealingMessage(message, success){
+        const popup = document.createElement('div')
+        popup.className = `position-fixed bg-dark border rounded p-3 shadow ${success ? 'text-success border-success' : 'text-danger border-danger'}`
+        popup.style.cssText = 'top: 1rem; right: 1rem; z-index: 1100; max-width: calc(100vw - 2rem);'
+        popup.setAttribute('role', success ? 'status' : 'alert')
+        const text = document.createElement('span')
+        text.textContent = message
+        const close = document.createElement('button')
+        close.type = 'button'
+        close.className = 'btn-close btn-close-white ms-3'
+        close.setAttribute('aria-label', 'Zamknij powiadomienie')
+        close.onclick = () => popup.remove()
+        popup.append(text, close)
+        document.body.append(popup)
+        setTimeout(() => popup.remove(), 6000)
+    }
+
+    async function heal(button){
+        if(button.disabled){ return }
+        button.disabled = true
+        try{
+            const body = new FormData()
+            body.set('charisma_character_id', document.getElementById('choosing_char_select').value)
+            const response = await fetch(button.dataset.healUrl, {
+                method: 'POST',
+                body,
+                headers: {
+                    'Accept': 'application/json',
+                    'X-CSRFToken': document.querySelector('meta[name="csrf-token"]').content,
+                },
+            })
+            if(!response.headers.get('content-type')?.includes('application/json')){
+                throw new Error('Nie udało się wyleczyć postaci. Odśwież dane miasta i spróbuj ponownie.')
+            }
+            const data = await response.json()
+            if(!response.ok){ throw new Error(data.message || 'Nie udało się wyleczyć postaci.') }
+            const character = Array.from(document.getElementById('choosing_char_select').options)
+                .find(option => option.value === String(data.character_id))
+            if(character){ character.dataset.coins = data.coins }
+            updateArmorWeightWarnings()
+            updateBuyPrice()
+            button.closest('[data-healing-character]').remove()
+            document.getElementById('healer-empty').classList.toggle('d-none', Boolean(document.querySelector('[data-healing-character]')))
+            showHealingMessage(data.message, true)
+        }catch(error){
+            showHealingMessage(error.message, false)
+        }finally{
+            button.disabled = false
         }
     }
 

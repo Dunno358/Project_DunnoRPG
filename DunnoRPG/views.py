@@ -18,7 +18,7 @@ from django.views.generic import FormView, ListView, TemplateView
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView
 from django.views.decorators.http import require_POST
-from decimal import Decimal, InvalidOperation, ROUND_FLOOR
+from decimal import Decimal, InvalidOperation, ROUND_FLOOR, ROUND_HALF_UP
 from rest_framework import generics, status
 from rest_framework.decorators import api_view
 from rest_framework.parsers import JSONParser
@@ -4736,6 +4736,11 @@ class CityView(ListView):
                 characters_query = characters_query.filter(owner=self.request.user)
             characters = list(characters_query)
             context['characters'] = characters
+            context['injured_characters'] = []
+            for character in characters:
+                if character.fullHP is not None and character.HP < character.fullHP:
+                    character.healing_base_cost = (character.fullHP - character.HP) * Decimal('0.5')
+                    context['injured_characters'].append(character)
 
             character_names = [character.name for character in characters]
             equipped_items = list(models.CharItems.objects.filter(character__in=character_names))
@@ -4768,6 +4773,12 @@ class CityView(ListView):
                 character.city_armor_weight_rank = class_armor_ranks.get(character.chosen_class, ARMOR_WEIGHT_ORDER["all"])
                 value = charisma_mods.get(character.name, 0)
                 character.city_char_mod = f"+{value}" if value >= 0 else str(value)
+
+            healing_charisma = characters[0].CHAR + int(characters[0].city_char_mod) if characters else 0
+            for character in context['injured_characters']:
+                character.healing_cost = get_city_healing_price(
+                    character.healing_base_cost, 0 if self.request.user.is_superuser else healing_charisma,
+                )
 
             if city.repair:
                 items_by_character = {name: [] for name in character_names}
@@ -4997,30 +5008,56 @@ class OrderTavernItem(APIView):
         messages.success(request, f'[{character.name}] Zamówiono {item_amount}x {item.name} za {price} monet.')
         return redirect('/dunnorpg/city')
 
-class healCharacter(APIView):
-    def get(self,request,**kwargs):
-        city = get_object_or_404(models.Cities, visiting=True)
-        if not city.healer:
-            messages.error(request, 'Uzdrowiciel nie jest dostepny w tym miescie.')
-            return redirect('/dunnorpg/city')
+def get_city_healing_price(base_cost, charisma):
+    discount = (base_cost * Decimal(charisma) * Decimal('0.02')).quantize(Decimal('0.1'), rounding=ROUND_HALF_UP)
+    return max(Decimal('0'), base_cost - discount)
 
-        character = get_object_or_404(models.Character, id=kwargs['char_id'])
-        val = kwargs['val']
 
-        if character.HP + val <= character.fullHP:
-            if val < 0:
-                messages.error(request, 'Value for healing must be at least 0.')
-                
-            elif character.coins < val:
-                messages.error(request, 'Not enough money!')
-            else:
-                character.HP += val
-                character.coins -= val
-                character.save()
-                messages.success(request, f'{character.name} has been healed succesfully!')
-        else:
-            messages.error(request, f"Value you given doesn't fit {character.name} health points!")
-        return redirect('/dunnorpg/city')
+@require_POST
+@transaction.atomic
+def heal_character(request, char_id):
+    if not request.user.is_authenticated:
+        return JsonResponse({'message': 'Zaloguj się, aby leczyć postacie.'}, status=403)
+    city = get_object_or_404(models.Cities.objects.select_for_update(), visiting=True)
+    if not city.healer:
+        return JsonResponse({'message': 'Uzdrowiciel nie jest dostępny w tym mieście.'}, status=403)
+    characters = models.Character.objects.select_for_update().filter(hidden=False)
+    if not request.user.is_superuser:
+        characters = characters.filter(owner=request.user.username)
+    character = get_object_or_404(characters, id=char_id)
+    charisma = 0
+    if not request.user.is_superuser:
+        try:
+            selected_id = int(request.POST.get('charisma_character_id', ''))
+        except (TypeError, ValueError):
+            return JsonResponse({'message': 'Wybierz postać, której charyzma wpływa na cenę leczenia.'}, status=400)
+        selected = get_object_or_404(characters, id=selected_id)
+        charisma = selected.CHAR + sum(models.Mods.objects.filter(character=selected.name, field='CHAR').values_list('value', flat=True))
+        item_names = models.CharItems.objects.filter(character=selected.name).values_list('name', flat=True)
+        descriptions = {item.name: item for item in models.Items.objects.filter(name__in=item_names)}
+        for name in item_names:
+            description = descriptions.get(name)
+            for stat in (description.skillStats or '').split(';') if description else []:
+                if len(stat) >= 2 and stat[:-2].lower() == 'char':
+                    try:
+                        charisma += int(stat[-2:])
+                    except ValueError:
+                        pass
+    if character.fullHP is None or character.HP >= character.fullHP:
+        return JsonResponse({'message': 'Ta postać nie wymaga leczenia.'}, status=400)
+    healed = character.fullHP - character.HP
+    cost = get_city_healing_price(healed * Decimal('0.5'), charisma)
+    coins = Decimal(str(character.coins))
+    if coins < cost:
+        return JsonResponse({'message': f'Za mało monet. Leczenie kosztuje {cost:g} monet. Brakuje {cost - coins:g} monet.'}, status=400)
+    character.HP = character.fullHP
+    character.coins = float(coins - cost)
+    character.save(update_fields=['HP', 'coins'])
+    return JsonResponse({
+        'message': f'Wyleczono {character.name} do pełnego PŻ ({character.fullHP}). Koszt: {cost:g} monet.',
+        'character_id': character.id, 'hp': character.HP, 'coins': character.coins,
+        'cost': float(cost), 'healed': healed,
+    })
 
 class SignUp(CreateView):
     form_class = UserCreationForm
