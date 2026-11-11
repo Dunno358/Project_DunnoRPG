@@ -1,20 +1,27 @@
 {% extends 'master.html' %}
 
-{% block title %}DunnoRPG - Login{% endblock %}
+{% block title %}DunnoRPG - Logowanie{% endblock %}
 
 {% block content %}
+<style>
+  #login-form label {
+    text-shadow: none;
+    -webkit-text-stroke: 1px black;
+    paint-order: stroke fill;
+  }
+</style>
 <div class="text-center mt-3">
-  <h1 class="c-gold txt-shadow">Login</h1>
+  <h1 class="c-gold txt-shadow">Logowanie</h1>
   
-    <form class="f-size-150 mt-5 card-body" method="post">
+    <form id="login-form" class="f-size-150 mt-5 card-body c-gold" method="post">
       {% csrf_token %}
         {{ form.as_p }}
-          <input class="btn btn-success btn-lg mt-4 p-3" type="submit" value="Log In">
+          <input class="btn btn-success btn-lg mt-4 p-3" type="submit" value="Zaloguj się">
     </form>
 
-    <a href="{% url 'home' %}" class="btn btn-dark btn-outline-warning home-btn mt-5"><- Back   home</a>
-    <p class="c-gold txt-shadow fw-bold" style="margin-top: 15vh;">Or maybe you don't have an account?</p>
-    <a href="{% url 'signup' %}" class="btn btn-primary">Sign Up</a><br>
+    <a href="{% url 'home' %}" class="btn btn-dark btn-outline-warning home-btn mt-5">Powrót do strony głównej</a>
+    <p class="c-gold txt-shadow fw-bold" style="margin-top: 15vh;">Nie masz jeszcze konta?</p>
+    <a href="{% url 'signup' %}" class="btn btn-primary">Zarejestruj się</a><br>
 
 </div>
 {% endblock %}

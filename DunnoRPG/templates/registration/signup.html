@@ -1,23 +1,45 @@
 {% extends 'master.html' %}
 
-{% block title %}DunnoRPG - Register{% endblock title %}
+{% block title %}DunnoRPG - Rejestracja{% endblock title %}
 
 {% block content %}
+<style>
+    .registration-field input {
+        width: 100%;
+        box-sizing: border-box;
+    }
+</style>
 <div class="container rows-lg-12">
 
 <div class="c-gold">
-<h1 class="text-center fw-bolder">Register</h1>
-<form method="post" class="card-body bg-gray row-10">
+<h1 class="text-center fw-bolder">Rejestracja</h1>
+<form method="post" novalidate class="card-body bg-gray row-10">
     {% csrf_token %}
-    {{form.as_p}}
+    {% if form.errors %}
+    <div class="alert alert-danger" role="alert">
+        <p>Nie udało się utworzyć konta. Popraw poniższe błędy:</p>
+        <ul>
+        {% for field in form %}
+            {% for error in field.errors %}<li>{{ field.label }}: {{ error }}</li>{% endfor %}
+        {% endfor %}
+        {% for error in form.non_field_errors %}<li>{{ error }}</li>{% endfor %}
+        </ul>
+    </div>
+    {% endif %}
+    {% for field in form %}
+    <div class="mb-3 registration-field">
+        <div class="mb-1 text-center">{{ field.label_tag }}</div>
+        {{ field }}
+    </div>
+    {% endfor %}
 
-    <br><input class="btn btn-success row-cols-12 col-12" type="submit" value="Sign Up"/>
+    <br><input class="btn btn-success row-cols-12 col-12" type="submit" value="Zarejestruj się"/>
 
 </form>
 
 <div class="text-center mg-top-5">
-<a class="btn btn-primary" href="{% url 'login' %}">Back to login</a>
-<a class="btn btn-primary" href="{% url 'home' %}">Back to Home</a>
+<a class="btn btn-primary" href="{% url 'login' %}">Powrót do logowania</a>
+<a class="btn btn-primary mt-3 mb-1" href="{% url 'home' %}">Powrót do strony głównej</a>
 </div>
 </div>
 </div>
