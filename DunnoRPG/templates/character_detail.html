@@ -280,7 +280,7 @@ style="width: 98%; z-index: 20; margin-left: 0.1rem !important; margin-top: -1re
 
 </div>
 
-<div id='dice-input' data-in-fight="{{ chosen_character.0.inFight|yesno:'true,false' }}" data-actions-left="{{ chosen_character.0.actionLeft|unlocalize }}" data-advantage-balance="{{ chosen_character.0.advantageBalance }}" data-dodge-url="{% url 'confirm_dodge' chosen_character.0.id %}" data-parry-url="{% url 'confirm_parry' chosen_character.0.id %}" data-confirm-url="{% url 'confirm_attack' chosen_character.0.id %}" class='d-none h5 position-fixed bg-dark c-gold container-fluid m-0 p-0 border border-primary' style="top: 5vh; max-height: 100vh; overflow: auto; z-index: 10; left: 1vw; width: 99%;">
+<div id='dice-input' data-in-fight="{{ chosen_character.0.inFight|yesno:'true,false' }}" data-actions-left="{{ chosen_character.0.actionLeft|unlocalize }}" data-advantage-balance="{{ chosen_character.0.advantageBalance|unlocalize }}" data-dodge-url="{% url 'confirm_dodge' chosen_character.0.id %}" data-parry-url="{% url 'confirm_parry' chosen_character.0.id %}" data-confirm-url="{% url 'confirm_attack' chosen_character.0.id %}" class='d-none h5 position-fixed bg-dark c-gold container-fluid m-0 p-0 border border-primary' style="top: 5vh; max-height: 100vh; overflow: auto; z-index: 10; left: 1vw; width: 99%;">
 
     <div class='row m-0 p-2'>
         <div class="col text-center h2">
@@ -364,7 +364,7 @@ style="width: 98%; z-index: 20; margin-left: 0.1rem !important; margin-top: -1re
             <div class="col">
                 <select class="w-100 text-center border border-warning bg-gray c-gold rounded p-1 ms-1" id="chosen-ammo">
                     {% for item in ammo %}
-                        <option value='{{ item.id }}' data-dmg-modifier="{{ item.attack_dmg_modifier|unlocalize }}" data-ap="{{ item.attack_ap }}" data-amount="{{ item.amount }}">{{ item.name }} x{{ item.amount }}</option>
+                        <option value='{{ item.id }}' data-dmg-modifier="{{ item.attack_dmg_modifier|unlocalize }}" data-ap="{{ item.attack_ap|unlocalize }}" data-amount="{{ item.amount|unlocalize }}">{{ item.name }} x{{ item.amount|unlocalize }}</option>
                     {% endfor %}
                     <option value='not-needed' data-dmg-modifier="1" data-ap="0">Brak</option>
                 </select>
@@ -1914,7 +1914,7 @@ function parseDisplayedNumber(elementId){
         return 0
     }
 
-    const value = parseFloat(element.innerHTML.replace(',', '.'))
+    const value = parseFloat(element.textContent.replace(/\s/g, '').replace(',', '.'))
     return Number.isNaN(value) ? 0 : value
 }
 
@@ -2073,7 +2073,7 @@ function showArmorPenaltyInfo(){
 function showAlcoholInfo(){
     const alcoholInput = document.getElementById('alcohol-val')
     const alcoholLevel = alcoholInput.value || '0'
-    const drunkennessLimit = alcoholInput.dataset.drunkennessLimit || '{{ drunkenness_limit }}'
+    const drunkennessLimit = alcoholInput.dataset.drunkennessLimit || '{{ drunkenness_limit|unlocalize }}'
     const numericAlcoholLevel = Number(alcoholLevel)
     const numericDrunkennessLimit = Number(drunkennessLimit)
     let alcoholState = alcoholInput.dataset.alcoholState || '{{ alcohol_state }}'
@@ -2548,7 +2548,7 @@ function show_result_at_window(action){
         const full_move = calculateCharacterMovement(baseMove, parseDisplayedNumber('stat-ZRE'),
             parseDisplayedNumber('stat-ZRE-mod'), parseDisplayedNumber('mobility-mod'))
 
-        showMovementAction(full_move, {% if mount %}{{ mount_mobility|default:0 }}{% else %}null{% endif %})
+        showMovementAction(full_move, {% if mount %}{{ mount_mobility|default:0|unlocalize }}{% else %}null{% endif %})
 
     }
     else if (action == 'Parry')

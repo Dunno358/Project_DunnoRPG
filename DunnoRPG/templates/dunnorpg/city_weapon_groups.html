@@ -1,4 +1,4 @@
-{% load filters %}
+{% load filters l10n %}
 {% for group_label, type_groups in weapon_groups %}
     {% if type_groups %}
     <div class="row align-items-center city-category-heading">
@@ -51,7 +51,7 @@
                             <div class="col h-100">
                                 <button class="w-100 h-100 text-center btn btn-sm btn-success d-flex align-items-center justify-content-center rounded-0" 
                                 data-shop-item-id="{{ item|getDescId }}" data-item-name="{{ item }}"
-                                data-durability="{{ item.durability_percent }}" data-unit-price="{{ item.unit_price }}" data-available-amount="{{ item.available_amount }}"
+                                data-durability="{{ item.durability_percent|unlocalize }}" data-unit-price="{{ item.unit_price|unlocalize }}" data-available-amount="{{ item.available_amount|unlocalize }}"
                                 onclick="buyItem(this.dataset.itemName, this.dataset.shopItemId, this.dataset.durability, this.dataset.unitPrice, this.dataset.availableAmount)">
                                     Zakup
                                 </button>

@@ -1,3 +1,4 @@
+    {% load l10n %}
     {% for item in items %}
     <div class='search-list-entry' data-rarity='{{ item.rarity }}' data-search-text="{{ item.name }} {{ item.desc|default_if_none:'' }}">
         <div class='row bg-dark bg-opacity-75 rounded m-2 p-2'>
@@ -28,7 +29,7 @@
             </a>
             {% if view.kwargs.char_id != 0 and item.sell_id %}
                 <button class='col-2 text-center text-white bg-success p-2 m-1 rounded'
-                onclick="sellConfirmation('{{ view.kwargs.char_id }}','{{ item.sell_id }}','{{ item.price }}','{{ item.dur }}','{{ item.max_dur }}','{{ item.name }}', '{{ item.amount }}', '{{ charisma }}')"
+                onclick="sellConfirmation('{{ view.kwargs.char_id|unlocalize }}','{{ item.sell_id|unlocalize }}','{{ item.price|unlocalize }}','{{ item.dur|unlocalize }}','{{ item.max_dur|unlocalize }}','{{ item.name|escapejs }}', '{{ item.amount|unlocalize }}', '{{ charisma|unlocalize }}')"
                 title="Sprzedaj"
                 aria-label="Sprzedaj">
                     <span class="fa-solid fa-coins fa-lg" aria-hidden="true"></span>

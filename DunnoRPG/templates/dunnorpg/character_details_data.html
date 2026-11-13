@@ -54,7 +54,7 @@
                     <form id="counter-form" method="post" action="change-counter/counter" onsubmit="changeCounter(event, 'counter')">
                         {% csrf_token %}
                         <div class="d-flex align-items-stretch">
-                            <input id='counter-val' name='counter' type="number" min="0" step="1" class="w-100 h-100 text-center c-gold bg-dark rounded bg-gradient" value="{{ chosen_character.0.counter }}"/>
+                            <input id='counter-val' name='counter' type="number" min="0" step="1" class="w-100 h-100 text-center c-gold bg-dark rounded bg-gradient" value="{{ chosen_character.0.counter|unlocalize }}"/>
                             <button type="button" class="btn btn-sm btn-danger ms-1 fw-bold counter-adjust-btn" onclick="adjustCounter('counter', -1)">-</button>
                             <button type="button" class="btn btn-sm btn-success ms-1 fw-bold counter-adjust-btn" onclick="adjustCounter('counter', 1)">+</button>
                         </div>
@@ -76,7 +76,7 @@
                     <form id="counter2-form" method="post" action="change-counter/counter2" onsubmit="changeCounter(event, 'counter2')">
                         {% csrf_token %}
                         <div class="d-flex align-items-stretch">
-                            <input id='counter2-val' name='counter2' type="number" min="0" step="1" class="w-100 h-100 text-center c-gold bg-dark rounded bg-gradient" value="{{ chosen_character.0.counter2 }}"/>
+                            <input id='counter2-val' name='counter2' type="number" min="0" step="1" class="w-100 h-100 text-center c-gold bg-dark rounded bg-gradient" value="{{ chosen_character.0.counter2|unlocalize }}"/>
                             <button type="button" class="btn btn-sm btn-danger ms-1 fw-bold counter-adjust-btn" onclick="adjustCounter('counter2', -1)">-</button>
                             <button type="button" class="btn btn-sm btn-success ms-1 fw-bold counter-adjust-btn" onclick="adjustCounter('counter2', 1)">+</button>
                         </div>
@@ -92,7 +92,7 @@
                 <form id="advantageBalance-form" method="post" action="change-counter/advantageBalance" onsubmit="changeCounter(event, 'advantageBalance')">
                     {% csrf_token %}
                     <div class="d-flex align-items-stretch">
-                        <input id='advantageBalance-val' name='advantageBalance' type="number" step="1" class="w-100 h-100 text-center c-gold bg-dark rounded bg-gradient" value="{{ chosen_character.0.advantageBalance }}"/>
+                        <input id='advantageBalance-val' name='advantageBalance' type="number" step="1" class="w-100 h-100 text-center c-gold bg-dark rounded bg-gradient" value="{{ chosen_character.0.advantageBalance|unlocalize }}"/>
                         <button type="button" class="btn btn-sm btn-danger ms-1 fw-bold counter-adjust-btn" onclick="adjustCounter('advantageBalance', -1)">-</button>
                         <button type="button" class="btn btn-sm btn-success ms-1 fw-bold counter-adjust-btn" onclick="adjustCounter('advantageBalance', 1)">+</button>
                     </div>
@@ -150,7 +150,7 @@
             <span class="text-white-50">SIŁ:</span> <span id='stat-SIŁ'>{{ chosen_character.0|dict_get:"SIŁ" }}</span> (<span id='stat-SIŁ-mod'>{{ chosen_character.0|getMod:"SIŁ" }}</span>)
         </div>
         <div class="col-4 col-md-2 py-1 character-stat-divider">
-            <span class="text-white-50">ZRE:</span> <span id='stat-ZRE'>{{ chosen_character.0|dict_get:"ZRE" }}</span> (<span id='stat-ZRE-mod' data-base-mod='{{ chosen_character.0|getMod:"ZRE" }}'>{{ chosen_character.0|getMod:"ZRE" }}</span>)
+            <span class="text-white-50">ZRE:</span> <span id='stat-ZRE'>{{ chosen_character.0|dict_get:"ZRE" }}</span> (<span id='stat-ZRE-mod' data-base-mod='{{ chosen_character.0|getMod:"ZRE"|unlocalize }}'>{{ chosen_character.0|getMod:"ZRE" }}</span>)
         </div>
         <div class="col-12 d-md-none">
             <hr class="border-warning opacity-75 m-0">
@@ -159,7 +159,7 @@
             <span class="text-white-50">CHAR:</span> <span id='stat-CHAR'>{{ chosen_character.0|dict_get:"CHAR" }}</span> (<span id='stat-CHAR-mod'>{{ chosen_character.0|getMod:"CHAR" }}</span>)
         </div>
         <div class="col-4 col-md-2 py-1 character-stat-divider">
-            <span class="text-white-50">CEL:</span> <span id='stat-CEL'>{{ chosen_character.0|dict_get:"CEL" }}</span> (<span id='stat-CEL-mod' data-base-mod='{{ chosen_character.0|getMod:"CEL" }}'>{{ chosen_character.0|getMod:"CEL" }}</span>)
+            <span class="text-white-50">CEL:</span> <span id='stat-CEL'>{{ chosen_character.0|dict_get:"CEL" }}</span> (<span id='stat-CEL-mod' data-base-mod='{{ chosen_character.0|getMod:"CEL"|unlocalize }}'>{{ chosen_character.0|getMod:"CEL" }}</span>)
         </div>
         <div class="col-4 col-md-2 py-1 character-stat-divider">
             <span class="text-white-50">SPO:</span> <span id='stat-SPO'>{{ chosen_character.0|dict_get:"SPO" }}</span> (<span id='stat-SPO-mod'>{{ chosen_character.0|getMod:"SPO" }}</span>)
@@ -275,14 +275,14 @@
                 <form id="water-form" method="post" action="change-food-water/water" class="d-inline-flex align-items-center justify-content-center flex-nowrap" onsubmit="changeFoodWater(event, 'water')">
                     {% csrf_token %}
                     <span class="fw-bold {% if value.water > 20 %}text-success{% else %}text-danger text-decoration-underline{% endif %}">Napojenie:</span>
-                    <input type="number" min="0" max="100" id="water-val" class="fw-bold text-center border-0 ms-1 {% if value.water > 20 %}text-success{% else %}text-danger text-decoration-underline{% endif %}" style="width: 2.7rem; background: transparent;" value="{{ value.water }}" name="water-amount"><span class="fw-bold {% if value.water > 20 %}text-success{% else %}text-danger text-decoration-underline{% endif %}">%</span>
+                    <input type="number" min="0" max="100" id="water-val" class="fw-bold text-center border-0 ms-1 {% if value.water > 20 %}text-success{% else %}text-danger text-decoration-underline{% endif %}" style="width: 2.7rem; background: transparent;" value="{{ value.water|unlocalize }}" name="water-amount"><span class="fw-bold {% if value.water > 20 %}text-success{% else %}text-danger text-decoration-underline{% endif %}">%</span>
                 </form>
             </div>
             <div class="col rounded p-1 bg-gray bg-gradient border border-warning m-2 p-1 h6 pb-0" style="min-width: 0;"> 
                 <form id="hp-form" class='' method="post" action="change-health" onsubmit="changeHealth(event)">
                     {% csrf_token %}
                     <span class="text-white-50" onclick="showInfoCard('Życie', 'Punkty Życia zostają zwiększone o 1 za każde 5 lvl')">Życie:</span>
-                    <input type='number' id='hp-val' class='c-gold text-center bg-gray bg-gradient border-0 h6' style='width: 6vw' value='{{ value.HP }}' name="hp">/{{ value.fullHP }}
+                    <input type='number' id='hp-val' class='c-gold text-center bg-gray bg-gradient border-0 h6' style='width: 6vw' value='{{ value.HP|unlocalize }}' name="hp">/{{ value.fullHP }}
                 </form>
             </div>
         </div>
@@ -292,14 +292,14 @@
                 <form id="food-form" method="post" action="change-food-water/food" class="d-inline-flex align-items-center justify-content-center flex-nowrap" onsubmit="changeFoodWater(event, 'food')">
                     {% csrf_token %}
                     <span class="fw-bold {% if value.food > 20 %}text-success{% else %}text-danger text-decoration-underline{% endif %}">Nasycenie:</span>
-                    <input type="number" min="0" max="100" id="food-val" class="fw-bold text-center border-0 ms-1 {% if value.food > 20 %}text-success{% else %}text-danger text-decoration-underline{% endif %}" style="width: 2.7rem; background: transparent;" value="{{ value.food }}" name="food-amount"><span class="fw-bold {% if value.food > 20 %}text-success{% else %}text-danger text-decoration-underline{% endif %}">%</span>
+                    <input type="number" min="0" max="100" id="food-val" class="fw-bold text-center border-0 ms-1 {% if value.food > 20 %}text-success{% else %}text-danger text-decoration-underline{% endif %}" style="width: 2.7rem; background: transparent;" value="{{ value.food|unlocalize }}" name="food-amount"><span class="fw-bold {% if value.food > 20 %}text-success{% else %}text-danger text-decoration-underline{% endif %}">%</span>
                 </form>
             </div>
             <div class="col rounded bg-gray bg-gradient border border-warning m-2 p-2 h6" style="min-width: 0;">
                 <form id="barrier-form" method="post" action="change-barrier" onsubmit="changeBarrier(event)">
                     {% csrf_token %}
                     <span class="text-white-50">Bariera:</span>
-                    <input type="number" min="0" id="barrier-val" class="c-gold text-center bg-gray bg-gradient border-0 h6" style="width: 4rem" value="{{ value.barrier }}" name="barrier">
+                    <input type="number" min="0" id="barrier-val" class="c-gold text-center bg-gray bg-gradient border-0 h6" style="width: 4rem" value="{{ value.barrier|unlocalize }}" name="barrier">
                 </form>
             </div>
         </div>
@@ -309,7 +309,7 @@
                 <form id="alcohol-form" method="post" action="change-food-water/alcohol" class="d-inline-flex align-items-center justify-content-center flex-nowrap" onsubmit="changeFoodWater(event, 'alcohol')">
                     {% csrf_token %}
                     <span onclick="showAlcoholInfo()" class="{% if is_over_drunkenness_limit %}text-danger text-decoration-underline{% elif value.alcohol == '0' or value.alcohol == 0 %}text-success{% endif %}" {% if not is_over_drunkenness_limit and value.alcohol != '0' and value.alcohol != 0 %}style="color: orange; cursor: pointer;"{% else %}style="cursor: pointer;"{% endif %}>Alkohol:</span>
-                    <input type="number" min="0" id="alcohol-val" class="{% if is_over_drunkenness_limit %}text-danger text-decoration-underline{% elif value.alcohol == '0' or value.alcohol == 0 %}text-success{% endif %} text-center bg-gray bg-gradient border-0 h6 ms-1" {% if is_over_drunkenness_limit %}style="width: 4rem"{% elif value.alcohol == '0' or value.alcohol == 0 %}style="width: 4rem"{% else %}style="width: 4rem; color: orange;"{% endif %} value="{{ value.alcohol }}" name="alcohol-amount" data-drunkenness-limit="{{ drunkenness_limit }}" data-alcohol-state="{{ alcohol_state }}">
+                    <input type="number" min="0" id="alcohol-val" class="{% if is_over_drunkenness_limit %}text-danger text-decoration-underline{% elif value.alcohol == '0' or value.alcohol == 0 %}text-success{% endif %} text-center bg-gray bg-gradient border-0 h6 ms-1" {% if is_over_drunkenness_limit %}style="width: 4rem"{% elif value.alcohol == '0' or value.alcohol == 0 %}style="width: 4rem"{% else %}style="width: 4rem; color: orange;"{% endif %} value="{{ value.alcohol|unlocalize }}" name="alcohol-amount" data-drunkenness-limit="{{ drunkenness_limit|unlocalize }}" data-alcohol-state="{{ alcohol_state }}">
                 </form>
             </div>
             <div class="col rounded bg-gray bg-gradient border border-warning m-2 p-2 h6" style="min-width: 0; cursor: pointer;" onclick="showArmorPenaltyInfo()">
@@ -323,7 +323,7 @@
                 <form id="coins-form" method="post" action="change-coins" onsubmit="changeCoins(event)">
                     {% csrf_token %}
                     <span class="text-white-50">Monety:</span>
-                    <input type='text' inputmode="decimal" id='coins' class='c-gold text-center bg-gray bg-gradient border-0 h6' style='width: 18vw' value='{{ value.coins|floatformat:"-1" }}' name="coins-amount">
+                    <input type='text' inputmode="decimal" id='coins' class='c-gold text-center bg-gray bg-gradient border-0 h6' style='width: 18vw' value='{{ value.coins|floatformat:"-1u" }}' name="coins-amount">
                 </form>
             </div>
         </div>
@@ -391,7 +391,7 @@
                     Bariera:
                 </div>
                 <div class="col">
-                    <input type="number" min="0" class="bg-gray border border-warning c-gold rounded text-center" value="{{ value.barrier }}" id="get-dmg-barrier"/>
+                    <input type="number" min="0" class="bg-gray border border-warning c-gold rounded text-center" value="{{ value.barrier|unlocalize }}" id="get-dmg-barrier"/>
                 </div>
             </div>
             <div id="get-dmg-armor-field" class="col mt-3 m-0 p-0">
@@ -430,7 +430,7 @@
         </div>
 
 
-        <span id="l-name" class="d-none" data-item-id="{{ leftItem.id }}" data-needed-accuracy="{{ leftWeapon.neededAccuraccy }}" data-dmg-dice="{{ leftWeapon.dmgDice }}" data-alt-attack="{{ leftWeapon.altAttack }}" data-category="{{ leftWeapon.category }}" data-damage-type="{{ leftWeapon.dmg_type }}" data-ap="{{ leftWeapon.AP }}">{{ leftItem.name }}</span>
+        <span id="l-name" class="d-none" data-item-id="{{ leftItem.id }}" data-needed-accuracy="{{ leftWeapon.neededAccuraccy|unlocalize }}" data-dmg-dice="{{ leftWeapon.dmgDice }}" data-alt-attack="{{ leftWeapon.altAttack }}" data-category="{{ leftWeapon.category }}" data-damage-type="{{ leftWeapon.dmg_type }}" data-ap="{{ leftWeapon.AP|unlocalize }}">{{ leftItem.name }}</span>
         {% if value.name|handNotAllowed:'left' %}
             <div name='head' class='row mt-2 border border-warning rounded bg-gray m-0 p-0'>
                 <div class="row c-gold me-0 pe-0">
@@ -465,7 +465,7 @@
                 <div class="row c-gold me-0 pe-0">
                     <div class="col-7 h6 text-start pt-2 ps-1 pb-0 pe-0">
                         <span class="text-white-50">Wytrzymałość:</span>
-                        <input value="{{ leftItem.durability }}" class="bg-gray border-0 c-gold p-0 m-0 h6 text-end" style="width: 15%" name="dur"/>
+                        <input value="{{ leftItem.durability|unlocalize }}" class="bg-gray border-0 c-gold p-0 m-0 h6 text-end" style="width: 15%" name="dur"/>
                         /{{ leftItem.name|getMaxDurability }}
                     </div>
                     <div class="col h6 text-end p-2 pb-0 border-start border-warning">
@@ -596,7 +596,7 @@
             <div class="col-4 p-0 m-0"><hr class="bg-danger mt-4"></div>
         </div>
 
-        <span id="r-name" class="d-none" data-item-id="{{ rightItem.id }}" data-needed-accuracy="{{ rightWeapon.neededAccuraccy }}" data-dmg-dice="{{ rightWeapon.dmgDice }}" data-alt-attack="{{ rightWeapon.altAttack }}" data-category="{{ rightWeapon.category }}" data-damage-type="{{ rightWeapon.dmg_type }}" data-ap="{{ rightWeapon.AP }}">{{ rightItem.name }}</span>
+        <span id="r-name" class="d-none" data-item-id="{{ rightItem.id }}" data-needed-accuracy="{{ rightWeapon.neededAccuraccy|unlocalize }}" data-dmg-dice="{{ rightWeapon.dmgDice }}" data-alt-attack="{{ rightWeapon.altAttack }}" data-category="{{ rightWeapon.category }}" data-damage-type="{{ rightWeapon.dmg_type }}" data-ap="{{ rightWeapon.AP|unlocalize }}">{{ rightItem.name }}</span>
         {% if value.name|handNotAllowed:'right' %}
             <div name='head' class='row mt-2 border border-warning rounded bg-gray m-0 p-0'>
                 <div class="row c-gold me-0 pe-0">
@@ -631,7 +631,7 @@
                 <div class="row c-gold me-0 pe-0">
                     <div class="col-7 h6 text-start pt-2 ps-1 pb-0 pe-0">
                         <span class="text-white-50">Wytrzymałość:</span>
-                        <input value="{{ rightItem.durability }}" class="bg-gray border-0 c-gold p-0 m-0 h6 text-end" style="width: 15%" name="dur"/>
+                        <input value="{{ rightItem.durability|unlocalize }}" class="bg-gray border-0 c-gold p-0 m-0 h6 text-end" style="width: 15%" name="dur"/>
                         /{{ rightItem.name|getMaxDurability }}
                     </div>
                     <div class="col h6 text-end p-2 pb-0 border-start border-warning">
@@ -772,7 +772,7 @@
                 <div class="row c-gold me-0 pe-0">
                     <div class="col-7 h6 text-start pt-2 ps-1 pb-0 pe-0">
                         <span class="text-white-50">Wytrzymałość:</span>
-                        <input value="{{ sideItem.durability }}" class="bg-gray border-0 c-gold p-0 m-0 h6 text-end" style="width: 15%" name="dur"/>
+                        <input value="{{ sideItem.durability|unlocalize }}" class="bg-gray border-0 c-gold p-0 m-0 h6 text-end" style="width: 15%" name="dur"/>
                         /{{ sideItem.name|getMaxDurability }}
                     </div>
                     <div class="col h6 text-end p-2 pb-0 border-start border-warning">
@@ -902,7 +902,7 @@
                 <div class="row c-gold me-0 pe-0">
                     <div class="col-7 h6 text-start pt-2 ps-1 pb-0 pe-0">
                         <span class="text-white-50">Wytrzymałość:</span>
-                        <input id="armor-head-durability" value="{{ helmet.durability }}" class="bg-gray border-0 c-gold p-0 m-0 h6 text-end" style="width: 15%" name="dur"/>
+                        <input id="armor-head-durability" value="{{ helmet.durability|unlocalize }}" class="bg-gray border-0 c-gold p-0 m-0 h6 text-end" style="width: 15%" name="dur"/>
                         /{{ helmet.name|getMaxDurability }}
                     </div>
                     <div class="col h6 text-end p-2 pb-0 border-start border-warning">
@@ -1024,7 +1024,7 @@
                 <div class="row c-gold me-0 pe-0">
                     <div class="col-7 h6 text-start pt-2 ps-1 pb-0 pe-0">
                         <span class="text-white-50">Wytrzymałość:</span>
-                        <input id="armor-torso-durability" value="{{ torso.durability }}" class="bg-gray border-0 c-gold p-0 m-0 h6 text-end" style="width: 15%" name="dur"/>
+                        <input id="armor-torso-durability" value="{{ torso.durability|unlocalize }}" class="bg-gray border-0 c-gold p-0 m-0 h6 text-end" style="width: 15%" name="dur"/>
                         /{{ torso.name|getMaxDurability }}
                     </div>
                     <div class="col h6 text-end p-2 pb-0 border-start border-warning">
@@ -1146,7 +1146,7 @@
                 <div class="row c-gold me-0 pe-0">
                     <div class="col-7 h6 text-start pt-2 ps-1 pb-0 pe-0">
                         <span class="text-white-50">Wytrzymałość:</span>
-                        <input id="armor-legs-durability" value="{{ boots.durability }}" class="bg-gray border-0 c-gold p-0 m-0 h6 text-end" style="width: 15%" name="dur"/>
+                        <input id="armor-legs-durability" value="{{ boots.durability|unlocalize }}" class="bg-gray border-0 c-gold p-0 m-0 h6 text-end" style="width: 15%" name="dur"/>
                         /{{ boots.name|getMaxDurability }}
                     </div>
                     <div class="col h6 text-end p-2 pb-0 border-start border-warning">
@@ -1268,7 +1268,7 @@
                 <div class="row c-gold me-0 pe-0">
                     <div class="col-7 h6 text-start pt-2 ps-1 pb-0 pe-0">
                         <span class="text-white-50">Wytrzymałość:</span>
-                        <input id="armor-hands-durability" value="{{ gloves.durability }}" class="bg-gray border-0 c-gold p-0 m-0 h6 text-end" style="width: 15%" name="dur"/>
+                        <input id="armor-hands-durability" value="{{ gloves.durability|unlocalize }}" class="bg-gray border-0 c-gold p-0 m-0 h6 text-end" style="width: 15%" name="dur"/>
                         /{{ gloves.name|getMaxDurability }}
                     </div>
                     <div class="col h6 text-end p-2 pb-0 border-start border-warning">
@@ -1390,7 +1390,7 @@
                 <div class="row c-gold me-0 pe-0">
                     <div class="col-7 h6 text-start pt-2 ps-1 pb-0 pe-0">
                         <span class="text-white-50">Wytrzymałość:</span>
-                        <input value="{{ amulet.durability }}" class="bg-gray border-0 c-gold p-0 m-0 h6 text-end" style="width: 15%" name="dur"/>
+                        <input value="{{ amulet.durability|unlocalize }}" class="bg-gray border-0 c-gold p-0 m-0 h6 text-end" style="width: 15%" name="dur"/>
                         /{{ amulet.name|getMaxDurability }}
                     </div>
                     <div class="col h6 text-end p-2 pb-0 border-start border-warning">
@@ -1513,7 +1513,7 @@
                 <div class="row c-gold me-0 pe-0">
                     <div class="col-7 h6 text-start pt-2 ps-1 pb-0 pe-0">
                         <span class="text-white-50">Wytrzyma&#322;o&#347;&#263;:</span>
-                        <input value="{{ accessory.durability }}" class="bg-gray border-0 c-gold p-0 m-0 h6 text-end" style="width: 15%" name="dur"/>
+                        <input value="{{ accessory.durability|unlocalize }}" class="bg-gray border-0 c-gold p-0 m-0 h6 text-end" style="width: 15%" name="dur"/>
                         /{{ accessory.name|getMaxDurability }}
                     </div>
                     <div class="col h6 text-end p-2 pb-0 border-start border-warning">
@@ -1630,7 +1630,7 @@
                 <div class="row c-gold me-0 pe-0">
                     <div class="col h6 text-start p-2 ps-3 pb-0">
                         <span class="text-white-50">Życie:</span>
-                        <input value="{{ mount.durability }}" class="bg-gray border-0 c-gold p-0 m-0 h6" style="width: 20%" name="dur"/>
+                        <input value="{{ mount.durability|unlocalize }}" class="bg-gray border-0 c-gold p-0 m-0 h6" style="width: 20%" name="dur"/>
                         /{{ mount.name|getMaxDurability }}
                     </div>
                     <div class="col h6 text-end p-2 pb-0">
@@ -1753,7 +1753,7 @@
                 <div class="row c-gold me-0 pe-0">
                     <div class="col-7 h6 text-start pt-2 ps-1 pb-0 pe-0">
                         <span class="text-white-50">Wytrzymałość:</span>
-                        <input value="{{ mount_armor.durability }}" class="bg-gray border-0 c-gold p-0 m-0 h6 text-end" style="width: 15%" name="dur"/>
+                        <input value="{{ mount_armor.durability|unlocalize }}" class="bg-gray border-0 c-gold p-0 m-0 h6 text-end" style="width: 15%" name="dur"/>
                         /{{ mount_armor.name|getMaxDurability }}
                     </div>
                     <div class="col h6 text-end p-2 pb-0 border-start border-warning">
@@ -1867,7 +1867,7 @@
                 <div class="row c-gold me-0 pe-0">
                     <div class="col-7 h6 text-start pt-2 ps-1 pb-0 pe-0">
                         <span class="text-white-50">Wytrzymałość:</span>
-                        <input value="{{ mount_horseshoes.durability }}" class="bg-gray border-0 c-gold p-0 m-0 h6 text-end" style="width: 15%" name="dur"/>
+                        <input value="{{ mount_horseshoes.durability|unlocalize }}" class="bg-gray border-0 c-gold p-0 m-0 h6 text-end" style="width: 15%" name="dur"/>
                         /{{ mount_horseshoes.name|getMaxDurability }}
                     </div>
                     <div class="col h6 text-end p-2 pb-0 border-start border-warning">
@@ -1957,7 +1957,7 @@
                 <div class="row c-gold me-0 pe-0">
                     <div class="col-7 h6 text-start pt-2 ps-1 pb-0 pe-0">
                         <span class="text-white-50">Wytrzymałość:</span>
-                        <input value="{{ mount_saddle.durability }}" class="bg-gray border-0 c-gold p-0 m-0 h6 text-end" style="width: 15%" name="dur"/>
+                        <input value="{{ mount_saddle.durability|unlocalize }}" class="bg-gray border-0 c-gold p-0 m-0 h6 text-end" style="width: 15%" name="dur"/>
                         /{{ mount_saddle.name|getMaxDurability }}
                     </div>
                     <div class="col h6 text-end p-2 pb-0 border-start border-warning">
@@ -2080,7 +2080,7 @@
             onclick="this.parentNode.parentNode.classList.add('d-none')">X</button>
         </div>
         <div class="row text-center c-gold">
-            <input type="hidden" name="id" value="{{ value.id }}">
+            <input type="hidden" name="id" value="{{ value.id|unlocalize }}">
             <input type="hidden" name="model" value="Character">
             <h5 class="fw-bold col text-center">Notatki:</h5>
         </div>    

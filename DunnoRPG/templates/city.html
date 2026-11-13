@@ -420,7 +420,7 @@
                     name="chosen_character" id="choosing_char_select" aria-label="Postać kupująca"
                     onchange="changeBuyingCharacter()" {% if not characters %}disabled{% endif %}>
                 {% for char in characters %}
-                <option value="{{ char.id }}" data-coins="{{ char.coins|unlocalize }}" data-charisma="{{ char.CHAR }}" data-charisma-mod="{{ char.city_char_mod }}" data-armor-weight-rank="{{ char.city_armor_weight_rank }}">{{ char.name }}</option>
+                <option value="{{ char.id }}" data-coins="{{ char.coins|unlocalize }}" data-charisma="{{ char.CHAR|unlocalize }}" data-charisma-mod="{{ char.city_char_mod|unlocalize }}" data-armor-weight-rank="{{ char.city_armor_weight_rank|unlocalize }}">{{ char.name }}</option>
                 {% empty %}
                 <option value="">Brak postaci</option>
                 {% endfor %}
@@ -439,8 +439,8 @@
     </div>
     <div id="city-charisma-data" class="d-none">
         {% for char in characters %}
-        <span id="{{ char.id }}-char">{{ char.CHAR }}</span>
-        <span id="{{ char.id }}-char-mod">{{ char.city_char_mod }}</span>
+        <span id="{{ char.id }}-char">{{ char.CHAR|unlocalize }}</span>
+        <span id="{{ char.id }}-char-mod">{{ char.city_char_mod|unlocalize }}</span>
         {% endfor %}
     </div>
     <div id="city-refresh-content">
@@ -594,7 +594,7 @@
                             <div class="col h-100">
                                 <button class="w-100 h-100 text-center btn btn-sm btn-success d-flex align-items-center justify-content-center rounded-0" 
                                 data-shop-item-id="{{ item|getDescId }}" data-item-name="{{ item }}"
-                                data-durability="{{ item.durability_percent }}" data-unit-price="{{ item.unit_price }}" data-available-amount="{{ item.available_amount }}"
+                                data-durability="{{ item.durability_percent|unlocalize }}" data-unit-price="{{ item.unit_price|unlocalize }}" data-available-amount="{{ item.available_amount|unlocalize }}"
                                 onclick="buyItem(this.dataset.itemName, this.dataset.shopItemId, this.dataset.durability, this.dataset.unitPrice, this.dataset.availableAmount)">
                                     Zakup
                                 </button>
@@ -649,7 +649,7 @@
                             <div class="col h-100">
                                 <button class="w-100 h-100 text-center btn btn-sm btn-success d-flex align-items-center justify-content-center rounded-0"
                                 data-shop-item-id="{{ item|getDescId }}" data-item-name="{{ item }}"
-                                data-durability="{{ item.durability_percent }}" data-unit-price="{{ item.unit_price }}" data-available-amount="{{ item.available_amount }}"
+                                data-durability="{{ item.durability_percent|unlocalize }}" data-unit-price="{{ item.unit_price|unlocalize }}" data-available-amount="{{ item.available_amount|unlocalize }}"
                                 onclick="buyItem(this.dataset.itemName, this.dataset.shopItemId, this.dataset.durability, this.dataset.unitPrice, this.dataset.availableAmount)">
                                     Zakup
                                 </button>
@@ -693,7 +693,7 @@
                     </div>
 
                     <div class="col-3 p-0">
-                        <div data-armor-weight-rank="{% if item.has_class_armor_limit and item.armor_weight_rank < 999 and item.item_category != 'bag' %}{{ item.armor_weight_rank }}{% endif %}" class="city-item-category row-3 border-bottom pt-1 pb-1 h6 mb-0 {{ item|getItemRarity }}">{{ item|getArmorWeightType }}<span class="city-hazard-icon" role="img" aria-label="Pancerz przekracza limit klasy postaci" title="Pancerz przekracza limit klasy postaci" hidden></span></div>
+                        <div data-armor-weight-rank="{% if item.has_class_armor_limit and item.armor_weight_rank < 999 and item.item_category != 'bag' %}{{ item.armor_weight_rank|unlocalize }}{% endif %}" class="city-item-category row-3 border-bottom pt-1 pb-1 h6 mb-0 {{ item|getItemRarity }}">{{ item|getArmorWeightType }}<span class="city-hazard-icon" role="img" aria-label="Pancerz przekracza limit klasy postaci" title="Pancerz przekracza limit klasy postaci" hidden></span></div>
                         <div class="row-3 border-bottom pt-1 pb-1 h6 mb-0"><span class="city-unit-price">{{ city_prices|dict_get:item }}</span>&nbsp;<i class="fa-solid fa-coins" role="img" aria-label="monety"></i></div>
                         <div class="row-3 border-bottom pt-1 pb-1">
                             <div class="col"><span class="h6 city-armor-stat"><span class="city-armor-icon" role="img" aria-label="Pancerz" title="Pancerz"></span>{{ city_armors|dict_get:item }}</span></div>
@@ -703,7 +703,7 @@
                             <div class="col h-100">
                                 <button class="w-100 h-100 text-center btn btn-sm btn-success d-flex align-items-center justify-content-center rounded-0" 
                                 data-shop-item-id="{{ item|getDescId }}" data-item-name="{{ item }}"
-                                data-durability="{{ item.durability_percent }}" data-unit-price="{{ item.unit_price }}" data-available-amount="{{ item.available_amount }}"
+                                data-durability="{{ item.durability_percent|unlocalize }}" data-unit-price="{{ item.unit_price|unlocalize }}" data-available-amount="{{ item.available_amount|unlocalize }}"
                                 onclick="buyItem(this.dataset.itemName, this.dataset.shopItemId, this.dataset.durability, this.dataset.unitPrice, this.dataset.availableAmount)">
                                     Zakup
                                 </button>
@@ -750,7 +750,7 @@
                     </div>
 
                     <div class="col-3 p-0">
-                        <div data-armor-weight-rank="{% if item.has_class_armor_limit and item.armor_weight_rank < 999 and item.item_category != 'bag' %}{{ item.armor_weight_rank }}{% endif %}" class="city-item-category row-3 border-bottom pt-1 pb-1 h6 mb-0 {{ item|getItemRarity }}">{% if city_categories|dict_get:item == 'bag' %}Torba{% else %}{{ item|getArmorWeightType }}{% endif %}<span class="city-hazard-icon" role="img" aria-label="Pancerz przekracza limit klasy postaci" title="Pancerz przekracza limit klasy postaci" hidden></span></div>
+                        <div data-armor-weight-rank="{% if item.has_class_armor_limit and item.armor_weight_rank < 999 and item.item_category != 'bag' %}{{ item.armor_weight_rank|unlocalize }}{% endif %}" class="city-item-category row-3 border-bottom pt-1 pb-1 h6 mb-0 {{ item|getItemRarity }}">{% if city_categories|dict_get:item == 'bag' %}Torba{% else %}{{ item|getArmorWeightType }}{% endif %}<span class="city-hazard-icon" role="img" aria-label="Pancerz przekracza limit klasy postaci" title="Pancerz przekracza limit klasy postaci" hidden></span></div>
                         <div class="row-3 border-bottom pt-1 pb-1 h6 mb-0"><span class="city-unit-price">{{ city_prices|dict_get:item }}</span>&nbsp;<i class="fa-solid fa-coins" role="img" aria-label="monety"></i></div>
                         <div class="row-3 border-bottom pt-1 pb-1">
                             <div class="col"><span class="h6">{% if item.show_city_capacity %}<span class="city-weight-stat"><span class="city-weight-icon" role="img" aria-label="Udźwig" title="Udźwig"></span>+{{ item.extra_capacity }}kg</span>{% else %}<span class="city-armor-stat"><span class="city-armor-icon" role="img" aria-label="Pancerz" title="Pancerz"></span>{{ city_armors|dict_get:item }}</span>{% endif %}</span></div>
@@ -760,7 +760,7 @@
                             <div class="col h-100">
                                 <button class="w-100 h-100 text-center btn btn-sm btn-success d-flex align-items-center justify-content-center rounded-0" 
                                 data-shop-item-id="{{ item|getDescId }}" data-item-name="{{ item }}"
-                                data-durability="{{ item.durability_percent }}" data-unit-price="{{ item.unit_price }}" data-available-amount="{{ item.available_amount }}"
+                                data-durability="{{ item.durability_percent|unlocalize }}" data-unit-price="{{ item.unit_price|unlocalize }}" data-available-amount="{{ item.available_amount|unlocalize }}"
                                 onclick="buyItem(this.dataset.itemName, this.dataset.shopItemId, this.dataset.durability, this.dataset.unitPrice, this.dataset.availableAmount)">
                                     Zakup
                                 </button>
@@ -800,7 +800,7 @@
                     </div>
 
                     <div class="col-3 p-0">
-                        <div data-armor-weight-rank="{% if item.has_class_armor_limit and item.armor_weight_rank < 999 and item.item_category != 'bag' %}{{ item.armor_weight_rank }}{% endif %}" class="city-item-category row-3 border-bottom pt-1 pb-1 h6 mb-0 {{ item|getItemRarity }}">{{ item|getArmorWeightType }}<span class="city-hazard-icon" role="img" aria-label="Pancerz przekracza limit klasy postaci" title="Pancerz przekracza limit klasy postaci" hidden></span></div>
+                        <div data-armor-weight-rank="{% if item.has_class_armor_limit and item.armor_weight_rank < 999 and item.item_category != 'bag' %}{{ item.armor_weight_rank|unlocalize }}{% endif %}" class="city-item-category row-3 border-bottom pt-1 pb-1 h6 mb-0 {{ item|getItemRarity }}">{{ item|getArmorWeightType }}<span class="city-hazard-icon" role="img" aria-label="Pancerz przekracza limit klasy postaci" title="Pancerz przekracza limit klasy postaci" hidden></span></div>
                         <div class="row-3 border-bottom pt-1 pb-1 h6 mb-0"><span class="city-unit-price">{{ city_prices|dict_get:item }}</span>&nbsp;<i class="fa-solid fa-coins" role="img" aria-label="monety"></i></div>
                         <div class="row-3 border-bottom pt-1 pb-1">
                             <div class="col"><span class="h6 city-armor-stat"><span class="city-armor-icon" role="img" aria-label="Pancerz" title="Pancerz"></span>{{ city_armors|dict_get:item }}</span></div>
@@ -810,7 +810,7 @@
                             <div class="col h-100">
                                 <button class="w-100 h-100 text-center btn btn-sm btn-success d-flex align-items-center justify-content-center rounded-0" 
                                 data-shop-item-id="{{ item|getDescId }}" data-item-name="{{ item }}"
-                                data-durability="{{ item.durability_percent }}" data-unit-price="{{ item.unit_price }}" data-available-amount="{{ item.available_amount }}"
+                                data-durability="{{ item.durability_percent|unlocalize }}" data-unit-price="{{ item.unit_price|unlocalize }}" data-available-amount="{{ item.available_amount|unlocalize }}"
                                 onclick="buyItem(this.dataset.itemName, this.dataset.shopItemId, this.dataset.durability, this.dataset.unitPrice, this.dataset.availableAmount)">
                                     Zakup
                                 </button>
@@ -899,7 +899,7 @@
                             <div class="col h-100">
                                 <button class="w-100 h-100 text-center btn btn-sm btn-success d-flex align-items-center justify-content-center rounded-0" 
                                 data-shop-item-id="{{ item|getDescId }}" data-item-name="{{ item }}"
-                                data-durability="{{ item.durability_percent }}" data-unit-price="{{ item.unit_price }}" data-available-amount="{{ item.available_amount }}"
+                                data-durability="{{ item.durability_percent|unlocalize }}" data-unit-price="{{ item.unit_price|unlocalize }}" data-available-amount="{{ item.available_amount|unlocalize }}"
                                 onclick="buyItem(this.dataset.itemName, this.dataset.shopItemId, this.dataset.durability, this.dataset.unitPrice, this.dataset.availableAmount)">
                                     Zakup
                                 </button>
@@ -945,7 +945,7 @@
                             <div class="col h-100">
                                 <button class="w-100 h-100 text-center btn btn-sm btn-success d-flex align-items-center justify-content-center rounded-0" 
                                 data-shop-item-id="{{ item|getDescId }}" data-item-name="{{ item }}"
-                                data-durability="{{ item.durability_percent }}" data-unit-price="{{ item.unit_price }}" data-available-amount="{{ item.available_amount }}"
+                                data-durability="{{ item.durability_percent|unlocalize }}" data-unit-price="{{ item.unit_price|unlocalize }}" data-available-amount="{{ item.available_amount|unlocalize }}"
                                 onclick="buyItem(this.dataset.itemName, this.dataset.shopItemId, this.dataset.durability, this.dataset.unitPrice, this.dataset.availableAmount)">
                                     Zakup
                                 </button>
@@ -984,7 +984,7 @@
 
                     <div class="col-3 p-0">
                         {% if item.is_city_equipment %}
-                        <div data-armor-weight-rank="{% if item.has_class_armor_limit and item.armor_weight_rank < 999 and item.item_category != 'bag' %}{{ item.armor_weight_rank }}{% endif %}" class="city-item-category row-3 border-bottom pt-1 pb-1 h6 mb-0 {{ item|getItemRarity }}">{{ item|getArmorWeightType }}<span class="city-hazard-icon" role="img" aria-label="Pancerz przekracza limit klasy postaci" title="Pancerz przekracza limit klasy postaci" hidden></span></div>
+                        <div data-armor-weight-rank="{% if item.has_class_armor_limit and item.armor_weight_rank < 999 and item.item_category != 'bag' %}{{ item.armor_weight_rank|unlocalize }}{% endif %}" class="city-item-category row-3 border-bottom pt-1 pb-1 h6 mb-0 {{ item|getItemRarity }}">{{ item|getArmorWeightType }}<span class="city-hazard-icon" role="img" aria-label="Pancerz przekracza limit klasy postaci" title="Pancerz przekracza limit klasy postaci" hidden></span></div>
                         {% endif %}
                         <div class="row-3 border-bottom pt-1 pb-1 h6 mb-0"><span class="city-unit-price">{{ city_prices|dict_get:item }}</span>&nbsp;<i class="fa-solid fa-coins" role="img" aria-label="monety"></i></div>
                         <div class="row-3 border-bottom pt-1 pb-1">
@@ -999,7 +999,7 @@
                             <div class="col h-100">
                                 <button class="w-100 h-100 text-center btn btn-sm btn-success d-flex align-items-center justify-content-center rounded-0" 
                                 data-shop-item-id="{{ item|getDescId }}" data-item-name="{{ item }}"
-                                data-durability="{{ item.durability_percent }}" data-unit-price="{{ item.unit_price }}" data-available-amount="{{ item.available_amount }}"
+                                data-durability="{{ item.durability_percent|unlocalize }}" data-unit-price="{{ item.unit_price|unlocalize }}" data-available-amount="{{ item.available_amount|unlocalize }}"
                                 onclick="buyItem(this.dataset.itemName, this.dataset.shopItemId, this.dataset.durability, this.dataset.unitPrice, this.dataset.availableAmount)">
                                     Zakup
                                 </button>
@@ -1038,7 +1038,7 @@
 
                     <div class="col-3 p-0">
                         {% if item.item_type|lower == 'amulet' %}
-                        <div data-armor-weight-rank="{% if item.has_class_armor_limit and item.armor_weight_rank < 999 and item.item_category != 'bag' %}{{ item.armor_weight_rank }}{% endif %}" class="city-item-category row-3 border-bottom pt-1 pb-1 h6 mb-0 {{ item|getItemRarity }}">{{ item|getArmorWeightType }}<span class="city-hazard-icon" role="img" aria-label="Pancerz przekracza limit klasy postaci" title="Pancerz przekracza limit klasy postaci" hidden></span></div>
+                        <div data-armor-weight-rank="{% if item.has_class_armor_limit and item.armor_weight_rank < 999 and item.item_category != 'bag' %}{{ item.armor_weight_rank|unlocalize }}{% endif %}" class="city-item-category row-3 border-bottom pt-1 pb-1 h6 mb-0 {{ item|getItemRarity }}">{{ item|getArmorWeightType }}<span class="city-hazard-icon" role="img" aria-label="Pancerz przekracza limit klasy postaci" title="Pancerz przekracza limit klasy postaci" hidden></span></div>
                         {% endif %}
                         <div class="row-3 border-bottom pt-1 pb-1 h6 mb-0"><span class="city-unit-price">{{ city_prices|dict_get:item }}</span>&nbsp;<i class="fa-solid fa-coins" role="img" aria-label="monety"></i></div>
                         <div class="row-3 border-bottom pt-1 pb-1">
@@ -1053,7 +1053,7 @@
                             <div class="col h-100">
                                 <button class="w-100 h-100 text-center btn btn-sm btn-success d-flex align-items-center justify-content-center rounded-0" 
                                 data-shop-item-id="{{ item|getDescId }}" data-item-name="{{ item }}"
-                                data-durability="{{ item.durability_percent }}" data-unit-price="{{ item.unit_price }}" data-available-amount="{{ item.available_amount }}"
+                                data-durability="{{ item.durability_percent|unlocalize }}" data-unit-price="{{ item.unit_price|unlocalize }}" data-available-amount="{{ item.available_amount|unlocalize }}"
                                 onclick="buyItem(this.dataset.itemName, this.dataset.shopItemId, this.dataset.durability, this.dataset.unitPrice, this.dataset.availableAmount)">
                                     Zakup
                                 </button>
@@ -1116,7 +1116,7 @@
                             <div class="col h-100">
                                 <button class="w-100 h-100 text-center btn btn-sm btn-success d-flex align-items-center justify-content-center rounded-0" 
                                 data-shop-item-id="{{ item|getDescId }}" data-item-name="{{ item }}"
-                                data-durability="{{ item.durability_percent }}" data-unit-price="{{ item.unit_price }}" data-available-amount="{{ item.available_amount }}"
+                                data-durability="{{ item.durability_percent|unlocalize }}" data-unit-price="{{ item.unit_price|unlocalize }}" data-available-amount="{{ item.available_amount|unlocalize }}"
                                 onclick="buyItem(this.dataset.itemName, this.dataset.shopItemId, this.dataset.durability, this.dataset.unitPrice, this.dataset.availableAmount)">
                                     Zakup
                                 </button>
@@ -1161,7 +1161,7 @@
                 {% for item in char.repair_items %}
                         <div class='mt-2 row bg-gray rounded m-1 border border-primary'>
                             <a class="col text-center c-gold h5 m-1 {{ item.rarity }}" id='fix-{{ item.id }}-item'>
-                                [<span id="item-{{ item.id }}-owner">{{ item.character }}</span>] {{ item.name }} (<span id="fix-{{ item.id }}-dur">{{ item.durability }}</span>/{{ item.max_durability }})
+                                [<span id="item-{{ item.id }}-owner">{{ item.character }}</span>] {{ item.name }} (<span id="fix-{{ item.id }}-dur">{{ item.durability|unlocalize }}</span>/{{ item.max_durability }})
                                 <span class="d-none" id="rarity-{{ item.id }}">{{ item.rarity }}</span>
                             </a>
                             <input type='number' min="0" id="fix-{{ item.id }}"
