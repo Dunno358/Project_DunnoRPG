@@ -2488,39 +2488,81 @@ def change_item_durability(request,**kwargs):
         })
 
     return redirect('character_detail', char.id)
+
+
+def get_city_repair_base_price(description, item):
+    maximum = description.maxDurability or 0
+    if maximum <= 0 or (description.type or '').strip().lower() == 'animal':
+        return None
+    durability = item.durability if item.durability is not None else maximum
+    missing = maximum - max(0, durability)
+    amount = item.amount if isinstance(item, models.Eq) else 1
+    if missing <= 0 or amount <= 0:
+        return None
+    return (Decimal(str(description.price)) * Decimal('0.3') * Decimal(missing)
+            / Decimal(maximum) * amount).quantize(Decimal('0.1'), rounding=ROUND_HALF_UP)
+
+
+def get_city_character_charisma(character):
+    charisma = character.CHAR + sum(models.Mods.objects.filter(
+        character=character.name, field='CHAR',
+    ).values_list('value', flat=True))
+    names = list(models.CharItems.objects.filter(character=character.name).values_list('name', flat=True))
+    descriptions = {item.name: item for item in models.Items.objects.filter(name__in=names)}
+    for name in names:
+        description = descriptions.get(name)
+        for stat in (description.skillStats or '').split(';') if description else []:
+            if len(stat) >= 2 and stat[:-2].lower() == 'char':
+                try:
+                    charisma += int(stat[-2:])
+                except ValueError:
+                    pass
+    return charisma
+
+
+@require_POST
+@transaction.atomic
 def fix_item(request, **kwargs):
-    if request.method == 'POST':
-        city = get_object_or_404(models.Cities, visiting=True)
-        if not city.repair:
-            return JsonResponse({"error": "Naprawa nie jest dostepna w tym miescie."}, status=403)
+    if not request.user.is_authenticated:
+        return JsonResponse({'message': 'Zaloguj się, aby naprawiać przedmioty.'}, status=403)
+    city = get_object_or_404(models.Cities.objects.select_for_update(), visiting=True)
+    if not city.repair:
+        return JsonResponse({'message': 'Naprawa nie jest dostępna w tym mieście.'}, status=403)
+    try:
+        data = json.loads(request.body)
+        char_id = int(data['char_id'])
+        item_id = int(data['item_id'])
+        source = data['source']
+    except (ValueError, TypeError, KeyError):
+        return JsonResponse({'message': 'Nieprawidłowe dane naprawy.'}, status=400)
+    if source not in ('char', 'eq'):
+        return JsonResponse({'message': 'Nieprawidłowe źródło przedmiotu.'}, status=400)
+    characters = models.Character.objects.select_for_update().filter(hidden=False)
+    if not request.user.is_superuser:
+        characters = characters.filter(owner=request.user.username)
+    character = get_object_or_404(characters, id=char_id)
+    item_model = models.CharItems if source == 'char' else models.Eq
+    item = get_object_or_404(item_model.objects.select_for_update(), id=item_id,
+                             character=character.name, owner=character.owner)
+    description = get_object_or_404(models.Items, name=item.name)
+    base_cost = get_city_repair_base_price(description, item)
+    if base_cost is None:
+        return JsonResponse({'message': 'Ten przedmiot nie wymaga naprawy lub nie można go naprawić.'}, status=400)
+    cost = get_city_healing_price(base_cost, get_city_character_charisma(character))
+    coins = Decimal(str(character.coins))
+    if coins < cost:
+        return JsonResponse({'message': f'Za mało monet. Naprawa kosztuje {cost:g} monet. Brakuje {cost - coins:g} monet.'}, status=400)
+    item.durability = description.maxDurability
+    character.coins = float(coins - cost)
+    item.save(update_fields=['durability'])
+    character.save(update_fields=['coins'])
+    return JsonResponse({
+        'message': f'Naprawiono {item.name} do 100%. Koszt: {cost:g} monet.',
+        'character_id': character.id, 'coins': character.coins,
+        'new_durability': item.durability, 'cost': float(cost),
+    })
 
-        try:
-            data = json.loads(request.body)
-            char = get_object_or_404(models.Character, id=data['char_id'])
-            item = get_object_or_404(models.CharItems, id=data['item_id'])
-            item_desc = models.Items.objects.get(name=item.name)
-            
-            # Update item and character
 
-            new_dur = item.durability + int(data['fix-dur'])
-            if new_dur <= item_desc.maxDurability:
-                item.durability = new_dur
-            else:
-                item.durability = item_desc.maxDurability
-            cost = int(data['cost'])
-            char.coins -= cost
-            
-            # Save changes to the database
-            item.save()
-            char.save()
-
-            # Return a success response
-            return JsonResponse({"message": "Item fixed successfully", "new_durability": item.durability, "cost": cost}, status=200)
-
-        except Exception as e:
-            return JsonResponse({"error": str(e)}, status=400)
-
-    return JsonResponse({"error": "Invalid request method"}, status=405)
 def change_char_details(request, **kwargs):
     try:
         data = json.loads(request.body)
@@ -4799,13 +4841,28 @@ class CityView(ListView):
 
             if city.repair:
                 items_by_character = {name: [] for name in character_names}
-                for equipped_item in equipped_items:
-                    description = equipped_descriptions.get(equipped_item.name)
-                    if description is None or description.type == "Animal":
+                inventory_items = list(models.Eq.objects.filter(character__in=character_names))
+                repair_descriptions = dict(equipped_descriptions)
+                repair_descriptions.update({item.name: item for item in models.Items.objects.filter(
+                    name__in={item.name for item in inventory_items},
+                )})
+                characters_by_name = {character.name: character for character in characters}
+                for repair_item in equipped_items + inventory_items:
+                    character = characters_by_name[repair_item.character]
+                    description = repair_descriptions.get(repair_item.name)
+                    if description is None or repair_item.owner != character.owner:
                         continue
-                    equipped_item.rarity = description.rarity
-                    equipped_item.max_durability = description.maxDurability
-                    items_by_character.setdefault(equipped_item.character, []).append(equipped_item)
+                    base_cost = get_city_repair_base_price(description, repair_item)
+                    if base_cost is None:
+                        continue
+                    repair_item.rarity = description.rarity
+                    repair_item.repair_source = 'eq' if isinstance(repair_item, models.Eq) else 'char'
+                    repair_item.repair_amount = repair_item.amount if repair_item.repair_source == 'eq' else 1
+                    repair_item.durability_percent = max(0, repair_item.durability) / description.maxDurability * 100
+                    repair_item.repair_cost = get_city_healing_price(
+                        base_cost, character.CHAR + int(character.city_char_mod),
+                    )
+                    items_by_character[repair_item.character].append(repair_item)
                 for character in characters:
                     character.repair_items = items_by_character.get(character.name, [])
 
