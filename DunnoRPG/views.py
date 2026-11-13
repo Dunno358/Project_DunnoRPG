@@ -4467,8 +4467,11 @@ def get_city_weapon_groups(items):
     singlehand = []
     twohand = []
     ammunition = []
+    accessories = []
     for item in items:
-        if (item.item_type or "").strip().lower() == "amunicja":
+        if item.is_city_accessory:
+            accessories.append(item)
+        elif (item.item_type or "").strip().lower() == "amunicja":
             ammunition.append(item)
         elif item.dual_handed:
             twohand.append(item)
@@ -4478,6 +4481,7 @@ def get_city_weapon_groups(items):
         ("Jednoręczne", singlehand),
         ("Dwuręczne", twohand),
         ("Amunicja", ammunition),
+        ("Akcesoria", accessories),
     ]
 
 def get_city_nested_weapon_groups(items):
@@ -4502,6 +4506,8 @@ class CityShopItem(str):
         obj.sale_index = sale_index
         obj.item_id = item.id
         obj.item_type = item.type
+        obj.is_city_accessory = (item.type or "").strip().lower() in CHARACTER_ACCESSORY_TYPES
+        obj.is_city_merchant_equipment = obj.is_city_accessory or (item.type or "").strip().lower() == "amulet"
         obj.ammo_type = (item.ammo_type or "").strip().lower()
         obj.item_category = (item.category or "").strip().lower()
         obj.is_city_equipment = (item.type or "").strip().lower() in {
@@ -4521,6 +4527,8 @@ class CityShopItem(str):
 
         skill = item.skill or ""
         obj.use_info = item.use_info or ""
+        if obj.item_category in CITY_TAVERN_BUY_CATEGORIES and item.use_amount is not None:
+            obj.use_info = f"{obj.use_info} | {item.use_amount}" if obj.use_info else str(item.use_amount)
         if (item.category or "").strip().lower() == "tawerna" and skill:
             obj.use_info = f"{obj.use_info} | {skill}" if obj.use_info else skill
         if obj.item_category in CITY_TAVERN_BUY_CATEGORIES and obj.use_info:
@@ -4650,7 +4658,7 @@ class CityView(ListView):
                         bags.append(shop_item)
                     elif item.type == 'Amulet':
                         amulets.append(shop_item)
-                    elif item.type == 'Other':
+                    elif item.type == 'Other' or shop_item.is_city_accessory:
                         other.append(shop_item)
                     else:
                         if item.type in armor_types:
@@ -4723,6 +4731,11 @@ class CityView(ListView):
             ]
             context['tavern_buy_items'] = tavern_buy_items
             context['other'] = other
+            context['merchant_groups'] = [
+                ("Akcesoria", [item for item in other if item.is_city_accessory]),
+                ("Amulety", [item for item in other if (item.item_type or "").strip().lower() == "amulet"]),
+                ("Pozostałe", [item for item in other if not item.is_city_merchant_equipment]),
+            ]
             context['x5packets'] = x5packets
             context['x10packets'] = x10packets
             context['amounts'] = amounts

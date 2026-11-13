@@ -1017,15 +1017,22 @@
             <h2>Kupiec<span class="ms-2 d-inline-block" style="width: 1em; height: 1em; vertical-align: -0.12em; background-color: currentColor; -webkit-mask: url('{% static 'DunnoRPG/img/icons/swap-bag.svg' %}') center / contain no-repeat; mask: url('{% static 'DunnoRPG/img/icons/swap-bag.svg' %}') center / contain no-repeat;"></span></h2>
         </div>
         <div id='merchant' class='container text-center c-gold rounded border border-primary bg-dark d-none p-0 m-0' style="width: 100%;">
-            {% for item in other %}
-                <div data-city-item-name="{{ item }}" class='mt-2 row bg-gray rounded m-1 border border-primary'>
+            {% for group_label, group_items in merchant_groups %}
+            {% if group_items %}
+                <div class="row align-items-center city-category-heading">
+                    <div class="col"><hr></div>
+                    <div class="col-auto"><button type="button" class="city-category-toggle" aria-expanded="false" onclick="toggleCityCategory(this)">{{ group_label }}</button></div>
+                    <div class="col"><hr></div>
+                </div>
+            {% for item in group_items %}
+                <div data-city-item-name="{{ item }}" class='city-category-collapsed mt-2 row bg-gray rounded m-1 border border-primary'>
 
                     <div class="col-9 border-end">
                         <div class="row-10" style="text-align: center;">
                             <div class="col pt-1">
-                            {% if item.item_type|lower == 'amulet' %}<b class="{{ item|getItemRarity }}">{{ item|getItemType:"pl" }} |</b>{% endif %}
+                            {% if item.is_city_merchant_equipment %}<b class="{{ item|getItemRarity }}">{{ item|getItemType:"pl" }} |</b>{% endif %}
                             <a id='{{ item|getDescId }}' href='/dunnorpg/items/{{ item|getDescId }}'>
-                                <b class="{{ item|getItemRarity }}">{{ item }}{% if item.item_type|lower == 'amulet' %} [{{ durability_percents|dict_get:item }}]{% endif %}</b>
+                                <b class="{{ item|getItemRarity }}">{{ item }}{% if item.is_city_merchant_equipment %} [{{ durability_percents|dict_get:item }}]{% endif %}</b>
                             </a>
                             </div>
                         </div>
@@ -1037,12 +1044,12 @@
                     </div>
 
                     <div class="col-3 p-0">
-                        {% if item.item_type|lower == 'amulet' %}
+                        {% if item.is_city_merchant_equipment %}
                         <div data-armor-weight-rank="{% if item.has_class_armor_limit and item.armor_weight_rank < 999 and item.item_category != 'bag' %}{{ item.armor_weight_rank|unlocalize }}{% endif %}" class="city-item-category row-3 border-bottom pt-1 pb-1 h6 mb-0 {{ item|getItemRarity }}">{{ item|getArmorWeightType }}<span class="city-hazard-icon" role="img" aria-label="Pancerz przekracza limit klasy postaci" title="Pancerz przekracza limit klasy postaci" hidden></span></div>
                         {% endif %}
                         <div class="row-3 border-bottom pt-1 pb-1 h6 mb-0"><span class="city-unit-price">{{ city_prices|dict_get:item }}</span>&nbsp;<i class="fa-solid fa-coins" role="img" aria-label="monety"></i></div>
                         <div class="row-3 border-bottom pt-1 pb-1">
-                            {% if item.item_type|lower == 'amulet' %}
+                            {% if item.is_city_merchant_equipment %}
                             <div class="col"><span class="h6 city-armor-stat"><span class="city-armor-icon" role="img" aria-label="Pancerz" title="Pancerz"></span>{{ city_armors|dict_get:item }}</span></div>
                             {% else %}
                             <div class="col"><span class="h6">Inne</span></div>
@@ -1062,6 +1069,8 @@
                     </div>
 
                 </div>
+            {% endfor %}
+            {% endif %}
             {% endfor %}
         </div>
         {% endif %}
