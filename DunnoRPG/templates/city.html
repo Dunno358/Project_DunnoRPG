@@ -400,7 +400,11 @@
 
     <meta name="csrf-token" content="{{ csrf_token }}">
     <h1 class='c-gold text-center fst-italic mb-1' style='-webkit-text-stroke: 0.5px blue; font-size:300%;' id='city-name'>
+        {% if user.is_superuser %}
+        <a href="{% url 'admin:DunnoRPG_cities_change' city.id %}" target="_blank" rel="noopener noreferrer" class="c-gold text-decoration-none">{{ city.city_name }}</a>
+        {% else %}
         {{ city.city_name }}
+        {% endif %}
     </h1>
     <div class="city-shop-filters px-2 mb-2">
         <label for="city-available-items-only" class="text-warning d-flex align-items-center justify-content-center gap-2">
@@ -1245,7 +1249,9 @@
             const itemSearch = document.getElementById('city-item-search')?.value || ''
             currentContent.innerHTML = refreshedContent.innerHTML
             document.getElementById('city-item-search').value = itemSearch
-            document.getElementById('city-name').textContent = documentFromDatabase.getElementById('city-name').textContent
+            document.getElementById('city-name').replaceChildren(
+                ...Array.from(documentFromDatabase.getElementById('city-name').childNodes, node => node.cloneNode(true))
+            )
             changeBuyingCharacter()
             document.title = document.getElementById('city-name').textContent.trim() + " | DunnoRPG"
             filterCitySelect()
