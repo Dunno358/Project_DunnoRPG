@@ -4468,11 +4468,14 @@ def get_city_weapon_groups(items):
     twohand = []
     ammunition = []
     accessories = []
+    other = []
     for item in items:
         if item.is_city_accessory:
             accessories.append(item)
         elif (item.item_type or "").strip().lower() == "amunicja":
             ammunition.append(item)
+        elif (item.item_type or "").strip().lower() == "other":
+            other.append(item)
         elif item.dual_handed:
             twohand.append(item)
         else:
@@ -4482,6 +4485,7 @@ def get_city_weapon_groups(items):
         ("Dwuręczne", twohand),
         ("Amunicja", ammunition),
         ("Akcesoria", accessories),
+        ("Inne", other),
     ]
 
 def get_city_nested_weapon_groups(items):
