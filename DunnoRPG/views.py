@@ -38,6 +38,7 @@ from DunnoRPG.serializers import (CharacterSerializer, ItemSerializer,
                                   SkillsDecsSerializer, SkillsSerializer)
 
 from . import models
+from .city_discounts import parse_city_discounts
 from .forms import CharacterSkillsForm, AddEqItemForm #, AddEffectForm
 from .services.item_effects import apply_item_use_effects, fill_water
 from .services.attack_criticals import resolve_critical
@@ -4395,15 +4396,48 @@ def get_durability_from_percent(durability_percent, max_durability):
 def get_city_price_multiplier(available_amount, durability_percent):
     return 2.0 if int(available_amount) == 1 and durability_percent > 0.7 else 1.5
 
-def get_city_unit_price(item, available_amount, durability_percent, *, allfree=False, discount=0):
+def get_city_item_shop(item):
+    category = (item.category or "").strip().lower()
+    item_type = (item.type or "").strip().lower()
+    if category == "trash":
+        return "Kupiec"
+    if category == "eliksir":
+        return "Stoisko z eliksirami"
+    if category in CITY_TAVERN_BUY_CATEGORIES or category == "tawerna":
+        return "Karczma"
+    if category.startswith("trophy_"):
+        return "Myśliwy"
+    if category == "animal" or category.startswith("animal_") or item_type in {"animal", "mount armor"}:
+        return "Handlarz zwierząt"
+    if category in {"weapon_music", "item_music"}:
+        return "Kramarz muzyczny"
+    if is_city_range_shop_item(category):
+        return "Łuczarz"
+    if is_city_gunpowder_shop_item(category):
+        return "Rusznikarz"
+    if category == "armor":
+        return "Płatnerz"
+    if category in {"cloth", "bag"}:
+        return "Krawiec"
+    if category == "armor_elegant":
+        return "Jubiler"
+    if item_type in {"amulet", "other"} or item_type in CHARACTER_ACCESSORY_TYPES:
+        return "Kupiec"
+    if item_type in {"helmet", "torso", "gloves", "boots"}:
+        return "Płatnerz"
+    return "Kowal"
+
+
+def get_city_unit_price(item, available_amount, durability_percent, *, allfree=False, discount=""):
     if allfree:
         return 0.0
     base_price = float(f"{item.price * get_city_price_multiplier(available_amount, durability_percent):.1f}")
     unit_price = Decimal(f"{base_price * durability_percent:.1f}")
-    discount_percent = min(abs(discount), 100)
+    discounts = parse_city_discounts(discount)
+    discount_percent = discounts.get(get_city_item_shop(item).casefold(), discounts.get("all", 0))
     return float((unit_price * (100 - discount_percent) / 100).quantize(Decimal('0.1'), rounding=ROUND_HALF_UP))
 
-def get_city_total_price(item, available_amount, durability_percent, amount, *, allfree=False, discount=0):
+def get_city_total_price(item, available_amount, durability_percent, amount, *, allfree=False, discount=""):
     return float(f"{get_city_unit_price(item, available_amount, durability_percent, allfree=allfree, discount=discount) * int(amount):.1f}")
 
 def get_city_armor_weight_order(item):
