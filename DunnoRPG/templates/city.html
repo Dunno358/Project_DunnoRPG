@@ -1173,11 +1173,11 @@
             {% for char in characters %}
                 {% for item in char.repair_items %}
                 <div data-repair-character="{{ char.id }}" class="d-none mt-2 row bg-gray rounded m-1 border border-primary align-items-center">
-                    <span class="col h5 m-1 {{ item.rarity }}">
+                    <span class="col-5 h5 m-1 {{ item.rarity }}">
                         {{ item.name }}{% if item.repair_amount > 1 %} ×{{ item.repair_amount }}{% endif %}
                     </span>
-                    <span class="col-auto m-1">{{ item.durability_percent|floatformat:"0" }}%</span>
-                    <button type="button" class="col-auto btn btn-sm btn-success m-1"
+                    <span class="col-2 m-1 fw-bold">{{ item.durability_percent|floatformat:"0" }}%</span>
+                    <button type="button" class="col-4 btn btn-sm btn-success m-1"
                             data-repair-url="{% url 'fix_item' %}" data-character-id="{{ char.id }}"
                             data-item-id="{{ item.id }}" data-source="{{ item.repair_source }}" onclick="fix(this)">
                         Napraw: {{ item.repair_cost|floatformat:"-1u" }} monet
