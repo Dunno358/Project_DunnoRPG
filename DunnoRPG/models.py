@@ -1,4 +1,5 @@
 from django.db import models
+from django.core.validators import MaxValueValidator, MinValueValidator
 from pygments.lexers import get_lexer_by_name
 from pygments.formatters.html import HtmlFormatter
 from pygments import highlight
@@ -339,6 +340,11 @@ class Cities(models.Model):
     city_name = models.CharField(max_length = 150)
     items = models.TextField()
     allfree = models.BooleanField(default=False, verbose_name="Wszystkie przedmioty za darmo")
+    discount = models.IntegerField(
+        default=0, verbose_name="Zniżka przy zakupie (%)",
+        help_text="10 i -10 oznaczają zniżkę 10%. Zniżka jest naliczana przed premią za charyzmę.",
+        validators=[MinValueValidator(-100), MaxValueValidator(100)],
+    )
     healer = models.BooleanField(default=True, verbose_name="Uzdrowiciel")
     repair = models.BooleanField(default=True, verbose_name="Naprawa")
     visiting = models.BooleanField(default=False)

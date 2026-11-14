@@ -4395,14 +4395,16 @@ def get_durability_from_percent(durability_percent, max_durability):
 def get_city_price_multiplier(available_amount, durability_percent):
     return 2.0 if int(available_amount) == 1 and durability_percent > 0.7 else 1.5
 
-def get_city_unit_price(item, available_amount, durability_percent, *, allfree=False):
+def get_city_unit_price(item, available_amount, durability_percent, *, allfree=False, discount=0):
     if allfree:
         return 0.0
     base_price = float(f"{item.price * get_city_price_multiplier(available_amount, durability_percent):.1f}")
-    return float(f"{base_price * durability_percent:.1f}")
+    unit_price = Decimal(f"{base_price * durability_percent:.1f}")
+    discount_percent = min(abs(discount), 100)
+    return float((unit_price * (100 - discount_percent) / 100).quantize(Decimal('0.1'), rounding=ROUND_HALF_UP))
 
-def get_city_total_price(item, available_amount, durability_percent, amount, *, allfree=False):
-    return float(f"{get_city_unit_price(item, available_amount, durability_percent, allfree=allfree) * int(amount):.1f}")
+def get_city_total_price(item, available_amount, durability_percent, amount, *, allfree=False, discount=0):
+    return float(f"{get_city_unit_price(item, available_amount, durability_percent, allfree=allfree, discount=discount) * int(amount):.1f}")
 
 def get_city_armor_weight_order(item):
     item_armor_weight = (item.armor_weight or "").strip().lower()
@@ -4674,7 +4676,7 @@ class CityView(ListView):
                     durabilities[shop_item] = item_durability
                     durability_percent = durability / 100
                     durability_percents[shop_item] = f"{durability:.0f}%"
-                    shop_item.unit_price = f"{get_city_unit_price(item, amount, durability_percent, allfree=city.allfree):.1f}"
+                    shop_item.unit_price = f"{get_city_unit_price(item, amount, durability_percent, allfree=city.allfree, discount=city.discount):.1f}"
                     shop_item.available_amount = amount
                     city_prices[shop_item] = shop_item.unit_price
                     city_armors[shop_item] = math.ceil(item.armor * durability_percent) if item.armor else item.armor
@@ -4946,7 +4948,7 @@ class BuyItem(APIView):
 
         if current_weight+item.weight*item_amount <= max_weight:
             durability_percent = item_durability_percent / 100
-            price = get_city_total_price(item, available_amount, durability_percent, item_amount, allfree=city.allfree)
+            price = get_city_total_price(item, available_amount, durability_percent, item_amount, allfree=city.allfree, discount=city.discount)
             charisma = character.CHAR
 
             for mod in models.Mods.objects.filter(character=character.name, field="CHAR"):
@@ -5018,7 +5020,7 @@ class BuyItem(APIView):
                     request, f'[{character.name}] Zakupiono {item_amount}x {item.name} za {price} monet.',
                     success=True, item_id=item.id, durability=item_durability_percent,
                     available_amount=new_amount,
-                    unit_price=get_city_unit_price(item, new_amount, item_durability_percent / 100, allfree=city.allfree),
+                    unit_price=get_city_unit_price(item, new_amount, item_durability_percent / 100, allfree=city.allfree, discount=city.discount),
                     character_id=character.id, coins=character.coins,
                 )
             else:
@@ -5053,7 +5055,7 @@ class OrderTavernItem(APIView):
         if available_amount > 0:
             item_amount = min(item_amount, available_amount)
 
-        price = get_city_total_price(item, available_amount, item_durability_percent / 100, item_amount, allfree=city.allfree)
+        price = get_city_total_price(item, available_amount, item_durability_percent / 100, item_amount, allfree=city.allfree, discount=city.discount)
         if character.coins < price:
             messages.error(request, f'Za mało monet. {character.name} ma ich {character.coins}, a potrzeba {price}.')
             return redirect('/dunnorpg/city')
