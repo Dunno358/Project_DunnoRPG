@@ -38,7 +38,7 @@ from DunnoRPG.serializers import (CharacterSerializer, ItemSerializer,
                                   SkillsDecsSerializer, SkillsSerializer)
 
 from . import models
-from .city_discounts import parse_city_discounts
+from .city_discounts import CITY_SHOPS, parse_city_discounts
 from .forms import CharacterSkillsForm, AddEqItemForm #, AddEffectForm
 from .services.item_effects import apply_item_use_effects, fill_water
 from .services.attack_criticals import resolve_critical
@@ -4645,6 +4645,13 @@ class CityView(ListView):
         if self.request.user.is_superuser:
             context['cities'] = models.Cities.objects.order_by(Lower("city_name"))
         if not is_empty:
+            discounts = parse_city_discounts(city.discount)
+            context['city_discount'] = discounts.get('all', 0)
+            context['shop_labels'] = {}
+            for shop in CITY_SHOPS:
+                percent = discounts.get(shop.casefold())
+                show_discount = percent is not None and (percent > 0 or context['city_discount'] > 0)
+                context['shop_labels'][shop] = f'{shop} [-{percent}%]' if show_discount else shop
             items = sorted(city.items.split(';'))
             parsed_items = [parse_city_item_entry(entry) for entry in items]
             item_names = {name for name, _, _ in parsed_items if name}
