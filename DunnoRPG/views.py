@@ -42,6 +42,7 @@ from .city_discounts import CITY_SHOPS, parse_city_discounts
 from .forms import CharacterSkillsForm, AddEqItemForm #, AddEffectForm
 from .services.item_effects import apply_item_use_effects, fill_water
 from .services.attack_criticals import resolve_critical
+from .services.armor import armor_by_durability
 
 raceSizes = {
     "S": 0.5,
@@ -1543,7 +1544,7 @@ class calculateGettingHit(APIView):
         if not item_desc or item_desc.armor == 0:
             return 0
 
-        return math.ceil(item.durability / 50)
+        return armor_by_durability(item_desc.armor, item.durability)
 
     def _durability_percent(self, item):
         item_desc = models.Items.objects.filter(name=item.name).first()
@@ -2476,7 +2477,7 @@ def change_item_durability(request,**kwargs):
             durability_percent = f"({item.durability / max_durability:.0%})"
         armor = 0
         if item_desc.armor != 0:
-            armor = math.ceil(item.durability / 50)
+            armor = armor_by_durability(item_desc.armor, item.durability)
         block = 0
         if item_desc.block != 0:
             block = min(item_desc.block, math.ceil(item.durability / 50))

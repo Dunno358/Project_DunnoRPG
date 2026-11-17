@@ -1464,8 +1464,7 @@ function renderAttackDetails(attack, hit, critical, saved, finalAp){
     const criticalAp = attack.baseAp * (critical.ap_multiplier - 1) + critical.ap_bonus
 
     lines.push('Celność:', `K20: ${number(accuracy.dice)}`)
-    bonus('Statystyka CEL', accuracy.accuracy)
-    bonus('Modyfikator', accuracy.modifier)
+    bonus('CEL (z modyfikatorami)', accuracy.accuracy + accuracy.modifier)
     bonus('Efekty', accuracy.effects)
     bonus('Pancerz', -accuracy.armorPenalty)
     if(attack.used){ bonus(Math.abs(attack.used) === 1 ? 'K6' : 'K12', accuracy.advantageRoll) }

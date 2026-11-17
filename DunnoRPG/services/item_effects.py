@@ -79,7 +79,7 @@ def apply_item_use_effects(char, actions, cost, manage_food_and_water, sync_alco
             ))
             continue
 
-        if action_name.startswith(("addHP", "addFood", "addWater", "addAlcohol")):
+        if action_name.startswith(("addHP", "addBarrier", "addFood", "addWater", "addAlcohol")):
             amount = parse_amount(amount_value)
         else:
             amount = int(amount_value)
@@ -90,6 +90,12 @@ def apply_item_use_effects(char, actions, cost, manage_food_and_water, sync_alco
             messages.append(ItemEffectMessage(
                 "success",
                 f"{'Odjęto' if used_amount < 0 else 'Uleczono'} {abs(used_amount)} PŻ, wykorzystano {cost}/{char.actionLeft-cost} akcji",
+            ))
+        elif action_name.startswith("addBarrier"):
+            used_amount = add_barrier(char, amount)
+            messages.append(ItemEffectMessage(
+                "success",
+                f"{'Odjęto' if used_amount < 0 else 'Dodano'} {abs(used_amount)} bariery, wykorzystano {cost}/{char.actionLeft-cost} akcji",
             ))
         elif action_name.startswith("addFood"):
             char, _ = manage_food_and_water(char, amount, "food")
@@ -142,6 +148,13 @@ def add_hp(char, amount):
 
     char.exp += 1
     return used_amount
+
+
+def add_barrier(char, amount):
+    previous_barrier = char.barrier
+    char.barrier = min(char.maxBarrier, char.barrier + amount)
+    char.exp += 1
+    return char.barrier - previous_barrier
 
 
 def heal_with_bandage(char):

@@ -2,6 +2,7 @@ from django import template
 from django.utils.safestring import mark_safe
 from django.utils.text import Truncator
 from DunnoRPG import models
+from DunnoRPG.services.armor import armor_by_durability
 from django.apps import apps
 from django.shortcuts import get_object_or_404
 from html import escape
@@ -96,7 +97,7 @@ def getItemArmor(itemName, charId=0):
         item = models.CharItems.objects.filter(name=itemName, character=char_name).first()
 
     try:
-        armor_from_durability = math.ceil(item.durability / 50)
+        armor_from_durability = armor_by_durability(normal_armor, item.durability)
     except:
         armor_from_durability = normal_armor
     
@@ -113,7 +114,7 @@ def getItemArmorByDurability(itemName, currentDurability):
         return 0
 
     try:
-        return math.ceil(int(currentDurability) / 50)
+        return armor_by_durability(item.armor, currentDurability)
     except:
         return item.armor
 
@@ -882,7 +883,7 @@ def getArmor(charName):
         try:
             desc_armor = models.Items.objects.filter(name=item.name).first().armor
             if desc_armor != 0:
-                armor += math.ceil(item.durability / 50)
+                armor += armor_by_durability(desc_armor, item.durability)
             #armor += models.Items.objects.filter(name=item.name).first().armor - OLD
         except:
             pass
