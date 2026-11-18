@@ -23,20 +23,21 @@
 
     <hr class="border-warning m-0 mt-1 mb-1">
 
-    <div class="row m-0 p-0 mt-2 align-items-center fw-bold">
+    <div class="row m-0 p-0 mt-2 align-items-center fw-bold" id="skill-usage-{{ skill.id }}">
         <div class="col-2 m-0 p-0 text-center">
             Lvl {{ skill.level }}
         </div>
         <div class="col m-0 p-0 text-center border-start border-warning">
             {% if skill.max_uses != None %}
                 Liczba użyć:
-                {% if skill.uses_left == 1000 or skill.max_uses == 1000 %}
-                    <span class="fa-solid fa-infinity"></span>
-                {% else %}
-                    <form id="skill-uses-form-{{ skill.id }}" method="post" action="change-skill-uses/{{ skill.id }}" class="d-inline" onsubmit="changeSkillUses(event, '{{ skill.id }}')">
-                        {% csrf_token %}
-                        <input id="skill-uses-val-{{ skill.id }}" name="uses-left" type="number" min="0" max="{{ skill.max_uses }}" value="{{ skill.uses_left }}" class="text-end border-0 fw-bold c-gold bg-transparent" style="width: 2.4rem;">
-                    </form>/{{ skill.max_uses }}
+                <span data-skill-uses-unlimited class="fa-solid fa-infinity{% if skill.uses_left != 1000 and skill.max_uses != 1000 %} d-none{% endif %}"></span>
+                {% if skill.max_uses != 1000 %}
+                    <span data-skill-uses-count{% if skill.uses_left == 1000 %} class="d-none"{% endif %}>
+                        <form id="skill-uses-form-{{ skill.id }}" method="post" action="change-skill-uses/{{ skill.id }}" class="d-inline" onsubmit="changeSkillUses(event, '{{ skill.id }}')">
+                            {% csrf_token %}
+                            <input id="skill-uses-val-{{ skill.id }}" name="uses-left" type="number" min="0" max="{{ skill.max_uses }}" value="{{ skill.uses_left }}" class="text-end border-0 fw-bold c-gold bg-transparent" style="width: 2.4rem;">
+                        </form>/{{ skill.max_uses }}
+                    </span>
                 {% endif %}
             {% else %}
                 Bez limitu użyć
@@ -44,7 +45,7 @@
         </div>
         <div class="col-3 m-0 p-0 text-center border-start border-warning">
             {% if skill.max_uses != None %}
-                <a class='btn btn-sm w-75 fw-bold {% if skill.uses_left > 0 %}btn-success{% else %}btn-danger{% endif %}' style="color: #c6ffce;" href='use-skill/{{ skill.id }}'>Użyj</a>
+                <a data-skill-use-button class='btn btn-sm w-75 fw-bold {% if skill.uses_left > 0 %}btn-success{% else %}btn-danger{% endif %}' style="color: #c6ffce;" href='use-skill/{{ skill.id }}'>Użyj</a>
             {% endif %}
         </div>
     </div>

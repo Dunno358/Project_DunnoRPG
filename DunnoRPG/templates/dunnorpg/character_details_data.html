@@ -2,144 +2,7 @@
 {% for value in chosen_character %}
 <div id="character-details-refresh-root">
 {% include "dunnorpg/messages.html" %}
-{% if chosen_character.0.fight_summary and not chosen_character.0.inFight %}
-<div id="fight-summary">
-    <div class="fight-summary-backdrop"></div>
-    <form class="fight-summary-dialog bg-dark c-gold border border-warning rounded p-3"
-          role="dialog" aria-modal="true" aria-labelledby="fight-summary-title"
-          method="post" action="{% url 'dismiss_fight_summary' chosen_character.0.id %}"
-          onsubmit="dismissFightSummary(event)">
-        {% csrf_token %}
-        <h2 id="fight-summary-title" class="h5 mb-3">Podsumowanie walki</h2>
-        <dl class="mb-3">
-            <div class="d-flex justify-content-between gap-3">
-                <dt>Zdobyty EXP</dt><dd>{{ chosen_character.0.fight_summary.exp_gained }}</dd>
-            </div>
-            <div class="d-flex justify-content-between gap-3">
-                <dt>Przyjęte obrażenia</dt><dd>{{ chosen_character.0.fight_summary.damage_taken }}</dd>
-            </div>
-            <div class="d-flex justify-content-between gap-3">
-                <dt>Różnica PŻ</dt><dd>{% if chosen_character.0.fight_summary.hp_difference > 0 %}+{% endif %}{{ chosen_character.0.fight_summary.hp_difference|default:0 }} PŻ</dd>
-            </div>
-        </dl>
-        <button type="submit" class="btn btn-sm btn-success w-100">Zamknij</button>
-    </form>
-</div>
-{% endif %}
-{% if chosen_character.0.inFight %}
-    {% if class.counter and class.counter.strip %}
-    <dialog id="character-resource-dialog" class="bg-dark c-gold border border-warning rounded p-3 text-center"
-            aria-labelledby="character-resource-title">
-        <div class="character-resource-header mb-2">
-            <div class="d-flex justify-content-end mb-2">
-                <button type="button" class="btn btn-danger" aria-label="Zamknij" onclick="document.getElementById('character-resource-dialog').close()">X</button>
-            </div>
-            <h3 id="character-resource-title" class="mb-0">Zasób: {{ class.counter }}</h3>
-        </div>
-        {% include "dunnorpg/class_resource_entries.html" %}
-    </dialog>
-    {% endif %}
-    <div class="container bg-dark bg-opacity-75 pb-3 combat-counters">
-        {% if chosen_character.0.counterName %}
-            <div class="row align-items-center">
-                <div class="col-6 text-start mt-1">
-                    {% if class.counter and class.counter.strip and class.counter == chosen_character.0.counterName %}
-                        <button type="button" class="btn p-0 c-gold fw-bold character-resource-trigger" aria-haspopup="dialog" aria-controls="character-resource-dialog"
-                                onclick="document.getElementById('character-resource-dialog').showModal()">{{ chosen_character.0.counterName }}:</button>
-                    {% else %}
-                        <span class="h-100 c-gold fw-bold">{{ chosen_character.0.counterName }}:</span>
-                    {% endif %}
-                </div>
-                <div class="col-6 text-start ps-0 mt-1 pe-0">
-                    <form id="counter-form" method="post" action="change-counter/counter" onsubmit="changeCounter(event, 'counter')">
-                        {% csrf_token %}
-                        <div class="d-flex align-items-stretch">
-                            <input id='counter-val' name='counter' type="number" min="0" step="1" class="w-100 h-100 text-center c-gold bg-dark rounded bg-gradient" value="{{ chosen_character.0.counter|unlocalize }}"/>
-                            <button type="button" class="btn btn-sm btn-danger ms-1 fw-bold counter-adjust-btn" onclick="adjustCounter('counter', -1)">-</button>
-                            <button type="button" class="btn btn-sm btn-success ms-1 fw-bold counter-adjust-btn" onclick="adjustCounter('counter', 1)">+</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        {% endif %}
-        {% if chosen_character.0.counterName2 %}
-            <div class="row align-items-center">
-                <div class="col-6 text-start mt-1">
-                    {% if class.counter and class.counter.strip and class.counter == chosen_character.0.counterName2 %}
-                        <button type="button" class="btn p-0 c-gold fw-bold character-resource-trigger" aria-haspopup="dialog" aria-controls="character-resource-dialog"
-                                onclick="document.getElementById('character-resource-dialog').showModal()">{{ chosen_character.0.counterName2 }}:</button>
-                    {% else %}
-                        <span class="h-100 c-gold fw-bold">{{ chosen_character.0.counterName2 }}:</span>
-                    {% endif %}
-                </div>
-                <div class="col-6 text-start ps-0 mt-1 pe-0">
-                    <form id="counter2-form" method="post" action="change-counter/counter2" onsubmit="changeCounter(event, 'counter2')">
-                        {% csrf_token %}
-                        <div class="d-flex align-items-stretch">
-                            <input id='counter2-val' name='counter2' type="number" min="0" step="1" class="w-100 h-100 text-center c-gold bg-dark rounded bg-gradient" value="{{ chosen_character.0.counter2|unlocalize }}"/>
-                            <button type="button" class="btn btn-sm btn-danger ms-1 fw-bold counter-adjust-btn" onclick="adjustCounter('counter2', -1)">-</button>
-                            <button type="button" class="btn btn-sm btn-success ms-1 fw-bold counter-adjust-btn" onclick="adjustCounter('counter2', 1)">+</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        {% endif %}
-        <div class="row align-items-center">
-            <div class="col-6 text-start mt-1">
-                <span class="h-100 c-gold fw-bold">Bilans Przewag:</span>
-            </div>
-            <div class="col-6 text-start ps-0 mt-1 pe-0">
-                <form id="advantageBalance-form" method="post" action="change-counter/advantageBalance" onsubmit="changeCounter(event, 'advantageBalance')">
-                    {% csrf_token %}
-                    <div class="d-flex align-items-stretch">
-                        <input id='advantageBalance-val' name='advantageBalance' type="number" step="1" class="w-100 h-100 text-center c-gold bg-dark rounded bg-gradient" value="{{ chosen_character.0.advantageBalance|unlocalize }}"/>
-                        <button type="button" class="btn btn-sm btn-danger ms-1 fw-bold counter-adjust-btn" onclick="adjustCounter('advantageBalance', -1)">-</button>
-                        <button type="button" class="btn btn-sm btn-success ms-1 fw-bold counter-adjust-btn" onclick="adjustCounter('advantageBalance', 1)">+</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-        <div class="row align-items-center">
-            <div class="col-6 text-start mt-1">
-                <span class="h-100 c-gold fw-bold">Dostępna ilość akcji:</span> 
-            </div>
-            <div class="col-6 text-start ps-0 mt-1 pe-0">
-                <form id="actions-amount-form" method="post" action="change-action-amount" onsubmit="changeActionAmount(event)">
-                    {% csrf_token %}
-                    <input id='actions-amount' name='actions-amount' type="number" step="0.5" class="w-100 h-100 text-center c-gold bg-dark rounded bg-gradient" value="{{ chosen_character.0.actionLeft|unlocalize }}"/>
-                </form>
-            </div>
-        </div>
-    </div>
-{% endif %}
-
-<div class="container-fluid bg-dark bg-opacity-75 m-0 p-0">
-    <div class="row g-0 w-100 m-0 p-0">
-        <div class="col text-center m-0 p-0">
-            <a class="btn btn-primary text-white w-100 h-100 rounded-0 m-0" href="{% url 'character_add_skills' chosen_character.0.id %}">
-                Edycja
-            </a>
-        </div>
-        {% if not chosen_character.0.inFight %}
-        <div class="col text-center m-0 p-0">
-            <button class="btn btn-danger w-100 h-100 rounded-0 m-0" id="in-fight" onclick="maybeChangeFight(this)">Walka</button>
-        </div>
-        {% endif %}
-    </div>
-    {% if chosen_character.0.inFight %}
-    <div class="row w-100 m-0 pt-1 pb-1 text-info">
-        <div class="col text-center">
-            <button class="btn btn-danger w-100 h-100" id="outside-fight" onclick="maybeChangeFight(this)">
-                Zakończ walkę
-            </button>
-        </div>
-
-            <div class="col text-center">
-                <button class="btn w-100 h-100" id="end-round" onclick="endRound()">Zakończ rundę</button>
-            </div>
-    </div>
-    {% endif %}
-</div>
+{% include "dunnorpg/character_combat_panel.html" with character=value %}
 
 <div class="container-fluid bg-dark border-top border-bottom border-warning c-gold text-center p-1">
     <div class="row g-0 small fw-bold">
@@ -181,11 +44,9 @@
             <i class="fa fa-bars" aria-hidden="true"></i>
         </button>
 
-        {% if chosen_character.0.inFight %}
-        <div class='col-3 m-0 p-1 btn btn-dark btn-outline-warning border border-warning rounded' id='Move' onclick="show_result_at_window('Move')">
+        <div class='col-3 m-0 p-1 btn btn-dark btn-outline-warning border border-warning rounded{% if not value.inFight %} d-none{% endif %}' data-fight-only id='Move' onclick="show_result_at_window('Move')">
             <span class='fas fa-running'></span><br>Ruch
         </div>
-        {% endif %}
 
         <div class='{% if chosen_character.0.inFight %}col-4{% else %}col-5{% endif %} m-0 p-1 btn btn-dark btn-outline-warning border border-warning rounded' id='Skills' onclick="show_or_hideByName(this)">
             <span class='fas fa-meteor' id="skills-tab-icon"></span><br>Umiejętności
@@ -2194,27 +2055,24 @@
 
 <div class='container mt-2' style="position: sticky; bottom: 0.5px;">
     <div class='row'>
-        {% if chosen_character.0.inFight %}
-        <div onclick='show_result_at_window("Parry")' class='col-3 m-0 p-1 btn btn-dark btn-outline-warning border border-warning rounded'>
+        <div onclick='show_result_at_window("Parry")' data-fight-only class='col-3 m-0 p-1 btn btn-dark btn-outline-warning border border-warning rounded{% if not value.inFight %} d-none{% endif %}'>
             <span class='fas fa-shield-alt'></span><br>Parowanie
         </div>
-        <div onclick='show_result_at_window("Dodge")' class='col-3 m-0 p-1 btn btn-dark btn-outline-warning border border-warning rounded'>
+        <div onclick='show_result_at_window("Dodge")' data-fight-only class='col-3 m-0 p-1 btn btn-dark btn-outline-warning border border-warning rounded{% if not value.inFight %} d-none{% endif %}'>
             <span class='fa-solid fa-person-falling' id="dodge-icon"></span><br>Unik
         </div>
-        <div onclick='show_result_at_window("Overwatch")' class='col-4 m-0 p-1 btn btn-dark btn-outline-warning border border-warning rounded'>
+        <div onclick='show_result_at_window("Overwatch")' data-fight-only class='col-4 m-0 p-1 btn btn-dark btn-outline-warning border border-warning rounded{% if not value.inFight %} d-none{% endif %}'>
             <span class='fa-regular fa-eye-slash' id="overwatch-icon"></span><br>Overwatch
         </div>
-        <div onclick='document.getElementById("notes-block").classList.remove("d-none")' class='col-2 m-0 p-0 btn btn-dark btn-outline-warning border border-warning rounded'>
+        <div onclick='document.getElementById("notes-block").classList.remove("d-none")' data-fight-only class='col-2 m-0 p-0 btn btn-dark btn-outline-warning border border-warning rounded{% if not value.inFight %} d-none{% endif %}'>
             <span class='fas fa-pencil-alt mt-4'></span><br>
         </div>
-        {% else %}
-        <button class="col-6 m-0 p-1 btn btn-dark btn-outline-warning border border-warning rounded" type="button" onclick="openInventoryIframe()">
+        <button data-outside-fight class="col-6 m-0 p-1 btn btn-dark btn-outline-warning border border-warning rounded{% if value.inFight %} d-none{% endif %}" type="button" onclick="openInventoryIframe()">
             <span class="character-backpack-icon" aria-hidden="true"></span><br>Ekwipunek
         </button>
-        <button onclick='document.getElementById("notes-block").classList.remove("d-none")' class='col-6 m-0 p-1 btn btn-dark btn-outline-warning border border-warning rounded' type="button">
+        <button onclick='document.getElementById("notes-block").classList.remove("d-none")' data-outside-fight class='col-6 m-0 p-1 btn btn-dark btn-outline-warning border border-warning rounded{% if value.inFight %} d-none{% endif %}' type="button">
             <span class="fas fa-pencil-alt" aria-hidden="true"></span><br>Notatki
         </button>
-        {% endif %}
     </div>
 </div>
 

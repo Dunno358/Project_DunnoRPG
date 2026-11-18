@@ -1905,45 +1905,81 @@ def skill_add(request,char_id,skill_id,lvl):
     return redirect(f'/dunnorpg/character_add_skills/{char_id}/')
     
 
-def enter_or_leave_fight(request,char_id):
-    character = get_object_or_404(models.Character, id=char_id)
-    if character.inFight:
-        # TODO: Track damage dealt after the attack workflow is reworked.
-        summary = {
-            "exp_gained": character.fight_exp_gained,
-            "damage_taken": character.fight_damage_taken,
-            "damage_dealt": 0,
-            "hp_difference": character.HP - character.fight_start_hp if character.fight_start_hp is not None else 0,
-        }
-        character.fight_summary = summary if any(summary.values()) else {}
-        character.inFight = False
-        character.actionLeft = 1.0
-        character.counter = 0
-        character.counter2 = 0
-        character.advantageBalance = 0
-        skills = list(models.Skills.objects.filter(character=character.name, owner=character.owner))
-        skill_descriptions = {
-            description.name: description
-            for description in models.Skills_Decs.objects.filter(name__in=[skill.skill for skill in skills])
-        }
-        skills_to_reset = []
-        for skill in skills:
-            description = skill_descriptions.get(skill.skill)
-            max_uses = getattr(description, f"useslvl{skill.level}", None)
-            if max_uses is not None:
-                skill.uses_left = max_uses
-                skills_to_reset.append(skill)
-        models.Skills.objects.bulk_update(skills_to_reset, ['uses_left'])
-    else:
-        character.inFight = True
-        character.actionLeft = 1.0
-        character.advantageBalance = 0
-        character.fight_exp_gained = 0
-        character.fight_damage_taken = 0
-        character.fight_start_hp = character.HP
-        character.fight_summary = {}
-    character.save()
-    return redirect(f'/dunnorpg/character_detail/{char_id}/')
+@require_POST
+def enter_or_leave_fight(request, char_id):
+    requested_state = request.POST.get("in_fight")
+    if requested_state not in {"true", "false"}:
+        return JsonResponse({"error": "Nieprawidłowy stan walki."}, status=400)
+    in_fight = requested_state == "true"
+    is_ajax = request.headers.get("X-Requested-With") == "XMLHttpRequest"
+    skill_uses = {}
+
+    with transaction.atomic():
+        character = get_object_or_404(models.Character.objects.select_for_update(), id=char_id)
+        if not request.user.is_authenticated or (character.owner != request.user.username and not request.user.is_superuser):
+            return JsonResponse({"error": "Brak dostępu do postaci."}, status=403)
+
+        if character.inFight != in_fight:
+            character.inFight = in_fight
+            character.actionLeft = 1.0
+            character.advantageBalance = 0
+            fields = ["inFight", "actionLeft", "advantageBalance", "fight_summary"]
+            if in_fight:
+                character.fight_exp_gained = 0
+                character.fight_damage_taken = 0
+                character.fight_start_hp = character.HP
+                character.fight_summary = {}
+                fields.extend(["fight_exp_gained", "fight_damage_taken", "fight_start_hp"])
+            else:
+                # TODO: Track damage dealt after the attack workflow is reworked.
+                summary = {
+                    "exp_gained": character.fight_exp_gained,
+                    "damage_taken": character.fight_damage_taken,
+                    "damage_dealt": 0,
+                    "hp_difference": character.HP - character.fight_start_hp if character.fight_start_hp is not None else 0,
+                }
+                character.fight_summary = summary if any(summary.values()) else {}
+                character.counter = 0
+                character.counter2 = 0
+                fields.extend(["counter", "counter2"])
+                skills = list(models.Skills.objects.filter(
+                    character=character.name, owner=character.owner,
+                ).only("skill", "level", "uses_left"))
+                skill_descriptions = {
+                    description.name: description
+                    for description in models.Skills_Decs.objects.filter(
+                        name__in=[skill.skill for skill in skills],
+                    ).only("name", "useslvl1", "useslvl2", "useslvl3", "useslvl4")
+                }
+                skills_to_reset = []
+                for skill in skills:
+                    description = skill_descriptions.get(skill.skill)
+                    max_uses = getattr(description, f"useslvl{skill.level}", None)
+                    if max_uses is not None:
+                        skill_uses[skill.pk] = max_uses
+                        if skill.uses_left != max_uses:
+                            skill.uses_left = max_uses
+                            skills_to_reset.append(skill)
+                models.Skills.objects.bulk_update(skills_to_reset, ["uses_left"])
+            character.save(update_fields=fields)
+        elif is_ajax and not in_fight:
+            skill_uses = dict(models.Skills.objects.filter(
+                character=character.name, owner=character.owner,
+            ).values_list("id", "uses_left"))
+
+    if not is_ajax:
+        return redirect("character_detail", character.id)
+
+    chosen_class = models.Classes.objects.filter(name=character.chosen_class).first() if in_fight else None
+    return JsonResponse({
+        "in_fight": character.inFight,
+        "action_left": character.actionLeft,
+        "advantage_balance": character.advantageBalance,
+        "skill_uses": skill_uses,
+        "panel_html": render_to_string(
+            "dunnorpg/character_combat_panel.html", {"character": character, "class": chosen_class}, request=request,
+        ),
+    })
 
 @require_POST
 def dismiss_fight_summary(request, char_id):

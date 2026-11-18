@@ -678,13 +678,10 @@ function initCharacterDetailDynamicContent(){
     initAjaxInput('food-val', 'food-form')
     initAjaxInput('alcohol-val', 'alcohol-form')
     initAjaxInput('barrier-val', 'barrier-form')
-    initAjaxInput('actions-amount', 'actions-amount-form')
+    initCombatInputs()
     document.querySelectorAll('[id^="skill-uses-val-"]').forEach((input) => {
         initAjaxInput(input.id, `skill-uses-form-${input.id.replace('skill-uses-val-', '')}`)
     })
-    initAjaxInput('counter-val', 'counter-form')
-    initAjaxInput('counter2-val', 'counter2-form')
-    initAjaxInput('advantageBalance-val', 'advantageBalance-form')
     initItemDurabilityForms()
     document.querySelectorAll('.character-item-skill').forEach(skill => {
         if(skill.dataset.toggleInitialized) return
@@ -707,6 +704,13 @@ function initCharacterDetailDynamicContent(){
             toggle()
         })
     })
+}
+
+function initCombatInputs(){
+    initAjaxInput('actions-amount', 'actions-amount-form')
+    initAjaxInput('counter-val', 'counter-form')
+    initAjaxInput('counter2-val', 'counter2-form')
+    initAjaxInput('advantageBalance-val', 'advantageBalance-form')
 }
 
 function adjustCounter(counterField, delta){
@@ -2585,10 +2589,72 @@ function getDiceWMods(instance,modsPoints,getResult=false,text='Result', d0excep
     }
 }
 
-function maybeChangeFight(element){
-    if(element.id === 'in-fight' || (element.id === 'outside-fight' && document.getElementById('dice-input').dataset.inFight === 'true')){
-        url = window.location.href+'change_fight'
-        window.location.replace(url)
+function syncFightSkillUses(skillUses){
+    for(const [skillId, uses] of Object.entries(skillUses)){
+        const row = document.getElementById(`skill-usage-${skillId}`)
+        const useButton = row?.querySelector('[data-skill-use-button]')
+        if(!useButton) continue
+
+        useButton.classList.toggle('btn-success', uses > 0)
+        useButton.classList.toggle('btn-danger', uses <= 0)
+        const input = document.getElementById(`skill-uses-val-${skillId}`)
+        if(input){
+            input.value = uses
+            input.defaultValue = uses
+            input.dataset.lastSubmittedValue = String(uses)
+            row.querySelector('[data-skill-uses-unlimited]').classList.toggle('d-none', uses !== 1000)
+            row.querySelector('[data-skill-uses-count]').classList.toggle('d-none', uses === 1000)
+        }
+    }
+}
+
+async function changeFight(event){
+    event.preventDefault()
+    const form = event.currentTarget
+    const button = form.querySelector('button[type="submit"]')
+    const root = document.getElementById('character-details-refresh-root')
+    if(button.disabled || root.dataset.refreshing === 'true') return
+
+    button.disabled = true
+    root.dataset.refreshing = 'true'
+    try{
+        const response = await fetch(form.action, {
+            method: 'POST',
+            body: new FormData(form),
+            headers: {'X-Requested-With': 'XMLHttpRequest'},
+        })
+        const data = await response.json().catch(() => null)
+        if(!response.ok || !data?.panel_html){
+            throw new Error(data?.error || 'Nie udało się zmienić stanu walki.')
+        }
+
+        const panel = new DOMParser().parseFromString(data.panel_html, 'text/html').getElementById('character-combat-panel')
+        if(!panel) throw new Error('Nie udało się odświeżyć panelu walki.')
+        document.getElementById('character-combat-panel').replaceWith(panel)
+        initCombatInputs()
+
+        const inFight = data.in_fight
+        root.querySelectorAll('[data-fight-only]').forEach(control => control.classList.toggle('d-none', !inFight))
+        root.querySelectorAll('[data-outside-fight]').forEach(control => control.classList.toggle('d-none', inFight))
+        const skillsTab = document.getElementById('Skills')
+        const effectsTab = document.getElementById('Effects')
+        skillsTab.classList.replace(inFight ? 'col-5' : 'col-4', inFight ? 'col-4' : 'col-5')
+        effectsTab.classList.replace(inFight ? 'col-5' : 'col-3', inFight ? 'col-3' : 'col-5')
+
+        const diceInput = document.getElementById('dice-input')
+        diceInput.dataset.inFight = String(inFight)
+        diceInput.dataset.actionsLeft = String(data.action_left)
+        diceInput.dataset.advantageBalance = String(data.advantage_balance)
+        syncFightSkillUses(data.skill_uses)
+        ;['pop-window', 'dice-input', 'result-div'].forEach(id => document.getElementById(id).classList.add('d-none'))
+        panel.querySelector('#fight-summary button')?.focus()
+    }
+    catch(error){
+        showMessage(error.message, 'error')
+    }
+    finally{
+        button.disabled = false
+        root.dataset.refreshing = 'false'
     }
 }
 
