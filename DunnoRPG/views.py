@@ -4400,7 +4400,7 @@ def get_city_price_multiplier(available_amount, durability_percent):
 def get_city_item_shop(item):
     category = (item.category or "").strip().lower()
     item_type = (item.type or "").strip().lower()
-    if category == "trash":
+    if category in {"trash", "lek"}:
         return "Kupiec"
     if category == "eliksir":
         return "Stoisko z eliksirami"
@@ -4680,6 +4680,7 @@ class CityView(ListView):
             potions = []
             trophies = []
             other = []
+            medicines = []
             animals = []
             bags = []
             tavern = []
@@ -4726,6 +4727,8 @@ class CityView(ListView):
                     city_categories[shop_item] = item_category
                     if item_category == "trash":
                         other.append(shop_item)
+                    elif item_category == "lek":
+                        medicines.append(shop_item)
                     elif item_category == "eliksir":
                         potions.append(shop_item)
                     elif item_category in CITY_TAVERN_BUY_CATEGORIES:
@@ -4820,10 +4823,11 @@ class CityView(ListView):
                 ("Posiłki", [item for item in tavern if item.item_type != "Pokój"]),
             ]
             context['tavern_buy_items'] = tavern_buy_items
-            context['other'] = other
+            context['other'] = other + medicines
             context['merchant_groups'] = [
                 ("Akcesoria", [item for item in other if item.is_city_accessory]),
                 ("Amulety", [item for item in other if (item.item_type or "").strip().lower() == "amulet"]),
+                ("Medykamenty", medicines),
                 ("Pozostałe", [item for item in other if not item.is_city_merchant_equipment]),
             ]
             context['x5packets'] = x5packets
