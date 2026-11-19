@@ -684,16 +684,15 @@ ALCOHOL_DRUNK_MODS = (
 )
 ALCOHOL_LITE_SOURCE = "alcohol-lite"
 ALCOHOL_DRUNK_SOURCE = "alcohol"
-ALCOHOL_HANGOVER_SOURCE = "alcohol-hangover"
-ALCOHOL_DRUNK_EFFECTS = (
-    ("Utrudnienie", "Jesteś pijany", 1000, "Aktywne", "Reakcja"),
-    ("Nierówny krok", "Jesteś pijany", 1000, "Aktywne", "Mobility-M1"),
-)
-ALCOHOL_HANGOVER_EFFECTS = (
-    ("Utrudnienie", "Masz kaca", 1, "Aktywne", "Akcja"),
-    ("Utrudnienie", "Masz kaca", 1, "Aktywne", "Reakcja"),
-    ("Nierówny krok", "Masz kaca", 1000, "Aktywne", "Mobility-M1"),
-)
+ALCOHOL_DRUNK_EFFECTS = {
+    "Utrudnienie (upojenie, reakcja)": 1000,
+    "Nierówny krok (upojenie)": 1000,
+}
+ALCOHOL_HANGOVER_EFFECTS = {
+    "Utrudnienie (kac, akcja)": 1,
+    "Utrudnienie (kac, reakcja)": 1,
+    "Nierówny krok (kac)": 1000,
+}
 
 def get_alcohol_state(character, alcohol_level=None, drunkenness_limit=None):
     if alcohol_level is None:
@@ -711,7 +710,7 @@ def get_alcohol_state(character, alcohol_level=None, drunkenness_limit=None):
     if models.Effects.objects.filter(
         owner=character.owner,
         character=character.name,
-        source=ALCOHOL_HANGOVER_SOURCE,
+        name__in=ALCOHOL_HANGOVER_EFFECTS,
     ).exists():
         return "Kac"
     return "Trzeźwy"
@@ -719,6 +718,15 @@ def get_alcohol_state(character, alcohol_level=None, drunkenness_limit=None):
 
 def is_player_animal(character):
     return (character.type or "").lower() == "gracz: zwierze"
+
+
+def refresh_alcohol_effects(character, effects, durations, description):
+    for name, time in durations.items():
+        if not effects.filter(name=name).update(time=time):
+            effects.create(
+                owner=character.owner, character=character.name, name=name, time=time, desc=description,
+            )
+
 
 def sync_alcohol_mods(character, previous_alcohol_level=None):
     try:
@@ -744,41 +752,18 @@ def sync_alcohol_mods(character, previous_alcohol_level=None):
         character=character.name,
         source=ALCOHOL_DRUNK_SOURCE,
     )
-    alcohol_drunk_effect_names = [effect[0] for effect in ALCOHOL_DRUNK_EFFECTS]
-    alcohol_drunk_effects = models.Effects.objects.filter(
+    character_effects = models.Effects.objects.filter(
         owner=character.owner,
         character=character.name,
-        name__in=alcohol_drunk_effect_names,
-        desc="Jesteś pijany",
-        category="Aktywne",
-        source=ALCOHOL_DRUNK_SOURCE,
     )
+    alcohol_drunk_effects = character_effects.filter(name__in=ALCOHOL_DRUNK_EFFECTS)
 
     if alcohol_level <= 0:
         alcohol_lite_mods.delete()
         alcohol_drunk_mods.delete()
-        models.Effects.objects.filter(
-            owner=character.owner,
-            character=character.name,
-            source__in=[ALCOHOL_LITE_SOURCE, ALCOHOL_DRUNK_SOURCE],
-        ).delete()
+        alcohol_drunk_effects.delete()
         if previous_alcohol_level > drunkenness_limit:
-            for name, desc, time, category, works_for in ALCOHOL_HANGOVER_EFFECTS:
-                effect, _ = models.Effects.objects.get_or_create(
-                    owner=character.owner,
-                    character=character.name,
-                    name=name,
-                    desc=desc,
-                    category=category,
-                    works_for=works_for,
-                    source=ALCOHOL_HANGOVER_SOURCE,
-                    defaults={
-                        "time": time,
-                    },
-                )
-                if effect.time != time:
-                    effect.time = time
-                    effect.save()
+            refresh_alcohol_effects(character, character_effects, ALCOHOL_HANGOVER_EFFECTS, "Masz kaca")
         return
 
     if alcohol_level > drunkenness_limit:
@@ -798,23 +783,7 @@ def sync_alcohol_mods(character, previous_alcohol_level=None):
                     source=ALCOHOL_DRUNK_SOURCE,
                 )
 
-        for name, desc, time, category, works_for in ALCOHOL_DRUNK_EFFECTS:
-            effect, _ = models.Effects.objects.get_or_create(
-                owner=character.owner,
-                character=character.name,
-                name=name,
-                desc=desc,
-                category=category,
-                source=ALCOHOL_DRUNK_SOURCE,
-                defaults={
-                    "time": time,
-                    "works_for": works_for,
-                },
-            )
-            if effect.time != time or effect.works_for != works_for:
-                effect.time = time
-                effect.works_for = works_for
-                effect.save()
+        refresh_alcohol_effects(character, character_effects, ALCOHOL_DRUNK_EFFECTS, "Jesteś pijany")
         return
 
     alcohol_drunk_mods.delete()
@@ -3350,93 +3319,32 @@ def end_round(request, **kwargs):
         messages.warning(request, msg)
     return redirect('gm_panel')
 
-def manageAdvantages(char, addOrRemove, type, info, time):
-    type = type.capitalize()
-    effects = models.Effects.objects.filter(character=char.name)
-    countAdvs = 0
-    countDisAdvs = 0
-    countBigAdvs = 0
-    countBigDisAdvs = 0
-    remCount = 0
-
-    if addOrRemove == "remove":
-        for effect in effects:
-            if effect.name == type and effect.desc == info:
-                    effect.delete()
-                    remCount += 1
-                    break
-    else:
-        for effect in effects:
-            if effect.name == "Przewaga":
-                countAdvs += 1
-            elif effect.name == "Utrudnienie":
-                countDisAdvs += 1
-            elif effect.name == "DużaPrzewaga":
-                countBigAdvs += 1
-            elif effect.name == "DużeUtrudnienie":
-                countBigDisAdvs += 1
-
-    if addOrRemove == "add":
-        if type in ["Przewaga","DużaPrzewaga"]:
-            if countBigAdvs >= maxBigAdvs:
-                return "Failed: Aktywna już jest DużaPrzewaga"
-            if type=="Przewaga":
-                if countAdvs >= maxAdvs:
-                    return "Failed: Osiagnięto maksymalną ilość Przewag"
-        else:
-            if countBigDisAdvs >= maxBigAdvs:
-                return "DużeUtrudnienie jest już aktywne"
-            if type=="Utrudnienie":
-                if countDisAdvs >= maxAdvs:
-                    return "Failed: Osiagnięto maksymalną ilość Utrudnień"
-        models.Effects.objects.create(
-            owner = char.owner,
-            character = char.name,
-            name = type,
-            desc = info,
-            time = time,
-            category = "Aktywny"
-        )
-        return f"Success: Dodano {type}"
-    else:
-        if remCount == 0:
-            return f"Failed: Nie znaleziono lub nie udało się usunąć"
-        return f"Success: Removed {info}"
-
 def manageFoodAndWater(char, value, stat_type):  # stat_type: "food" or "water"
-    effects = models.Effects.objects.filter(character=char.name)
-    has_food_effect = effects.filter(desc="Odczuwasz Głód", character=char.name).exists()
-    has_water_effect = effects.filter(desc="Odczuwasz Pragnienie", character=char.name).exists()
+    effects = models.Effects.objects.filter(owner=char.owner, character=char.name)
+    condition = {"food": "Głód", "water": "Pragnienie"}[stat_type]
+    effect_name = f"Utrudnienie ({condition.lower()})"
+    condition_effects = effects.filter(name=effect_name)
     value_now = getattr(char, stat_type)
     value_changed = value_now + value
-    msg = ""
+    setattr(char, stat_type, min(100, max(0, value_changed)))
 
-    typeDict = {"food": "Głód", "water": "Pragnienie"}
-    effectExists = {"food": has_food_effect, "water": has_water_effect}
+    if value_changed > 20:
+        if value_now <= 20:
+            condition_effects.delete()
+        return char, ""
 
+    if (
+        not condition_effects.exists()
+        and effects.filter(name="DużeUtrudnienie").count() < maxBigAdvs
+        and effects.filter(Q(name="Utrudnienie") | Q(name__startswith="Utrudnienie (")).count() < maxAdvs
+    ):
+        models.Effects.objects.create(owner=char.owner, character=char.name, name=effect_name, time=1000)
+
+    msg = f"Odczuwasz {condition}"
     if value_changed < 0:
-        diff = abs(value_changed)
-        setattr(char, stat_type, 0)
-        char.HP -= diff
-        if char.HP <= 0:
-            char.HP = 0
-        msg = f"Odczuwasz {typeDict[stat_type]} i tracisz {diff} PŻ"
-        if not effectExists[stat_type]:
-            manageAdvantages(char, "add", "Utrudnienie", f"Odczuwasz {typeDict[stat_type]}", 1000)
-    elif value_changed <= 20:
-        setattr(char, stat_type, value_changed)
-        msg = f"Odczuwasz {typeDict[stat_type]}"
-        if not effectExists[stat_type]:
-            manageAdvantages(char, "add", "Utrudnienie", f"Odczuwasz {typeDict[stat_type]}", 1000)
-    else:
-        if value_changed > 100:
-            setattr(char, stat_type, 100)
-        else:
-            setattr(char, stat_type, value_changed)
-
-        if value_changed > 20 and value_now <= 20:
-            manageAdvantages(char, "remove", "Utrudnienie", f"Odczuwasz {typeDict[stat_type]}", 1000)
-
+        lost_hp = -value_changed
+        char.HP = max(0, char.HP - lost_hp)
+        msg += f" i tracisz {lost_hp} PŻ"
     return char, msg
 
 

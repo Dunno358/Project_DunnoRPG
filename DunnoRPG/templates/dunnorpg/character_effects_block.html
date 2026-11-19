@@ -4,11 +4,15 @@
     <p class="text-center fw-bold">Effects: </p>
     <ul>
     {% for effect in character|getCharacterEffects %}
-    <li onclick="show_or_hideById(this.attributes['name'].value)" name='ef{{ effect.id }}' class='fw-bold fst-italic'>
+    <li{% if effect.description or effect.desc %} onclick="show_or_hideById('ef{{ effect.id }}')"{% endif %} class='fw-bold fst-italic'>
         {{ effect.name }} | Pozosta&#322;o: {% if effect.time > 100 %}?{% else %}{{ effect.time }}{% endif %}
-
+        {% if effect.description or effect.desc %}
+        <div id='ef{{ effect.id }}' class='d-none fw-normal fst-normal'>
+            {% if effect.description %}<p class='mb-0'>{{ effect.description }}</p>{% endif %}
+            {% if effect.desc and effect.desc != effect.description %}<p class='mb-0'>{{ effect.desc }}</p>{% endif %}
+        </div>
+        {% endif %}
     </li>
-    <p id='ef{{ effect.id }}' class='d-none'>{{ effect.desc }}</p>
     {% endfor %}
     </ul>
 </div>

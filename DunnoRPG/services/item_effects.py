@@ -183,12 +183,7 @@ def add_effect(char, effect_name, time):
         owner=char.owner,
         character=char.name,
         name=effect_desc.name,
-        defaults={
-            "desc": effect_desc.desc,
-            "time": time,
-            "category": effect_desc.category,
-            "source": "item_use",
-        },
+        defaults={"time": time},
     )
     return effect
 

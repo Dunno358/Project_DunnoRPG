@@ -1,4 +1,5 @@
 from django import template
+from django.db.models import OuterRef, Subquery
 from django.utils.safestring import mark_safe
 from django.utils.text import Truncator
 from DunnoRPG import models
@@ -810,7 +811,10 @@ def getCharacterEffects(character):
         character_name = character['name']
     except (TypeError, KeyError):
         character_name = getattr(character, 'name', character)
-    return models.Effects.objects.all().filter(character=character_name).values()
+    definitions = models.Effects_Decs.objects.filter(name=OuterRef('name')).order_by('pk')
+    return models.Effects.objects.filter(character=character_name).annotate(
+        description=Subquery(definitions.values('desc')[:1]),
+    ).values()
 
 @register.filter
 def getCharacterEffectsCount(character):
