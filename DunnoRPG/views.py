@@ -2664,6 +2664,46 @@ def add_character_effect(request, char_id):
     return redirect('character_detail', char.id)
 
 
+@require_POST
+@transaction.atomic
+def change_character_effect_time(request, char_id, effect_id):
+    char = get_object_or_404(models.Character.objects.select_for_update(), id=char_id)
+    if not request.user.is_authenticated or (char.owner != request.user.username and not request.user.is_superuser):
+        return JsonResponse({'error': 'Brak dostępu do postaci.'}, status=403)
+
+    effect = get_object_or_404(models.Effects, pk=effect_id, owner=char.owner, character=char.name)
+    is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
+    try:
+        time = int(request.POST.get('time', ''))
+        if not 1 <= time <= 1000:
+            raise ValueError
+    except ValueError:
+        message = 'Podaj czas od 1 do 1000 rund.'
+        if is_ajax:
+            return JsonResponse({'error': message}, status=400)
+        messages.error(request, message)
+        return redirect('character_detail', char.id)
+
+    effect.time = time
+    effect.save(update_fields=['time'])
+    if is_ajax:
+        return JsonResponse({'time': effect.time})
+    return redirect('character_detail', char.id)
+
+
+@require_POST
+@transaction.atomic
+def remove_character_effect(request, char_id, effect_id):
+    char = get_object_or_404(models.Character.objects.select_for_update(), id=char_id)
+    if not request.user.is_authenticated or (char.owner != request.user.username and not request.user.is_superuser):
+        return JsonResponse({'error': 'Brak dostępu do postaci.'}, status=403)
+
+    effect = get_object_or_404(models.Effects, pk=effect_id, owner=char.owner, character=char.name)
+    effect.delete()
+    messages.success(request, f'Usunięto efekt {effect.name}.')
+    return redirect('character_detail', char.id)
+
+
 def change_coins(request, **kwargs):
     if request.method == 'POST':
         try:
