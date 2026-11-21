@@ -2072,7 +2072,9 @@
     <p id='item-skill-char'>{{ value.name|getStatFromItems:"CHAR" }}</p>
     <p id='item-skill-cel'>{{ value.name|getStatFromItems:"CEL" }}</p>
     <p id='item-skill-spo'>{{ value.name|getStatFromItems:"SPO" }}</p>
-    <p id='mobility-mod' data-percent-modifier="{{ value|mobilityPercentModifier|unlocalize }}">{{ value|getMobilityMod }}</p>
+    <p id='mobility-mod' data-percent-modifier="{{ value|mobilityPercentModifier|unlocalize }}"
+        data-round-bonus="{{ value.round_mobility_bonus|unlocalize }}"
+        data-cap="{{ value|mobilityCap|default_if_none:''|unlocalize }}">{{ value|getMobilityMod }}</p>
 </div>
 </div>
 

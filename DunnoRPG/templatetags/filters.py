@@ -4,7 +4,7 @@ from django.utils.text import Truncator
 from DunnoRPG import models
 from DunnoRPG.services.armor import armor_by_durability
 from DunnoRPG.services.character_effects import (
-    active_effects, disadvantage_count, mobility_penalty, mobility_percent_modifier,
+    active_effects, disadvantage_count, effect_stat_modifier, mobility_cap, mobility_penalty, mobility_percent_modifier,
 )
 from django.apps import apps
 from django.shortcuts import get_object_or_404
@@ -747,7 +747,7 @@ def beautifyClassHpMod(text):
 #CHARACTER-GET
 @register.filter
 def getMod(character,stat_for_mod):
-    value = 0
+    value = effect_stat_modifier(character, stat_for_mod)
     for stat in models.Mods.objects.all().filter(character=character['name'], field=stat_for_mod).values():
         value += stat['value']
     items = []
@@ -768,8 +768,8 @@ def getMod(character,stat_for_mod):
 
 @register.filter
 def getModFromId(charId,stat_for_mod):
-    value = 0
     character = get_object_or_404(models.Character, id=charId)
+    value = effect_stat_modifier(character, stat_for_mod)
     for stat in models.Mods.objects.all().filter(character=character.name, field=stat_for_mod).values():
         value += stat['value']
     items = []
@@ -815,6 +815,7 @@ def getCharacterEffects(character):
 
 register.filter('effectDisadvantageCount', disadvantage_count)
 register.filter('mobilityPercentModifier', mobility_percent_modifier)
+register.filter('mobilityCap', mobility_cap)
 
 @register.filter
 def getCharacterEffectsCount(character):

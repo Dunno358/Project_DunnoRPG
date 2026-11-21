@@ -3,6 +3,7 @@ from dataclasses import dataclass
 from django.shortcuts import get_object_or_404
 
 from DunnoRPG import models
+from .character_effects import add_active_effect, parse_amount
 
 
 @dataclass
@@ -14,13 +15,6 @@ class ItemEffectMessage:
 EMPTY_BOTTLE_ACTIONS = {"addhp_potion", "addwater_bottle"}
 EMPTY_SKIN_ACTIONS = {"addwater_skin"}
 VALID_STAT_MOD_FIELDS = {"INT", "SIŁ", "ZRE", "CHAR", "CEL", "SPO"}
-
-
-def parse_amount(value):
-    value = value.strip()
-    if value.endswith("M"):
-        return -abs(int(value[:-1]))
-    return int(value)
 
 
 def apply_item_use_effects(char, actions, cost, manage_food_and_water, sync_alcohol_mods=None, add_consumed_container=True):
@@ -129,7 +123,7 @@ def apply_item_use_effects(char, actions, cost, manage_food_and_water, sync_alco
 
             messages.append(ItemEffectMessage(
                 "success",
-                f"Dodano efekt {effect.name} na {amount} rund, wykorzystano {cost}/{char.actionLeft-cost} akcji",
+                f"Dodano efekt {effect.name} na {effect.time} rund, wykorzystano {cost}/{char.actionLeft-cost} akcji",
             ))
 
     if add_consumed_container:
@@ -179,13 +173,7 @@ def add_effect(char, effect_name, time):
     if effect_desc is None:
         return None
 
-    effect, _ = models.Effects.objects.update_or_create(
-        owner=char.owner,
-        character=char.name,
-        name=effect_desc.name,
-        defaults={"time": time},
-    )
-    return effect
+    return add_active_effect(char.owner, char.name, effect_desc.name, time, refresh_time=time)
 
 
 def increase_stat(char, stat_name, payload):

@@ -2372,6 +2372,7 @@ let movementTracker = {
 }
 let movementMode = 'character'
 let characterBaseMove = 0
+let characterMovementCap = Infinity
 let mountBaseMove = null
 
 function getMovementStorageKey(mode = movementMode){
@@ -2456,7 +2457,7 @@ function saveMovementTracker(){
     }
 }
 
-function getSavedMovementTracker(baseMove){
+function getSavedMovementTracker(baseMove, cap){
     let savedTracker = null
     try{
         savedTracker = sessionStorage.getItem(getMovementStorageKey())
@@ -2487,7 +2488,7 @@ function getSavedMovementTracker(baseMove){
             return null
         }
 
-        const totalMove = baseMove + savedTotalMove - savedBaseMove
+        const totalMove = Math.min(cap, baseMove + savedTotalMove - savedBaseMove)
         return {
             baseMove,
             totalMove,
@@ -2549,14 +2550,19 @@ async function useMovementBoost(boost, cost){
         return
     }
 
-    movementTracker.totalMove = movementTracker.baseMove + boost
+    movementTracker.totalMove = Math.min(characterMovementCap, movementTracker.baseMove + boost)
     movementTracker.remainingMove = movementTracker.totalMove
     renderMovementTracker()
 }
 
 function renderMovementBoosts(baseMove){
-    const accelerationMove = Math.ceil(baseMove / 2)
-    const sprintMove = baseMove
+    const boostLimit = characterMovementCap - baseMove
+    const accelerationMove = Math.min(Math.ceil(baseMove / 2), boostLimit)
+    const sprintMove = Math.min(baseMove, boostLimit)
+    if(sprintMove === 0){
+        window_action_bottom.innerHTML = ''
+        return
+    }
 
     window_action_bottom.innerHTML = `
         <div class="d-flex flex-column flex-md-row gap-2 justify-content-center align-items-stretch">
@@ -2579,7 +2585,8 @@ function renderMovementBoosts(baseMove){
 function selectMovementMode(mode){
     movementMode = mode
     const baseMove = mode === 'mount' ? mountBaseMove : characterBaseMove
-    movementTracker = getSavedMovementTracker(baseMove) || {
+    const cap = mode === 'mount' ? Infinity : characterMovementCap
+    movementTracker = getSavedMovementTracker(baseMove, cap) || {
         baseMove: baseMove,
         totalMove: baseMove,
         remainingMove: baseMove,
@@ -2602,8 +2609,9 @@ function selectMovementMode(mode){
     renderMovementTracker()
 }
 
-function showMovementAction(baseMove, equippedMountMove = null){
-    characterBaseMove = baseMove
+function showMovementAction(baseMove, equippedMountMove = null, cap = Infinity){
+    characterMovementCap = cap
+    characterBaseMove = Math.min(baseMove, cap)
     mountBaseMove = equippedMountMove
 
     const movementTabs = mountBaseMove === null ? '' : `
@@ -2683,11 +2691,13 @@ function show_result_at_window(action){
     else if (action == 'Move')
     {
         const baseMove = {% if chosen_character.0.chosen_class|lower == 'juggernaut' %}3{% else %}4{% endif %}
-        const percentModifier = Number(document.getElementById('mobility-mod').dataset.percentModifier || 0)
+        const mobility = document.getElementById('mobility-mod').dataset
+        const percentModifier = Number(mobility.percentModifier || 0) + Number(mobility.roundBonus || 0)
+        const cap = mobility.cap ? Number(mobility.cap) : Infinity
         const full_move = calculateCharacterMovement(baseMove, parseDisplayedNumber('stat-ZRE'),
             parseDisplayedNumber('stat-ZRE-mod'), parseDisplayedNumber('mobility-mod'), percentModifier)
 
-        showMovementAction(full_move, {% if mount %}{{ mount_mobility|default:0|unlocalize }}{% else %}null{% endif %})
+        showMovementAction(full_move, {% if mount %}{{ mount_mobility|default:0|unlocalize }}{% else %}null{% endif %}, cap)
 
     }
     else if (action == 'Parry')

@@ -45,7 +45,9 @@ from .forms import CharacterSkillsForm, AddEqItemForm #, AddEffectForm
 from .services.item_effects import apply_item_use_effects, fill_water
 from .services.attack_criticals import resolve_critical
 from .services.armor import armor_by_durability
-from .services.character_effects import active_effects, disadvantage_count, round_effects
+from .services.character_effects import (
+    active_effects, add_active_effect, adrenaline_percent, disadvantage_count, effect_stat_modifier, round_effects,
+)
 
 raceSizes = {
     "S": 0.5,
@@ -677,17 +679,6 @@ def get_drunkenness_limit(character):
 
     return 3 + strong_head_skill.level
 
-ALCOHOL_MODS = (
-    ("SIŁ", 1),
-    ("CHAR", 1),
-    ("CEL", -2),
-)
-ALCOHOL_DRUNK_MODS = (
-    ("SIŁ", 2),
-    ("CEL", -4),
-)
-ALCOHOL_LITE_SOURCE = "alcohol-lite"
-ALCOHOL_DRUNK_SOURCE = "alcohol"
 ALCOHOL_LITE_DESC = "Odczuwasz upojenie alkoholem"
 ALCOHOL_DRUNK_DESC = "Jesteś pijany"
 ALCOHOL_HANGOVER_DESC = "Masz kaca"
@@ -730,7 +721,7 @@ def refresh_alcohol_effects(character, durations, description):
             )
 
 
-def sync_alcohol_mods(character, previous_alcohol_level=None):
+def sync_alcohol_effects(character, previous_alcohol_level=None):
     try:
         alcohol_level = int(character.alcohol)
     except (TypeError, ValueError):
@@ -744,80 +735,27 @@ def sync_alcohol_mods(character, previous_alcohol_level=None):
             previous_alcohol_level = 0
 
     drunkenness_limit = get_drunkenness_limit(character)
-    alcohol_lite_mods = models.Mods.objects.filter(
-        owner=character.owner,
-        character=character.name,
-        source=ALCOHOL_LITE_SOURCE,
-    )
-    alcohol_drunk_mods = models.Mods.objects.filter(
-        owner=character.owner,
-        character=character.name,
-        source=ALCOHOL_DRUNK_SOURCE,
-    )
-    character_effects = models.Effects.objects.filter(
-        owner=character.owner,
-        character=character.name,
-    )
+    character_effects = models.Effects.objects.filter(owner=character.owner, character=character.name)
     alcohol_lite_effects = character_effects.filter(name="Podpity", desc=ALCOHOL_LITE_DESC)
     alcohol_drunk_effects = character_effects.filter(
         name__in=("Pijany", "Utrudnienie"), desc=ALCOHOL_DRUNK_DESC,
     )
+    hangover_effects = character_effects.filter(name__in=("Kac", "Utrudnienie"), desc=ALCOHOL_HANGOVER_DESC)
 
     if alcohol_level <= 0:
         alcohol_lite_effects.delete()
-        alcohol_lite_mods.delete()
-        alcohol_drunk_mods.delete()
         alcohol_drunk_effects.delete()
         if previous_alcohol_level > drunkenness_limit:
             refresh_alcohol_effects(character, {"Kac": 1000, "Utrudnienie": 1}, ALCOHOL_HANGOVER_DESC)
-        return
-
-    if alcohol_level > drunkenness_limit:
+    elif alcohol_level > drunkenness_limit:
         alcohol_lite_effects.delete()
-        character_effects.filter(name__in=("Kac", "Utrudnienie"), desc=ALCOHOL_HANGOVER_DESC).delete()
-        alcohol_lite_mods.delete()
-        wanted_drunk_mods = set(ALCOHOL_DRUNK_MODS)
-        for mod in alcohol_drunk_mods:
-            if (mod.field, mod.value) not in wanted_drunk_mods:
-                mod.delete()
+        hangover_effects.delete()
+        refresh_alcohol_effects(character, {"Pijany": 1000, "Utrudnienie": 1000}, ALCOHOL_DRUNK_DESC)
+    else:
+        alcohol_drunk_effects.delete()
+        hangover_effects.delete()
+        refresh_alcohol_effects(character, {"Podpity": 1000}, ALCOHOL_LITE_DESC)
 
-        for field, value in ALCOHOL_DRUNK_MODS:
-            if not alcohol_drunk_mods.filter(field=field, value=value).exists():
-                models.Mods.objects.create(
-                    owner=character.owner,
-                    character=character.name,
-                    field=field,
-                    value=value,
-                    source=ALCOHOL_DRUNK_SOURCE,
-                )
-
-        refresh_alcohol_effects(
-            character, {"Pijany": 1000, "Utrudnienie": 1000}, ALCOHOL_DRUNK_DESC,
-        )
-        return
-
-    alcohol_drunk_mods.delete()
-    alcohol_drunk_effects.delete()
-    character_effects.filter(name__in=("Kac", "Utrudnienie"), desc=ALCOHOL_HANGOVER_DESC).delete()
-    refresh_alcohol_effects(character, {"Podpity": 1000}, ALCOHOL_LITE_DESC)
-    if alcohol_level >= drunkenness_limit:
-        alcohol_lite_mods.delete()
-        return
-
-    wanted_mods = set(ALCOHOL_MODS)
-    for mod in alcohol_lite_mods:
-        if (mod.field, mod.value) not in wanted_mods:
-            mod.delete()
-
-    for field, value in ALCOHOL_MODS:
-        if not alcohol_lite_mods.filter(field=field, value=value).exists():
-            models.Mods.objects.create(
-                owner=character.owner,
-                character=character.name,
-                field=field,
-                value=value,
-                source=ALCOHOL_LITE_SOURCE,
-            )
 
 def get_next_character_copy_name(character_name):
     character_name = (character_name or "").strip()
@@ -1468,10 +1406,7 @@ def confirm_attack(request, char_id):
             char.HP -= critical['self_damage']
         char.save(update_fields=['advantageBalance', 'HP', 'actionLeft'])
         if critical.get('effect_name'):
-            models.Effects.objects.create(
-                owner=char.owner, character=char.name, name=critical['effect_name'],
-                desc=critical['effect_description'], time=1,
-            )
+            add_active_effect(char.owner, char.name, critical['effect_name'], 1, critical['effect_description'])
         durability_loss = math.ceil(max(0, description.maxDurability) * critical.get('durability_loss', 0))
         if request.POST.get('damages_weapon') == 'true':
             durability_loss += 1
@@ -1571,8 +1506,15 @@ class calculateGettingHit(APIView):
                     return JsonResponse({"error": "Pancerz musi być nieujemną liczbą."}, status=400)
                 armor_override = math.ceil(armor_override)
 
-            char = get_object_or_404(models.Character, id=kwargs['char_id'])
-            result = self.apply_damage(char, dmg, parts, barrier, ap_percent, ignore_armor, armor_override)
+            with transaction.atomic():
+                char = get_object_or_404(models.Character.objects.select_for_update(), id=kwargs['char_id'])
+                if not request.user.is_authenticated or (char.owner != request.user.username and not request.user.is_superuser):
+                    return JsonResponse({'error': 'Brak dostępu do postaci.'}, status=403)
+                deferred = dmg * adrenaline_percent(char) // 100
+                char.deferred_damage += deferred
+                result = self.apply_damage(char, dmg - deferred, parts, barrier, ap_percent, ignore_armor, armor_override)
+                if deferred:
+                    result['message'] += f' Adrenalina odroczyła {deferred} obrażeń do końca rundy.'
             return JsonResponse(result)
         except Exception as e:
             return JsonResponse({"error": f"Błąd liczenia obrażeń: {e}"}, status=400)
@@ -1637,7 +1579,7 @@ class calculateGettingHit(APIView):
 
         if char.inFight:
             char.fight_damage_taken += dmg
-        char.save()
+        char.save(update_fields=['HP', 'barrier', 'fight_damage_taken', 'deferred_damage'])
         actual_hp_loss = hp_before - char.HP
         deadly_wound = char.HP == 0
 
@@ -1923,7 +1865,8 @@ def enter_or_leave_fight(request, char_id):
             character.inFight = in_fight
             character.actionLeft = 1.0
             character.advantageBalance = 0
-            fields = ["inFight", "actionLeft", "advantageBalance", "fight_summary"]
+            character.round_mobility_bonus = 0
+            fields = ["inFight", "actionLeft", "advantageBalance", "fight_summary", "round_mobility_bonus"]
             if in_fight:
                 character.fight_exp_gained = 0
                 character.fight_damage_taken = 0
@@ -2148,12 +2091,7 @@ def create_character(request,name,char_class,race,type,owner,exp):
             parts = effect.split("-")
             eff_nr = parts[len(parts)-1]
             #eff_desc = models.get_object_or_404(models.Effects_Decs, name=eff_name)
-            models.Effects.objects.create(
-                owner = owner,
-                character = name,
-                name = eff_name,
-                time = 1 #TODO: Handle when effects changing part starts
-            )
+            add_active_effect(owner, name, eff_name, 1)
 
         try:
             new_char = get_object_or_404(models.Character, name=name)
@@ -2242,7 +2180,7 @@ def sell_item(request, **kwargs):
             messages.error(request, f"Hola, hola! Nie masz tego tyle! Masz {eqItem.amount} sztuk tego przedmiotu. ({itemDesc.name})")
             return redirect(f"/dunnorpg/items/ch{kwargs['char_id']}")
 
-        charisma = char.CHAR
+        charisma = char.CHAR + effect_stat_modifier(char, "CHAR")
         for mod in models.Mods.objects.filter(character=char.name, field="CHAR"):
             charisma += mod.value
         for item in models.CharItems.objects.filter(character=char.name):
@@ -2542,7 +2480,7 @@ def get_city_repair_base_price(description, item):
 
 
 def get_city_character_charisma(character):
-    charisma = character.CHAR + sum(models.Mods.objects.filter(
+    charisma = character.CHAR + effect_stat_modifier(character, "CHAR") + sum(models.Mods.objects.filter(
         character=character.name, field='CHAR',
     ).values_list('value', flat=True))
     names = list(models.CharItems.objects.filter(character=character.name).values_list('name', flat=True))
@@ -2651,7 +2589,7 @@ def end_round_infight(request, char_id):
         return JsonResponse({'error': 'Brak dostępu do postaci.'}, status=403)
 
     effects = list(active_effects(char))
-    rolls, actions_left, hp_changes = round_effects(effects)
+    rolls, actions_left, hp_changes, mobility_bonus = round_effects(effects)
     required_fields = {roll['field'] for roll in rolls}
     submitted_fields = {field for field in request.POST if field.startswith('effect_roll_')}
     try:
@@ -2667,8 +2605,13 @@ def end_round_infight(request, char_id):
         }, status=409)
 
     char.actionLeft = actions_left
+    char.round_mobility_bonus = mobility_bonus
     hp_before = char.HP
     damage_handler = calculateGettingHit()
+    if char.deferred_damage:
+        damage = char.deferred_damage
+        char.deferred_damage = 0
+        damage_handler.apply_damage(char, damage, ('head', 'torso', 'hands', 'legs'), max(0, char.barrier))
     for roll, value in zip(rolls, values):
         damage_handler.apply_damage(
             char, value, ('head', 'torso', 'hands', 'legs'),
@@ -2678,7 +2621,7 @@ def end_round_infight(request, char_id):
         char.HP = max(0, char.HP + amount)
         if amount > 0 and char.fullHP is not None:
             char.HP = min(char.HP, char.fullHP)
-    char.save(update_fields=['actionLeft', 'HP'])
+    char.save(update_fields=['actionLeft', 'HP', 'round_mobility_bonus', 'deferred_damage'])
 
     for effect in effects:
         if effect.time <= 1:
@@ -2716,10 +2659,7 @@ def add_character_effect(request, char_id):
         return redirect('character_detail', char.id)
 
     effect = get_object_or_404(models.Effects_Decs, pk=effect_id)
-    models.Effects.objects.create(
-        owner=char.owner, character=char.name, name=effect.name,
-        desc=request.POST.get('desc', '').strip(), time=time,
-    )
+    effect = add_active_effect(char.owner, char.name, effect.name, time, request.POST.get('desc', '').strip())
     messages.success(request, f'Dodano efekt {effect.name}.')
     return redirect('character_detail', char.id)
 
@@ -2898,7 +2838,7 @@ def change_food_water(request, **kwargs):
                     value = max(0, value)
                     char.alcohol = value
                     char.save(update_fields=['alcohol'])
-                    sync_alcohol_mods(char, previous_alcohol_level)
+                    sync_alcohol_effects(char, previous_alcohol_level)
                 else:
                     value = max(0, min(100, value))
                     current_value = getattr(char, stat_type)
@@ -3140,18 +3080,7 @@ def char_wear_item(request, **kwargs):
         for effect in item.skillEffects.split(';'):
             effect = effect.split("-")
 
-            curr_effect = models.Effects.objects.filter(character=char.name, name=effect[0]).first()
-
-            if curr_effect == None:
-                models.Effects.objects.create(
-                    owner = char.owner,
-                    character=char.name,
-                    name = effect[0],
-                    time = effect[2]
-                )
-            else:
-                curr_effect.time = 100
-                curr_effect.save()
+            add_active_effect(char.owner, char.name, effect[0], effect[2], refresh_time=100)
 
     sync_item_granted_skills(char)
 
@@ -3371,12 +3300,7 @@ def char_swap_item(request, **kwargs):
         for effect in it2D.skillEffects.split(';'):
             effect = effect.split("-")
 
-            models.Effects.objects.create(
-                owner = char.owner,
-                character=char.name,
-                name = effect[0],
-                time = effect[2]
-            )    
+            add_active_effect(char.owner, char.name, effect[0], effect[2])
     
     it2.delete()
     sync_item_granted_skills(char)
@@ -3634,7 +3558,7 @@ class ItemsView(ListView):
             items_weight = get_character_current_weight(self.character)
             max_weight = get_character_max_weight(self.character)
             
-            charisma = self.character.CHAR
+            charisma = self.character.CHAR + effect_stat_modifier(self.character, "CHAR")
             for mod in models.Mods.objects.filter(character=self.character.name, field="CHAR"):
                 charisma += mod.value
             for item in models.CharItems.objects.filter(character=self.character.name):
@@ -3793,7 +3717,7 @@ class useItem(APIView):
                 messages.success(request, f'Napełniono wodą: {filled_name}.')
                 return redirect(f'/dunnorpg/items/ch{char_id}')
 
-            char, effect_messages = apply_item_use_effects(char, actions, cost, manageFoodAndWater, sync_alcohol_mods)
+            char, effect_messages = apply_item_use_effects(char, actions, cost, manageFoodAndWater, sync_alcohol_effects)
             for effect_message in effect_messages:
                 getattr(messages, effect_message.level)(request, effect_message.text)
 
@@ -4192,13 +4116,8 @@ class AddEffect(APIView):
             data = request.POST
             char = get_object_or_404(models.Character, id=data['character'])
             effect = get_object_or_404(models.Effects_Decs, id=data['name'])
-            models.Effects.objects.create(
-                owner = char.owner,
-                character = char.name,
-                name = effect.name,
-                time = data['time']
-            )
-            messages.warning(request, f'Added {effect.name} to {char.name}.')
+            applied = add_active_effect(char.owner, char.name, effect.name, data['time'])
+            messages.warning(request, f'Added {applied.name} to {char.name}.')
         return redirect('gm_panel')
 
 def add_mutation(request):
@@ -4908,7 +4827,7 @@ class CityView(ListView):
             }
             for character in characters:
                 character.city_armor_weight_rank = class_armor_ranks.get(character.chosen_class, ARMOR_WEIGHT_ORDER["all"])
-                value = charisma_mods.get(character.name, 0)
+                value = charisma_mods.get(character.name, 0) + effect_stat_modifier(character, "CHAR")
                 character.city_char_mod = f"+{value}" if value >= 0 else str(value)
 
             healing_charisma = characters[0].CHAR + int(characters[0].city_char_mod) if characters else 0
@@ -5025,7 +4944,7 @@ class BuyItem(APIView):
         if current_weight+item.weight*item_amount <= max_weight:
             durability_percent = item_durability_percent / 100
             price = get_city_total_price(item, available_amount, durability_percent, item_amount, allfree=city.allfree, discount=city.discount)
-            charisma = character.CHAR
+            charisma = character.CHAR + effect_stat_modifier(character, "CHAR")
 
             for mod in models.Mods.objects.filter(character=character.name, field="CHAR"):
                 charisma += mod.value
@@ -5149,7 +5068,7 @@ class OrderTavernItem(APIView):
                 actions,
                 0.0,
                 manageFoodAndWater,
-                sync_alcohol_mods,
+                sync_alcohol_effects,
                 add_consumed_container=False,
             )
             effect_messages += current_effect_messages
@@ -5184,17 +5103,7 @@ def heal_character(request, char_id):
         except (TypeError, ValueError):
             return JsonResponse({'message': 'Wybierz postać, której charyzma wpływa na cenę leczenia.'}, status=400)
         selected = get_object_or_404(characters, id=selected_id)
-        charisma = selected.CHAR + sum(models.Mods.objects.filter(character=selected.name, field='CHAR').values_list('value', flat=True))
-        item_names = models.CharItems.objects.filter(character=selected.name).values_list('name', flat=True)
-        descriptions = {item.name: item for item in models.Items.objects.filter(name__in=item_names)}
-        for name in item_names:
-            description = descriptions.get(name)
-            for stat in (description.skillStats or '').split(';') if description else []:
-                if len(stat) >= 2 and stat[:-2].lower() == 'char':
-                    try:
-                        charisma += int(stat[-2:])
-                    except ValueError:
-                        pass
+        charisma = get_city_character_charisma(selected)
     if character.fullHP is None or character.HP >= character.fullHP:
         return JsonResponse({'message': 'Ta postać nie wymaga leczenia.'}, status=400)
     healed = character.fullHP - character.HP

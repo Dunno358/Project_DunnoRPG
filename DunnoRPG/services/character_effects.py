@@ -1,9 +1,53 @@
 import re
 
+from django.db import transaction
 from django.db.models import OuterRef, Subquery
 
 from .. import models
-from .item_effects import parse_amount
+
+
+def parse_amount(value):
+    value = value.strip()
+    if value.endswith("M"):
+        return -abs(int(value[:-1]))
+    return int(value)
+
+
+@transaction.atomic
+def add_active_effect(owner, character, name, time, desc='', refresh_time=None):
+    effects = models.Effects.objects.filter(owner=owner, character=character)
+    definitions = models.Effects_Decs.objects.order_by('pk')
+    visited = set()
+    while name not in visited:
+        visited.add(name)
+        definition = definitions.filter(name=name).first()
+        actions = (definition.actions or '').split(';') if definition else []
+        for action in actions:
+            change = re.fullmatch(r'change([1-9][0-9]*)-(.+)', action.strip())
+            if not change:
+                continue
+            target = change[2].strip()
+            if target in visited or not definitions.filter(name=target).exists():
+                continue
+            # Serialize applications for a character before inspecting previous copies.
+            models.Character.objects.select_for_update().filter(owner=owner, name=character).first()
+            count = int(change[1])
+            previous = list(effects.filter(name=name).order_by('pk')[:count - 1])
+            if len(previous) + 1 < count:
+                return models.Effects.objects.create(owner=owner, character=character, name=name, time=time, desc=desc)
+            time = (int(time) + sum(effect.time for effect in previous) + count - 1) // count
+            effects.filter(pk__in=[effect.pk for effect in previous]).delete()
+            name = target
+            refresh_time = None
+            break
+        else:
+            if refresh_time is not None:
+                existing = effects.filter(name=name).order_by('pk').first()
+                if existing:
+                    existing.time = refresh_time
+                    existing.save(update_fields=['time'])
+                    return existing
+            return models.Effects.objects.create(owner=owner, character=character, name=name, time=time, desc=desc)
 
 
 def active_effects(character):
@@ -37,15 +81,32 @@ def mobility_penalty(character):
 
 
 def mobility_percent_modifier(character):
-    modifier = 0
-    for _, _, action in effect_actions(active_effects(character)):
-        match = re.fullmatch(r'mobility-([0-9]+)pc(M)?', action, re.IGNORECASE)
-        if match:
-            amount = int(match[1])
-            modifier += -amount if match[2] else amount
-        elif action.lower() == 'mobility-100':
-            modifier += 100
-    return modifier
+    return -sum(
+        int(match[1]) for _, _, action in effect_actions(active_effects(character))
+        if (match := re.fullmatch(r'mobility-([0-9]+)pcM', action, re.IGNORECASE))
+    )
+
+
+def mobility_cap(character):
+    return min((
+        int(match[1]) for _, _, action in effect_actions(active_effects(character))
+        if (match := re.fullmatch(r'mobility-max([0-9]+)', action, re.IGNORECASE))
+    ), default=None)
+
+
+def effect_stat_modifier(character, field):
+    pattern = rf'{re.escape(field)}([+-][0-9]+)'
+    return sum(
+        int(match[1]) for _, _, action in effect_actions(active_effects(character))
+        if (match := re.fullmatch(pattern, action, re.IGNORECASE))
+    )
+
+
+def adrenaline_percent(character):
+    return min(100, sum(
+        int(match[1]) for _, _, action in effect_actions(active_effects(character))
+        if (match := re.fullmatch(r'adrenaline-([0-9]+)', action, re.IGNORECASE))
+    ))
 
 
 def disadvantage_count(character):
@@ -56,10 +117,12 @@ def round_effects(effects):
     rolls = []
     actions_left = []
     hp_changes = []
+    mobility_bonus = 0
     for effect, index, action in effect_actions(effects):
         damage = re.fullmatch(r'damageAll(\|ignoreArmor)?-K([1-9][0-9]*)', action)
         action_count = re.fullmatch(r'action-([0-9]+)', action)
         hp_change = re.fullmatch(r'addHP-([+-]?[0-9]+M?)', action)
+        mobility = re.fullmatch(r'mobility-([0-9]+)pc', action, re.IGNORECASE)
         if damage:
             rolls.append({
                 'field': f'effect_roll_{effect.pk}_{index}',
@@ -71,4 +134,8 @@ def round_effects(effects):
             actions_left.append(int(action_count[1]))
         elif hp_change:
             hp_changes.append(parse_amount(hp_change[1]))
-    return rolls, min(actions_left) if actions_left else 1, hp_changes
+        elif mobility:
+            mobility_bonus += int(mobility[1])
+        elif action.lower() == 'mobility-100':
+            mobility_bonus += 100
+    return rolls, min(actions_left) if actions_left else 1, hp_changes, mobility_bonus
