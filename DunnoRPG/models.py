@@ -26,7 +26,7 @@ class Character(models.Model):
     fight_exp_gained = models.PositiveIntegerField(default=0)
     fight_damage_taken = models.PositiveIntegerField(default=0)
     deferred_damage = models.PositiveIntegerField(default=0)
-    round_mobility_bonus = models.PositiveIntegerField(default=0)
+    round_mobility_bonus = models.IntegerField(default=0)
     fight_start_hp = models.IntegerField(null=True, blank=True)
     fight_summary = models.JSONField(default=dict, blank=True)
     size = models.CharField(max_length=2)

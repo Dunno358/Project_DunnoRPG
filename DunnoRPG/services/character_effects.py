@@ -117,12 +117,13 @@ def round_effects(effects):
     rolls = []
     actions_left = []
     hp_changes = []
-    mobility_bonus = 0
+    mobility_modifier = 0
     for effect, index, action in effect_actions(effects):
         damage = re.fullmatch(r'damageAll(\|ignoreArmor)?-K([1-9][0-9]*)', action)
         action_count = re.fullmatch(r'action-([0-9]+)', action)
         hp_change = re.fullmatch(r'addHP-([+-]?[0-9]+M?)', action)
         mobility = re.fullmatch(r'mobility-([0-9]+)pc', action, re.IGNORECASE)
+        mobility_penalty = re.fullmatch(r'mobility\|endRound-([0-9]+)pcM', action, re.IGNORECASE)
         if damage:
             rolls.append({
                 'field': f'effect_roll_{effect.pk}_{index}',
@@ -135,7 +136,9 @@ def round_effects(effects):
         elif hp_change:
             hp_changes.append(parse_amount(hp_change[1]))
         elif mobility:
-            mobility_bonus += int(mobility[1])
+            mobility_modifier += int(mobility[1])
+        elif mobility_penalty:
+            mobility_modifier -= int(mobility_penalty[1])
         elif action.lower() == 'mobility-100':
-            mobility_bonus += 100
-    return rolls, min(actions_left) if actions_left else 1, hp_changes, mobility_bonus
+            mobility_modifier += 100
+    return rolls, min(actions_left) if actions_left else 1, hp_changes, mobility_modifier

@@ -2589,7 +2589,7 @@ def end_round_infight(request, char_id):
         return JsonResponse({'error': 'Brak dostępu do postaci.'}, status=403)
 
     effects = list(active_effects(char))
-    rolls, actions_left, hp_changes, mobility_bonus = round_effects(effects)
+    rolls, actions_left, hp_changes, mobility_modifier = round_effects(effects)
     required_fields = {roll['field'] for roll in rolls}
     submitted_fields = {field for field in request.POST if field.startswith('effect_roll_')}
     try:
@@ -2605,7 +2605,7 @@ def end_round_infight(request, char_id):
         }, status=409)
 
     char.actionLeft = actions_left
-    char.round_mobility_bonus = mobility_bonus
+    char.round_mobility_bonus = mobility_modifier
     hp_before = char.HP
     damage_handler = calculateGettingHit()
     if char.deferred_damage:
