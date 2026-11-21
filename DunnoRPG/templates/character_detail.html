@@ -1429,11 +1429,23 @@ function updateAttackAdvantage(){
     input.max = sides
     input.value = ''
     document.getElementById('dice-input').dataset.advantageUsed = used
+    renderEffectDisadvantageRolls(document.getElementById('effect-disadvantage-dice'))
+}
+
+function renderEffectDisadvantageRolls(container){
     const effectCount = Number(document.getElementsByName('Effects')[0]?.dataset.disadvantages || 0)
-    const container = document.getElementById('effect-disadvantage-dice')
     container.replaceChildren()
     for(let index = 0; index < effectCount; index++){
-        appendEffectRoll(container, 'effect_disadvantage', 6, 'Utrudnienie', index)
+        const inputId = `${container.id}-${index}`
+        container.insertAdjacentHTML('beforeend', `
+            <div class="row m-0 p-2">
+                <div class="col"><label for="${inputId}">[Utrudnienie] K6:</label></div>
+                <div class="col">
+                    <input type="number" name="effect_disadvantage" id="${inputId}" required min="1" max="6"
+                        class="w-75 text-center border border-warning bg-gray c-gold rounded p-1 ms-4">
+                </div>
+            </div>
+        `)
     }
 }
 
@@ -1799,9 +1811,8 @@ function gatherParryInfo(hand){
         const block = Number(stats.match(/^Blok:\s*(\d+)$/)?.[1])
         if(effectCount && Number.isFinite(block)){
             const form = document.createElement('form')
-            for(let index = 0; index < effectCount; index++){
-                appendEffectRoll(form, 'effect_disadvantage', 6, 'Utrudnienie', index)
-            }
+            form.id = 'shield-disadvantage-dice'
+            renderEffectDisadvantageRolls(form)
             const button = document.createElement('button')
             button.className = 'btn btn-warning'
             button.textContent = 'Oblicz blok'
