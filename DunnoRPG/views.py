@@ -2651,7 +2651,7 @@ def end_round_infight(request, char_id):
         return JsonResponse({'error': 'Brak dostępu do postaci.'}, status=403)
 
     effects = list(active_effects(char))
-    rolls, actions_left = round_effects(effects)
+    rolls, actions_left, hp_changes = round_effects(effects)
     required_fields = {roll['field'] for roll in rolls}
     submitted_fields = {field for field in request.POST if field.startswith('effect_roll_')}
     try:
@@ -2674,7 +2674,11 @@ def end_round_infight(request, char_id):
             char, value, ('head', 'torso', 'hands', 'legs'),
             max(0, char.barrier), ignore_armor=roll['ignore_armor'],
         )
-    char.save(update_fields=['actionLeft'])
+    for amount in hp_changes:
+        char.HP = max(0, char.HP + amount)
+        if amount > 0 and char.fullHP is not None:
+            char.HP = min(char.HP, char.fullHP)
+    char.save(update_fields=['actionLeft', 'HP'])
 
     for effect in effects:
         if effect.time <= 1:
@@ -2691,7 +2695,7 @@ def end_round_infight(request, char_id):
             mod.save(update_fields=['time'])
 
     if request.headers.get('x-requested-with') == 'XMLHttpRequest':
-        return JsonResponse({'hp': char.HP, 'barrier': char.barrier, 'hp_lost': hp_before - char.HP})
+        return JsonResponse({'hp': char.HP, 'barrier': char.barrier, 'hp_lost': max(0, hp_before - char.HP)})
     return redirect('character_detail', char.id)
 
 

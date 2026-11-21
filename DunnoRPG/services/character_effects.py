@@ -3,6 +3,7 @@ import re
 from django.db.models import OuterRef, Subquery
 
 from .. import models
+from .item_effects import parse_amount
 
 
 def active_effects(character):
@@ -42,9 +43,11 @@ def disadvantage_count(character):
 def round_effects(effects):
     rolls = []
     actions_left = []
+    hp_changes = []
     for effect, index, action in effect_actions(effects):
         damage = re.fullmatch(r'damageAll(\|ignoreArmor)?-K([1-9][0-9]*)', action)
         action_count = re.fullmatch(r'action-([0-9]+)', action)
+        hp_change = re.fullmatch(r'addHP-([+-]?[0-9]+M?)', action)
         if damage:
             rolls.append({
                 'field': f'effect_roll_{effect.pk}_{index}',
@@ -54,4 +57,6 @@ def round_effects(effects):
             })
         elif action_count:
             actions_left.append(int(action_count[1]))
-    return rolls, min(actions_left) if actions_left else 1
+        elif hp_change:
+            hp_changes.append(parse_amount(hp_change[1]))
+    return rolls, min(actions_left) if actions_left else 1, hp_changes
