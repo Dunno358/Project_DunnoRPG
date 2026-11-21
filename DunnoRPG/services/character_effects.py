@@ -36,6 +36,18 @@ def mobility_penalty(character):
     return penalty
 
 
+def mobility_percent_modifier(character):
+    modifier = 0
+    for _, _, action in effect_actions(active_effects(character)):
+        match = re.fullmatch(r'mobility-([0-9]+)pc(M)?', action, re.IGNORECASE)
+        if match:
+            amount = int(match[1])
+            modifier += -amount if match[2] else amount
+        elif action.lower() == 'mobility-100':
+            modifier += 100
+    return modifier
+
+
 def disadvantage_count(character):
     return sum(action == 'disadvantageAll' for _, _, action in effect_actions(active_effects(character)))
 

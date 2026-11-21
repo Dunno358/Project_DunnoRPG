@@ -2360,8 +2360,9 @@ function change_result(text, element, mods, result, additional=false){
     }
 }
 
-function calculateCharacterMovement(baseMove, agility, modifier, mobility){
-    return Math.max(0, baseMove + Math.floor((agility + modifier) / 2) + mobility)
+function calculateCharacterMovement(baseMove, agility, modifier, mobility, percentModifier = 0){
+    const movement = Math.max(0, baseMove + Math.floor((agility + modifier) / 2) + mobility)
+    return Math.max(0, Math.ceil(movement * (100 + percentModifier) / 100))
 }
 
 let movementTracker = {
@@ -2682,8 +2683,9 @@ function show_result_at_window(action){
     else if (action == 'Move')
     {
         const baseMove = {% if chosen_character.0.chosen_class|lower == 'juggernaut' %}3{% else %}4{% endif %}
+        const percentModifier = Number(document.getElementById('mobility-mod').dataset.percentModifier || 0)
         const full_move = calculateCharacterMovement(baseMove, parseDisplayedNumber('stat-ZRE'),
-            parseDisplayedNumber('stat-ZRE-mod'), parseDisplayedNumber('mobility-mod'))
+            parseDisplayedNumber('stat-ZRE-mod'), parseDisplayedNumber('mobility-mod'), percentModifier)
 
         showMovementAction(full_move, {% if mount %}{{ mount_mobility|default:0|unlocalize }}{% else %}null{% endif %})
 

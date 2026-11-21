@@ -3,7 +3,9 @@ from django.utils.safestring import mark_safe
 from django.utils.text import Truncator
 from DunnoRPG import models
 from DunnoRPG.services.armor import armor_by_durability
-from DunnoRPG.services.character_effects import active_effects, disadvantage_count, mobility_penalty
+from DunnoRPG.services.character_effects import (
+    active_effects, disadvantage_count, mobility_penalty, mobility_percent_modifier,
+)
 from django.apps import apps
 from django.shortcuts import get_object_or_404
 from html import escape
@@ -812,6 +814,7 @@ def getCharacterEffects(character):
 
 
 register.filter('effectDisadvantageCount', disadvantage_count)
+register.filter('mobilityPercentModifier', mobility_percent_modifier)
 
 @register.filter
 def getCharacterEffectsCount(character):
