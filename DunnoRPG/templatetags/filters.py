@@ -1,9 +1,9 @@
 from django import template
-from django.db.models import OuterRef, Subquery
 from django.utils.safestring import mark_safe
 from django.utils.text import Truncator
 from DunnoRPG import models
 from DunnoRPG.services.armor import armor_by_durability
+from DunnoRPG.services.character_effects import active_effects, disadvantage_count, mobility_penalty
 from django.apps import apps
 from django.shortcuts import get_object_or_404
 from html import escape
@@ -801,24 +801,21 @@ def getMobilityMod(character):
         value += race.mobilityChange
     for mod in models.Mods.objects.filter(character=character_name, field__in=mobility_fields).values():
         value += mod['value']
+    value -= mobility_penalty(character)
     if value >= 0:
         return f"+{value}"
     return value
 
 @register.filter
 def getCharacterEffects(character):
-    try:
-        character_name = character['name']
-    except (TypeError, KeyError):
-        character_name = getattr(character, 'name', character)
-    definitions = models.Effects_Decs.objects.filter(name=OuterRef('name')).order_by('pk')
-    return models.Effects.objects.filter(character=character_name).annotate(
-        description=Subquery(definitions.values('desc')[:1]),
-    ).values()
+    return active_effects(character)
+
+
+register.filter('effectDisadvantageCount', disadvantage_count)
 
 @register.filter
 def getCharacterEffectsCount(character):
-    return len(models.Effects.objects.all().filter(character=character['name']).values())
+    return active_effects(character).count()
 
 @register.filter
 def getEffectDesc(effect):

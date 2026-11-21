@@ -1,18 +1,38 @@
 {% load filters %}
 
-<div name='Effects' class="row d-none m-0 p-0 position-absolute rounded container col card-body c-gold border border-warning bg-dark mt-4">
-    <p class="text-center fw-bold">Effects: </p>
+<div name='Effects' data-disadvantages="{{ character|effectDisadvantageCount }}" class="row d-none m-0 p-0 position-absolute rounded container col card-body c-gold border border-warning bg-dark mt-4">
+    <p class="text-center fw-bold">Efekty</p>
     <ul>
     {% for effect in character|getCharacterEffects %}
     <li{% if effect.description or effect.desc %} onclick="show_or_hideById('ef{{ effect.id }}')"{% endif %} class='fw-bold fst-italic'>
         {{ effect.name }} | Pozosta&#322;o: {% if effect.time > 100 %}?{% else %}{{ effect.time }}{% endif %}
+        {% if effect.desc %}<span class="fw-normal"> — {{ effect.desc }}</span>{% endif %}
         {% if effect.description or effect.desc %}
         <div id='ef{{ effect.id }}' class='d-none fw-normal fst-normal'>
             {% if effect.description %}<p class='mb-0'>{{ effect.description }}</p>{% endif %}
-            {% if effect.desc and effect.desc != effect.description %}<p class='mb-0'>{{ effect.desc }}</p>{% endif %}
         </div>
         {% endif %}
     </li>
     {% endfor %}
     </ul>
+    <form method="post" action="{% url 'add_character_effect' character.id %}" class="row g-2 m-0 pb-2">
+        {% csrf_token %}
+        <label class="col-md-4">Efekt
+            <select name="effect" class="form-select form-select-sm" required>
+                <option value="">Wybierz efekt</option>
+                {% for definition in effect_definitions %}
+                    <option value="{{ definition.pk }}">{{ definition.name }}</option>
+                {% endfor %}
+            </select>
+        </label>
+        <label class="col-md-2">Rundy
+            <input name="time" type="number" min="1" max="1000" value="1" required class="form-control form-control-sm">
+        </label>
+        <label class="col-md-4">Powód (opcjonalnie)
+            <input name="desc" type="text" class="form-control form-control-sm">
+        </label>
+        <div class="col-md-2 align-self-end">
+            <button class="btn btn-sm btn-warning w-100" type="submit">Dodaj</button>
+        </div>
+    </form>
 </div>

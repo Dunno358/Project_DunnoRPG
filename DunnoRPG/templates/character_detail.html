@@ -342,6 +342,8 @@ style="width: 98%; z-index: 20; margin-left: 0.1rem !important; margin-top: -1re
         </div>
     </div>
 
+    <div id="effect-disadvantage-dice"></div>
+
     <div class='row m-0 p-2'>
         <div class="col">
             Cel ataku:
@@ -403,6 +405,15 @@ style="width: 98%; z-index: 20; margin-left: 0.1rem !important; margin-top: -1re
 {% include "dunnorpg/character_details_data.html" %}
 
 {% with value=chosen_character.0 %}
+<dialog id="round-effect-dialog" class="bg-dark c-gold border border-warning rounded" aria-labelledby="round-effect-title">
+    <form method="dialog">
+        <h2 id="round-effect-title" class="h5">Obrażenia od efektów</h2>
+        <div id="round-effect-rolls" class="mb-3"></div>
+        <button type="submit" value="cancel" formnovalidate class="btn btn-secondary">Anuluj</button>
+        <button type="submit" value="confirm" class="btn btn-warning">Zakończ rundę</button>
+    </form>
+</dialog>
+
 <script>
 function catchErrorForValueChanges(id){
     try{
@@ -1072,7 +1083,12 @@ async function changeFoodWater(event, statType){
         }
 
         updateFoodWaterState(data.stat_type, data.value, data)
-        refreshEffectsBlock(data.effects_html)
+        if(isAlcohol){
+            await refreshCharacterDetailsData()
+        }
+        else{
+            refreshEffectsBlock(data.effects_html)
+        }
         input.dataset.lastSubmittedValue = String(data.value)
         if(data.hp !== undefined){
             const hpInput = document.getElementById('hp-val')
@@ -1374,7 +1390,7 @@ function updateAttackAccuracy(){
     document.getElementById('dice-input-accuracy').textContent = `Wym. celność: ${neededAccuracy}`
 }
 
-function isHit(hand, advantageRoll=0){
+function isHit(hand, advantageRoll, disadvantage){
     const dice = Number(document.getElementById('dice-cel').value)
     const weapon = document.getElementById(hand === 'left' ? 'l-name' : 'r-name')
     const target = document.getElementById('body-target')
@@ -1385,7 +1401,7 @@ function isHit(hand, advantageRoll=0){
     const accuracy = parseDisplayedNumber('stat-CEL')
     const modifier = parseDisplayedNumber('stat-CEL-mod')
     const effects = parseDisplayedNumber('effects-accuraccy')
-    const total = dice + accuracy + modifier + effects - armorPenalty + advantageRoll
+    const total = dice + accuracy + modifier + effects - armorPenalty + advantageRoll - disadvantage
     const hit = dice === 20 || (dice !== 1 && total >= neededAccuracy)
     return [hit, total, neededAccuracy, {
         dice, accuracy, modifier, effects, armorPenalty, advantageRoll, baseAccuracy, penalty,
@@ -1413,6 +1429,40 @@ function updateAttackAdvantage(){
     input.max = sides
     input.value = ''
     document.getElementById('dice-input').dataset.advantageUsed = used
+    const effectCount = Number(document.getElementsByName('Effects')[0]?.dataset.disadvantages || 0)
+    const container = document.getElementById('effect-disadvantage-dice')
+    container.replaceChildren()
+    for(let index = 0; index < effectCount; index++){
+        appendEffectRoll(container, 'effect_disadvantage', 6, 'Utrudnienie', index)
+    }
+}
+
+function appendEffectRoll(container, name, sides, effectName, index){
+    const row = document.createElement('div')
+    row.className = 'd-flex align-items-center justify-content-between gap-3 px-3 py-1'
+    const effect = document.createElement('span')
+    effect.textContent = effectName
+    const label = document.createElement('label')
+    label.className = 'd-flex align-items-center gap-2'
+    label.textContent = `K${sides}`
+    const input = document.createElement('input')
+    input.className = 'form-control form-control-sm text-center'
+    input.type = 'number'
+    input.name = name
+    input.min = 1
+    input.max = sides
+    input.required = true
+    input.setAttribute('aria-label', `${effectName}, K${sides}, rzut ${index + 1}`)
+    label.append(input)
+    row.append(effect, label)
+    container.append(row)
+}
+
+function readEffectDisadvantages(body){
+    const inputs = [...document.querySelectorAll('#effect-disadvantage-dice input')]
+    if(!inputs.every(input => input.reportValidity())){ return null }
+    inputs.forEach(input => body.append(input.name, input.value))
+    return inputs.reduce((total, input) => total + Number(input.value), 0)
 }
 
 function calculateAttackDamage(dice, strength, bonuses, advantageRoll, ammoModifier, durability){
@@ -1463,7 +1513,7 @@ function renderAttackDetails(attack, hit, critical, saved, finalAp){
     }
     const accuracy = hit[3]
     const strengthBonus = Math.floor(attack.strength / 2)
-    const baseDamage = attack.dice + strengthBonus + attack.effectBonus + attack.amuletBonus + attack.weaponBonus + attack.advantageRoll
+    const baseDamage = attack.dice + strengthBonus + attack.effectBonus + attack.amuletBonus + attack.weaponBonus + attack.advantageRoll - attack.disadvantage
     const ammoDamage = baseDamage * attack.ammoModifier
     const criticalAp = attack.baseAp * (critical.ap_multiplier - 1) + critical.ap_bonus
 
@@ -1472,6 +1522,7 @@ function renderAttackDetails(attack, hit, critical, saved, finalAp){
     bonus('Efekty', accuracy.effects)
     bonus('Pancerz', -accuracy.armorPenalty)
     if(attack.used){ bonus(Math.abs(attack.used) === 1 ? 'K6' : 'K12', accuracy.advantageRoll) }
+    bonus('Utrudnienie z efektów', -attack.disadvantage)
     lines.push(`Wynik: ${number(hit[1])}`, `Próg trafienia: ${number(hit[2])} (${number(accuracy.baseAccuracy)} z broni${accuracy.penalty ? ` + ${number(accuracy.penalty)} za cel` : ''})`)
     if(accuracy.dice === 20){ lines.push('Naturalne 20: trafienie krytyczne.') }
     if(accuracy.dice === 1){ lines.push('Naturalne 1: krytyczne niepowodzenie.') }
@@ -1482,6 +1533,7 @@ function renderAttackDetails(attack, hit, critical, saved, finalAp){
     bonus('Klasa', attack.weaponBonus)
     bonus('Przedmioty', attack.amuletBonus)
     if(attack.used){ bonus(Math.abs(attack.used) === 1 ? 'K6' : 'K12', attack.advantageRoll) }
+    bonus('Utrudnienie z efektów', -attack.disadvantage)
     lines.push(`Suma = ${number(baseDamage)}`)
     if(attack.ammoModifier !== 1){ lines.push(`Amunicja: ${number(baseDamage)}*${number(attack.ammoModifier)}=${number(ammoDamage)}`) }
     lines.push(`Wytrzymałość: ${number(attack.durability * 100)}%*${number(ammoDamage)}=${number(attack.result)}`)
@@ -1590,14 +1642,17 @@ async function showAttackResult(hand, item_id){
     const durability = Number(document.getElementById(`${prefix}-dur-perc`).textContent.replace(/[()%]/g, '').trim()) / 100
     const attackValues = getAttackValues(hand)
     const {baseStrength, strengthModifier, strength, effectBonus, amuletBonus, weaponBonus, bonuses} = getWeaponRollBonuses(hand, 'attack')
+    const body = new FormData()
+    const disadvantage = readEffectDisadvantages(body)
+    if(disadvantage === null){ return }
     const advantageRoll = used ? Math.sign(used) * Number(advantageInput.value) : 0
-    const result = calculateAttackDamage(Number(diceInput.value), strength, bonuses, advantageRoll, ammo ? Number(ammo.dataset.dmgModifier) : 1, durability)
+    const result = calculateAttackDamage(Number(diceInput.value), strength, bonuses - disadvantage, advantageRoll, ammo ? Number(ammo.dataset.dmgModifier) : 1, durability)
     let ap = attackValues.ap + (ammo ? Number(ammo.dataset.ap) : 0)
-    const hit = isHit(hand, advantageRoll)
+    const hit = isHit(hand, advantageRoll, disadvantage)
     const attack = {
         dice: Number(diceInput.value), damageDice: attackValues.damageDice,
         baseStrength, strengthModifier, strength, ranged, effectBonus, amuletBonus, weaponBonus,
-        used, advantageRoll, durability, result,
+        used, advantageRoll, disadvantage, durability, result,
         ammoName: ammo ? ammo.textContent.replace(/ x\d+$/, '').trim() : 'Brak',
         ammoModifier: ammo ? Number(ammo.dataset.dmgModifier) : 1,
         ammoAp: ammo ? Number(ammo.dataset.ap) : 0,
@@ -1605,7 +1660,6 @@ async function showAttackResult(hand, item_id){
         damagesWeapon: document.getElementById('is-destructible').checked,
         durabilityBefore: Number(document.getElementById(`${prefix}-dur-perc`).closest('form').querySelector('[name=dur]').value),
     }
-    const body = new FormData()
     body.set('weapon_id', item_id)
     body.set('alternate_attack', modal.dataset.alternateAttack)
     body.set('accuracy_roll', accuracyInput.value)
@@ -1736,8 +1790,29 @@ function gatherParryInfo(hand){
     const weapon = document.getElementById(`${prefix}-name`)
     if(weapon.dataset.category === 'shield' || document.getElementById(`${prefix}-type`).textContent.trim() === 'Tarcza'){
         setActionWindowSelection(false)
-        document.getElementById('window-action-text-top').textContent = document.getElementById(`${prefix}_stats`).textContent.trim()
-        document.getElementById('window-action-text-center').textContent = ''
+        const top = document.getElementById('window-action-text-top')
+        const center = document.getElementById('window-action-text-center')
+        const stats = document.getElementById(`${prefix}_stats`).textContent.trim()
+        top.textContent = stats
+        center.replaceChildren()
+        const effectCount = Number(document.getElementsByName('Effects')[0]?.dataset.disadvantages || 0)
+        const block = Number(stats.match(/^Blok:\s*(\d+)$/)?.[1])
+        if(effectCount && Number.isFinite(block)){
+            const form = document.createElement('form')
+            for(let index = 0; index < effectCount; index++){
+                appendEffectRoll(form, 'effect_disadvantage', 6, 'Utrudnienie', index)
+            }
+            const button = document.createElement('button')
+            button.className = 'btn btn-warning'
+            button.textContent = 'Oblicz blok'
+            form.append(button)
+            form.addEventListener('submit', event => {
+                event.preventDefault()
+                const penalty = new FormData(form).getAll('effect_disadvantage').reduce((total, roll) => total + Number(roll), 0)
+                top.textContent = `Blok: ${Math.max(0, block - penalty)} (${block} − ${penalty})`
+            })
+            center.append(form)
+        }
         return
     }
     const ranged = ['weapon_range', 'weapon_gun'].includes(weapon.dataset.category)
@@ -1772,12 +1847,14 @@ async function showParryResult(hand){
     const weapon = document.getElementById(`${prefix}-name`)
     const values = getAttackValues(hand)
     const {strength, effectBonus, amuletBonus: itemBonus, weaponBonus: classBonus, bonuses} = getWeaponRollBonuses(hand, 'parry')
+    const body = new FormData()
+    const disadvantage = readEffectDisadvantages(body)
+    if(disadvantage === null){ return }
     const advantageRoll = used ? Math.sign(used) * Number(advantage.value) : 0
     const durabilityElement = document.getElementById(`${prefix}-dur-perc`)
     const durability = Number(durabilityElement.textContent.replace(/[()%]/g, '').trim()) / 100
-    const baseBlock = Number(dice.value) + Math.floor(strength / 2) + bonuses + advantageRoll
-    const result = calculateAttackDamage(Number(dice.value), strength, bonuses, advantageRoll, 1, durability)
-    const body = new FormData()
+    const baseBlock = Number(dice.value) + Math.floor(strength / 2) + bonuses + advantageRoll - disadvantage
+    const result = calculateAttackDamage(Number(dice.value), strength, bonuses - disadvantage, advantageRoll, 1, durability)
     body.set('weapon_id', weapon.dataset.itemId)
     body.set('advantage_used', used)
     body.set('damages_weapon', document.getElementById('is-destructible').checked)
@@ -1809,7 +1886,7 @@ async function showParryResult(hand){
         document.getElementById('attack-details-content').textContent = [
             `${values.damageDice}: ${dice.value}`, `SIŁ: ${Math.floor(strength / 2)}`,
             `Efekty: ${effectBonus}`, `Klasa: ${classBonus}`, `Przedmioty: ${itemBonus}`,
-            `Przewaga / utrudnienie: ${advantageRoll}`, `Suma = ${baseBlock}`,
+            `Bilans przewag: ${advantageRoll}`, ...(disadvantage ? [`Utrudnienie z efektów: -${disadvantage}`] : []), `Suma = ${baseBlock}`,
             `Wytrzymałość: ${durability * 100}%*${baseBlock}=${result}`, `Wynik: ${result}`,
         ].join('\n')
         document.getElementById('attack-details').open = false
@@ -1848,9 +1925,11 @@ async function showDodgeResult(){
     const agility = parseDisplayedNumber('stat-ZRE')
     const modifier = parseDisplayedNumber('stat-ZRE-mod')
     const effects = parseDisplayedNumber('effects-dodge')
-    const advantageRoll = used ? Math.sign(used) * Number(advantage.value) : 0
-    const result = roll + agility + modifier + effects + advantageRoll
     const body = new FormData()
+    const disadvantage = readEffectDisadvantages(body)
+    if(disadvantage === null){ return }
+    const advantageRoll = used ? Math.sign(used) * Number(advantage.value) : 0
+    const result = roll + agility + modifier + effects + advantageRoll - disadvantage
     body.set('advantage_used', used)
     button.disabled = true
     try{
@@ -1880,7 +1959,7 @@ async function showDodgeResult(){
         document.getElementById('attack-critical-result').classList.add('d-none')
         document.getElementById('attack-details-content').textContent = [
             `K20: ${roll}`, `ZRE: ${agility}`, `Modyfikatory ZRE (z pancerzem): ${modifier}`,
-            `Efekty uniku: ${effects}`, `Przewaga / utrudnienie: ${advantageRoll}`, `Wynik: ${result}`,
+            `Efekty uniku: ${effects}`, `Bilans przewag: ${advantageRoll}`, ...(disadvantage ? [`Utrudnienie z efektów: -${disadvantage}`] : []), `Wynik: ${result}`,
         ].join('\n')
         document.getElementById('attack-details').open = false
         modal.classList.add('d-none')
@@ -2293,24 +2372,60 @@ function clearMovementTracker(){
     }
 }
 
+function requestRoundEffectRolls(rolls){
+    const dialog = document.getElementById('round-effect-dialog')
+    const container = document.getElementById('round-effect-rolls')
+    container.replaceChildren()
+    rolls.forEach((roll, index) => appendEffectRoll(container, roll.field, roll.sides, roll.name, index))
+    dialog.returnValue = ''
+    dialog.showModal()
+    return new Promise(resolve => {
+        dialog.addEventListener('close', () => {
+            resolve(dialog.returnValue === 'confirm' ? new FormData(dialog.querySelector('form')) : null)
+        }, {once: true})
+    })
+}
+
 async function endRound(){
     const button = document.getElementById('end-round')
     if(button.disabled){ return }
     button.disabled = true
+    const url = new URL('end-round', characterDetailsUrl)
+    const submitRound = body => fetch(url, {
+        method: 'POST',
+        body,
+        headers: {
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+            'X-Requested-With': 'XMLHttpRequest',
+        },
+    })
     try{
-        const refreshed = await refreshCharacterDetailsData(new URL('end-round', characterDetailsUrl).href, {
-            method: 'POST',
-            headers: {'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value},
-        })
-        if(refreshed){
-            clearMovementTracker()
-            document.getElementById('pop-window').classList.add('d-none')
-            document.getElementById('dice-input').classList.add('d-none')
-            document.getElementById('result-div').classList.add('d-none')
-            showMessage('Zakończono rundę. Odnowiono akcje i ruch oraz zaktualizowano efekty i modyfikatory.', 'success')
+        let response = await submitRound()
+        let data = await response.json()
+        if(response.status === 409 && data.rolls?.length){
+            const rolls = await requestRoundEffectRolls(data.rolls)
+            if(!rolls){ return }
+            response = await submitRound(rolls)
+            data = await response.json()
         }
-    }finally{
-        document.getElementById('end-round').disabled = false
+        if(!response.ok){ throw new Error(data.error || 'Nie udało się zakończyć rundy.') }
+
+        clearMovementTracker()
+        for(const id of ['pop-window', 'dice-input', 'result-div']){
+            document.getElementById(id).classList.add('d-none')
+        }
+        if(!await refreshCharacterDetailsData()){
+            window.location.reload()
+            return
+        }
+        const damageMessage = data.hp_lost ? ` Utracono ${data.hp_lost} PŻ.` : ''
+        showMessage(`Zakończono rundę.${damageMessage}`, data.hp_lost ? 'warning' : 'success')
+    }
+    catch(error){
+        showMessage(error.message, 'error')
+    }
+    finally{
+        document.getElementById('end-round')?.removeAttribute('disabled')
     }
 }
 
@@ -2343,20 +2458,22 @@ function getSavedMovementTracker(baseMove){
         const savedRemainingMove = Number(parsedTracker.remainingMove)
 
         if(
-            savedBaseMove !== baseMove ||
+            !Number.isInteger(savedBaseMove) ||
+            savedBaseMove < 0 ||
             !Number.isInteger(savedTotalMove) ||
             !Number.isInteger(savedRemainingMove) ||
-            savedTotalMove < baseMove ||
+            savedTotalMove < savedBaseMove ||
             savedRemainingMove < 0 ||
             savedRemainingMove > savedTotalMove
         ){
             return null
         }
 
+        const totalMove = baseMove + savedTotalMove - savedBaseMove
         return {
-            baseMove: savedBaseMove,
-            totalMove: savedTotalMove,
-            remainingMove: savedRemainingMove,
+            baseMove,
+            totalMove,
+            remainingMove: Math.max(0, totalMove - (savedTotalMove - savedRemainingMove)),
         }
     }
     catch{

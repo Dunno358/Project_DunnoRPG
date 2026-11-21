@@ -11,6 +11,7 @@ urlpatterns = [
     path('character_detail/<int:char_id>/changedur-<int:item_id>', views.change_item_durability, name='change_item_durability'),
     path('character_detail/<int:char_id>/change-coins', views.change_coins, name='change_coins'),
     path('character_detail/<int:char_id>/end-round', views.end_round_infight, name='end_round_infight'),
+    path('character_detail/<int:char_id>/add-effect', views.add_character_effect, name='add_character_effect'),
     path('character_detail/<int:char_id>/change-action-amount', views.change_action_amount, name='change_action_amount'),
     path('character_detail/<int:char_id>/change-counter/<str:counter_field>', views.change_counter, name='change_counter'),
     path('character_detail/<int:char_id>/change-health', views.change_health, name='change_health'),

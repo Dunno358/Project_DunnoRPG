@@ -43,6 +43,7 @@ from .forms import CharacterSkillsForm, AddEqItemForm #, AddEffectForm
 from .services.item_effects import apply_item_use_effects, fill_water
 from .services.attack_criticals import resolve_critical
 from .services.armor import armor_by_durability
+from .services.character_effects import active_effects, disadvantage_count, round_effects
 
 raceSizes = {
     "S": 0.5,
@@ -664,6 +665,7 @@ def can_character_wear_armor_weight(character, item, place):
 def get_drunkenness_limit(character):
     #Mocna głowa increases drunkenness limit by 1 per skill level, base limit is 3
     strong_head_skill = models.Skills.objects.filter(
+        owner=character.owner,
         character=character.name,
         skill__iexact='Mocna głowa',
     ).first()
@@ -684,15 +686,10 @@ ALCOHOL_DRUNK_MODS = (
 )
 ALCOHOL_LITE_SOURCE = "alcohol-lite"
 ALCOHOL_DRUNK_SOURCE = "alcohol"
-ALCOHOL_DRUNK_EFFECTS = {
-    "Utrudnienie (upojenie, reakcja)": 1000,
-    "Nierówny krok (upojenie)": 1000,
-}
-ALCOHOL_HANGOVER_EFFECTS = {
-    "Utrudnienie (kac, akcja)": 1,
-    "Utrudnienie (kac, reakcja)": 1,
-    "Nierówny krok (kac)": 1000,
-}
+ALCOHOL_LITE_DESC = "Odczuwasz upojenie alkoholem"
+ALCOHOL_DRUNK_DESC = "Jesteś pijany"
+ALCOHOL_HANGOVER_DESC = "Masz kaca"
+
 
 def get_alcohol_state(character, alcohol_level=None, drunkenness_limit=None):
     if alcohol_level is None:
@@ -710,7 +707,7 @@ def get_alcohol_state(character, alcohol_level=None, drunkenness_limit=None):
     if models.Effects.objects.filter(
         owner=character.owner,
         character=character.name,
-        name__in=ALCOHOL_HANGOVER_EFFECTS,
+        name="Kac",
     ).exists():
         return "Kac"
     return "Trzeźwy"
@@ -720,11 +717,14 @@ def is_player_animal(character):
     return (character.type or "").lower() == "gracz: zwierze"
 
 
-def refresh_alcohol_effects(character, effects, durations, description):
+def refresh_alcohol_effects(character, durations, description):
     for name, time in durations.items():
-        if not effects.filter(name=name).update(time=time):
-            effects.create(
-                owner=character.owner, character=character.name, name=name, time=time, desc=description,
+        effects = models.Effects.objects.filter(
+            owner=character.owner, character=character.name, name=name, desc=description,
+        )
+        if not effects.update(time=time):
+            models.Effects.objects.create(
+                owner=character.owner, character=character.name, name=name, desc=description, time=time,
             )
 
 
@@ -756,17 +756,23 @@ def sync_alcohol_mods(character, previous_alcohol_level=None):
         owner=character.owner,
         character=character.name,
     )
-    alcohol_drunk_effects = character_effects.filter(name__in=ALCOHOL_DRUNK_EFFECTS)
+    alcohol_lite_effects = character_effects.filter(name="Podpity", desc=ALCOHOL_LITE_DESC)
+    alcohol_drunk_effects = character_effects.filter(
+        name__in=("Pijany", "Utrudnienie"), desc=ALCOHOL_DRUNK_DESC,
+    )
 
     if alcohol_level <= 0:
+        alcohol_lite_effects.delete()
         alcohol_lite_mods.delete()
         alcohol_drunk_mods.delete()
         alcohol_drunk_effects.delete()
         if previous_alcohol_level > drunkenness_limit:
-            refresh_alcohol_effects(character, character_effects, ALCOHOL_HANGOVER_EFFECTS, "Masz kaca")
+            refresh_alcohol_effects(character, {"Kac": 1000, "Utrudnienie": 1}, ALCOHOL_HANGOVER_DESC)
         return
 
     if alcohol_level > drunkenness_limit:
+        alcohol_lite_effects.delete()
+        character_effects.filter(name__in=("Kac", "Utrudnienie"), desc=ALCOHOL_HANGOVER_DESC).delete()
         alcohol_lite_mods.delete()
         wanted_drunk_mods = set(ALCOHOL_DRUNK_MODS)
         for mod in alcohol_drunk_mods:
@@ -783,11 +789,15 @@ def sync_alcohol_mods(character, previous_alcohol_level=None):
                     source=ALCOHOL_DRUNK_SOURCE,
                 )
 
-        refresh_alcohol_effects(character, character_effects, ALCOHOL_DRUNK_EFFECTS, "Jesteś pijany")
+        refresh_alcohol_effects(
+            character, {"Pijany": 1000, "Utrudnienie": 1000}, ALCOHOL_DRUNK_DESC,
+        )
         return
 
     alcohol_drunk_mods.delete()
     alcohol_drunk_effects.delete()
+    character_effects.filter(name__in=("Kac", "Utrudnienie"), desc=ALCOHOL_HANGOVER_DESC).delete()
+    refresh_alcohol_effects(character, {"Podpity": 1000}, ALCOHOL_LITE_DESC)
     if alcohol_level >= drunkenness_limit:
         alcohol_lite_mods.delete()
         return
@@ -1311,6 +1321,7 @@ class CharacterDetails(DetailView):
 
         context["class"] = chosen_class
         context['drunkenness_limit'] = drunkenness_limit
+        context['effect_definitions'] = models.Effects_Decs.objects.order_by('name')
         context['alcohol_state'] = get_alcohol_state(chosen, alcohol_level, drunkenness_limit)
         context['is_over_drunkenness_limit'] = alcohol_level > drunkenness_limit
         context['exp_animal_characters'] = models.Character.objects.filter(
@@ -1348,12 +1359,19 @@ class CharacterDetails(DetailView):
 
         return context 
     
+def valid_disadvantage_rolls(request, character):
+    rolls = request.POST.getlist('effect_disadvantage')
+    return len(rolls) == disadvantage_count(character) and all(roll in ('1', '2', '3', '4', '5', '6') for roll in rolls)
+
+
 @require_POST
 def confirm_parry(request, char_id):
     with transaction.atomic():
         char = get_object_or_404(models.Character.objects.select_for_update(), id=char_id)
         if not request.user.is_authenticated or (char.owner != request.user.username and not request.user.is_superuser):
             return JsonResponse({'error': 'Brak dostępu do postaci.'}, status=403)
+        if not valid_disadvantage_rolls(request, char):
+            return JsonResponse({'error': 'Sprawdź rzuty K6 za utrudnienia i otwórz formularz ponownie.'}, status=409)
         try:
             weapon_id = int(request.POST.get('weapon_id', ''))
             used = int(request.POST.get('advantage_used', 0))
@@ -1382,6 +1400,8 @@ def confirm_dodge(request, char_id):
         char = get_object_or_404(models.Character.objects.select_for_update(), id=char_id)
         if not request.user.is_authenticated or (char.owner != request.user.username and not request.user.is_superuser):
             return JsonResponse({'error': 'Brak dostępu do postaci.'}, status=403)
+        if not valid_disadvantage_rolls(request, char):
+            return JsonResponse({'error': 'Sprawdź rzuty K6 za utrudnienia i otwórz formularz ponownie.'}, status=409)
         try:
             used = int(request.POST.get('advantage_used', 0))
         except (TypeError, ValueError):
@@ -1400,6 +1420,8 @@ def confirm_attack(request, char_id):
         char = get_object_or_404(models.Character.objects.select_for_update(), id=char_id)
         if not request.user.is_authenticated or (char.owner != request.user.username and not request.user.is_superuser):
             return JsonResponse({'error': 'Brak dostępu do postaci.'}, status=403)
+        if not valid_disadvantage_rolls(request, char):
+            return JsonResponse({'error': 'Sprawdź rzuty K6 za utrudnienia i otwórz formularz ponownie.'}, status=409)
         try:
             weapon_id = int(request.POST.get('weapon_id', ''))
         except (TypeError, ValueError):
@@ -1547,90 +1569,96 @@ class calculateGettingHit(APIView):
                 armor_override = math.ceil(armor_override)
 
             char = get_object_or_404(models.Character, id=kwargs['char_id'])
-            hp_before = char.HP
-
-            barrier_blocked = min(dmg, barrier)
-            dmg_after_barrier = dmg - barrier_blocked
-            char.barrier = barrier - barrier_blocked
-
-            ap_damage = int(dmg_after_barrier * ap_percent / 100) if dmg_after_barrier > 0 and not ignore_armor else 0
-            dmg_for_armor = max(dmg_after_barrier - ap_damage, 0)
-
-            items = {
-                'head': models.CharItems.objects.filter(character=char.name, position='Helmet').first(),
-                'torso': models.CharItems.objects.filter(character=char.name, position='Torso').first(),
-                'legs': models.CharItems.objects.filter(character=char.name, position='Boots').first(),
-                'hands': models.CharItems.objects.filter(character=char.name, position='Gloves').first(),
-            }
-
-            whole_body_armor = math.ceil(sum(self._armor_value(items[part]) for part in valid_parts) / 4) if len(parts) == 4 else None
-            penetration_by_part = {}
-            for part in parts:
-                armor_value = 0 if ignore_armor else self._armor_value(items[part])
-                if not ignore_armor and whole_body_armor is not None:
-                    armor_value = whole_body_armor
-                if not ignore_armor and armor_override is not None:
-                    armor_value = armor_override
-                penetration_by_part[part] = max(dmg_for_armor - armor_value, 0)
-
-            armor_damage = max(penetration_by_part.values(), default=0)
-            max_penetration_parts = [
-                part for part, penetration in penetration_by_part.items()
-                if penetration == armor_damage and penetration > 0
-            ]
-            deadly = any(part in {'head', 'torso'} for part in max_penetration_parts) or not max_penetration_parts
-            hp_loss = ap_damage + armor_damage
-
-            if hp_loss > 0:
-                char.HP -= hp_loss
-                if char.HP <= 0:
-                    char.HP = 0 if deadly else 1
-
-            updated_armor = {}
-            destroyed_count = 0
-            for part in [] if ignore_armor else parts:
-                item = items[part]
-                if not item:
-                    continue
-
-                item.durability = max(item.durability - dmg_after_barrier, 0)
-                if item.durability == 0:
-                    destroyed_count += 1
-                item.save()
-                updated_armor[part] = {
-                    "durability": item.durability,
-                    "durability_percent": self._durability_percent(item),
-                    "armor": self._armor_value(item),
-                }
-
-            if char.inFight:
-                char.fight_damage_taken += dmg
-            char.save()
-            actual_hp_loss = hp_before - char.HP
-            deadly_wound = char.HP == 0
-
-            if dmg > 0 and dmg_after_barrier == 0:
-                message = "Bariera zablokowała obrażenia."
-            elif actual_hp_loss == 0:
-                message = "Obrażenia nie przebiły pancerza."
-            else:
-                message = f"Stracono {actual_hp_loss} PŻ z tego ataku."
-
-            if deadly_wound:
-                message += " Postać została śmiertelnie ranna."
-            if destroyed_count:
-                message += f" Krytycznie uszkodzono {destroyed_count} elementów pancerza."
-
-            return JsonResponse({
-                "message": message,
-                "hp": char.HP,
-                "barrier": char.barrier,
-                "hp_lost": actual_hp_loss,
-                "deadly_wound": deadly_wound,
-                "armor": updated_armor,
-            }, status=200)
+            result = self.apply_damage(char, dmg, parts, barrier, ap_percent, ignore_armor, armor_override)
+            return JsonResponse(result)
         except Exception as e:
             return JsonResponse({"error": f"Błąd liczenia obrażeń: {e}"}, status=400)
+
+    def apply_damage(self, char, dmg, parts, barrier, ap_percent=0, ignore_armor=False, armor_override=None):
+        valid_parts = {'head', 'torso', 'hands', 'legs'}
+        hp_before = char.HP
+
+        barrier_blocked = min(dmg, barrier)
+        dmg_after_barrier = dmg - barrier_blocked
+        char.barrier = barrier - barrier_blocked
+
+        ap_damage = int(dmg_after_barrier * ap_percent / 100) if dmg_after_barrier > 0 and not ignore_armor else 0
+        dmg_for_armor = max(dmg_after_barrier - ap_damage, 0)
+
+        items = {
+            'head': models.CharItems.objects.filter(character=char.name, position='Helmet').first(),
+            'torso': models.CharItems.objects.filter(character=char.name, position='Torso').first(),
+            'legs': models.CharItems.objects.filter(character=char.name, position='Boots').first(),
+            'hands': models.CharItems.objects.filter(character=char.name, position='Gloves').first(),
+        }
+
+        whole_body_armor = math.ceil(sum(self._armor_value(items[part]) for part in valid_parts) / 4) if len(parts) == 4 else None
+        penetration_by_part = {}
+        for part in parts:
+            armor_value = 0 if ignore_armor else self._armor_value(items[part])
+            if not ignore_armor and whole_body_armor is not None:
+                armor_value = whole_body_armor
+            if not ignore_armor and armor_override is not None:
+                armor_value = armor_override
+            penetration_by_part[part] = max(dmg_for_armor - armor_value, 0)
+
+        armor_damage = max(penetration_by_part.values(), default=0)
+        max_penetration_parts = [
+            part for part, penetration in penetration_by_part.items()
+            if penetration == armor_damage and penetration > 0
+        ]
+        deadly = any(part in {'head', 'torso'} for part in max_penetration_parts) or not max_penetration_parts
+        hp_loss = ap_damage + armor_damage
+
+        if hp_loss > 0:
+            char.HP -= hp_loss
+            if char.HP <= 0:
+                char.HP = 0 if deadly else 1
+
+        updated_armor = {}
+        destroyed_count = 0
+        for part in [] if ignore_armor else parts:
+            item = items[part]
+            if not item:
+                continue
+
+            item.durability = max(item.durability - dmg_after_barrier, 0)
+            if item.durability == 0:
+                destroyed_count += 1
+            item.save()
+            updated_armor[part] = {
+                "durability": item.durability,
+                "durability_percent": self._durability_percent(item),
+                "armor": self._armor_value(item),
+            }
+
+        if char.inFight:
+            char.fight_damage_taken += dmg
+        char.save()
+        actual_hp_loss = hp_before - char.HP
+        deadly_wound = char.HP == 0
+
+        if dmg > 0 and dmg_after_barrier == 0:
+            message = "Bariera zablokowała obrażenia."
+        elif actual_hp_loss == 0:
+            message = "Obrażenia nie przebiły pancerza."
+        else:
+            message = f"Stracono {actual_hp_loss} PŻ z tego ataku."
+
+        if deadly_wound:
+            message += " Postać została śmiertelnie ranna."
+        if destroyed_count:
+            message += f" Krytycznie uszkodzono {destroyed_count} elementów pancerza."
+
+        return {
+            "message": message,
+            "hp": char.HP,
+            "barrier": char.barrier,
+            "hp_lost": actual_hp_loss,
+            "deadly_wound": deadly_wound,
+            "armor": updated_armor,
+        }
+
 
 class TakeAmmoFromAttack(APIView):
     def get(self, request, *args, **kwargs):
@@ -2613,37 +2641,81 @@ def change_char_details(request, **kwargs):
         return JsonResponse({"error": str(e)}, status=400)
     
 @require_POST
-def end_round_infight(request, **kwargs):
-    char = get_object_or_404(models.Character, id=kwargs['char_id'])
+@transaction.atomic
+def end_round_infight(request, char_id):
+    char = get_object_or_404(models.Character.objects.select_for_update(), id=char_id)
     if not request.user.is_authenticated or (char.owner != request.user.username and not request.user.is_superuser):
         return JsonResponse({'error': 'Brak dostępu do postaci.'}, status=403)
+
+    effects = list(active_effects(char))
+    rolls, actions_left = round_effects(effects)
+    required_fields = {roll['field'] for roll in rolls}
+    submitted_fields = {field for field in request.POST if field.startswith('effect_roll_')}
     try:
-        effects = models.Effects.objects.filter(character=char.name)
+        if required_fields != submitted_fields:
+            raise ValueError
+        values = [int(request.POST[roll['field']]) for roll in rolls]
+        if any(not 1 <= value <= roll['sides'] for roll, value in zip(rolls, values)):
+            raise ValueError
+    except ValueError:
+        return JsonResponse({
+            'error': 'Podaj prawidłowe wyniki rzutów dla aktualnych efektów.',
+            'rolls': rolls,
+        }, status=409)
 
-        char.actionLeft = 1.0
-        char.save()
+    char.actionLeft = actions_left
+    hp_before = char.HP
+    damage_handler = calculateGettingHit()
+    for roll, value in zip(rolls, values):
+        damage_handler.apply_damage(
+            char, value, ('head', 'torso', 'hands', 'legs'),
+            max(0, char.barrier), ignore_armor=roll['ignore_armor'],
+        )
+    char.save(update_fields=['actionLeft'])
 
-        for effect in effects:
-            if effect.time == 1:
-                effect.delete()
-            elif effect.time < 100:
-                effect.time -= 1
-                effect.save()
+    for effect in effects:
+        if effect.time <= 1:
+            effect.delete()
+        elif effect.time < 100:
+            effect.time -= 1
+            effect.save(update_fields=['time'])
 
-        for mod in models.Mods.objects.filter(character=char.name, time__gt=0):
-            if mod.time == 1:
-                mod.delete()
-            else:
-                mod.time -= 1
-                mod.save()
+    for mod in models.Mods.objects.filter(owner=char.owner, character=char.name, time__gt=0):
+        if mod.time == 1:
+            mod.delete()
+        else:
+            mod.time -= 1
+            mod.save(update_fields=['time'])
 
-        return redirect('character_detail', char.id) 
-    except Exception as e:
-        print(traceback.format_exc())
-        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
-            return JsonResponse({'error': 'Nie udało się zakończyć rundy.'}, status=400)
-        messages.success(request, f"Błąd: {e}")
-        return redirect('character_detail', char.id) 
+    if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+        return JsonResponse({'hp_lost': hp_before - char.HP})
+    return redirect('character_detail', char.id)
+
+
+@require_POST
+@transaction.atomic
+def add_character_effect(request, char_id):
+    char = get_object_or_404(models.Character.objects.select_for_update(), id=char_id)
+    if not request.user.is_authenticated or (char.owner != request.user.username and not request.user.is_superuser):
+        return JsonResponse({'error': 'Brak dostępu do postaci.'}, status=403)
+
+    try:
+        effect_id = int(request.POST.get('effect', ''))
+        time = int(request.POST.get('time', ''))
+        if time < 1 or time > 1000:
+            raise ValueError
+    except ValueError:
+        messages.error(request, 'Wybierz efekt i podaj czas od 1 do 1000 rund.')
+        return redirect('character_detail', char.id)
+
+    effect = get_object_or_404(models.Effects_Decs, pk=effect_id)
+    models.Effects.objects.create(
+        owner=char.owner, character=char.name, name=effect.name,
+        desc=request.POST.get('desc', '').strip(), time=time,
+    )
+    messages.success(request, f'Dodano efekt {effect.name}.')
+    return redirect('character_detail', char.id)
+
 
 def change_coins(request, **kwargs):
     if request.method == 'POST':
@@ -2806,22 +2878,25 @@ def change_food_water(request, **kwargs):
             if stat_type not in ["food", "water", "alcohol"]:
                 raise Http404("Invalid food/water stat")
 
-            char = get_object_or_404(models.Character, id=kwargs['char_id'])
             value = int(request.POST[f'{stat_type}-amount'])
             msg = ""
             msg_type = "success"
 
-            if stat_type == "alcohol":
-                previous_alcohol_level = char.alcohol
-                value = max(0, value)
-                char.alcohol = value
-            else:
-                value = max(0, min(100, value))
-                current_value = getattr(char, stat_type)
-                char, msg = manageFoodAndWater(char, value - current_value, stat_type)
-            char.save()
-            if stat_type == "alcohol":
-                sync_alcohol_mods(char, previous_alcohol_level)
+            with transaction.atomic():
+                char = get_object_or_404(models.Character.objects.select_for_update(), id=kwargs['char_id'])
+                if not request.user.is_authenticated or (char.owner != request.user.username and not request.user.is_superuser):
+                    return JsonResponse({'error': 'Brak dostępu do postaci.'}, status=403)
+                if stat_type == "alcohol":
+                    previous_alcohol_level = char.alcohol
+                    value = max(0, value)
+                    char.alcohol = value
+                    char.save(update_fields=['alcohol'])
+                    sync_alcohol_mods(char, previous_alcohol_level)
+                else:
+                    value = max(0, min(100, value))
+                    current_value = getattr(char, stat_type)
+                    char, msg = manageFoodAndWater(char, value - current_value, stat_type)
+                    char.save(update_fields=[stat_type, 'HP'])
 
             if msg != "":
                 msg_type = "error"
@@ -2854,7 +2929,10 @@ def change_food_water(request, **kwargs):
                     "hp": char.HP,
                     "effects_html": render_to_string(
                         "dunnorpg/character_effects_block.html",
-                        {"character": char},
+                        {
+                            "character": char,
+                            "effect_definitions": models.Effects_Decs.objects.order_by('name'),
+                        },
                         request=request,
                     ),
                     **extra_data,
@@ -3322,8 +3400,9 @@ def end_round(request, **kwargs):
 def manageFoodAndWater(char, value, stat_type):  # stat_type: "food" or "water"
     effects = models.Effects.objects.filter(owner=char.owner, character=char.name)
     condition = {"food": "Głód", "water": "Pragnienie"}[stat_type]
-    effect_name = f"Utrudnienie ({condition.lower()})"
-    condition_effects = effects.filter(name=effect_name)
+    effect_name = "Utrudnienie"
+    description = f"Odczuwasz {condition}"
+    condition_effects = effects.filter(name=effect_name, desc=description)
     value_now = getattr(char, stat_type)
     value_changed = value_now + value
     setattr(char, stat_type, min(100, max(0, value_changed)))
@@ -3336,9 +3415,9 @@ def manageFoodAndWater(char, value, stat_type):  # stat_type: "food" or "water"
     if (
         not condition_effects.exists()
         and effects.filter(name="DużeUtrudnienie").count() < maxBigAdvs
-        and effects.filter(Q(name="Utrudnienie") | Q(name__startswith="Utrudnienie (")).count() < maxAdvs
+        and effects.filter(name=effect_name).count() < maxAdvs
     ):
-        models.Effects.objects.create(owner=char.owner, character=char.name, name=effect_name, time=1000)
+        models.Effects.objects.create(owner=char.owner, character=char.name, name=effect_name, desc=description, time=1000)
 
     msg = f"Odczuwasz {condition}"
     if value_changed < 0:
