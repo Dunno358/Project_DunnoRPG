@@ -1217,6 +1217,16 @@ function wearItem(place, block_id){
     }
 }
 
+function updateDamageFields(hp, barrier){
+    for(const [id, value] of [['hp-val', hp], ['barrier-val', barrier], ['get-dmg-barrier', barrier]]){
+        const input = document.getElementById(id)
+        if(!input || value === undefined){ continue }
+        input.value = value
+        input.defaultValue = value
+        input.dataset.lastSubmittedValue = String(value)
+    }
+}
+
 function setDamagePartState(block, active){
     block.setAttribute('aria-pressed', String(active))
     if(active){
@@ -1299,13 +1309,7 @@ async function calculateGettingHit(){
             throw new Error(data.error || 'Nie udało się policzyć obrażeń.')
         }
 
-        document.getElementById('hp-val').value = data.hp
-        document.getElementById('hp-val').setAttribute('value', data.hp)
-        document.getElementById('hp-val').dataset.lastSubmittedValue = String(data.hp)
-        document.getElementById('barrier-val').value = data.barrier
-        document.getElementById('barrier-val').setAttribute('value', data.barrier)
-        document.getElementById('barrier-val').dataset.lastSubmittedValue = String(data.barrier)
-        document.getElementById('get-dmg-barrier').value = data.barrier
+        updateDamageFields(data.hp, data.barrier)
 
         Object.entries(data.armor || {}).forEach(([part, armor]) => {
             const durabilityInput = document.getElementById(`armor-${part}-durability`)
@@ -1738,7 +1742,7 @@ async function showAttackResult(hand, item_id){
         hitText.classList.toggle('text-danger', !hit[0])
         hitText.classList.toggle('unique', hit[0])
         const hitLabel = critical.kind === 'hit' ? 'Trafienie krytyczne' : critical.kind === 'failure' ? 'Krytyczne niepowodzenie' : hit[0] ? 'Trafiony' : 'Chybiony'
-        hitText.textContent = `${hitLabel} (Wynik: ${hit[1]}/${hit[2]})`
+        hitText.textContent = `${hitLabel} (Wynik: ${Math.max(0, hit[1])}/${hit[2]})`
         document.getElementById('result-div-row2').textContent = `${weapon.textContent} - ${document.getElementById(`${prefix}-type`).textContent}`
         document.getElementById('result-div-row3-col2').textContent = `${result}, ${ap}% AP`
         modal.classList.add('d-none')
@@ -2254,6 +2258,7 @@ async function refreshCharacterDetailsData(requestUrl = characterDetailsUrl.href
     const refreshingMessage = showMessage('Odświeżanie danych postaci…', 'warning')
     try{
         const response = await fetch(requestUrl, {
+            cache: 'no-store',
             ...requestOptions,
             headers: {
                 'X-Requested-With': 'XMLHttpRequest',
@@ -2429,6 +2434,7 @@ async function endRound(){
             window.location.reload()
             return
         }
+        updateDamageFields(data.hp, data.barrier)
         const damageMessage = data.hp_lost ? ` Utracono ${data.hp_lost} PŻ.` : ''
         showMessage(`Zakończono rundę.${damageMessage}`, data.hp_lost ? 'warning' : 'success')
     }

@@ -17,7 +17,9 @@ from django.urls import reverse
 from django.views.generic import FormView, ListView, TemplateView
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView
+from django.views.decorators.cache import never_cache
 from django.views.decorators.http import require_POST
+from django.utils.decorators import method_decorator
 from decimal import Decimal, InvalidOperation, ROUND_FLOOR, ROUND_HALF_UP
 from rest_framework import generics, status
 from rest_framework.decorators import api_view
@@ -1183,6 +1185,7 @@ class CharacterSkills(ListView, FormView):
         id = self.kwargs['id']
         return f'/dunnorpg/character_add_skills/{id}'
 
+@method_decorator(never_cache, name='dispatch')
 class CharacterDetails(DetailView):
     model = models.Character
     template_name = 'character_detail.html'
@@ -2688,7 +2691,7 @@ def end_round_infight(request, char_id):
             mod.save(update_fields=['time'])
 
     if request.headers.get('x-requested-with') == 'XMLHttpRequest':
-        return JsonResponse({'hp_lost': hp_before - char.HP})
+        return JsonResponse({'hp': char.HP, 'barrier': char.barrier, 'hp_lost': hp_before - char.HP})
     return redirect('character_detail', char.id)
 
 
