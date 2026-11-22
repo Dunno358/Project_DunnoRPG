@@ -6,8 +6,13 @@
         <div class='row-cols-auto d-none' id='desc{{ effect.id }}'>
             <p class='ms-3 me-3 text-primary bg-dark border rounded border-primary text-center p-2'>
                 {{ effect.desc }}
-                [{% if effect.bonus >= 0 %}+{% endif %}{{ effect.bonus }}]
-                {% if effect.actions %}<br>Akcje: {{ effect.actions }}{% endif %}
+                {% if user.is_superuser %}
+                    <a href="{% url 'admin:DunnoRPG_effects_decs_change' effect.pk %}"
+                       class="ms-2 c-gold" target="_blank" rel="noopener"
+                       aria-label="Otwórz rekord efektu {{ effect.name }} w panelu administracyjnym (nowa karta)">
+                        <i class="fa fa-link" aria-hidden="true"></i>
+                    </a>
+                {% endif %}
             </p>
         </div>
     </div>
