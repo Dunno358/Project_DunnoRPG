@@ -276,6 +276,41 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
+    const storyPage = document.querySelector(".story-page");
+
+    if (storyPage) {
+        let swipeStart = null;
+
+        storyPage.addEventListener("pointerdown", (event) => {
+            if (event.pointerType === "touch") {
+                swipeStart = event.isPrimary ? event : null;
+            }
+        });
+
+        storyPage.addEventListener("pointercancel", () => {
+            swipeStart = null;
+        });
+
+        storyPage.addEventListener("pointerup", (event) => {
+            if (!swipeStart || event.pointerId !== swipeStart.pointerId) {
+                return;
+            }
+
+            const deltaX = event.clientX - swipeStart.clientX;
+            const deltaY = event.clientY - swipeStart.clientY;
+            swipeStart = null;
+
+            if (Math.abs(deltaX) < 48 || Math.abs(deltaX) <= Math.abs(deltaY)) {
+                return;
+            }
+
+            const link = storyPage.querySelector(deltaX < 0 ? 'a[rel="next"]' : 'a[rel="prev"]');
+            if (link) {
+                window.location.assign(link.href);
+            }
+        });
+    }
+
     const characterDetailSideMenu = document.getElementById("character-detail-side-menu");
 
     if (characterDetailSideMenu) {

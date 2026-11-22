@@ -4317,6 +4317,56 @@ class Info(APIView):
         }
         
         return Response(context)
+class InfoStory(TemplateView):
+    template_name = 'info-story.html'
+    book_path = Path(__file__).resolve().parent / 'json_data' / 'book.json'
+
+    @staticmethod
+    def page_url(page):
+        if page is None:
+            return reverse('info_story')
+        if page == 0:
+            return reverse('info_story_contents')
+        return reverse('info_story', kwargs={'page': page})
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        with self.book_path.open(encoding='utf-8') as book_file:
+            book = json.load(book_file)
+
+        pages = book['pages']
+        page_order = [None, *sorted(int(key.removeprefix('page')) for key in pages)]
+        page = 0 if kwargs.get('contents') else kwargs.get('page') or None
+        if page not in page_order:
+            raise Http404
+
+        index = page_order.index(page)
+        if index > 0:
+            context['previous_page_url'] = self.page_url(page_order[index - 1])
+        if index + 1 < len(page_order):
+            context['next_page_url'] = self.page_url(page_order[index + 1])
+
+        context['is_cover'] = page is None
+        context['page_number'] = page
+        if page is None:
+            context['page_title'] = book['title']
+        else:
+            entry = pages[f'page{page}']
+            context['page_title'] = entry['title']
+            content = []
+            for line in entry['content']:
+                link = None
+                if page == 0:
+                    match = re.search(r'\bstr\.\s*(\d+)\s*$', line, re.IGNORECASE)
+                    if match:
+                        target = int(match[1])
+                        if target > 0 and target in page_order:
+                            link = self.page_url(target)
+                content.append({'text': line, 'url': link})
+            context['page_content'] = content
+        return context
+
+
 #Info options:    
 class AccRules(APIView):
     template_name = 'acc-rules.html'

@@ -367,3 +367,115 @@ a:link, a:visited, a:hover, a:active{
     z-index: 1050;
     background-color: rgba(0, 0, 0, 0.45);
 }
+
+.info-options {
+    max-width: 32rem;
+}
+
+.info-option {
+    padding: 0.85rem 1.25rem;
+    color: #f1ce78;
+    background: linear-gradient(#383029, #171411);
+    border: 1px solid #b58c43;
+    border-radius: 0.65rem;
+    box-shadow: inset 0 1px rgba(255, 225, 158, 0.2), 0 3px 0 #533b20, 0 5px 10px rgba(0, 0, 0, 0.5);
+    font-weight: 600;
+    text-align: center;
+    text-decoration: none;
+}
+
+.info-option[href]:hover,
+.info-option[href]:focus-visible {
+    color: #ffe4a3;
+    background: linear-gradient(#504134, #241b14);
+    border-color: #e8bb64;
+}
+
+.info-option:disabled {
+    opacity: 0.62;
+}
+
+.story-page {
+    position: relative;
+    display: grid;
+    place-items: center;
+    touch-action: pan-y pinch-zoom;
+    width: 100%;
+    max-width: 26.0625rem;
+    aspect-ratio: 417 / 600;
+    background-color: #ebd7ad;
+    background-position: center;
+    background-size: cover;
+    box-shadow: 0 0.5rem 1.5rem rgba(0, 0, 0, 0.65);
+}
+
+.story-cover {
+    background-color: #431c14;
+}
+
+.story-cover-title {
+    color: #efc867;
+    font-family: Georgia, serif;
+    font-size: clamp(1.375rem, 8vw, 3rem);
+    font-weight: 700;
+    text-shadow: 0 -1px #633b18, 0 1px #ffe4a3, 0 3px 6px #2a120b;
+}
+
+// A 320 px viewport fits 13 short lines with a one-line heading and 15 without.
+// At 360 px it fits 16 or 18, and at 390 px it fits 18 or 20, respectively.
+// Wrapped text uses one line per visual row. Longer pages scroll inside the sheet.
+.story-page-content {
+    position: absolute;
+    inset: 7% 8% 3.5rem;
+    overflow-y: auto;
+    color: #302015;
+    font: 1rem / 1.35 Georgia, serif;
+    overflow-wrap: anywhere;
+}
+
+.story-page-heading {
+    margin: 0 0 0.75rem;
+    font-size: 1.375rem;
+    line-height: 1.2;
+    text-align: center;
+}
+
+.story-page-line {
+    min-height: 1.35em;
+    white-space: pre-wrap;
+}
+
+.story-contents .story-page-line + .story-page-line {
+    margin-top: 0.5rem;
+}
+
+.story-page-line .story-contents-link {
+    color: #542f1c;
+}
+
+.story-pagination {
+    position: absolute;
+    inset-inline: 0;
+    bottom: 0;
+}
+
+.story-page-number {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    align-self: center;
+    color: #302015;
+    font: 700 1rem Georgia, serif;
+}
+
+.story-pagination .story-page-arrow {
+    width: 2.75rem;
+    height: 2.75rem;
+    background-color: #efc867;
+    color: #212529;
+    border-color: #212529;
+}
+
+.story-pagination .story-page-arrow:hover {
+    background-color: #ffe4a3;
+}

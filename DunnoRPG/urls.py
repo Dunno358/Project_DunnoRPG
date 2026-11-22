@@ -76,6 +76,9 @@ urlpatterns = [
     path('gmpanel/reset_portal', views.reset_portal, name='reset_portal'),
     
     path('info/', views.Info.as_view(), name='info'),
+    path('info/story/', views.InfoStory.as_view(), name='info_story'),
+    path('info/story/contents/', views.InfoStory.as_view(), {'contents': True}, name='info_story_contents'),
+    path('info/story/<int:page>/', views.InfoStory.as_view(), name='info_story'),
     path('info/acc-rules/', views.AccRules.as_view(), name='info_acc_rules'),
     path('city/', views.CityView.as_view(), name='city_view'),
     path('city/change-visiting', views.change_visiting_city, name='change_visiting_city'),
