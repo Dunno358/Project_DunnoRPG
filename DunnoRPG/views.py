@@ -1946,70 +1946,58 @@ def skill_delete(request,char_id,skill_id):
     character.save()
     skill.delete()
     return redirect(f'/dunnorpg/character_add_skills/{char_id}/')
-def skill_upgrade(request,char_id,skill_id):
-    skill = get_object_or_404(models.Skills, id=skill_id)
-    skill_details = models.Skills_Decs.objects.filter(name=skill.skill).values()[0]
-    character_object = get_object_or_404(models.Character, id=char_id)
-    character = models.Character.objects.filter(id=char_id).values()[0]
-    try:
-        not_max_lvl = len(skill_details[f"level{skill.level+1}"])>0
-    except:
-        not_max_lvl = False
-    
-    if not_max_lvl:
-        reqs_ok = True
-        reqs_text = skill_details[f"reqs{skill.level+1}"]
-        reqs = reqs_text.split(";") if reqs_text else []
 
-        for req in reqs:
-            reqs_ok = (req==None) or (int(character[f"{req[:-1]}"])>=int(req[-1]))
-            if not reqs_ok:
-                break
 
-        if reqs_ok:
-            cat = skill_details['category']
-            points_ok = character_object.points_left>0
-               
-            if points_ok:        
-                skill.level += 1
-                skill.desc = skill_details['desc']+' '+skill_details[f"level{skill.level}"]
-                skill.uses_left = skill_details[f"useslvl{skill.level}"] or 0
-                skill.save()
+def skill_upgrade(request, char_id, skill_id):
+    return change_skill_level(request, char_id, skill_id, step=1)
 
-                character_object.points_left -= int(skill_details['cost'])
-                character_object.save()
-            else:
-                messages.error(request, f'Za mało punktów, żeby ulepszyć {skill.skill}.')
-        else:
-            msg = f"Nie spełniasz wymagań do ulepszenia {skill.skill}!"
-            messages.error(request, msg)
+
+def skill_downgrade(request, char_id, skill_id):
+    return change_skill_level(request, char_id, skill_id, step=-1)
+
+
+@transaction.atomic
+def change_skill_level(request, char_id, skill_id, step):
+    is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
+    character = get_object_or_404(models.Character.objects.select_for_update(), id=char_id)
+    if not request.user.is_authenticated or (character.owner != request.user.username and not request.user.is_superuser):
+        if is_ajax:
+            return JsonResponse({'error': 'Brak dostępu do postaci.'}, status=403)
+        return HttpResponse('Brak dostępu do postaci.', status=403)
+
+    skill = get_object_or_404(
+        models.Skills.objects.select_for_update(), id=skill_id, owner=character.owner, character=character.name,
+    )
+    details = get_object_or_404(models.Skills_Decs, name=skill.skill)
+    new_level = skill.level + step if skill.level is not None else None
+    level_description = getattr(details, f'level{new_level}', None)
+    error = None
+    if not level_description:
+        error = f'{skill.skill}: Osiągnięto już maksymalny poziom!' if step > 0 else f'{skill.skill}: Niżej się nie da!'
+    elif step > 0:
+        requirements = (getattr(details, f'reqs{new_level}') or '').split(';')
+        if any(int(getattr(character, req[:-1])) < int(req[-1]) for req in requirements if req):
+            error = f'Nie spełniasz wymagań do ulepszenia {skill.skill}!'
+        elif character.points_left <= 0:
+            error = f'Za mało punktów, żeby ulepszyć {skill.skill}.'
+
+    if error:
+        if is_ajax:
+            return JsonResponse({'error': error}, status=400)
+        messages.error(request, error)
     else:
-        messages.error(request,f'{skill.skill}: Osiagnięto już maksymalny poziom!')
-    
-    return redirect(f'/dunnorpg/character_add_skills/{char_id}/')
-def skill_downgrade(request,char_id,skill_id):
-    skill = get_object_or_404(models.Skills, id=skill_id)
-    skill_details = models.Skills_Decs.objects.filter(name=skill.skill).values()[0]
-    character_object = get_object_or_404(models.Character, id=char_id)
-    character = models.Character.objects.filter(id=char_id).values()[0]
-    
-    try:
-        not_min_lvl = len(skill_details[f"level{skill.level-1}"])>0
-    except:
-        not_min_lvl = False   
-        
-    if not_min_lvl:
-        skill.level -= 1
-        skill.desc = skill_details['desc']+' '+skill_details[f"level{skill.level}"]
-        skill.uses_left = skill_details[f"useslvl{skill.level}"] or 0
-        skill.save()
-        
-        character_object.points_left += int(skill_details['cost'])
-        character_object.save()
-    else:
-        messages.error(request,f'{skill.skill}: Niżej się nie da!')
-    
-    return redirect(f'/dunnorpg/character_add_skills/{char_id}/')
+        skill.level = new_level
+        skill.desc = f'{details.desc} {level_description}'
+        skill.uses_left = getattr(details, f'useslvl{new_level}') or 0
+        character.points_left -= step * int(details.cost)
+        skill.save(update_fields=['level', 'desc', 'uses_left'])
+        character.save(update_fields=['points_left'])
+        if is_ajax:
+            return JsonResponse({'level': skill.level, 'points_left': character.points_left})
+
+    return redirect('character_add_skills', character.id)
+
+
 def create_character(request,name,char_class,race,type,owner,exp):
     try:
         if not name.strip():

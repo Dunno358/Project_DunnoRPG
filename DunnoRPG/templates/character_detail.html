@@ -244,13 +244,13 @@ style="width: 98%; z-index: 20; margin-left: 0.1rem !important; margin-top: -1re
 <div id="result-div" class="d-none h5 position-fixed bg-dark c-gold container-fluid m-0 p-0 border border-primary" style="top: 5vh; max-height: 80vh; overflow: auto; z-index: 10; left: 1vw; width: 99%;">
     <div class='row m-0 p-2'>
         <div class="col text-center h2">
-            <span id="result-div-row1"></title>
+            <span id="result-div-row1"></span>
         </div>
     </div>
 
     <div class='row m-0'>
         <div class="col text-center h5 p-0 m-0">
-            <span id="result-div-row2"></title>
+            <span id="result-div-row2"></span>
         </div>
     </div>
 
@@ -258,10 +258,10 @@ style="width: 98%; z-index: 20; margin-left: 0.1rem !important; margin-top: -1re
 
     <div class='row m-0 p-4'>
         <div class="col text-end">
-            <span id="result-div-row3-col1">Obrażenia: </title>
+            <span id="result-div-row3-col1">Obrażenia: </span>
         </div>
         <div class="col text-start">
-            <span id="result-div-row3-col2"></title>
+            <span id="result-div-row3-col2"></span>
         </div>
     </div>
 
@@ -274,7 +274,7 @@ style="width: 98%; z-index: 20; margin-left: 0.1rem !important; margin-top: -1re
 
     <div class='row m-0'>
         <div class="col text-center h5 p-0 m-2">
-            <button class="w-50 btn btn-success" onclick="window.location.reload()">OK</button>
+            <button type="button" class="w-50 btn btn-success" onclick="closeCombatResult()">OK</button>
         </div>
     </div>
 
@@ -1627,6 +1627,11 @@ function syncWeaponAction(hand, data){
         button.dataset.needsReload = String(data.needs_reload)
         button.querySelector('span').textContent = data.needs_reload ? 'Przeładuj [0,5 akcji]' : `Wykonaj atak [${Number(button.dataset.attackCost).toLocaleString('pl-PL')} akcji]`
     }
+}
+
+function closeCombatResult(){
+    document.getElementById('result-div').classList.add('d-none')
+    refreshCharacterDetailsData()
 }
 
 function hasActionsForWeapon(hand, reload=false){
