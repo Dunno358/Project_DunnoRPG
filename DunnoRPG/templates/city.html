@@ -962,6 +962,35 @@
         </div>
         {% endif %}
 
+        <div class="ms-0 ps-0 row text-center c-gold p-2 rounded border border-warning bg-dark mt-1 w-100" onclick="showOrHideBlock(this,'library-items')">
+            <h2>{{ shop_labels|dict_get:"Biblioteka" }}<span class="ms-2 d-inline-block" aria-hidden="true" style="width: 1em; height: 1em; vertical-align: -0.12em; background-color: currentColor; -webkit-mask: url('{% static 'DunnoRPG/img/icons/open-book.svg' %}') center / contain no-repeat; mask: url('{% static 'DunnoRPG/img/icons/open-book.svg' %}') center / contain no-repeat;"></span></h2>
+        </div>
+        <div id="library-items" class="container text-center c-gold rounded border border-primary bg-dark d-none p-0 m-0 w-100">
+            {% for item in books %}
+                <div data-city-item-name="{{ item }}" class="mt-2 row bg-gray rounded m-1 border border-primary">
+                    <div class="col-9 border-end p-2">
+                        <a href="{% url 'item_detail' item.item_id %}"><b class="{{ item.rarity }}">{{ item }}</b></a>
+                        <div class="neutral-high">{{ item.book_category }}</div>
+                        {% for skill_name, level in item.book_skills %}
+                            <div class="neutral-high">{{ skill_name }} (poz. {{ level }})</div>
+                        {% endfor %}
+                    </div>
+                    <div class="col-3 p-0">
+                        <div class="border-bottom pt-1 pb-1 h6 mb-0"><span class="city-unit-price">{{ item.unit_price }}</span>&nbsp;<i class="fa-solid fa-coins" role="img" aria-label="monety"></i></div>
+                        <div class="border-bottom pt-1 pb-1 h6 mb-0"><span class="neutral-high">Ilość:</span> <span class="city-stock">{{ item.available_amount }}</span></div>
+                        <button type="button" class="w-100 btn btn-sm btn-success rounded-0"
+                                data-shop-item-id="{{ item.item_id }}" data-item-name="{{ item }}"
+                                data-durability="{{ item.durability_percent|unlocalize }}" data-unit-price="{{ item.unit_price|unlocalize }}" data-available-amount="{{ item.available_amount|unlocalize }}"
+                                onclick="buyItem(this.dataset.itemName, this.dataset.shopItemId, this.dataset.durability, this.dataset.unitPrice, this.dataset.availableAmount)">
+                            Zakup
+                        </button>
+                    </div>
+                </div>
+            {% empty %}
+                <p class="m-2">Brak książek w asortymencie.</p>
+            {% endfor %}
+        </div>
+
         {% if trophies %}
         <div class='ms-0 ps-0 row text-center c-gold p-2 rounded border border-warning bg-dark mt-1' onclick="showOrHideBlock(this,'hunter')" style="width: 100%;">
             <h2>{{ shop_labels|dict_get:"Myśliwy" }}<span class="ms-2 d-inline-block" style="width: 1em; height: 1em; vertical-align: -0.12em; background-color: currentColor; -webkit-mask: url('{% static 'DunnoRPG/img/icons/wolf-trap.svg' %}') center / contain no-repeat; mask: url('{% static 'DunnoRPG/img/icons/wolf-trap.svg' %}') center / contain no-repeat;"></span></h2>

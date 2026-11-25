@@ -27,6 +27,22 @@
     </details>
 
     {% for effect in character|getCharacterEffects %}
+        {% if effect.name|is_read_books_effect %}
+        <details id="read-books-history" class="w-100 bg-gray bg-gradient border border-warning rounded m-0 p-2 mt-2 mb-1" open>
+            <summary class="d-flex align-items-center gap-2">
+                <span class="flex-grow-1 h5 mb-0 text-start fst-italic">{{ effect.name }}</span>
+                <span class="btn btn-sm btn-primary text-light fw-bold read-books-toggle" aria-hidden="true"></span>
+            </summary>
+            {% if effect.desc %}
+                <hr class="border-warning my-1">
+                <p class="mb-0 text-center text-white-50">{{ effect.desc|linebreaksbr }}</p>
+            {% endif %}
+            {% if effect.description %}
+                <hr class="border-warning my-1">
+                <p class="mb-0 text-center text-white-50">{{ effect.description }}</p>
+            {% endif %}
+        </details>
+        {% else %}
         <div class="w-100 bg-gray bg-gradient border border-warning rounded m-0 p-2 mt-2 mb-1">
             <div class="d-flex align-items-center gap-2">
                 <div class="flex-grow-1 h5 mb-0 text-start fst-italic">{{ effect.name }}</div>
@@ -37,7 +53,7 @@
             </div>
             {% if effect.desc %}
                 <hr class="border-warning my-1">
-                <p class="mb-0 text-center text-white-50">{{ effect.desc }}</p>
+                <p class="mb-0 text-center text-white-50">{{ effect.desc|linebreaksbr }}</p>
             {% endif %}
             {% if effect.description %}
                 <hr class="border-warning my-1">
@@ -54,6 +70,7 @@
                 </form>
             {% endif %}
         </div>
+        {% endif %}
     {% empty %}
         <p class="text-center text-white-50 my-2">Brak efektów.</p>
     {% endfor %}

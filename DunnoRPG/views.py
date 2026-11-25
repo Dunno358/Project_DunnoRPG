@@ -9,7 +9,7 @@ from django.apps import apps
 from django.db.models import Q
 from django.db.models.functions import Lower
 from django.db.models.query import QuerySet
-from django.http import Http404, HttpResponse, HttpResponseRedirect, JsonResponse
+from django.http import Http404, HttpResponse, HttpResponseNotAllowed, HttpResponseRedirect, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.template.loader import render_to_string
 from django.urls import reverse_lazy
@@ -46,8 +46,34 @@ from .services.item_effects import apply_item_use_effects, fill_water
 from .services.attack_criticals import resolve_critical
 from .services.armor import armor_by_durability
 from .services.character_effects import (
-    active_effects, add_active_effect, adrenaline_percent, disadvantage_count, effect_stat_modifier, round_effects,
+    READ_BOOKS_EFFECT, active_effects, add_active_effect, adrenaline_percent, disadvantage_count,
+    effect_stat_modifier, round_effects,
 )
+
+BOOK_TYPE = 'książka'
+BOOK_TRADE_LOCKED = 'Sprzedaż i transfer tej książki są zablokowane do zmiany rozdziału [Czytanie].'
+SKILL_REQUIREMENT = re.compile(r'(SIŁ|ZRE|INT|CHAR|CEL|SPO)\s*:?\s*(-?\d+)', re.IGNORECASE)
+
+
+def skills_available_in_editor(character):
+    restrictions = Q(restrictions__icontains='all') | Q(restrictions__icontains='Uniwersalne')
+    if character.chosen_class:
+        restrictions |= Q(restrictions__icontains=character.chosen_class)
+    return models.Skills_Decs.objects.filter(restrictions)
+
+
+def skill_requirement_error(character, details, level):
+    for requirement in (getattr(details, f'reqs{level}', None) or '').split(';'):
+        requirement = requirement.strip()
+        if not requirement:
+            continue
+        match = SKILL_REQUIREMENT.fullmatch(requirement)
+        if not match:
+            return f'Nieprawidłowe wymaganie dla {details.name}, poz. {level}: {requirement}.'
+        stat, minimum = match[1].upper(), int(match[2])
+        if getattr(character, stat) < minimum:
+            return f'{details.name}, poz. {level}: wymagana wartość {stat} to {minimum}.'
+    return None
 
 raceSizes = {
     "S": 0.5,
@@ -253,7 +279,9 @@ def sync_item_granted_skills(character):
     if models.Character.objects.filter(name=character.name).exclude(pk=character.pk).exists():
         equipped_items = equipped_items.filter(owner=character.owner)
     equipped_names = equipped_items.exclude(hand__in=BELT_ITEM_PLACES).values_list("name", flat=True)
-    item_descs = models.Items.objects.filter(name__in=equipped_names).exclude(grantedSkills__isnull=True).exclude(grantedSkills="")
+    item_descs = models.Items.objects.filter(name__in=equipped_names).exclude(
+        type__iexact=BOOK_TYPE,
+    ).exclude(grantedSkills__isnull=True).exclude(grantedSkills="")
 
     for item_desc in item_descs:
         for skill_name, skill_lvl in parse_item_granted_skills(item_desc.grantedSkills):
@@ -587,6 +615,7 @@ def move_char_item_to_eq(char_item):
         additional_description=char_item.additional_description,
         use_amount=char_item.use_amount,
         reloaded=char_item.reloaded,
+        book_trade_locked=False,
     ).first()
 
     if eq_item:
@@ -963,21 +992,21 @@ class EditCharacterView(APIView):
         user = self.request.user
         id = kwargs['id']
         chosen_character = get_object_or_404(models.Character, id=id)
-        available_skills = models.Skills_Decs.objects.filter(
-            Q(restrictions__icontains='all') | Q(restrictions__icontains=chosen_character.chosen_class) | Q(restrictions__icontains='Uniwersalne')
-        ).order_by('name').values()
+        available_skills = list(skills_available_in_editor(chosen_character).order_by('name').values())
+        available_ids = {skill['id'] for skill in available_skills}
 
-        character_skills_queryset = list(models.Skills.objects.filter(
+        character_skills_queryset = models.Skills.objects.filter(
             owner=chosen_character.owner,
             character=chosen_character.name
-        ).order_by('skill').values())
-        skill_names = [skill['skill'] for skill in character_skills_queryset]
+        ).order_by('skill')
+        skill_names = [skill.skill for skill in character_skills_queryset]
         skill_details_ids = {
             skill['name']: skill['id']
             for skill in models.Skills_Decs.objects.filter(name__in=skill_names).values('id', 'name')
         }
         for skill in character_skills_queryset:
-            skill['original_id'] = skill_details_ids.get(skill['skill'])
+            skill.original_id = skill_details_ids.get(skill.skill)
+            skill.book_upgrade_locked = skill.book_level is not None and skill.original_id not in available_ids
         
         users = []
         for user in User.objects.values():
@@ -1793,25 +1822,23 @@ class SkillDetail(APIView):
 
         return Response(context)
 
+@transaction.atomic
 def skill_add(request,char_id,skill_id,lvl):
-    character = get_object_or_404(models.Character, id=char_id)
+    character = get_object_or_404(models.Character.objects.select_for_update(), id=char_id)
+    if not request.user.is_authenticated or (character.owner != request.user.username and not request.user.is_superuser):
+        return HttpResponse('Brak dostępu do postaci.', status=403)
     skill_details = get_object_or_404(models.Skills_Decs, id=skill_id)
-    lvl = int(lvl)
+    if not skills_available_in_editor(character).filter(pk=skill_details.pk).exists():
+        messages.error(request, f'{skill_details.name} nie jest dostępna w edycji tej postaci.')
+        return redirect('character_add_skills', character.id)
+    lvl = min(int(lvl), 4)
 
-    while not getattr(skill_details, f"level{lvl}"):
+    while lvl > 0 and not getattr(skill_details, f"level{lvl}", None):
         lvl -= 1
-
-    reqOK = True
-    reqs_raw = getattr(skill_details, f"reqs{lvl}", "") or ""
-    reqs = reqs_raw.split(";") if reqs_raw else []
-
-    for req in reqs:
-        stat = req[:-1]
-        char_stat = int(getattr(character, stat))
-        value = req[-1:]
-        if char_stat < int(value):
-            messages.error(request, f"Halo, halo! Za mało {stat}! Potrzeba {value} a jest {char_stat}!")
-            reqOK = False
+    error = skill_requirement_error(character, skill_details, lvl) if lvl > 0 else 'Brak dostępnego poziomu umiejętności.'
+    reqOK = not error
+    if error:
+        messages.error(request, error)
 
 
     if reqOK:
@@ -1933,10 +1960,16 @@ def dismiss_fight_summary(request, char_id):
     character.save(update_fields=["fight_summary"])
     return JsonResponse({"success": True})
 
+@transaction.atomic
 def skill_delete(request,char_id,skill_id):
-    skill = get_object_or_404(models.Skills, id=skill_id)
+    character = get_object_or_404(models.Character.objects.select_for_update(), id=char_id)
+    if not request.user.is_authenticated or (character.owner != request.user.username and not request.user.is_superuser):
+        return HttpResponse('Brak dostępu do postaci.', status=403)
+    skill = get_object_or_404(models.Skills, id=skill_id, owner=character.owner, character=character.name)
+    if skill.book_level is not None:
+        messages.error(request, f'{skill.skill} została zdobyta z książki i nie można jej usunąć.')
+        return redirect('character_add_skills', character.id)
     skill_details = get_object_or_404(models.Skills_Decs, name=skill.skill)
-    character = get_object_or_404(models.Character, id=char_id)
 
     if skill.source == "natural_free":
         messages.error(request, f'{skill.skill} jest darmową umiejętnością z rasy lub klasy i nie można jej usunąć.')
@@ -1972,13 +2005,15 @@ def change_skill_level(request, char_id, skill_id, step):
     new_level = skill.level + step if skill.level is not None else None
     level_description = getattr(details, f'level{new_level}', None)
     error = None
-    if not level_description:
+    if step < 0 and skill.book_level is not None and skill.level <= skill.book_level:
+        error = f'{skill.skill}: poziom zdobyty z książki to poziom minimalny.'
+    elif step > 0 and skill.book_level is not None and not skills_available_in_editor(character).filter(pk=details.pk).exists():
+        error = f'{skill.skill} nie jest dostępna w edycji tej postaci.'
+    elif not level_description:
         error = f'{skill.skill}: Osiągnięto już maksymalny poziom!' if step > 0 else f'{skill.skill}: Niżej się nie da!'
     elif step > 0:
-        requirements = (getattr(details, f'reqs{new_level}') or '').split(';')
-        if any(int(getattr(character, req[:-1])) < int(req[-1]) for req in requirements if req):
-            error = f'Nie spełniasz wymagań do ulepszenia {skill.skill}!'
-        elif character.points_left <= 0:
+        error = skill_requirement_error(character, details, new_level)
+        if not error and (character.points_left or 0) < int(details.cost):
             error = f'Za mało punktów, żeby ulepszyć {skill.skill}.'
 
     if error:
@@ -2142,10 +2177,11 @@ def del_eq_item(request, **kwargs):
         item.weight -= itemDesc.weight*int(kwargs['amount'])
         item.save()
     return redirect(f"/dunnorpg/items/ch{kwargs['char_id']}")
+@transaction.atomic
 def sell_item(request, **kwargs):
     try:
         city = get_object_or_404(models.Cities, visiting=True)
-        char = get_object_or_404(models.Character, id=kwargs['char_id'])
+        char = get_object_or_404(models.Character.objects.select_for_update(), id=kwargs['char_id'])
         item_ref = str(kwargs['item_id'])
         source_type = "eq"
         source_id = item_ref
@@ -2159,7 +2195,10 @@ def sell_item(request, **kwargs):
             eqItem = get_object_or_404(models.CharItems, id=int(source_id), character=char.name)
             amount = 1
         else:
-            eqItem = get_object_or_404(models.Eq, id=int(source_id), character=char.name)
+            eqItem = get_object_or_404(models.Eq.objects.select_for_update(), id=int(source_id), character=char.name)
+            if eqItem.book_trade_locked:
+                messages.error(request, BOOK_TRADE_LOCKED)
+                return redirect('items', char_id=char.id)
             amount = int(kwargs['amount'])
 
         itemDesc = get_object_or_404(models.Items, name=eqItem.name)
@@ -2211,6 +2250,7 @@ def sell_item(request, **kwargs):
     except:
         messages.error(request, f"Gdzie chcesz to sprzedać? Najpierw zajrzyj z drużyną do jakiegoś miasta!")
     return redirect(f"/dunnorpg/items/ch{kwargs['char_id']}")
+@transaction.atomic
 def give_item(request, **kwargs):
     from_char = get_object_or_404(models.Character, id=kwargs['from_char'])
     to_char = get_object_or_404(models.Character, id=kwargs['to_char'])
@@ -2277,7 +2317,10 @@ def give_item(request, **kwargs):
                 messages.error(request, f"Not enough space in {to_char.name} equipment.")
             return redirect(f"/dunnorpg/items/ch{from_char.id}")
 
-        eq_item = get_object_or_404(models.Eq, id=int(source_id), character=from_char.name)
+        eq_item = get_object_or_404(models.Eq.objects.select_for_update(), id=int(source_id), character=from_char.name)
+        if eq_item.book_trade_locked:
+            messages.error(request, BOOK_TRADE_LOCKED)
+            return redirect('items', char_id=from_char.id)
         itemDesc = get_object_or_404(models.Items, name=eq_item.name)
         if itemDesc.unobtainable:
             messages.error(request, f"{eq_item.name} nie moze zostac przekazane.")
@@ -2612,6 +2655,8 @@ def end_round_infight(request, char_id):
     char.save(update_fields=['actionLeft', 'HP', 'round_mobility_bonus', 'deferred_damage'])
 
     for effect in effects:
+        if effect.name == READ_BOOKS_EFFECT:
+            continue
         if effect.time <= 1:
             effect.delete()
         elif effect.time < 100:
@@ -2661,6 +2706,13 @@ def change_character_effect_time(request, char_id, effect_id):
 
     effect = get_object_or_404(models.Effects, pk=effect_id, owner=char.owner, character=char.name)
     is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
+    if effect.name == READ_BOOKS_EFFECT:
+        message = 'Historia przeczytanych książek jest trwała.'
+        if is_ajax:
+            return JsonResponse({'error': message}, status=403)
+        messages.error(request, message)
+        return redirect('character_detail', char.id)
+
     try:
         time = int(request.POST.get('time', ''))
         if not 1 <= time <= 1000:
@@ -2687,6 +2739,12 @@ def remove_character_effect(request, char_id, effect_id):
         return JsonResponse({'error': 'Brak dostępu do postaci.'}, status=403)
 
     effect = get_object_or_404(models.Effects, pk=effect_id, owner=char.owner, character=char.name)
+    if effect.name == READ_BOOKS_EFFECT:
+        message = 'Nie można usunąć historii przeczytanych książek.'
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return JsonResponse({'error': message}, status=403)
+        messages.error(request, message)
+        return redirect('character_detail', char.id)
     effect.delete()
     messages.success(request, f'Usunięto efekt {effect.name}.')
     return redirect('character_detail', char.id)
@@ -3029,6 +3087,10 @@ def char_wear_item(request, **kwargs):
     item = models.Items.objects.get(name=item_eq_obj.name)
     item_category = (item.category or "").lower()
 
+    if (item.type or '').strip().casefold() == BOOK_TYPE:
+        messages.error(request, 'Książkę można przeczytać w ekwipunku.')
+        return redirect('character_detail', char.id)
+
     if place.lower() in HAND_ITEM_PLACES and not is_weapon_item(item):
         messages.error(request, "W tym slocie mozna zalozyc tylko bron.")
         return redirect('character_detail', char.id)
@@ -3257,6 +3319,9 @@ def char_swap_item(request, **kwargs):
     it1D = get_object_or_404(models.Items, name=it1.name)
     it2 = get_object_or_404(models.Eq, id=kwargs['it2_id'])
     it2D = get_object_or_404(models.Items, name=it2.name)
+    if (it2D.type or '').strip().casefold() == BOOK_TYPE:
+        messages.error(request, 'Książkę można przeczytać w ekwipunku.')
+        return redirect('character_detail', char.id)
 
     armor_place = it1.position or it1.hand
     if (armor_place or "").lower() in HAND_ITEM_PLACES and not is_weapon_item(it2D):
@@ -3337,7 +3402,7 @@ def char_swap_item(request, **kwargs):
 @user_passes_test(lambda u: u.is_superuser)
 def end_round(request, **kwargs):
     msg = 'Deleted: '
-    for effect in models.Effects.objects.all():
+    for effect in models.Effects.objects.exclude(name=READ_BOOKS_EFFECT):
         if effect.time < 100:
             effect.time -= 1
             if effect.time <= 0:
@@ -3440,6 +3505,7 @@ class ItemsView(ListView):
                 equipped=False,
                 inventory_weight=None,
                 use_amount=None,
+                book_trade_locked=False,
             ):
                 display_weight = inventory_weight if inventory_weight is not None else item_desc.weight * amount
                 item_data = {
@@ -3459,6 +3525,8 @@ class ItemsView(ListView):
                     'type': item_desc.type,
                     'price': item_desc.price,
                     'on_use': item_desc.on_use,
+                    'is_book': (item_desc.type or '').strip().casefold() == BOOK_TYPE,
+                    'book_trade_locked': book_trade_locked,
                     'use_cost': item_desc.use_cost,
                     'use_info': item_desc.use_info,
                     'use_amount': use_amount,
@@ -3467,6 +3535,8 @@ class ItemsView(ListView):
                 queryset.append(item_data)
 
                 category_data = item_desc.__dict__ | {
+                    'is_book': item_data['is_book'],
+                    'book_trade_locked': book_trade_locked,
                     'use_amount': item_data['use_amount'],
                     'dur': durability,
                     'amount': amount,
@@ -3515,6 +3585,7 @@ class ItemsView(ListView):
                     item.id,
                     inventory_weight=item.weight,
                     use_amount=item.use_amount,
+                    book_trade_locked=item.book_trade_locked,
                 )
 
             for item in models.CharItems.objects.filter(character=self.character.name):
@@ -3617,7 +3688,7 @@ class ItemsView(ListView):
             player_items = models.Eq.objects.filter(character=self.character.name)
             equipped_items = models.CharItems.objects.filter(character=self.character.name).exclude(name__isnull=True).exclude(name='')
             unobtainable_item_names = models.Items.objects.filter(unobtainable=True).values_list('name', flat=True)
-            player_items = list(player_items.exclude(name__in=unobtainable_item_names))
+            player_items = list(player_items.filter(book_trade_locked=False).exclude(name__in=unobtainable_item_names))
             equipped_items = list(equipped_items.exclude(name__in=unobtainable_item_names))
             equipped_item_weights = dict(
                 models.Items.objects.filter(name__in={item.name for item in equipped_items}).values_list('name', 'weight')
@@ -3710,11 +3781,122 @@ class ItemDetailView(DetailView):
 
         return context
 
+def learn_book_skills(character, book):
+    targets = {}
+    for name, level in parse_item_granted_skills(book.grantedSkills):
+        key = name.casefold()
+        targets[key] = max(level, targets.get(key, 0))
+    if not targets:
+        raise ValueError('Ta książka nie ma przypisanej umiejętności.')
+
+    category = (book.category or '').strip().casefold()
+    if category not in {'podręcznik', 'zaawansowana księga', 'grymuar'}:
+        raise ValueError('Ta książka nie ma poprawnej kategorii.')
+
+    definitions = {}
+    for details in models.Skills_Decs.objects.order_by('pk'):
+        if details.name.casefold() in targets:
+            definitions.setdefault(details.name.casefold(), details)
+    allowed_ids = set(skills_available_in_editor(character).values_list('id', flat=True))
+    skills = {}
+    for skill in models.Skills.objects.filter(owner=character.owner, character=character.name).order_by('pk'):
+        if skill.source != 'item' and not skill.source.startswith('item:'):
+            skills.setdefault(skill.skill.casefold(), skill)
+
+    learned = []
+    for key, level in targets.items():
+        details = definitions.get(key)
+        description = getattr(details, f'level{level}', None)
+        if not description:
+            raise ValueError(f'Książka zawiera nieprawidłową umiejętność lub poziom: {key}, poz. {level}.')
+        if category != 'podręcznik' and details.pk not in allowed_ids:
+            raise ValueError(f'{details.name} nie jest dostępna w edycji tej postaci.')
+
+        skill = skills.get(key)
+        if skill and (skill.level or 0) >= level:
+            continue
+        error = skill_requirement_error(character, details, level)
+        if error:
+            raise ValueError(error)
+
+        if skill is None:
+            skill = models.Skills(
+                owner=character.owner, character=character.name, skill=details.name,
+                category=details.category,
+            )
+        skill.level = level
+        skill.source = f'book:{level}'
+        skill.desc = f'{details.desc} {description}'
+        skill.uses_left = getattr(details, f'useslvl{level}') or 0
+        skill.save()
+        learned.append(f'{details.name} (poz. {level})')
+
+    if not learned:
+        raise ValueError('Postać zna już umiejętności z tej książki na tym samym lub wyższym poziomie.')
+
+    sync_item_granted_skills(character)
+    effects = models.Effects.objects.filter(owner=character.owner, character=character.name, name=READ_BOOKS_EFFECT)
+    effect = effects.order_by('pk').first()
+    if effect is None:
+        effects.create(owner=character.owner, character=character.name, name=READ_BOOKS_EFFECT, desc=book.name, time=1000)
+    else:
+        titles = effect.desc.splitlines()
+        if book.name not in titles:
+            titles.append(book.name)
+        effect.desc = '\n'.join(titles)
+        effect.time = 1000
+        effect.save(update_fields=['desc', 'time'])
+    return learned
+
+
 class useItem(APIView):
+    def post(self, request, id, char_id):
+        book = get_object_or_404(models.Items, id=id, type__iexact=BOOK_TYPE)
+        try:
+            with transaction.atomic():
+                character = get_object_or_404(models.Character.objects.select_for_update(), id=char_id)
+                if not request.user.is_authenticated or (character.owner != request.user.username and not request.user.is_superuser):
+                    return JsonResponse({'error': 'Brak dostępu do postaci.'}, status=403)
+                # A chapter change and a reading must take effect in a definite order.
+                models.GameSettings.objects.select_for_update().get(pk=get_game_settings().pk)
+                inventory = models.Eq.objects.select_for_update().filter(
+                    owner=character.owner, character=character.name, name=book.name, amount__gt=0,
+                )
+                eq_id = request.POST.get('eq_id')
+                copy = get_object_or_404(inventory, pk=eq_id) if eq_id else inventory.order_by('pk').first()
+                if copy is None:
+                    raise Http404
+
+                cost = float(book.use_cost) if character.inFight and book.use_cost not in (None, '', '-') else 0
+                if not math.isfinite(cost) or cost < 0:
+                    raise ValueError('Książka ma nieprawidłowy koszt użycia.')
+                if cost and character.actionLeft < cost:
+                    raise ValueError(f'Za mało akcji, aby przeczytać książkę. Potrzeba {cost}.')
+                learned = learn_book_skills(character, book)
+
+                if cost:
+                    character.actionLeft -= cost
+                    character.save(update_fields=['actionLeft'])
+                if copy.amount > 1:
+                    unit_weight = (copy.weight / copy.amount).quantize(Decimal('0.1'))
+                    copy_model_instance(
+                        copy, amount=copy.amount - 1, weight=copy.weight - unit_weight,
+                    )
+                    copy.amount = 1
+                    copy.weight = unit_weight
+                copy.book_trade_locked = True
+                copy.save(update_fields=['amount', 'weight', 'book_trade_locked'])
+            messages.success(request, f'Przeczytano „{book.name}”. Umiejętności: {", ".join(learned)}.')
+        except ValueError as error:
+            messages.error(request, str(error))
+        return redirect('items', char_id=char_id)
+
     def get(self, request, *args, **kwargs):
         try:
             item_id = kwargs['id']
             item = get_object_or_404(models.Items, id=item_id)
+            if (item.type or '').strip().casefold() == BOOK_TYPE:
+                return HttpResponseNotAllowed(['POST'])
             action = item.on_use
             actions = [part.strip() for part in action.split(";") if part.strip()]
             cost = 0.0 if actions == ["fillWater"] and item.use_cost in (None, "", "-") else float(item.use_cost)
@@ -4180,7 +4362,7 @@ def set_current_chapter(request):
         if chapter in CHAPTER_CHOICES:
             settings = get_game_settings()
             settings.current_chapter = chapter
-            settings.save()
+            settings.save(update_fields=['current_chapter'])
             messages.success(request, f"Current chapter changed to {chapter}.")
         else:
             messages.error(request, "Invalid chapter.")
@@ -4204,13 +4386,14 @@ class GMPanel(FormView):
 
         return context
     
+    @transaction.atomic
     def form_valid(self, form):
         override = form.cleaned_data.get('override')
         equip_item = form.cleaned_data.get('equip_item')
         ignore_limits = form.cleaned_data.get('ignore_limits')
         form_data = form.save(commit=False)
         
-        character = models.Character.objects.get(pk=form_data.character)
+        character = models.Character.objects.select_for_update().get(pk=form_data.character)
         form_data.owner = character.owner
         form_data.character = character.name
         
@@ -4285,6 +4468,7 @@ class GMPanel(FormView):
                 durability=form_data.durability,
                 additional_description=form_data.additional_description,
                 use_amount=item.use_amount,
+                book_trade_locked=False,
             )
             existing_item.amount += form_data.amount
             existing_item.weight += item_weight
@@ -4427,6 +4611,8 @@ def get_city_price_multiplier(available_amount, durability_percent):
 def get_city_item_shop(item):
     category = (item.category or "").strip().lower()
     item_type = (item.type or "").strip().lower()
+    if item_type == BOOK_TYPE:
+        return "Biblioteka"
     if category in {"trash", "lek"}:
         return "Kupiec"
     if category == "eliksir":
@@ -4705,6 +4891,7 @@ class CityView(ListView):
             gunpowder_weaponry = []
             musical_weaponry = []
             potions = []
+            books = []
             trophies = []
             other = []
             medicines = []
@@ -4752,7 +4939,11 @@ class CityView(ListView):
                     city_armors[shop_item] = math.ceil(item.armor * durability_percent) if item.armor else item.armor
                     armor_weight_orders[shop_item] = get_city_armor_weight_order(item)
                     city_categories[shop_item] = item_category
-                    if item_category == "trash":
+                    if (item.type or '').strip().casefold() == BOOK_TYPE:
+                        shop_item.book_category = item.category
+                        shop_item.book_skills = parse_item_granted_skills(item.grantedSkills)
+                        books.append(shop_item)
+                    elif item_category == "trash":
                         other.append(shop_item)
                     elif item_category == "lek":
                         medicines.append(shop_item)
@@ -4841,6 +5032,7 @@ class CityView(ListView):
             context['armor_elegant'] = armor_elegant
             context['amulets'] = amulets
             context['potions'] = potions
+            context['books'] = books
             context['trophies'] = trophies
             context['animals'] = animals
             context['animal_groups'] = get_city_animal_groups(animals, city_categories)
@@ -5074,7 +5266,10 @@ class BuyItem(APIView):
                 #    item_amount = item_amount*10
                 try:
                     item_durability = clamp_item_durability(item, item_durability)
-                    existing_item = get_object_or_404(models.Eq, name=item.name, character=character.name, durability=item_durability, use_amount=item.use_amount)
+                    existing_item = get_object_or_404(
+                        models.Eq, name=item.name, character=character.name, durability=item_durability,
+                        use_amount=item.use_amount, book_trade_locked=False,
+                    )
                     existing_item.amount += item_amount
                     existing_item.weight += item.weight*item_amount
                     existing_item.save()                    

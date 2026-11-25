@@ -1,5 +1,5 @@
-from django.db import models
-from .city_discounts import CITY_SHOPS, validate_city_discounts
+from django.db import models, router, transaction
+from .city_discounts import validate_city_discounts
 from pygments.lexers import get_lexer_by_name
 from pygments.formatters.html import HtmlFormatter
 from pygments import highlight
@@ -123,6 +123,19 @@ class Images(models.Model):
 class GameSettings(models.Model):
     current_chapter = models.CharField(max_length=255, default="Tzeentch")
 
+    def save(self, *args, **kwargs):
+        if self.pk != 1 or (
+            kwargs.get('update_fields') is not None and 'current_chapter' not in kwargs['update_fields']
+        ):
+            return super().save(*args, **kwargs)
+
+        db = kwargs.get('using') or router.db_for_write(type(self), instance=self)
+        with transaction.atomic(using=db):
+            previous = type(self).objects.using(db).select_for_update().filter(pk=self.pk).first()
+            super().save(*args, **kwargs)
+            if previous and previous.current_chapter != self.current_chapter:
+                Eq.objects.using(db).filter(book_trade_locked=True).update(book_trade_locked=False)
+
     def __str__(self):
         return f"Current chapter: {self.current_chapter}"
 
@@ -174,6 +187,7 @@ class Eq(models.Model):
     use_amount = models.IntegerField(null=True, blank=True)
     reloaded = models.BooleanField(default=True)
     additional_description = models.TextField(blank=True)
+    book_trade_locked = models.BooleanField(default=False, editable=False)
 
     def save(self, *args, **kwargs):
         if self._state.adding and self.use_amount is None:
@@ -189,7 +203,12 @@ class Skills(models.Model):
     desc = models.TextField(blank=True)
     uses_left = models.IntegerField(default=1)
     added_lvl_info = models.CharField(max_length=255, blank=True) #info how much lvls are added via item skill
-    source = models.CharField(max_length=255, default="natural") #natural or item or class
+    source = models.CharField(max_length=255, default="natural") # natural, natural_free, item:<name>, or book:<level>
+
+    @property
+    def book_level(self):
+        prefix, _, level = self.source.partition(':')
+        return int(level) if prefix == 'book' and level.isdecimal() else None
 
     def __str__(self):
         return f"{self.character}: {self.skill} lvl.{self.level}"
@@ -344,7 +363,8 @@ class Cities(models.Model):
         help_text="Np. Kowal-10;Kupiec-15;Stoisko z eliksirami-20. "
         "Pominięte sklepy nie mają zniżki. Zniżki są naliczane przed premią za charyzmę. "
         "all-20 daje 20% rabatu wszędzie; wpis dla sklepu zastępuje rabat all. "
-        "Sklepy: " + ", ".join(CITY_SHOPS) + ".",
+        "Sklepy: Kowal, Łuczarz, Rusznikarz, Kramarz muzyczny, Płatnerz, Krawiec, Jubiler, "
+        "Karczma, Stoisko z eliksirami, Myśliwy, Kupiec, Handlarz zwierząt.",
         validators=[validate_city_discounts],
     )
     healer = models.BooleanField(default=True, verbose_name="Uzdrowiciel")

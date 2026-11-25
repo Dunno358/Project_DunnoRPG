@@ -27,7 +27,7 @@
                 {% endif %}
                 </span>
             </a>
-            {% if view.kwargs.char_id != 0 and item.sell_id %}
+            {% if view.kwargs.char_id != 0 and item.sell_id and not item.book_trade_locked %}
                 <button class='col-2 text-center text-white bg-success p-2 m-1 rounded'
                 onclick="sellConfirmation('{{ view.kwargs.char_id|unlocalize }}','{{ item.sell_id|unlocalize }}','{{ item.price|unlocalize }}','{{ item.dur|unlocalize }}','{{ item.max_dur|unlocalize }}','{{ item.name|escapejs }}', '{{ item.amount|unlocalize }}', '{{ charisma|unlocalize }}')"
                 title="Sprzedaj"
@@ -36,7 +36,9 @@
                 </button>
             {% endif %}
                 <div class="row m-0 mt-1 p-0">
-                    {% if view.kwargs.char_id != 0 and not item.equipped and item.on_use and item.on_use != '-' %}
+                    {% if item.is_book and item.eq_id %}
+                        {% include 'dunnorpg/read_book_form.html' %}
+                    {% elif view.kwargs.char_id != 0 and not item.equipped and item.on_use and item.on_use != '-' %}
                         <div class="col m-0 p-0">
                             <a class='btn btn-success w-100' href='useItem-{{ item.id }}-{{ view.kwargs.char_id }}?eq_id={{ item.eq_id }}'>
                                 {% if item.on_use == "fillWater" %}Napełnij wodą{% else %}Użyj {% if item.use_info %}[{{ item.use_info }}]{% endif %}{% if item.use_amount > 1 %} | Pozostało: {{ item.use_amount }}{% endif %}{% endif %}

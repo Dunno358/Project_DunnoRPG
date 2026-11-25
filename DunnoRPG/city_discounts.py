@@ -4,7 +4,7 @@ from django.core.exceptions import ValidationError
 CITY_SHOPS = (
     "Kowal", "Łuczarz", "Rusznikarz", "Kramarz muzyczny", "Płatnerz",
     "Krawiec", "Jubiler", "Karczma", "Stoisko z eliksirami", "Myśliwy",
-    "Kupiec", "Handlarz zwierząt",
+    "Kupiec", "Handlarz zwierząt", "Biblioteka",
 )
 
 

@@ -1,5 +1,6 @@
 from django.contrib import admin
 from . import models
+from .services.character_effects import READ_BOOKS_EFFECT
 
 admin.site.register(models.Users)
 
@@ -70,9 +71,23 @@ admin.site.register(models.GameSettings)
 
 class EffectsAdmin(admin.ModelAdmin):
     list_display = ("character", "name", 'time')
+
     def get_queryset(self, request):
         qs = super().get_queryset(request)
         return qs.order_by('character','name')
+
+    def has_change_permission(self, request, obj=None):
+        return (obj is None or obj.name != READ_BOOKS_EFFECT) and super().has_change_permission(request, obj)
+
+    def has_delete_permission(self, request, obj=None):
+        return (obj is None or obj.name != READ_BOOKS_EFFECT) and super().has_delete_permission(request, obj)
+
+    def get_deleted_objects(self, objs, request):
+        return super().get_deleted_objects([obj for obj in objs if obj.name != READ_BOOKS_EFFECT], request)
+
+    def delete_queryset(self, request, queryset):
+        super().delete_queryset(request, queryset.exclude(name=READ_BOOKS_EFFECT))
+
 admin.site.register(models.Effects, EffectsAdmin)
 
 admin.site.register(models.Effects_Decs)

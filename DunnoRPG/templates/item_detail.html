@@ -151,14 +151,16 @@
     <div class='row mt-2 text-border-black'>
         <div class='col text-center c-gold fst-italic m-0 p-0'>
             <h2>
-                Typ: {{ item.type|itemTypePl }}{% if item.armor_weight %} ({{ item.armor_weight|armorWeightPlPlural }}){% endif %} {% if item.dualHanded %}(Dwuręczne){% endif %}
+                Typ: {{ item.type|itemTypePl }}{% if item.type != 'Książka' %}{% if item.armor_weight %} ({{ item.armor_weight|armorWeightPlPlural }}){% endif %}{% if item.dualHanded %} (Dwuręczne){% endif %}{% endif %}
             </h2>
         </div>
     </div>
 
     <div class='row mt-4'>
         <div class='col bg-opacity-75 text-center c-gold bg-dark border border-warning rounded ms-1 me-1 p-1 pt-2'>
-            {% if item.name|isShield %}
+            {% if item.type == 'Książka' %}
+                <h2>{{ item.category|default:"-" }}</h2>
+            {% elif item.name|isShield %}
                 <h2>Blok: {{ item.block }}</h2>
             {% elif item.name|isArmor %}
                 <h2>Pancerz: {{ item.armor }}</h2>

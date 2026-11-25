@@ -1,0 +1,8 @@
+<form method="post" action="{% url 'use_item' item.id view.kwargs.char_id %}" class="col-12 mt-1 p-0">
+    {% csrf_token %}
+    <input type="hidden" name="eq_id" value="{{ item.eq_id|stringformat:'d' }}">
+    <button class="btn btn-success w-100" type="submit">Przeczytaj</button>
+    {% if item.book_trade_locked %}
+        <p class="mb-0 mt-1 text-center text-warning">Sprzedaż i transfer zablokowane do zmiany rozdziału [Czytanie].</p>
+    {% endif %}
+</form>

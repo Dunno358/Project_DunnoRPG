@@ -332,8 +332,10 @@
         <div class='col rounded fs-5 p-1 c-gold bg-gray text-center border border-warning'>
                 {% for skill in current_skills %}
                 <div style='margin-left: 2%; width: 96%;' class='p-1 bg-dark border border-warning rounded'>
-                    <a href="{% url 'skill_downgrade' character.id skill.id %}" data-skill-id="{{ skill.id }}" onclick="changeSkillLevel(event)" aria-label="Obniż poziom umiejętności {{ skill.skill }}" class='mt-1 btn btn-sm btn-outline-warning w-25 me-2'>-</a>
+                    <a href="{% url 'skill_downgrade' character.id skill.id %}" data-skill-id="{{ skill.id }}"{% if skill.book_level is not None %} data-book-level="{{ skill.book_level }}"{% endif %} onclick="changeSkillLevel(event)" aria-label="Obniż poziom umiejętności {{ skill.skill }}" class="mt-1 btn btn-sm btn-outline-warning w-25 me-2{% if skill.book_level is not None and skill.level <= skill.book_level %} d-none{% endif %}">-</a>
+                    {% if not skill.book_upgrade_locked %}
                     <a href="{% url 'skill_upgrade' character.id skill.id %}" data-skill-id="{{ skill.id }}" onclick="changeSkillLevel(event)" aria-label="Podnieś poziom umiejętności {{ skill.skill }}" class='mt-1 btn btn-sm btn-outline-warning w-25 ms-2'>+</a>
+                    {% endif %}
                     <p class='m-1 mt-2'>
                     {% if skill.original_id %}
                     <span class="c-gold" style="cursor:pointer;" onclick="showSkillIframe('{{ skill.original_id }}')">{{ skill.skill }}</span>
@@ -342,7 +344,11 @@
                     {% endif %}
                     | lvl. <span id="skill-level-{{ skill.id }}">{{ skill.level }}</span>
 
-                    {% if skill.source != 'natural_free' %}
+                    {% if skill.book_upgrade_locked %}
+                    <span class="ms-2 text-white-50">Ulepszanie za punkty zablokowane</span>
+                    {% elif skill.book_level is not None %}
+                    <span class="ms-2 text-white-50">Z książki do poz. {{ skill.book_level }}</span>
+                    {% elif skill.source != 'natural_free' %}
                     <a href='delete/{{ skill.id }}' class='ms-2 btn btn-dark btn-outline-danger'>Usuń</a>               
                     {% endif %}
                     </p>
@@ -423,6 +429,12 @@
             }
 
             document.getElementById(valueId).textContent = data[valueField]
+            if(valueField === 'level'){
+                const downgrade = document.querySelector(`a[data-skill-id="${button.dataset.skillId}"][data-book-level]`)
+                if(downgrade){
+                    downgrade.classList.toggle('d-none', data.level <= Number(downgrade.dataset.bookLevel))
+                }
+            }
             document.getElementById('available-points').textContent = data.points_left
             document.getElementById('adv-points').value = data.points_left
         }

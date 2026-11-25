@@ -4,6 +4,14 @@
 {% include 'top_bar.html' %}
 
 <style>
+    #read-books-history .read-books-toggle::before {
+        content: "+";
+    }
+
+    #read-books-history[open] .read-books-toggle::before {
+        content: "-";
+    }
+
     .character-item-skill {
         cursor: pointer;
     }
@@ -755,6 +763,14 @@ function toggleSkillDetails(button){
     button.setAttribute('aria-label', collapsed ? 'Rozwiń umiejętność' : 'Zwiń umiejętność')
 }
 
+function preserveReadBooksVisibility(previous, next){
+    const previousHistory = previous.querySelector('#read-books-history')
+    const nextHistory = next.querySelector('#read-books-history')
+    if(previousHistory && nextHistory){
+        nextHistory.open = previousHistory.open
+    }
+}
+
 function showSkill(instance){
     if(instance.innerHTML == "Check skill"){
         instance.innerHTML = instance.title
@@ -1047,6 +1063,7 @@ function refreshEffectsBlock(effectsHtml){
     if(wasOpen){
         updatedEffectsBlock.classList.remove('d-none')
     }
+    preserveReadBooksVisibility(effectsBlock, updatedEffectsBlock)
     effectsBlock.replaceWith(updatedEffectsBlock)
 }
 
@@ -2327,6 +2344,7 @@ async function refreshCharacterDetailsData(requestUrl = characterDetailsUrl.href
             throw new Error('Nie znaleziono bloku danych do odświeżenia.')
         }
 
+        preserveReadBooksVisibility(refreshRoot, nextRefreshRoot)
         refreshRoot.replaceWith(nextRefreshRoot)
         initCharacterDetailDynamicContent()
         panelVisibility.forEach(state => {

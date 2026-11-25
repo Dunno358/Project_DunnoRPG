@@ -4,7 +4,8 @@ from django.utils.text import Truncator
 from DunnoRPG import models
 from DunnoRPG.services.armor import armor_by_durability
 from DunnoRPG.services.character_effects import (
-    active_effects, disadvantage_count, effect_stat_modifier, mobility_cap, mobility_penalty, mobility_percent_modifier,
+    READ_BOOKS_EFFECT, active_effects, disadvantage_count, effect_stat_modifier, mobility_cap, mobility_penalty,
+    mobility_percent_modifier,
 )
 from django.apps import apps
 from django.shortcuts import get_object_or_404
@@ -809,8 +810,13 @@ def getMobilityMod(character):
     return value
 
 @register.filter
+def is_read_books_effect(name):
+    return name == READ_BOOKS_EFFECT
+
+
+@register.filter
 def getCharacterEffects(character):
-    return active_effects(character)
+    return sorted(active_effects(character), key=lambda effect: is_read_books_effect(effect.name))
 
 
 register.filter('effectDisadvantageCount', disadvantage_count)

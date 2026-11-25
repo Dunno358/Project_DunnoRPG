@@ -6,6 +6,9 @@ from django.db.models import OuterRef, Subquery
 from .. import models
 
 
+READ_BOOKS_EFFECT = 'Przeczytano książki'
+
+
 def parse_amount(value):
     value = value.strip()
     if value.endswith("M"):
