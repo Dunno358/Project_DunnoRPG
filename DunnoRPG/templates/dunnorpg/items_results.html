@@ -3,7 +3,7 @@
     <div class='search-list-entry' data-rarity='{{ item.rarity }}' data-search-text="{{ item.name }} {{ item.desc|default_if_none:'' }}">
         <div class='row bg-dark bg-opacity-75 rounded m-2 p-2'>
 
-            {% if view.kwargs.char_id != 0 %}
+            {% if view.kwargs.char_id != 0 and not item.book_trade_locked %}
                 <button class='col-2 text-center text-white bg-danger p-2 m-1 rounded' onclick="deleteConfirmation('{{ item.name }}', {{ view.kwargs.char_id }}, '{{ item.delete_id }}')">X</button>
             {% endif %}
             

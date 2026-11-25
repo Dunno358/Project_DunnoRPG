@@ -974,7 +974,7 @@
                             <b class="city-book-title {{ item.rarity }}"{% if item.blocked_character_ids %} data-book-blocked-characters="{{ item.blocked_character_ids|join:' ' }}"{% endif %}>
                                 {{ item }}
                                 {% if item.blocked_character_ids %}
-                                    <span class="city-hazard-icon" role="img" aria-label="Klasa postaci nie może przeczytać tej książki" title="Klasa postaci nie może przeczytać tej książki" hidden></span>
+                                    <span class="city-hazard-icon" role="img" aria-label="{{ item.reading_warning }}" title="{{ item.reading_warning }}" hidden></span>
                                 {% endif %}
                             </b>
                         </a>

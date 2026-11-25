@@ -51,9 +51,14 @@ from .services.character_effects import (
 )
 
 BOOK_TYPE = 'książka'
-CLASS_RESTRICTED_BOOK_CATEGORIES = {'zaawansowana księga', 'grymuar'}
+ADVANCED_BOOK_CATEGORY = 'zaawansowana księga'
+GRIMOIRE_CATEGORY = 'grymuar'
 BOOK_TRADE_LOCKED = 'Sprzedaż i transfer tej książki są zablokowane do zmiany rozdziału [Czytanie].'
 SKILL_REQUIREMENT = re.compile(r'(SIŁ|ZRE|INT|CHAR|CEL|SPO)\s*:?\s*(-?\d+)', re.IGNORECASE)
+
+
+def current_reading_book(inventory):
+    return inventory.filter(book_trade_locked=True, amount__gt=0).order_by('pk').values_list('name', flat=True).first()
 
 
 def skills_available_in_editor(class_name):
@@ -61,6 +66,10 @@ def skills_available_in_editor(class_name):
     if class_name:
         restrictions |= Q(restrictions__icontains=class_name)
     return models.Skills_Decs.objects.filter(restrictions)
+
+
+def magical_classes(class_names):
+    return models.Classes.objects.filter(name__in=class_names, category__iexact='Magiczne')
 
 
 def skill_requirement_error(character, details, level):
@@ -2150,6 +2159,7 @@ def log_as_guest(request):
         return redirect('home')
     else:
         return HttpResponse('Invalid login')
+@transaction.atomic
 def del_eq_item(request, **kwargs):
     char = get_object_or_404(models.Character, id=kwargs['char_id'])
     obj_id = str(kwargs['obj_id'])
@@ -2163,31 +2173,33 @@ def del_eq_item(request, **kwargs):
         delete_char_item(char_item)
         return redirect(f"/dunnorpg/items/ch{kwargs['char_id']}")
 
+    inventory = models.Eq.objects.select_for_update().filter(character=char.name)
     if obj_id.startswith("eq-"):
         eq_item_id = obj_id.split("-", 1)[1]
         if not eq_item_id.isdigit():
             messages.error(request, "Nieprawidlowy przedmiot do usuniecia.")
             return redirect(f"/dunnorpg/items/ch{kwargs['char_id']}")
 
-        item = get_object_or_404(models.Eq, id=int(eq_item_id), character=char.name)
-        itemDesc = get_object_or_404(models.Items, name=item.name)
-        if item.amount <= int(kwargs['amount']):
-            item.delete()
-        else:
-            item.amount -= int(kwargs['amount'])
-            item.weight -= itemDesc.weight*int(kwargs['amount'])
-            item.save()
-        return redirect(f"/dunnorpg/items/ch{kwargs['char_id']}")
+        item = get_object_or_404(inventory, id=int(eq_item_id))
+        item_desc = get_object_or_404(models.Items, name=item.name)
+    else:
+        item_desc = get_object_or_404(models.Items, id=obj_id)
+        item = inventory.filter(name=item_desc.name).first()
+        if item is None:
+            raise Http404
 
-    itemDesc = get_object_or_404(models.Items, id=obj_id)
-    item = models.Eq.objects.filter(name=itemDesc.name, character=char.name).first()
-    if item.amount <= int(kwargs['amount']):
+    if item.book_trade_locked:
+        messages.error(request, 'Czytanej książki nie można usunąć przed zmianą rozdziału.')
+        return redirect('items', char_id=char.id)
+
+    amount = kwargs['amount']
+    if item.amount <= amount:
         item.delete()
     else:
-        item.amount -= int(kwargs['amount'])
-        item.weight -= itemDesc.weight*int(kwargs['amount'])
-        item.save()
-    return redirect(f"/dunnorpg/items/ch{kwargs['char_id']}")
+        item.amount -= amount
+        item.weight -= item_desc.weight * amount
+        item.save(update_fields=['amount', 'weight'])
+    return redirect('items', char_id=char.id)
 @transaction.atomic
 def sell_item(request, **kwargs):
     try:
@@ -3697,6 +3709,7 @@ class ItemsView(ListView):
             context['items_other'] = self.sort_items_by_name(self.armor_dict['other'])
             context['all_items'] = models.Items.objects.order_by('name')
             player_items = models.Eq.objects.filter(character=self.character.name)
+            context['reading_book'] = current_reading_book(player_items.filter(owner=self.character.owner))
             equipped_items = models.CharItems.objects.filter(character=self.character.name).exclude(name__isnull=True).exclude(name='')
             unobtainable_item_names = models.Items.objects.filter(unobtainable=True).values_list('name', flat=True)
             player_items = list(player_items.filter(book_trade_locked=False).exclude(name__in=unobtainable_item_names))
@@ -3801,14 +3814,18 @@ def learn_book_skills(character, book):
         raise ValueError('Ta książka nie ma przypisanej umiejętności.')
 
     category = (book.category or '').strip().casefold()
-    if category != 'podręcznik' and category not in CLASS_RESTRICTED_BOOK_CATEGORIES:
+    if category not in {'podręcznik', ADVANCED_BOOK_CATEGORY, GRIMOIRE_CATEGORY}:
         raise ValueError('Ta książka nie ma poprawnej kategorii.')
+    if category == GRIMOIRE_CATEGORY and not magical_classes([character.chosen_class]).exists():
+        raise ValueError('Grymuar może przeczytać tylko postać z klasy z kategorii Magiczne.')
 
     definitions = {}
     for details in models.Skills_Decs.objects.order_by('pk'):
         if details.name.casefold() in targets:
             definitions.setdefault(details.name.casefold(), details)
-    allowed_ids = set(skills_available_in_editor(character.chosen_class).values_list('id', flat=True))
+    allowed_ids = set()
+    if category == ADVANCED_BOOK_CATEGORY:
+        allowed_ids = set(skills_available_in_editor(character.chosen_class).values_list('id', flat=True))
     skills = {}
     for skill in models.Skills.objects.filter(owner=character.owner, character=character.name).order_by('pk'):
         if skill.source != 'item' and not skill.source.startswith('item:'):
@@ -3820,7 +3837,7 @@ def learn_book_skills(character, book):
         description = getattr(details, f'level{level}', None)
         if not description:
             raise ValueError(f'Książka zawiera nieprawidłową umiejętność lub poziom: {key}, poz. {level}.')
-        if category != 'podręcznik' and details.pk not in allowed_ids:
+        if category == ADVANCED_BOOK_CATEGORY and details.pk not in allowed_ids:
             raise ValueError(f'{details.name} nie jest dostępna w edycji tej postaci.')
 
         skill = skills.get(key)
@@ -3870,11 +3887,15 @@ class useItem(APIView):
                     return JsonResponse({'error': 'Brak dostępu do postaci.'}, status=403)
                 # A chapter change and a reading must take effect in a definite order.
                 models.GameSettings.objects.select_for_update().get(pk=get_game_settings().pk)
-                inventory = models.Eq.objects.select_for_update().filter(
-                    owner=character.owner, character=character.name, name=book.name, amount__gt=0,
+                inventory = models.Eq.objects.filter(owner=character.owner, character=character.name)
+                reading_book = current_reading_book(inventory)
+                if reading_book:
+                    raise ValueError(f'Postać czyta już „{reading_book}”. Kolejną książkę można zacząć po zmianie rozdziału.')
+                copies = inventory.select_for_update().filter(
+                    name=book.name, amount__gt=0,
                 )
                 eq_id = request.POST.get('eq_id')
-                copy = get_object_or_404(inventory, pk=eq_id) if eq_id else inventory.order_by('pk').first()
+                copy = get_object_or_404(copies, pk=eq_id) if eq_id else copies.order_by('pk').first()
                 if copy is None:
                     raise Http404
 
@@ -4859,14 +4880,32 @@ class CityShopItem(str):
         return str.__eq__(self, other)
 
 def set_city_book_reading_warnings(books, characters):
-    restricted_books = [
-        book for book in books
-        if (book.book_category or '').strip().casefold() in CLASS_RESTRICTED_BOOK_CATEGORIES and book.book_skills
-    ]
-    if not restricted_books or not characters:
+    if not books or not characters:
         return
 
-    skill_names = {name.casefold() for book in restricted_books for name, _ in book.book_skills}
+    class_names = {character.chosen_class for character in characters}
+    advanced_books = []
+    grimoires = []
+    for book in books:
+        category = (book.book_category or '').strip().casefold()
+        if category == ADVANCED_BOOK_CATEGORY and book.book_skills:
+            advanced_books.append(book)
+        elif category == GRIMOIRE_CATEGORY:
+            grimoires.append(book)
+
+    if grimoires:
+        magical_class_names = set(magical_classes(class_names).values_list('name', flat=True))
+        blocked_character_ids = [
+            character.pk for character in characters if character.chosen_class not in magical_class_names
+        ]
+        for book in grimoires:
+            book.blocked_character_ids = blocked_character_ids
+            book.reading_warning = 'Grymuar wymaga klasy z kategorii Magiczne'
+
+    if not advanced_books:
+        return
+
+    skill_names = {name.casefold() for book in advanced_books for name, _ in book.book_skills}
     skill_ids = {}
     for skill_id, name in models.Skills_Decs.objects.order_by('pk').values_list('pk', 'name'):
         if name.casefold() in skill_names:
@@ -4875,15 +4914,16 @@ def set_city_book_reading_warnings(books, characters):
         class_name: set(skills_available_in_editor(class_name).filter(
             pk__in=skill_ids.values(),
         ).values_list('pk', flat=True))
-        for class_name in {character.chosen_class for character in characters}
+        for class_name in class_names
     }
 
-    for book in restricted_books:
+    for book in advanced_books:
         required_ids = {skill_ids[name.casefold()] for name, _ in book.book_skills if name.casefold() in skill_ids}
         book.blocked_character_ids = [
             character.pk for character in characters
             if not required_ids.issubset(available_by_class[character.chosen_class])
         ]
+        book.reading_warning = 'Klasa postaci nie ma dostępu do umiejętności z tej książki'
 
 
 class CityView(ListView):
