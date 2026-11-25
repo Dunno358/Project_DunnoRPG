@@ -972,10 +972,10 @@
                 <div data-city-item-name="{{ item }}" class="mt-2 row bg-gray rounded m-1 border border-primary">
                     <div class="col-9 border-end p-2">
                         <a href="{% url 'item_detail' item.item_id %}">
-                            <b class="city-book-title {{ item.rarity }}"{% if item.blocked_character_ids %} data-book-blocked-characters="{{ item.blocked_character_ids|join:' ' }}"{% endif %}>
+                            <b class="city-book-title {{ item.rarity }}"{% if item.reading_warnings %} data-book-reading-warnings="{{ item.reading_warnings }}"{% endif %}>
                                 {{ item }}
-                                {% if item.blocked_character_ids %}
-                                    <span class="city-hazard-icon" role="img" aria-label="{{ item.reading_warning }}" title="{{ item.reading_warning }}" hidden></span>
+                                {% if item.reading_warnings %}
+                                    <span class="city-hazard-icon" role="img" hidden></span>
                                 {% endif %}
                             </b>
                         </a>
@@ -1473,10 +1473,13 @@
 
     function updateBookReadingWarnings(){
         const characterId = document.getElementById('choosing_char_select')?.value
-        document.querySelectorAll('[data-book-blocked-characters]').forEach(title => {
-            const unreadable = title.dataset.bookBlockedCharacters.split(' ').includes(characterId)
-            title.classList.toggle('city-book-unreadable', unreadable)
-            title.querySelector('.city-hazard-icon').hidden = !unreadable
+        document.querySelectorAll('[data-book-reading-warnings]').forEach(title => {
+            const warning = JSON.parse(title.dataset.bookReadingWarnings)[characterId] || ''
+            const icon = title.querySelector('.city-hazard-icon')
+            title.classList.toggle('city-book-unreadable', Boolean(warning))
+            icon.hidden = !warning
+            icon.title = warning
+            icon.setAttribute('aria-label', warning)
         })
     }
 

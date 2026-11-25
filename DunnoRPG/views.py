@@ -277,6 +277,27 @@ def parse_item_granted_skills(granted_skills):
     return parsed_skills
 
 
+def book_skill_targets(granted_skills):
+    targets = {}
+    for name, level in granted_skills:
+        key = name.casefold()
+        if key not in targets or level > targets[key][1]:
+            targets[key] = (name, level)
+    return targets
+
+
+def permanent_skills():
+    return models.Skills.objects.exclude(Q(source='item') | Q(source__startswith='item:'))
+
+
+def book_previous_level_error(name, level, current_level):
+    if level <= 1 or current_level == level - 1:
+        return None
+    if current_level >= level:
+        return f'Postać zna już umiejętność „{name}” na tym samym lub wyższym poziomie.'
+    return f'Wymagany poprzedni poziom umiejętności „{name}” to {level - 1}.'
+
+
 def sync_item_granted_skills(character):
     character_skills = models.Skills.objects.filter(owner=character.owner, character=character.name)
     item_skills = character_skills.filter(Q(source="item") | Q(source__startswith="item:"))
@@ -3806,10 +3827,7 @@ class ItemDetailView(DetailView):
         return context
 
 def learn_book_skills(character, book):
-    targets = {}
-    for name, level in parse_item_granted_skills(book.grantedSkills):
-        key = name.casefold()
-        targets[key] = max(level, targets.get(key, 0))
+    targets = book_skill_targets(parse_item_granted_skills(book.grantedSkills))
     if not targets:
         raise ValueError('Ta książka nie ma przypisanej umiejętności.')
 
@@ -3827,12 +3845,11 @@ def learn_book_skills(character, book):
     if category == ADVANCED_BOOK_CATEGORY:
         allowed_ids = set(skills_available_in_editor(character.chosen_class).values_list('id', flat=True))
     skills = {}
-    for skill in models.Skills.objects.filter(owner=character.owner, character=character.name).order_by('pk'):
-        if skill.source != 'item' and not skill.source.startswith('item:'):
-            skills.setdefault(skill.skill.casefold(), skill)
+    for skill in permanent_skills().filter(owner=character.owner, character=character.name).order_by('pk'):
+        skills.setdefault(skill.skill.casefold(), skill)
 
     learned = []
-    for key, level in targets.items():
+    for key, (_, level) in targets.items():
         details = definitions.get(key)
         description = getattr(details, f'level{level}', None)
         if not description:
@@ -3841,7 +3858,11 @@ def learn_book_skills(character, book):
             raise ValueError(f'{details.name} nie jest dostępna w edycji tej postaci.')
 
         skill = skills.get(key)
-        if skill and (skill.level or 0) >= level:
+        current_level = (skill.level or 0) if skill else 0
+        error = book_previous_level_error(details.name, level, current_level)
+        if error:
+            raise ValueError(error)
+        if current_level >= level:
             continue
         error = skill_requirement_error(character, details, level)
         if error:
@@ -4883,33 +4904,23 @@ def set_city_book_reading_warnings(books, characters):
     if not books or not characters:
         return
 
+    book_targets = [
+        (book, (book.book_category or '').strip().casefold(), book_skill_targets(book.book_skills))
+        for book in books
+    ]
     class_names = {character.chosen_class for character in characters}
-    advanced_books = []
-    grimoires = []
-    for book in books:
-        category = (book.book_category or '').strip().casefold()
-        if category == ADVANCED_BOOK_CATEGORY and book.book_skills:
-            advanced_books.append(book)
-        elif category == GRIMOIRE_CATEGORY:
-            grimoires.append(book)
-
-    if grimoires:
+    magical_class_names = set()
+    if any(category == GRIMOIRE_CATEGORY for _, category, _ in book_targets):
         magical_class_names = set(magical_classes(class_names).values_list('name', flat=True))
-        blocked_character_ids = [
-            character.pk for character in characters if character.chosen_class not in magical_class_names
-        ]
-        for book in grimoires:
-            book.blocked_character_ids = blocked_character_ids
-            book.reading_warning = 'Grymuar wymaga klasy z kategorii Magiczne'
 
-    if not advanced_books:
-        return
-
-    skill_names = {name.casefold() for book in advanced_books for name, _ in book.book_skills}
+    advanced_skill_names = {
+        key for _, category, targets in book_targets if category == ADVANCED_BOOK_CATEGORY for key in targets
+    }
     skill_ids = {}
-    for skill_id, name in models.Skills_Decs.objects.order_by('pk').values_list('pk', 'name'):
-        if name.casefold() in skill_names:
-            skill_ids.setdefault(name.casefold(), skill_id)
+    if advanced_skill_names:
+        for skill_id, name in models.Skills_Decs.objects.order_by('pk').values_list('pk', 'name'):
+            if name.casefold() in advanced_skill_names:
+                skill_ids.setdefault(name.casefold(), skill_id)
     available_by_class = {
         class_name: set(skills_available_in_editor(class_name).filter(
             pk__in=skill_ids.values(),
@@ -4917,13 +4928,36 @@ def set_city_book_reading_warnings(books, characters):
         for class_name in class_names
     }
 
-    for book in advanced_books:
-        required_ids = {skill_ids[name.casefold()] for name, _ in book.book_skills if name.casefold() in skill_ids}
-        book.blocked_character_ids = [
-            character.pk for character in characters
-            if not required_ids.issubset(available_by_class[character.chosen_class])
-        ]
-        book.reading_warning = 'Klasa postaci nie ma dostępu do umiejętności z tej książki'
+    higher_skill_names = {key for _, _, targets in book_targets for key, (_, level) in targets.items() if level > 1}
+    levels_by_character = {(character.owner, character.name): {} for character in characters}
+    if higher_skill_names:
+        skills = permanent_skills().filter(
+            owner__in={character.owner for character in characters},
+            character__in={character.name for character in characters},
+        ).order_by('pk').values_list('owner', 'character', 'skill', 'level')
+        for owner, character_name, skill_name, level in skills:
+            levels = levels_by_character.get((owner, character_name))
+            if levels is not None and skill_name.casefold() in higher_skill_names:
+                levels.setdefault(skill_name.casefold(), level or 0)
+
+    for book, category, targets in book_targets:
+        required_ids = {skill_ids[key] for key in targets if key in skill_ids}
+        warnings = {}
+        for character in characters:
+            class_name = character.chosen_class
+            if category == GRIMOIRE_CATEGORY and class_name not in magical_class_names:
+                warnings[character.pk] = 'Grymuar wymaga klasy z kategorii Magiczne'
+                continue
+            if category == ADVANCED_BOOK_CATEGORY and not required_ids.issubset(available_by_class[class_name]):
+                warnings[character.pk] = 'Klasa postaci nie ma dostępu do umiejętności z tej książki'
+                continue
+            levels = levels_by_character[(character.owner, character.name)]
+            for key, (name, level) in targets.items():
+                warning = book_previous_level_error(name, level, levels.get(key, 0))
+                if warning:
+                    warnings[character.pk] = warning
+                    break
+        book.reading_warnings = json.dumps(warnings, ensure_ascii=False) if warnings else ''
 
 
 class CityView(ListView):
