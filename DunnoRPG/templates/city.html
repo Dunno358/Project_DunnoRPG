@@ -79,7 +79,8 @@
         mask: url('{% static 'DunnoRPG/img/icons/crosshair.svg' %}') center / contain no-repeat;
     }
 
-    .city-item-category.city-armor-too-heavy {
+    .city-item-category.city-armor-too-heavy,
+    .city-book-title.city-book-unreadable {
         color: #ff4040 !important;
     }
 
@@ -969,7 +970,14 @@
             {% for item in books %}
                 <div data-city-item-name="{{ item }}" class="mt-2 row bg-gray rounded m-1 border border-primary">
                     <div class="col-9 border-end p-2">
-                        <a href="{% url 'item_detail' item.item_id %}"><b class="{{ item.rarity }}">{{ item }}</b></a>
+                        <a href="{% url 'item_detail' item.item_id %}">
+                            <b class="city-book-title {{ item.rarity }}"{% if item.blocked_character_ids %} data-book-blocked-characters="{{ item.blocked_character_ids|join:' ' }}"{% endif %}>
+                                {{ item }}
+                                {% if item.blocked_character_ids %}
+                                    <span class="city-hazard-icon" role="img" aria-label="Klasa postaci nie może przeczytać tej książki" title="Klasa postaci nie może przeczytać tej książki" hidden></span>
+                                {% endif %}
+                            </b>
+                        </a>
                         <div class="neutral-high">{{ item.book_category }}</div>
                         {% for skill_name, level in item.book_skills %}
                             <div class="neutral-high">{{ skill_name }} (poz. {{ level }})</div>
@@ -1234,6 +1242,7 @@
 
     restoreBuyingCharacter()
     updateArmorWeightWarnings()
+    updateBookReadingWarnings()
     updateHealingPrices()
     updateRepairItems()
 
@@ -1462,6 +1471,15 @@
         filterCityItems()
     }
 
+    function updateBookReadingWarnings(){
+        const characterId = document.getElementById('choosing_char_select')?.value
+        document.querySelectorAll('[data-book-blocked-characters]').forEach(title => {
+            const unreadable = title.dataset.bookBlockedCharacters.split(' ').includes(characterId)
+            title.classList.toggle('city-book-unreadable', unreadable)
+            title.querySelector('.city-hazard-icon').hidden = !unreadable
+        })
+    }
+
     function changeBuyingCharacter(){
         const select = document.getElementById('choosing_char_select')
         if(!select){
@@ -1472,6 +1490,7 @@
         } catch(error) {}
         updateBuyPrice()
         updateArmorWeightWarnings()
+        updateBookReadingWarnings()
         updateHealingPrices()
         updateRepairItems()
     }

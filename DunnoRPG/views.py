@@ -51,14 +51,15 @@ from .services.character_effects import (
 )
 
 BOOK_TYPE = 'książka'
+CLASS_RESTRICTED_BOOK_CATEGORIES = {'zaawansowana księga', 'grymuar'}
 BOOK_TRADE_LOCKED = 'Sprzedaż i transfer tej książki są zablokowane do zmiany rozdziału [Czytanie].'
 SKILL_REQUIREMENT = re.compile(r'(SIŁ|ZRE|INT|CHAR|CEL|SPO)\s*:?\s*(-?\d+)', re.IGNORECASE)
 
 
-def skills_available_in_editor(character):
+def skills_available_in_editor(class_name):
     restrictions = Q(restrictions__icontains='all') | Q(restrictions__icontains='Uniwersalne')
-    if character.chosen_class:
-        restrictions |= Q(restrictions__icontains=character.chosen_class)
+    if class_name:
+        restrictions |= Q(restrictions__icontains=class_name)
     return models.Skills_Decs.objects.filter(restrictions)
 
 
@@ -992,7 +993,7 @@ class EditCharacterView(APIView):
         user = self.request.user
         id = kwargs['id']
         chosen_character = get_object_or_404(models.Character, id=id)
-        available_skills = list(skills_available_in_editor(chosen_character).order_by('name').values())
+        available_skills = list(skills_available_in_editor(chosen_character.chosen_class).order_by('name').values())
         available_ids = {skill['id'] for skill in available_skills}
 
         character_skills_queryset = models.Skills.objects.filter(
@@ -1838,7 +1839,7 @@ def skill_add(request,char_id,skill_id,lvl):
     if not request.user.is_authenticated or (character.owner != request.user.username and not request.user.is_superuser):
         return HttpResponse('Brak dostępu do postaci.', status=403)
     skill_details = get_object_or_404(models.Skills_Decs, id=skill_id)
-    if not skills_available_in_editor(character).filter(pk=skill_details.pk).exists():
+    if not skills_available_in_editor(character.chosen_class).filter(pk=skill_details.pk).exists():
         messages.error(request, f'{skill_details.name} nie jest dostępna w edycji tej postaci.')
         return redirect('character_add_skills', character.id)
     lvl = min(int(lvl), 4)
@@ -2017,7 +2018,7 @@ def change_skill_level(request, char_id, skill_id, step):
     error = None
     if step < 0 and skill.book_level is not None and skill.level <= skill.book_level:
         error = f'{skill.skill}: poziom zdobyty z książki to poziom minimalny.'
-    elif step > 0 and skill.book_level is not None and not skills_available_in_editor(character).filter(pk=details.pk).exists():
+    elif step > 0 and skill.book_level is not None and not skills_available_in_editor(character.chosen_class).filter(pk=details.pk).exists():
         error = f'{skill.skill} nie jest dostępna w edycji tej postaci.'
     elif not level_description:
         error = f'{skill.skill}: Osiągnięto już maksymalny poziom!' if step > 0 else f'{skill.skill}: Niżej się nie da!'
@@ -3800,14 +3801,14 @@ def learn_book_skills(character, book):
         raise ValueError('Ta książka nie ma przypisanej umiejętności.')
 
     category = (book.category or '').strip().casefold()
-    if category not in {'podręcznik', 'zaawansowana księga', 'grymuar'}:
+    if category != 'podręcznik' and category not in CLASS_RESTRICTED_BOOK_CATEGORIES:
         raise ValueError('Ta książka nie ma poprawnej kategorii.')
 
     definitions = {}
     for details in models.Skills_Decs.objects.order_by('pk'):
         if details.name.casefold() in targets:
             definitions.setdefault(details.name.casefold(), details)
-    allowed_ids = set(skills_available_in_editor(character).values_list('id', flat=True))
+    allowed_ids = set(skills_available_in_editor(character.chosen_class).values_list('id', flat=True))
     skills = {}
     for skill in models.Skills.objects.filter(owner=character.owner, character=character.name).order_by('pk'):
         if skill.source != 'item' and not skill.source.startswith('item:'):
@@ -4857,6 +4858,34 @@ class CityShopItem(str):
             return self.sale_index == other.sale_index
         return str.__eq__(self, other)
 
+def set_city_book_reading_warnings(books, characters):
+    restricted_books = [
+        book for book in books
+        if (book.book_category or '').strip().casefold() in CLASS_RESTRICTED_BOOK_CATEGORIES and book.book_skills
+    ]
+    if not restricted_books or not characters:
+        return
+
+    skill_names = {name.casefold() for book in restricted_books for name, _ in book.book_skills}
+    skill_ids = {}
+    for skill_id, name in models.Skills_Decs.objects.order_by('pk').values_list('pk', 'name'):
+        if name.casefold() in skill_names:
+            skill_ids.setdefault(name.casefold(), skill_id)
+    available_by_class = {
+        class_name: set(skills_available_in_editor(class_name).filter(
+            pk__in=skill_ids.values(),
+        ).values_list('pk', flat=True))
+        for class_name in {character.chosen_class for character in characters}
+    }
+
+    for book in restricted_books:
+        required_ids = {skill_ids[name.casefold()] for name, _ in book.book_skills if name.casefold() in skill_ids}
+        book.blocked_character_ids = [
+            character.pk for character in characters
+            if not required_ids.issubset(available_by_class[character.chosen_class])
+        ]
+
+
 class CityView(ListView):
     model = models.Cities
     template_name = 'city.html'
@@ -5077,6 +5106,7 @@ class CityView(ListView):
                 characters_query = characters_query.filter(owner=self.request.user)
             characters = list(characters_query)
             context['characters'] = characters
+            set_city_book_reading_warnings(books, characters)
             context['injured_characters'] = []
             for character in characters:
                 if character.fullHP is not None and character.HP < character.fullHP:
