@@ -984,10 +984,10 @@
                             <div class="neutral-high">{{ skill_name }} (poz. {{ level }})</div>
                         {% endfor %}
                     </div>
-                    <div class="col-3 p-0">
+                    <div class="col-3 p-0 d-flex flex-column">
                         <div class="border-bottom pt-1 pb-1 h6 mb-0"><span class="city-unit-price">{{ item.unit_price }}</span>&nbsp;<i class="fa-solid fa-coins" role="img" aria-label="monety"></i></div>
                         <div class="border-bottom pt-1 pb-1 h6 mb-0"><span class="neutral-high">Ilość:</span> <span class="city-stock">{{ item.available_amount }}</span></div>
-                        <button type="button" class="w-100 btn btn-sm btn-success rounded-0"
+                        <button type="button" class="w-100 flex-grow-1 btn btn-sm btn-success rounded-0"
                                 data-shop-item-id="{{ item.item_id }}" data-item-name="{{ item }}"
                                 data-durability="{{ item.durability_percent|unlocalize }}" data-unit-price="{{ item.unit_price|unlocalize }}" data-available-amount="{{ item.available_amount|unlocalize }}"
                                 onclick="buyItem(this.dataset.itemName, this.dataset.shopItemId, this.dataset.durability, this.dataset.unitPrice, this.dataset.availableAmount)">
