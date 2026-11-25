@@ -14,6 +14,9 @@
                 <dt>Zdobyty EXP</dt><dd>{{ character.fight_summary.exp_gained }}</dd>
             </div>
             <div class="d-flex justify-content-between gap-3">
+                <dt>Zadane obrażenia</dt><dd>{{ character.fight_summary.damage_dealt|default:0 }}</dd>
+            </div>
+            <div class="d-flex justify-content-between gap-3">
                 <dt>Przyjęte obrażenia</dt><dd>{{ character.fight_summary.damage_taken }}</dd>
             </div>
             <div class="d-flex justify-content-between gap-3">

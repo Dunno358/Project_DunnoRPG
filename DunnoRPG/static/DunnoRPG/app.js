@@ -276,22 +276,80 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    const storyPage = document.querySelector(".story-page");
+    const storyBook = document.getElementById("story-book");
 
-    if (storyPage) {
+    if (storyBook) {
         let swipeStart = null;
+        let storyRequest = null;
 
-        storyPage.addEventListener("pointerdown", (event) => {
+        async function openStoryPage(url, {fromHistory = false, focusPage = false} = {}) {
+            storyRequest?.abort();
+            const request = new AbortController();
+            storyRequest = request;
+            storyBook.setAttribute("aria-busy", "true");
+            const fragmentUrl = new URL(url);
+            fragmentUrl.searchParams.set("partial", "1");
+
+            try {
+                const response = await fetch(fragmentUrl, {signal: request.signal});
+                if (!response.ok) {
+                    throw new Error("Nie udało się pobrać strony księgi.");
+                }
+                const html = await response.text();
+                if (request.signal.aborted) {
+                    return;
+                }
+                const page = new DOMParser().parseFromString(html, "text/html").querySelector(".story-page");
+                if (!page) {
+                    throw new Error("Brakuje treści strony księgi.");
+                }
+                if (!fromHistory) {
+                    window.history.pushState(null, "", url);
+                }
+                storyBook.replaceChildren(page);
+                if (focusPage) {
+                    storyBook.focus({preventScroll: true});
+                }
+            } catch (error) {
+                if (!request.signal.aborted) {
+                    if (fromHistory) {
+                        window.location.reload();
+                    } else {
+                        window.location.assign(url);
+                    }
+                }
+            } finally {
+                if (storyRequest === request) {
+                    storyRequest = null;
+                    storyBook.removeAttribute("aria-busy");
+                }
+            }
+        }
+
+        storyBook.addEventListener("click", (event) => {
+            const link = event.target.closest(".story-page-arrow, .story-contents-link");
+            if (!link || event.defaultPrevented || event.button !== 0 || event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) {
+                return;
+            }
+            event.preventDefault();
+            openStoryPage(link.href, {focusPage: event.detail === 0});
+        });
+
+        window.addEventListener("popstate", () => {
+            openStoryPage(window.location.href, {fromHistory: true});
+        });
+
+        storyBook.addEventListener("pointerdown", (event) => {
             if (event.pointerType === "touch") {
                 swipeStart = event.isPrimary ? event : null;
             }
         });
 
-        storyPage.addEventListener("pointercancel", () => {
+        storyBook.addEventListener("pointercancel", () => {
             swipeStart = null;
         });
 
-        storyPage.addEventListener("pointerup", (event) => {
+        storyBook.addEventListener("pointerup", (event) => {
             if (!swipeStart || event.pointerId !== swipeStart.pointerId) {
                 return;
             }
@@ -304,9 +362,9 @@ document.addEventListener("DOMContentLoaded", () => {
                 return;
             }
 
-            const link = storyPage.querySelector(deltaX < 0 ? 'a[rel="next"]' : 'a[rel="prev"]');
+            const link = storyBook.querySelector(deltaX < 0 ? 'a[rel="next"]' : 'a[rel="prev"]');
             if (link) {
-                window.location.assign(link.href);
+                openStoryPage(link.href);
             }
         });
     }

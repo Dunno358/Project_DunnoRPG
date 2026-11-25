@@ -1406,6 +1406,13 @@ def confirm_attack(request, char_id):
             return JsonResponse({'error': f'Za mało akcji. Atak wymaga {cost:g} akcji. Pozostało {char.actionLeft:g} akcji.',
                                  'actionLeft': char.actionLeft}, status=400)
         try:
+            damage_dealt = int(request.POST.get('damage_dealt', 0))
+            if not 0 <= damage_dealt <= 2_147_483_647 - char.fight_damage_dealt:
+                raise ValueError
+        except (TypeError, ValueError):
+            return JsonResponse({'error': 'Nieprawidłowa wartość zadanych obrażeń.'}, status=400)
+
+        try:
             used = int(request.POST.get('advantage_used', 0))
             accuracy_roll = int(request.POST.get('accuracy_roll', 10))
             piercing_choice = request.POST.get('piercing_choice', 'ignore_block')
@@ -1428,12 +1435,15 @@ def confirm_attack(request, char_id):
         except (TypeError, ValueError):
             return JsonResponse({'error': 'Sprawdź bilans przewag i ilość dostępnej amunicji.'}, status=400)
 
+        # The attack dialog calculates damage before the target's defenses.
         char.advantageBalance -= used
         char.actionLeft -= cost
         critical = resolve_critical(accuracy_roll, description.dmg_type, piercing_choice)
+        if char.inFight and critical['kind'] != 'failure':
+            char.fight_damage_dealt += damage_dealt
         if critical.get('self_damage'):
             char.HP -= critical['self_damage']
-        char.save(update_fields=['advantageBalance', 'HP', 'actionLeft'])
+        char.save(update_fields=['advantageBalance', 'HP', 'actionLeft', 'fight_damage_dealt'])
         if critical.get('effect_name'):
             add_active_effect(char.owner, char.name, critical['effect_name'], 1, critical['effect_description'])
         durability_loss = math.ceil(max(0, description.maxDurability) * critical.get('durability_loss', 0))
@@ -1897,15 +1907,15 @@ def enter_or_leave_fight(request, char_id):
             if in_fight:
                 character.fight_exp_gained = 0
                 character.fight_damage_taken = 0
+                character.fight_damage_dealt = 0
                 character.fight_start_hp = character.HP
                 character.fight_summary = {}
-                fields.extend(["fight_exp_gained", "fight_damage_taken", "fight_start_hp"])
+                fields.extend(["fight_exp_gained", "fight_damage_taken", "fight_damage_dealt", "fight_start_hp"])
             else:
-                # TODO: Track damage dealt after the attack workflow is reworked.
                 summary = {
                     "exp_gained": character.fight_exp_gained,
                     "damage_taken": character.fight_damage_taken,
-                    "damage_dealt": 0,
+                    "damage_dealt": character.fight_damage_dealt,
                     "hp_difference": character.HP - character.fight_start_hp if character.fight_start_hp is not None else 0,
                 }
                 character.fight_summary = summary if any(summary.values()) else {}
@@ -4492,6 +4502,11 @@ class Info(APIView):
 class InfoStory(TemplateView):
     template_name = 'info-story.html'
     book_path = Path(__file__).resolve().parent / 'json_data' / 'book.json'
+
+    def get_template_names(self):
+        if self.request.GET.get('partial') == '1':
+            return ['dunnorpg/story_page.html']
+        return super().get_template_names()
 
     @staticmethod
     def page_url(page):

@@ -1737,6 +1737,7 @@ async function showAttackResult(hand, item_id){
     body.set('piercing_choice', document.getElementById('critical-piercing-choice').value)
     body.set('advantage_used', used)
     body.set('damages_weapon', attack.damagesWeapon)
+    body.set('damage_dealt', hit[0] ? Math.max(0, result) : 0)
     if(ammo){
         body.set('ammo_id', ammo.value)
         body.set('ammo_amount', ammoAmount)
