@@ -963,6 +963,7 @@
         </div>
         {% endif %}
 
+        {% if books %}
         <div class="ms-0 ps-0 row text-center c-gold p-2 rounded border border-warning bg-dark mt-1 w-100" onclick="showOrHideBlock(this,'library-items')">
             <h2>{{ shop_labels|dict_get:"Biblioteka" }}<span class="ms-2 d-inline-block" aria-hidden="true" style="width: 1em; height: 1em; vertical-align: -0.12em; background-color: currentColor; -webkit-mask: url('{% static 'DunnoRPG/img/icons/open-book.svg' %}') center / contain no-repeat; mask: url('{% static 'DunnoRPG/img/icons/open-book.svg' %}') center / contain no-repeat;"></span></h2>
         </div>
@@ -994,10 +995,9 @@
                         </button>
                     </div>
                 </div>
-            {% empty %}
-                <p class="m-2">Brak książek w asortymencie.</p>
             {% endfor %}
         </div>
+        {% endif %}
 
         {% if trophies %}
         <div class='ms-0 ps-0 row text-center c-gold p-2 rounded border border-warning bg-dark mt-1' onclick="showOrHideBlock(this,'hunter')" style="width: 100%;">
@@ -1568,6 +1568,11 @@
             row.querySelector('.city-stock').textContent = data.available_amount
             row.querySelector('.city-unit-price').textContent = Number(data.unit_price).toFixed(1)
         })
+        const library = document.getElementById('library-items')
+        if(library && !Array.from(library.querySelectorAll('[data-shop-item-id]')).some(button => Number(button.dataset.availableAmount) > 0)){
+            library.previousElementSibling.remove()
+            library.remove()
+        }
     }
 
     async function confirmBuy(){
