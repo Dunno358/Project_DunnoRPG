@@ -126,7 +126,7 @@ CHAPTER_404_TEXT_STROKE_CLASSES = {
     "Kislev": "text-404-stroke-kislev",
 }
 
-CHAPTER_404_TEXT_ALIASES = {
+CHAPTER_NAME_ALIASES = {
     "Wschód": "Wschodnie Ziemie",
 }
 
@@ -157,7 +157,7 @@ def get_404_text_stroke_class():
 
 def get_404_text():
     current_chapter = get_current_chapter()
-    text_chapter = CHAPTER_404_TEXT_ALIASES.get(current_chapter, current_chapter)
+    text_chapter = CHAPTER_NAME_ALIASES.get(current_chapter, current_chapter)
 
     try:
         texts = json.loads(TEXTS_404_PATH.read_text(encoding="utf-8"))

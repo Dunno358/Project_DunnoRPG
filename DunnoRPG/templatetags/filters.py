@@ -1,4 +1,6 @@
 from django import template
+from django.db import DatabaseError
+from django.templatetags.static import static
 from django.utils.safestring import mark_safe
 from django.utils.text import Truncator
 from DunnoRPG import models
@@ -17,6 +19,26 @@ import re
 import traceback
 
 register = template.Library()
+
+CHAPTER_BACKGROUNDS = 'DunnoRPG/img/bg'
+CHAPTER_BACKGROUNDS_DIR = Path(__file__).resolve().parents[1] / 'static' / CHAPTER_BACKGROUNDS
+
+
+@register.simple_tag
+def chapter_background_url():
+    from DunnoRPG.views import CHAPTER_NAME_ALIASES, get_current_chapter
+
+    try:
+        chapter = get_current_chapter()
+        chapter = CHAPTER_NAME_ALIASES.get(chapter, chapter)
+        background_name = f'{chapter}_background'.casefold()
+        for asset in CHAPTER_BACKGROUNDS_DIR.iterdir():
+            if asset.stem.casefold() == background_name and asset.is_file():
+                return static(f'{CHAPTER_BACKGROUNDS}/{asset.name}')
+    except (DatabaseError, OSError, ValueError):
+        return ''
+    return ''
+
 
 @register.filter
 def resource_entries(value):

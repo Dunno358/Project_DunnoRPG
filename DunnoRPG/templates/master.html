@@ -1,5 +1,6 @@
 {% load static %}
 {% load compress %}
+{% load filters %}
 <!DOCTYPE html>
 <html lang="pl">
     <head>
@@ -21,7 +22,17 @@
 
         <title> {% block title %} DunnoRPG {% endblock %} </title>
     </head>
-    <body>
+    {% chapter_background_url as background_url %}
+    <body{% if background_url %} data-chapter-background="{{ background_url }}"{% endif %}>
+        {% if background_url %}
+            <script>
+                const chapterBackground = new Image();
+                chapterBackground.onload = () => {
+                    document.body.style.backgroundImage = `url("${chapterBackground.src}")`;
+                };
+                chapterBackground.src = document.body.dataset.chapterBackground;
+            </script>
+        {% endif %}
 
         <div class="container-fluid">
             <div class="row header-bg">
